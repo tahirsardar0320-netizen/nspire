@@ -22,11 +22,25 @@ export default function ManagementSignup() {
   const [captchaImage, setCaptchaImage] = useState("")
   const [captchaCode, setCaptchaCode] = useState("")
   const [captchaLoading, setCaptchaLoading] = useState(false)
+  const [expectedFallbackCode, setExpectedFallbackCode] = useState("")
 
   // Load captcha on mount
   useEffect(() => {
     loadCaptcha()
   }, [])
+
+  const generateFallbackCaptcha = () => {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    let fallbackText = ""
+    for (let i = 0; i < 4; i++) {
+      fallbackText += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    const svgString = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="60" viewBox="0 0 180 60"><rect width="100%" height="100%" fill="%23E8F4F8"/><text x="50%" y="60%" font-family="monospace" font-size="28" font-weight="bold" fill="%23006795" dominant-baseline="middle" text-anchor="middle" letter-spacing="4">${fallbackText}</text><line x1="10" y1="15" x2="170" y2="45" stroke="%23006795" stroke-width="2" opacity="0.3"/><line x1="20" y1="45" x2="160" y2="15" stroke="%23006795" stroke-width="2" opacity="0.3"/></svg>`
+    setCaptchaId("fallback")
+    setCaptchaImage(svgString)
+    setCaptchaCode("")
+    setExpectedFallbackCode(fallbackText)
+  };
 
   const loadCaptcha = async () => {
     setCaptchaLoading(true)
@@ -39,9 +53,10 @@ export default function ManagementSignup() {
       }
     } catch (error) {
       console.error("Failed to load captcha:", error)
-      toast.error("Failed to load security check. Please refresh the page.", {
+      generateFallbackCaptcha()
+      toast.info("Using backup security check.", {
         position: "top-right",
-        autoClose: 3000,
+        autoClose: 2000,
       })
     } finally {
       setCaptchaLoading(false)
@@ -112,7 +127,12 @@ export default function ManagementSignup() {
       return
     }
 
-    if (captchaCode.length !== 5) {
+    if (captchaId === "fallback") {
+      if (captchaCode.trim().toUpperCase() !== expectedFallbackCode) {
+        toast.error("Incorrect security code", { position: "top-right", autoClose: 3000 })
+        return
+      }
+    } else if (captchaCode.length !== 5) {
       toast.error("Security code must be 5 characters", { position: "top-right", autoClose: 3000 })
       return
     }
