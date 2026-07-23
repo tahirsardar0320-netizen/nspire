@@ -374,38 +374,51 @@ export default function PropertyDetailsPage() {
         setEditableInspectionUnits(currentMap)
     }
 
-    // Load completed units for all buildings
+    // Load completed units for all buildings — reads the same progress records
+    // (API + local cache) that the inspection-category page actually writes to,
+    // so this summary stays in sync with the live inspection progress.
     const refreshCompletedUnits = useCallback(async () => {
         if (!property || buildings.length === 0) return
         const propId = property._id || id
         const map: Record<string, string[]> = {}
-        
-        try {
-            // Fetch status for each building from backend
-            for (const b of buildings) {
-                const res = await inspectionsAPI.getUnitStatus(propId, b.buildingId);
-                if (res.success) {
-                    // Map backend statuses to unit names
-                    map[b.buildingId] = res.statuses
-                        .filter(s => s.isInspected)
-                        .map(s => s.unitLabel);
-                } else {
-                    // Fallback to local storage if API fails
-                    const unitNames = generateUnitNames(b.buildingId, b.unitsForInspection)
-                    initBuildingState(propId, b.buildingId, unitNames)
-                    map[b.buildingId] = getCompletedUnits(propId, b.buildingId)
-                }
+
+        for (const b of buildings) {
+            let records: any[] = []
+            try {
+                const res = await inspectionsAPI.getProgress({ property_id: propId, building_id: b.buildingId })
+                if (res && Array.isArray(res.progress)) records = res.progress
+            } catch (error) {
+                console.error("Error fetching progress from API:", error)
             }
-        } catch (error) {
-            console.error("Error fetching unit status:", error);
-            // Fallback to local storage on error
-            buildings.forEach(b => {
-                const unitNames = generateUnitNames(b.buildingId, b.unitsForInspection)
-                initBuildingState(propId, b.buildingId, unitNames)
-                map[b.buildingId] = getCompletedUnits(propId, b.buildingId)
+
+            // Merge in the local cache the inspection-category page writes to,
+            // so progress still shows up even when the backend is unreachable.
+            try {
+                const cached = localStorage.getItem(`cached_progress_${propId}_${b.buildingId}`)
+                if (cached) {
+                    const cachedList = JSON.parse(cached)
+                    if (Array.isArray(cachedList)) records = [...records, ...cachedList]
+                }
+            } catch (e) {}
+
+            const completed: string[] = []
+            const outsideRec = records.find((p: any) => p.inspectionType === 'Outside')
+            const insideRec = records.find((p: any) => p.inspectionType === 'Inside')
+            if (outsideRec?.inspectionData?.isComplete) completed.push('Outside')
+            if (insideRec?.inspectionData?.isComplete) completed.push('Inside')
+
+            const seenUnits = new Set<string>()
+            records.forEach((p: any) => {
+                const type = String(p.inspectionType || '').toLowerCase()
+                if (type.startsWith('unit_') && p.inspectionData?.isComplete && p.unitId && !seenUnits.has(p.unitId)) {
+                    seenUnits.add(p.unitId)
+                    completed.push(p.unitId)
+                }
             })
+
+            map[b.buildingId] = completed
         }
-        
+
         setCompletedUnitsMap(map)
     }, [property, buildings, id])
 

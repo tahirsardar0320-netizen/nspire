@@ -36,15 +36,6 @@ export default function Home() {
     <div className="w-full relative bg-white">
       
 
-    {/* Premium Animated Background */}
-    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#0C1F3F]">
-        <div className="bg-slide"></div>
-        <div className="bg-slide"></div>
-        <div className="bg-slide"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0C1F3F] via-[#0C1F3F]/85 to-[#0C1F3F]/20 z-10"></div>
-        <div className="absolute inset-0 bg-[#0C1F3F]/30 z-10"></div>
-    </div>
-
     {/* Navigation */}
     <nav className="fixed w-full z-50 glass-nav">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -155,18 +146,26 @@ export default function Home() {
     </nav>
 
     {/* Hero Section */}
-    <section className="relative pt-28 sm:pt-36 lg:pt-52 pb-16 lg:pb-32 z-10 min-h-screen flex items-center">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative w-full">
+    <section className="relative pt-28 sm:pt-36 lg:pt-52 pb-16 lg:pb-32 z-10 min-h-screen flex items-center bg-[#E8F4F8] overflow-hidden">
+        {/* Background photo slideshow — light overlay so text stays readable */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+            <div className="bg-slide"></div>
+            <div className="bg-slide"></div>
+            <div className="bg-slide"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-[#E8F4F8] via-[#E8F4F8]/90 to-[#E8F4F8]/50"></div>
+            <div className="absolute inset-0 bg-white/30"></div>
+        </div>
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative w-full z-10">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-8">
 
                 {/* Hero Content */}
                 <div className="flex-1 w-full lg:max-w-[650px] text-left relative z-20">
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[4rem] xl:text-[4.5rem] font-bold text-white mb-4 leading-[1.15] serif tracking-tight">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[4rem] xl:text-[4.5rem] font-bold text-[#0C1F3F] mb-4 leading-[1.15] serif tracking-tight">
                         Trusted and Certified
                         <span className="block">Multi-Unit Inspections</span>
-                        <span className="text-[#00C6D7] italic font-bold block">Across the NATION</span>
+                        <span className="text-[#F84B5F] italic font-bold block">Across the NATION</span>
                     </h1>
-                    <p className="text-white/75 mb-6 leading-relaxed text-sm md:text-base max-w-xl font-medium">
+                    <p className="text-gray-600 mb-6 leading-relaxed text-sm md:text-base max-w-xl font-medium">
                         NSPIREinspection.AI stands at the forefront of the multi-unit inspection industry, offering multi-unit property inspections and advanced risk-mitigation solutions.
                     </p>
                     <div className="flex flex-col sm:flex-row justify-start gap-3 mb-8">
@@ -178,8 +177,8 @@ export default function Home() {
                         </button>
                     </div>
                     {/* App Download */}
-                    <div className="pt-5 border-t border-white/20">
-                        <h3 className="text-base font-bold text-white mb-4">Download your app</h3>
+                    <div className="pt-5 border-t border-gray-200">
+                        <h3 className="text-base font-bold text-[#0C1F3F] mb-4">Download your app</h3>
                         <div className="flex flex-wrap gap-5 items-start">
                             <div className="flex flex-col items-center gap-2">
                                 <a href="#" className="hover:opacity-80 transition-opacity"><img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" alt="App Store" className="h-9" /></a>
@@ -373,11 +372,11 @@ export default function Home() {
     </section>
 
     {/* Education Section */}
-    <section id="education" className="bg-[#0C1F3F] px-4 md:px-6 py-20 md:py-28 z-20 relative">
+    <section id="education" className="bg-[#F8F9FA] px-4 md:px-6 py-20 md:py-28 z-20 relative">
         <div className="max-w-[1400px] mx-auto text-center">
-            <p className="text-xs font-bold text-[#00C6D7] uppercase tracking-[0.2em] mb-3">Video Library</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 serif">NSPIRE Inspection <span className="text-[#F59E0B] italic">Video Library</span></h2>
-            <div className="w-16 h-1 bg-[#00C6D7] mx-auto rounded-full mb-12"></div>
+            <p className="text-xs font-bold text-[#006795] uppercase tracking-[0.2em] mb-3">Video Library</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-[#0C1F3F] mb-4 serif">NSPIRE Inspection <span className="text-[#F84B5F] italic">Video Library</span></h2>
+            <div className="w-16 h-1 bg-[#F84B5F] mx-auto rounded-full mb-12"></div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 text-left">
 
                 <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">

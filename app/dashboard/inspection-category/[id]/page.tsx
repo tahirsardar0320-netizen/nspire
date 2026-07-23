@@ -823,52 +823,6 @@ export default function InspectionCategoryPage() {
             });
         }
     };
-    const handleSubmitSection = async (section: 'outside' | 'inside' | 'unit') => {
-        try {
-            const type = section === 'outside' ? 'Outside' : section === 'inside' ? 'Inside' : activeInspectionUnit;
-            if (!type) {
-                toast.error("Please select a unit to submit.");
-                return;
-            }
-            const statuses = section === 'outside' ? outsideStatuses : section === 'inside' ? insideStatuses : unitStatuses;
-            const itemsList = section === 'outside' ? outsideItemsList : section === 'inside' ? insideItemsList : unitItemsList;
-
-            // Warn if not all items are inspected, but allow submission
-            const uninspected = itemsList.filter(item => !statuses[item]);
-            if (uninspected.length > 0) {
-                const confirmSubmit = window.confirm(`There are ${uninspected.length} items left uninspected. Do you still want to submit?`);
-                if (!confirmSubmit) return;
-            }
-
-            const toastId = toast.loading("Submitting progress...");
-
-            // Prepare payload
-            const payload = {
-                property_id: property?._id || params.id,
-                unit_id: section === 'unit' ? activeInspectionUnit : urlBuilding,
-                building_id: urlBuilding,
-                inspection_type: type,
-                responses: statuses,
-                inspectionData: {
-                    findings: propertyFindings,
-                    isComplete: true,
-                    odFormSnapshots: savedODFormData
-                }
-            };
-
-            await inspectionsAPI.saveProgress(payload);
-            
-            // Save locally
-            updateLocalCache(type, statuses, true);
-
-            toast.update(toastId, { render: `${type} submitted successfully!`, type: "success", isLoading: false, autoClose: 3000 });
-            await refreshCompletedUnits();
-        } catch (error) {
-            console.error("Error submitting section:", error);
-            toast.error("Failed to submit progress. Progress saved locally.");
-        }
-    };
-
     const selectAll = (section: 'outside' | 'inside' | 'unit', status: ItemStatus) => {
         const list = section === 'outside' ? outsideItemsList : section === 'inside' ? insideItemsList : unitItemsList;
         const currentStatuses = section === 'outside' ? outsideStatuses : section === 'inside' ? insideStatuses : unitStatuses;
@@ -1475,12 +1429,17 @@ export default function InspectionCategoryPage() {
                         Select All No OD
                     </Button>
                     <div className="grid grid-cols-2 gap-2 font-lexend">
-                        <Button 
-                            onClick={() => handleSubmitSection(section)} 
-                            className="w-full text-[10px] h-10 font-extrabold flex items-center justify-center gap-1.5 uppercase rounded-lg shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white transition-all border-0"
+                        <Button
+                            onClick={() => selectAll(section, 'OD')}
+                            className={`w-full text-[10px] h-10 font-extrabold flex items-center justify-center gap-1.5 uppercase rounded-lg shadow-sm transition-all border-2 ${
+                                (() => {
+                                    const toggleableItems = items.filter(i => !savedODItems.has(`${section}:${i}`));
+                                    return toggleableItems.length > 0 && toggleableItems.every(item => statuses[item] === 'OD');
+                                })() ? 'bg-[#F84B5F] border-[#F84B5F] text-white' : 'bg-white border-[#F84B5F] text-[#F84B5F] hover:bg-red-50'
+                            }`}
                         >
                             <Check className="w-3.5 h-3.5" strokeWidth={3} />
-                            {section === 'outside' ? 'Submit Outside' : section === 'inside' ? 'Submit Inside' : 'Submit Unit'}
+                            Observe Deficiency
                         </Button>
                         <Button 
                             onClick={() => selectAll(section, 'N/A')} 
@@ -1571,9 +1530,17 @@ export default function InspectionCategoryPage() {
                                 </Button>
                             </th>
                             <th className="py-2 px-2">
-                                <Button onClick={() => handleSubmitSection(section)} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] h-8 font-extrabold flex items-center justify-center gap-1.5 px-3 uppercase border-0 font-lexend rounded-lg shadow-sm shadow-emerald-600/10">
-                                    <Check className="w-4 h-4 text-white" strokeWidth={3} />
-                                    {section === 'outside' ? 'Submit Outside' : section === 'inside' ? 'Submit Inside' : 'Submit Unit'}
+                                <Button
+                                    onClick={() => selectAll(section, 'OD')}
+                                    className={`w-full text-[10px] h-8 font-extrabold flex items-center justify-center gap-1.5 px-3 uppercase border-2 rounded-lg shadow-sm font-lexend ${
+                                        (() => {
+                                            const toggleableItems = items.filter(i => !savedODItems.has(`${section}:${i}`));
+                                            return toggleableItems.length > 0 && toggleableItems.every(item => statuses[item] === 'OD');
+                                        })() ? 'bg-[#F84B5F] border-[#F84B5F] text-white' : 'bg-white border-[#F84B5F] text-[#F84B5F] hover:bg-red-50'
+                                    }`}
+                                >
+                                    <Check className="w-4 h-4" strokeWidth={3} />
+                                    Observe Deficiency
                                 </Button>
                             </th>
                             <th className="py-2 px-2">

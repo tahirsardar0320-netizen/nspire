@@ -6,8 +6,9 @@ import DashboardLayout from "@/components/DashboardLayout"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { propertiesAPI, authAPI } from "@/lib/api"
+import { fetchPropertyProgressMap, getActiveInspectionId } from "@/lib/inspectionProgress"
 import { toast } from "react-toastify"
-import { Download, FileText, Calendar, MapPin, User, CheckCircle2, Loader2, Trash2, AlertCircle, Building2, RefreshCw } from "lucide-react"
+import { Download, FileText, Calendar, MapPin, User, CheckCircle2, Loader2, Trash2, AlertCircle, Building2, RefreshCw, Lock } from "lucide-react"
 
 interface Property {
   _id: string
@@ -52,6 +53,8 @@ export default function InspectionStatusPage() {
   const [refreshing, setRefreshing] = useState(false)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [user, setUser] = useState<any>(null)
+  const [propertyProgress, setPropertyProgress] = useState<Record<string, number>>({})
+  const [activeInspectionId, setActiveInspectionId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -137,6 +140,11 @@ export default function InspectionStatusPage() {
       })
 
       setProperties(propertiesWithStatus)
+      setActiveInspectionId(getActiveInspectionId())
+      if (allProperties.length > 0) {
+        const progressMap = await fetchPropertyProgressMap(allProperties, process.env.NEXT_PUBLIC_API_URL || '')
+        setPropertyProgress(progressMap)
+      }
     } catch (error: any) {
       console.error('Error fetching data:', error)
       const cached = localStorage.getItem('cached_properties')
@@ -148,6 +156,7 @@ export default function InspectionStatusPage() {
             hasInspection: false
           }))
           setProperties(propertiesWithStatus)
+          setActiveInspectionId(getActiveInspectionId())
         } catch (e) {}
       }
     } finally {
@@ -250,7 +259,16 @@ export default function InspectionStatusPage() {
   }
 
   const handleStartInspection = (propertyId: string) => {
-    router.push(`/dashboard/inspection-category/${propertyId}`)
+    const saved = localStorage.getItem(`property_coverage_${propertyId}`)
+    if (saved) {
+      try {
+        const { coverage, calculatedUnits } = JSON.parse(saved)
+        router.push(`/dashboard/property-details/${propertyId}?coverage=${coverage}&calculatedUnits=${calculatedUnits}`)
+        return
+      } catch (e) {}
+    }
+    // No coverage selected yet — send them through the normal setup flow
+    router.push('/dashboard')
   }
 
   const completedCount = properties.filter(p => p.hasInspection).length
@@ -350,23 +368,32 @@ export default function InspectionStatusPage() {
           </Card>
         ) : (
           <div className="space-y-3 sm:space-y-4">
-            {properties.map((property) => (
-              <Card 
-                key={property._id} 
+            {properties.map((property) => {
+              const pid = property._id
+              const pct = propertyProgress[pid] || 0
+              const isActive = !property.hasInspection && activeInspectionId === pid
+              const isLocked = !property.hasInspection && !isActive && !!activeInspectionId && activeInspectionId !== pid
+              return (
+              <Card
+                key={pid}
                 className={`p-4 sm:p-6 hover:shadow-lg transition-all overflow-hidden ${
-                  property.hasInspection 
-                    ? 'border-2 border-green-500 bg-green-50/30' 
-                    : 'border-2 border-red-500 bg-red-50/30'
+                  property.hasInspection
+                    ? 'border-2 border-green-500 bg-green-50/30'
+                    : isActive
+                      ? 'border-2 border-amber-400 bg-amber-50/30'
+                      : 'border-2 border-red-500 bg-red-50/30'
                 }`}
               >
                 <div className="flex flex-col gap-4 min-w-0">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start gap-3 sm:gap-4 min-w-0">
                       <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                        property.hasInspection ? 'bg-green-100' : 'bg-red-100'
+                        property.hasInspection ? 'bg-green-100' : isActive ? 'bg-amber-100' : 'bg-red-100'
                       }`}>
                         {property.hasInspection ? (
                           <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+                        ) : isActive ? (
+                          <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
                         ) : (
                           <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" />
                         )}
@@ -377,16 +404,16 @@ export default function InspectionStatusPage() {
                             {property.name}
                           </h3>
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold w-fit flex-shrink-0 whitespace-nowrap ${
-                            property.inspection?.status?.toLowerCase() === 'completed' 
-                              ? 'bg-green-100 text-green-800' 
-                              : property.inspection
+                            property.hasInspection
+                              ? 'bg-green-100 text-green-800'
+                              : isActive
                                 ? 'bg-amber-100 text-amber-800'
                                 : 'bg-red-100 text-red-800'
                           }`}>
-                            {property.inspection?.status?.toLowerCase() === 'completed' 
-                              ? 'Completed' 
-                              : property.inspection 
-                                ? 'In Progress' 
+                            {property.hasInspection
+                              ? 'Completed'
+                              : isActive
+                                ? `In Progress (${pct}%)`
                                 : 'Pending'}
                           </span>
                         </div>
@@ -442,6 +469,22 @@ export default function InspectionStatusPage() {
                           </>
                         )}
                       </Button>
+                    ) : isActive ? (
+                      <Button
+                        onClick={() => handleStartInspection(property._id)}
+                        className="bg-[#006795] hover:bg-[#0a5670] text-white flex items-center justify-center gap-2 text-sm sm:text-base w-full sm:w-auto whitespace-nowrap"
+                      >
+                        <FileText className="w-4 h-4 flex-shrink-0" />
+                        Continue Inspection
+                      </Button>
+                    ) : isLocked ? (
+                      <Button
+                        disabled
+                        className="bg-rose-400 hover:bg-rose-400 text-white flex items-center justify-center gap-2 text-sm sm:text-base w-full sm:w-auto whitespace-nowrap cursor-not-allowed"
+                      >
+                        <Lock className="w-4 h-4 flex-shrink-0" />
+                        Locked
+                      </Button>
                     ) : (
                       <Button
                         onClick={() => handleStartInspection(property._id)}
@@ -454,7 +497,8 @@ export default function InspectionStatusPage() {
                   </div>
                 </div>
               </Card>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>

@@ -101,6 +101,9 @@ function NSPIREInspectionSummaryContent() {
   const [isReportUnlocked, setIsReportUnlocked] = useState(false)
   const [purchasingUnlock, setPurchasingUnlock] = useState(false)
   const [showSummaryModal, setShowSummaryModal] = useState(false)
+  const [showReportPreview, setShowReportPreview] = useState(false)
+  const [showUnlockSummaryModal, setShowUnlockSummaryModal] = useState(false)
+  const [fullReportEmail, setFullReportEmail] = useState('')
   const [property, setProperty] = useState<any>(null)
   const [activeTab, setActiveTab] = useState<'summary' | 'deficiencies' | 'preview'>('summary')
   // Custom column header from the building table (editable in property-details)
@@ -134,6 +137,25 @@ function NSPIREInspectionSummaryContent() {
     if (isReportUnlocked || !isFinalizing) return report.deficiencies
     return report.deficiencies.slice(0, 2)
   }, [report, isReportUnlocked, searchParams])
+
+  // Deficiency counts by inspectable area, for the "Deficiency Summary" table in the report preview
+  const deficiencySummaryByArea = useMemo(() => {
+    const areas = [
+      { label: 'Inside', match: (a: string) => a.includes('inside') },
+      { label: 'Outside', match: (a: string) => a.includes('outside') },
+      { label: 'Units', match: (a: string) => a.includes('unit') },
+    ]
+    return areas.map(({ label, match }) => {
+      const items = (report?.deficiencies || []).filter(d => match(String(d.area || '').toLowerCase()))
+      return {
+        label,
+        lifeThreatening: items.filter(d => d.severity === 'Life-Threatening').length,
+        severe: items.filter(d => d.severity === 'Severe').length,
+        moderate: items.filter(d => d.severity === 'Moderate').length,
+        low: items.filter(d => d.severity === 'Low').length,
+      }
+    })
+  }, [report])
 
   // Handle "Back to Inspection" - return to the active inspection screen
   const handleBackToInspection = () => {
@@ -681,6 +703,15 @@ function NSPIREInspectionSummaryContent() {
     }
   }
 
+  const handleSendFullReportLink = () => {
+    if (!fullReportEmail.trim() || !/^\S+@\S+\.\S+$/.test(fullReportEmail.trim())) {
+      toast.error('Please enter a valid email address.', { position: 'top-right' })
+      return
+    }
+    setShowUnlockSummaryModal(false)
+    handleUnlockWithStripe()
+  }
+
   const handleExportPDF = async () => {
     if (!report) return
 
@@ -1121,7 +1152,7 @@ function NSPIREInspectionSummaryContent() {
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
                       <Button
-                        onClick={handleUnlockWithStripe}
+                        onClick={() => setShowUnlockSummaryModal(true)}
                         disabled={purchasingUnlock}
                         className="h-11 gap-1.5 bg-amber-500 hover:bg-amber-600 px-5 text-xs font-bold text-white rounded-xl border-0 shadow-sm shadow-amber-600/10 flex items-center justify-center shrink-0"
                       >
@@ -1129,7 +1160,7 @@ function NSPIREInspectionSummaryContent() {
                         {purchasingUnlock ? 'Redirecting...' : 'Unlock Report - $49'}
                       </Button>
                       <Button
-                        onClick={() => setShowSummaryModal(true)}
+                        onClick={() => setShowReportPreview(true)}
                         variant="outline"
                         className="h-11 gap-1.5 border-2 border-amber-500 hover:bg-amber-50 text-amber-600 font-bold px-5 rounded-xl text-xs flex items-center justify-center shrink-0 bg-white"
                       >
@@ -1614,6 +1645,275 @@ function NSPIREInspectionSummaryContent() {
                 _id: report.metadata.propertyId
               }}
             />
+          )}
+
+          {showUnlockSummaryModal && (
+            <div
+              className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+              onClick={() => setShowUnlockSummaryModal(false)}
+            >
+              <div
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 flex-shrink-0">
+                  <h2 className="text-lg font-bold text-[#006795]">Deficiency Summary</h2>
+                  <button
+                    onClick={() => setShowUnlockSummaryModal(false)}
+                    className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="overflow-y-auto p-6 space-y-5">
+                  <div className="bg-[#E8F4F8] border border-[#006795]/10 rounded-2xl p-4">
+                    <p className="font-bold text-[#006795]">{report.metadata.propertyName}</p>
+                    <p className="text-sm text-gray-600">{report.metadata.propertyAddress}</p>
+                    <p className="text-xs text-gray-500 mt-1">Inspection #{report.metadata.inspectionNo}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-bold text-[#006795] mb-3">Deficiency Breakdown</p>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="border-l-4 border-rose-500 bg-rose-50 rounded-r-xl p-3 text-center">
+                        <p className="text-2xl font-black text-rose-600">{report.summary.lifeThreatening}</p>
+                        <p className="text-[10px] font-bold text-rose-600 uppercase tracking-wider mt-0.5">Life-Threat</p>
+                      </div>
+                      <div className="border-l-4 border-orange-500 bg-orange-50 rounded-r-xl p-3 text-center">
+                        <p className="text-2xl font-black text-orange-600">{report.summary.severe}</p>
+                        <p className="text-[10px] font-bold text-orange-600 uppercase tracking-wider mt-0.5">Severe</p>
+                      </div>
+                      <div className="border-l-4 border-blue-500 bg-blue-50 rounded-r-xl p-3 text-center">
+                        <p className="text-2xl font-black text-blue-600">{report.summary.moderate}</p>
+                        <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mt-0.5">Moderate</p>
+                      </div>
+                      <div className="border-l-4 border-gray-400 bg-gray-50 rounded-r-xl p-3 text-center">
+                        <p className="text-2xl font-black text-gray-600">{report.summary.low}</p>
+                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mt-0.5">Low</p>
+                      </div>
+                      <div className="border-l-4 border-emerald-500 bg-emerald-50 rounded-r-xl p-3 text-center">
+                        <p className="text-2xl font-black text-emerald-600">{report.summary.total}</p>
+                        <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mt-0.5">Total</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 mt-3">
+                      <div className="bg-amber-50 rounded-xl p-3 text-center">
+                        <p className="text-xl font-black text-amber-600">{report.summary.repeatDeficiencies}</p>
+                        <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mt-0.5">Repeat</p>
+                      </div>
+                      <div className="bg-blue-50 rounded-xl p-3 text-center">
+                        <p className="text-xl font-black text-blue-600">{report.summary.newDeficiencies}</p>
+                        <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mt-0.5">New</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-[#006795] to-[#0a5670] rounded-2xl p-4 text-white">
+                    <p className="font-bold mb-3">Inspection Score</p>
+                    <div className="grid grid-cols-3 gap-3 text-center">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-white/70">Preliminary</p>
+                        <p className="text-2xl font-black">{report.metadata.preliminaryScore}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-white/70">Calculated</p>
+                        <p className="text-2xl font-black">{report.metadata.calculatedScore}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-white/70">Final Score</p>
+                        <p className="text-2xl font-black">{report.metadata.finalScore}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-50/60 border border-amber-200 rounded-2xl p-4">
+                    <p className="font-bold text-amber-900 flex items-center gap-1.5 mb-1">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      Get Full Report via Email
+                    </p>
+                    <p className="text-xs text-amber-700 mb-3">Enter your email to receive the complete inspection report with all deficiency details, photos, and recommendations.</p>
+                    <input
+                      type="email"
+                      value={fullReportEmail}
+                      onChange={(e) => setFullReportEmail(e.target.value)}
+                      placeholder="Enter your email address"
+                      className="w-full px-4 py-2.5 rounded-xl border border-amber-300 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                    />
+                    <div className="flex gap-3">
+                      <Button
+                        onClick={handleSendFullReportLink}
+                        disabled={purchasingUnlock}
+                        className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl border-0"
+                      >
+                        {purchasingUnlock ? 'Redirecting...' : 'Send Full Report Link'}
+                      </Button>
+                      <Button
+                        onClick={() => setShowUnlockSummaryModal(false)}
+                        variant="outline"
+                        className="border border-gray-300 text-gray-600 font-bold rounded-xl"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-3 text-xs text-blue-800 flex items-start gap-2">
+                    <span>💡</span>
+                    <span><span className="font-bold">Note:</span> The full report includes detailed photos, inspector comments, repair timelines, and compliance codes for each deficiency.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showReportPreview && (
+            <div
+              className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+              onClick={() => setShowReportPreview(false)}
+            >
+              <div
+                className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 flex-shrink-0">
+                  <h2 className="text-lg font-bold text-[#006795]">Report PDF Preview</h2>
+                  <button
+                    onClick={() => setShowReportPreview(false)}
+                    className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="overflow-y-auto p-8 text-black text-sm">
+                  <div className="text-center mb-6">
+                    <img src="/logo.png" alt="NSPIRE Inspection" className="h-14 mx-auto object-contain" />
+                  </div>
+                  <h1 className="text-center text-lg font-bold mb-6 uppercase">
+                    NSPIRE - National Standards for the Physical Inspection of Real Estate
+                  </h1>
+
+                  <div className="grid grid-cols-2 gap-x-8 gap-y-1.5 mb-6">
+                    <p><span className="font-bold">Inspection No:</span> {report.metadata.inspectionNo}</p>
+                    <p><span className="font-bold">Inspection Start Date:</span> {report.metadata.startDate}</p>
+                    <p><span className="font-bold">Inspection Type:</span> {report.metadata.inspectionType}</p>
+                    <p><span className="font-bold">Inspection End Date:</span> {report.metadata.endDate}</p>
+                    <p><span className="font-bold">Escort Name:</span> {report.metadata.escortName}</p>
+                    <p><span className="font-bold">Report Created Date:</span> {report.metadata.reportCreatedDate}</p>
+                    <p><span className="font-bold">Property Type:</span> Multifamily</p>
+                  </div>
+
+                  <div className="border border-black grid grid-cols-2 divide-x divide-black mb-6">
+                    <div className="p-4">
+                      <p className="font-bold underline mb-2">Preliminary Scores</p>
+                      <div className="space-y-1">
+                        <p className="flex justify-between"><span>Preliminary Inspection Score:</span><span className="font-bold">{report.metadata.preliminaryScore}</span></p>
+                        <p className="flex justify-between"><span>Calculated Score:</span><span className="font-bold">{report.metadata.calculatedScore}</span></p>
+                        <p className="flex justify-between"><span>Health &amp; Safety Threshold:</span><span className="font-bold">{report.metadata.healthSafetyThreshold}</span></p>
+                        <p className="flex justify-between"><span>Property Threshold:</span><span className="font-bold">{report.metadata.physicalConditionThreshold}</span></p>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <p className="font-bold underline mb-2">Final Scores</p>
+                      <div className="space-y-1">
+                        <p className="flex justify-between"><span>Final Inspection Score:</span><span className="font-bold">{report.metadata.finalScore}</span></p>
+                        <p className="flex justify-between"><span>Calculated Score:</span><span className="font-bold">{report.metadata.calculatedScore}</span></p>
+                        <p className="flex justify-between"><span>Health &amp; Safety Threshold:</span><span className="font-bold">{report.metadata.healthSafetyThreshold}</span></p>
+                        <p className="flex justify-between"><span>Property Threshold:</span><span className="font-bold">{report.metadata.physicalConditionThreshold}</span></p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="font-bold underline mb-2">Building/Unit Inspection Data</p>
+                  <table className="w-full border-collapse border border-gray-400 mb-6 text-xs">
+                    <thead>
+                      <tr className="bg-gray-200">
+                        <th className="border border-gray-400 p-2 text-left">Type</th>
+                        <th className="border border-gray-400 p-2">Property Total</th>
+                        <th className="border border-gray-400 p-2">Sample Size</th>
+                        <th className="border border-gray-400 p-2">Total Units Inspected</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {report.inspectionData.map((row) => (
+                        <tr key={row.type}>
+                          <td className="border border-gray-400 p-2">{row.type}</td>
+                          <td className="border border-gray-400 p-2 text-center">{row.propertyTotal}</td>
+                          <td className="border border-gray-400 p-2 text-center">{row.sampleSize}</td>
+                          <td className="border border-gray-400 p-2 text-center">{row.totalUnitsInspected}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  <p className="font-bold underline mb-2">Deficiency Summary</p>
+                  <table className="w-full border-collapse border border-gray-400 mb-6 text-xs">
+                    <thead>
+                      <tr className="bg-gray-200">
+                        <th className="border border-gray-400 p-2 text-left">Inspectable Area</th>
+                        <th className="border border-gray-400 p-2">Life-Threatening</th>
+                        <th className="border border-gray-400 p-2">Severe</th>
+                        <th className="border border-gray-400 p-2">Moderate</th>
+                        <th className="border border-gray-400 p-2">Low</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {deficiencySummaryByArea.map((row) => (
+                        <tr key={row.label}>
+                          <td className="border border-gray-400 p-2">{row.label}</td>
+                          <td className="border border-gray-400 p-2 text-center">{row.lifeThreatening}</td>
+                          <td className="border border-gray-400 p-2 text-center">{row.severe}</td>
+                          <td className="border border-gray-400 p-2 text-center">{row.moderate}</td>
+                          <td className="border border-gray-400 p-2 text-center">{row.low}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  <p className="font-bold underline mb-2">Inspectable Areas Deficiencies</p>
+                  {report.deficiencies.length === 0 ? (
+                    <p className="italic text-center text-gray-500 my-6">No deficiencies found during this inspection.</p>
+                  ) : (
+                    <ul className="list-disc list-inside space-y-1 mb-6 text-xs">
+                      {report.deficiencies.map((d) => (
+                        <li key={d.id}>
+                          <span className="font-bold">{d.deficiencyName}</span> — {d.area} ({d.severity})
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {report.certification && (
+                    <div className="border border-black p-4 mt-6">
+                      <p className="font-bold underline mb-2">Inspector Certification</p>
+                      <p className="text-xs mb-6">{report.certification.certificationStatement}</p>
+                      <div className="flex justify-between text-xs">
+                        <div className="w-40">
+                          <div className="border-t border-black pt-1">Inspector Signature</div>
+                        </div>
+                        <div className="w-32 text-right">
+                          <div className="border-t border-black pt-1">Date</div>
+                          <p className="font-bold">{report.certification.certificationDate}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="text-center text-[10px] text-gray-500 mt-8 pt-4 border-t border-gray-300">
+                    <p>Generated by NSPIRE Inspection System</p>
+                    <p>Report generated on {new Date().toLocaleString()}</p>
+                    <p>This document is confidential and intended for authorized use only.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>

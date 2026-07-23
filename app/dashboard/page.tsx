@@ -16,6 +16,7 @@ import {
   SummaryModal
 } from "@/components/PropertyModals"
 import { propertiesAPI } from "@/lib/api"
+import { fetchPropertyProgressMap } from "@/lib/inspectionProgress"
 import { Country, State, City } from 'country-state-city'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
@@ -199,61 +200,8 @@ export default function Dashboard() {
   }
 
   const fetchProgress = async (propertyList: any[]) => {
-    try {
-      // Fetch all progress records for current user
-      const response = await fetch(`${API_URL}/api/inspections/progress`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
-      const data = await response.json()
-      if (data.success && Array.isArray(data.progress)) {
-        const progressMap: Record<string, number> = {}
-        
-        propertyList.forEach(prop => {
-            const propId = prop._id
-            const propProgress = data.progress.filter((p: any) => 
-                p.propertyId === propId || p.propertyId?._id === propId
-            )
-            
-            // Heuristic: Count unique units/categories completed
-            const uniqueTasks = new Set()
-            propProgress.forEach((p: any) => {
-                const type = String(p.inspectionType || '').toLowerCase()
-                if (type.startsWith('unit_')) {
-                    uniqueTasks.add(`unit_${p.unitId}`)
-                } else if (type === 'inside' || type === 'outside') {
-                    uniqueTasks.add(type)
-                }
-            })
-            
-            // Read saved coverage selection to get calculated units to inspect
-            let unitsToInspect = parseInt(prop.units) || 1
-            if (typeof window !== 'undefined') {
-              const saved = localStorage.getItem(`property_coverage_${propId}`)
-              if (saved) {
-                try {
-                  const parsed = JSON.parse(saved)
-                  if (parsed && typeof parsed.calculatedUnits === 'number') {
-                    unitsToInspect = parsed.calculatedUnits
-                  }
-                } catch (e) {}
-              }
-            }
-
-            // Total tasks = (buildings * 2) + units to inspect
-            const totalTasks = (parseInt(prop.buildings) * 2) + unitsToInspect
-            if (totalTasks > 0) {
-                progressMap[propId] = Math.min(100, Math.round((uniqueTasks.size / totalTasks) * 100))
-            } else {
-                progressMap[propId] = 0
-            }
-        })
-        setPropertyProgress(progressMap)
-      }
-    } catch (e) {
-      console.error('Error fetching progress:', e)
-    }
+    const progressMap = await fetchPropertyProgressMap(propertyList, API_URL)
+    setPropertyProgress(progressMap)
   }
 
   const handleSearch = () => {
@@ -573,12 +521,16 @@ export default function Dashboard() {
                           {propertyProgress[pid] === 100 ? (
                             <button
                               disabled
-                              className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 rounded-lg flex items-center justify-center gap-1.5 cursor-not-allowed border-0 shadow-sm"
+                              className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 rounded-lg whitespace-nowrap cursor-not-allowed border-0 shadow-sm"
                             >
-                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                              </svg>
                               Completed
+                            </button>
+                          ) : activeInspectionId === pid ? (
+                            <button
+                              onClick={() => handleInitiate(property)}
+                              className="px-2 py-1.5 text-[11px] font-bold text-white bg-[#006795] hover:bg-[#0a5670] rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
+                            >
+                              In Progress
                             </button>
                           ) : lockedProperties[pid] ? (
                             <button
@@ -590,7 +542,7 @@ export default function Dashboard() {
                                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                               </svg>
-                              {activeInspectionId && activeInspectionId !== pid ? 'Locked' : 'Locked'}
+                              Locked
                             </button>
                           ) : (
                             <button
@@ -647,13 +599,17 @@ export default function Dashboard() {
                       {propertyProgress[pid] === 100 ? (
                         <button
                           disabled
-                          className="bg-emerald-600 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-not-allowed whitespace-nowrap ml-2 border-0 shadow-sm"
+                          className="bg-emerald-600 text-white font-bold px-3.5 py-2 rounded-xl text-xs cursor-not-allowed whitespace-nowrap ml-2 border-0 shadow-sm"
                         >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                          </svg>
                           Completed
                         </button>
+                      ) : activeInspectionId === pid ? (
+                        <Button
+                          onClick={() => handleInitiate(property)}
+                          className="bg-[#006795] hover:bg-[#0a5670] text-white font-bold px-3 py-2 rounded-xl text-xs whitespace-nowrap ml-2 border-0 shadow-sm hover:shadow-md transition-all duration-200"
+                        >
+                          In Progress
+                        </Button>
                       ) : lockedProperties[pid] ? (
                         <button
                           disabled
@@ -663,7 +619,7 @@ export default function Dashboard() {
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                           </svg>
-                          {activeInspectionId && activeInspectionId !== pid ? 'Locked' : 'Locked'}
+                          Locked
                         </button>
                       ) : (
                         <Button
