@@ -253,6 +253,20 @@ export default function MyInspection() {
     }
   }
 
+  const handleViewCompleted = (property: any) => {
+    const propId = property?._id || property?.id
+    if (!propId) return
+    const saved = localStorage.getItem(`property_coverage_${propId}`)
+    if (saved) {
+      try {
+        const { coverage, calculatedUnits } = JSON.parse(saved)
+        router.push(`/dashboard/property-details/${propId}?coverage=${coverage}&calculatedUnits=${calculatedUnits}`)
+        return
+      } catch (e) {}
+    }
+    router.push(`/dashboard/property-details/${propId}`)
+  }
+
   const handleInitiate = (property: any) => {
     const pid = property._id || property.propertyId
     if (typeof window !== 'undefined' && pid) {
