@@ -56,7 +56,28 @@ const userSchema = new mongoose.Schema({
   fullName: String,
   email: { type: String, unique: true, lowercase: true },
   password: String,
+  phone: String,
   role: { type: String, default: 'inspector' },
+  language: { type: String, default: 'English' },
+  timezone: { type: String, default: 'EST' },
+  emailNotifications: {
+    type: {
+      inspectionReminders: { type: Boolean, default: true },
+      reportCompletion: { type: Boolean, default: true },
+      followUpTasks: { type: Boolean, default: false },
+      systemUpdates: { type: Boolean, default: true },
+    },
+    default: () => ({}),
+  },
+  inAppNotifications: {
+    type: {
+      inspectionReminders: { type: Boolean, default: true },
+      reportCompletion: { type: Boolean, default: true },
+      followUpTasks: { type: Boolean, default: true },
+      systemUpdates: { type: Boolean, default: false },
+    },
+    default: () => ({}),
+  },
   isEmailVerified: { type: Boolean, default: true },
   isActive: { type: Boolean, default: true },
   lastLogin: Date,

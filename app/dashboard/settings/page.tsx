@@ -44,6 +44,12 @@ export default function SettingsPage() {
           setRole(response.user.role || 'Inspector')
           setLanguage(response.user.language || 'English')
           setTimezone(response.user.timezone || 'EST')
+          if (response.user.emailNotifications) {
+            setEmailNotifications((prev) => ({ ...prev, ...response.user.emailNotifications }))
+          }
+          if (response.user.inAppNotifications) {
+            setInAppNotifications((prev) => ({ ...prev, ...response.user.inAppNotifications }))
+          }
         }
       } catch (error) {
         console.error('Error loading user data:', error)
@@ -105,8 +111,8 @@ export default function SettingsPage() {
     setIsLoading(true)
     try {
       const response = await usersAPI.updateNotificationSettings(
-        emailNotifications.inspectionReminders,
-        inAppNotifications.inspectionReminders
+        emailNotifications,
+        inAppNotifications
       )
       if (response.success) {
         toast.success("Notification preferences saved!", { position: "top-right" })

@@ -99,8 +99,8 @@ export default function OtherSettingsPage() {
     setIsLoading(true)
     try {
       const response = await usersAPI.updateNotificationSettings(
-        emailNotifications.inspectionReminders,
-        inAppNotifications.inspectionReminders
+        emailNotifications,
+        inAppNotifications
       )
       if (response.success) {
         toast.success("Notification preferences saved!", { position: "top-right" })

@@ -56,6 +56,8 @@ export async function GET(req: NextRequest) {
         phone: (user as any).phone,
         language: (user as any).language,
         timezone: (user as any).timezone,
+        emailNotifications: (user as any).emailNotifications,
+        inAppNotifications: (user as any).inAppNotifications,
       }
     });
   } catch (error: any) {

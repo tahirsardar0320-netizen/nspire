@@ -116,6 +116,8 @@ export const authAPI = {
         phone?: string;
         language?: string;
         timezone?: string;
+        emailNotifications?: Record<string, boolean>;
+        inAppNotifications?: Record<string, boolean>;
       };
     }>('/api/auth/me');
   },
@@ -912,8 +914,8 @@ export const usersAPI = {
   },
 
   updateNotificationSettings: async (
-    emailNotifications: boolean,
-    inAppNotifications: boolean
+    emailNotifications: Record<string, boolean>,
+    inAppNotifications: Record<string, boolean>
   ) => {
     return apiRequest<{ success: boolean; message: string }>('/api/users/notifications', {
       method: 'PUT',
