@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB, Inspection } from '@/lib/db';
 import jwt from 'jsonwebtoken';
+import { randomUUID } from 'crypto';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'inspire_jwt_secret_key_2024';
 
@@ -78,6 +79,11 @@ export async function POST(req: NextRequest) {
         inspectionData: body.inspectionData,
         status: isComplete ? 'completed' : 'in-progress',
         ...(isComplete ? { completedAt: new Date() } : {}),
+      },
+      // Only applied when inserting a new document — a pre-existing unique index
+      // on inspectionId means every new record needs a distinct value here.
+      $setOnInsert: {
+        inspectionId: randomUUID(),
       },
     };
 

@@ -67,6 +67,10 @@ export const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 // ── Inspection Schema ──
 const inspectionSchema = new mongoose.Schema({
+  // A pre-existing unique index on this field predates this schema — it must be
+  // set to a unique value on every insert or MongoDB rejects the second-ever
+  // document with a duplicate-key error on inspectionId: null.
+  inspectionId: { type: String, unique: true, sparse: true },
   propertyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Property' },
   inspectorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   inspectionType: String,
