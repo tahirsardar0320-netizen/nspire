@@ -18,7 +18,7 @@ export default function ProfessionalServicesClient() {
   const router = useRouter();
   return (
     <main className="w-full min-h-screen bg-white overflow-x-hidden">
-      <div className="bg-[#E8F4F8] pt-[-25] pb-4 flex justify-center"><Image src="/logo.png" alt="INSPIRE" width={500} height={600} priority className="h-14 md:h-32 lg:h-40 w-auto" /></div>
+      <div className="bg-[#E8F4F8] pt-[-25] pb-4 flex justify-center"><Image src="/logo.png" alt="NSPIRE" width={500} height={600} priority className="h-14 md:h-32 lg:h-40 w-auto" /></div>
       <nav className="bg-[#E8F4F8] px-4 md:px-6 py-3 md:py-4"><div className="max-w-[1400px] mx-auto w-full flex items-center justify-between"><div className="hidden md:flex items-center gap-6 lg:gap-8"><Link href="/" className="text-sm font-medium text-gray-800 hover:text-[#006795]">HOME</Link><Link href="/about" className="text-sm font-medium text-gray-800 hover:text-[#006795]">ABOUT</Link><Link href="/inspection-services" className="text-sm font-medium text-gray-800 hover:text-[#006795]">SERVICES</Link><Link href="/professional-services" className="text-sm font-bold text-[#006795]">PROFESSIONALS</Link><Link href="/contact" className="text-sm font-medium text-gray-800 hover:text-[#006795]">CONTACT</Link></div><Button onClick={() => router.push("/login")} className="bg-[#006795] hover:bg-[#00567a] text-white rounded-full px-6 py-2.5 text-sm font-medium shadow-md cursor-pointer">Login/Register</Button></div></nav>
 
       <section className="bg-black py-20 md:py-32 text-center relative overflow-hidden">
@@ -39,7 +39,7 @@ export default function ProfessionalServicesClient() {
       </section>
 
       <section className="bg-[#006795] py-20 px-4 text-center"><h2 className="text-4xl font-bold text-white mb-6">Ready to Partner With Nspire?</h2><p className="text-white/70 text-lg mb-10 max-w-2xl mx-auto">Join our network of professional partners and deliver best-in-class inspection services to your clients.</p><Button onClick={() => router.push("/contact")} className="bg-[#F84B5F] hover:bg-[#EE3646] text-white rounded-full px-12 py-7 text-lg font-bold shadow-2xl hover:scale-105 transition-all">Become a Partner</Button></section>
-      <footer className="bg-black text-white py-12 px-4"><div className="max-w-7xl mx-auto text-center"><Image src="/logo.png" alt="INSPIRE" width={120} height={40} className="mx-auto mb-6 h-8 w-auto" /><p className="text-gray-500 text-xs">© 2026 Nspire Home Inspections. All rights reserved.</p></div></footer>
+      <footer className="bg-black text-white py-12 px-4"><div className="max-w-7xl mx-auto text-center"><Image src="/logo.png" alt="NSPIRE" width={120} height={40} className="mx-auto mb-6 h-8 w-auto" /><p className="text-gray-500 text-xs">© 2026 Nspire Home Inspections. All rights reserved.</p></div></footer>
     </main>
   );
 }

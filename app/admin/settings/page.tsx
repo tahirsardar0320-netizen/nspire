@@ -6,7 +6,7 @@ import { toast } from "react-toastify"
 
 export default function AdminSettings() {
   // General Settings
-  const [companyName, setCompanyName] = useState("INSPIRE Inspections")
+  const [companyName, setCompanyName] = useState("NSPIRE Inspections")
   const [companyEmail, setCompanyEmail] = useState("admin@inspire.com")
   const [companyPhone, setCompanyPhone] = useState("(555) 123-4567")
   const [timezone, setTimezone] = useState("America/Los_Angeles")

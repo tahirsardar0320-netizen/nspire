@@ -287,7 +287,7 @@ export default function DeleteAccountPage() {
 
           {/* Help Text */}
           <div className="text-center text-xs text-slate-500 font-semibold">
-            <p>Need help? Contact support at <a href="mailto:support@nspire.com" className="text-teal-600 hover:underline">support@nspire.com</a></p>
+            <p>Need help? Contact support at <a href="mailto:support@inspire.com" className="text-teal-600 hover:underline">support@inspire.com</a></p>
           </div>
         </div>
       </div>

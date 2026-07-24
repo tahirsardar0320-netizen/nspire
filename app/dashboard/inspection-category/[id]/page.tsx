@@ -1946,6 +1946,20 @@ export default function InspectionCategoryPage() {
                                                     <ArrowUpDown className="w-3 h-3" />
                                                     Change Unit
                                                 </button>
+                                                {unitItemsList.length > 0 && unitItemsList.every(item => unitStatuses[item] !== null && unitStatuses[item] !== undefined) && (
+                                                    <button
+                                                        onClick={async () => {
+                                                            await saveCurrentProgress();
+                                                            await refreshCompletedUnits();
+                                                            toast.success(`${activeInspectionUnit} submitted!`, { position: 'top-right' });
+                                                            setUnitSelectionPopupOpen(true);
+                                                        }}
+                                                        className="text-xs font-bold text-rose-600 hover:underline flex items-center gap-1 bg-rose-50 px-2 py-1 rounded-full transition-colors"
+                                                    >
+                                                        <CheckCircle2 className="w-3 h-3" />
+                                                        Submit
+                                                    </button>
+                                                )}
                                             </div>
                                         )}
                                         <div className="flex items-center gap-3">

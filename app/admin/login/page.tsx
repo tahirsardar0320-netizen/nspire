@@ -124,7 +124,7 @@ export default function AdminLogin() {
         <div className="flex justify-center mb-8">
           <Image
             src="/logo.png"
-            alt="INSPIRE Logo"
+            alt="NSPIRE Logo"
             width={480}
             height={560}
             className="w-auto h-24 md:h-32 lg:h-36 cursor-pointer"
@@ -135,7 +135,7 @@ export default function AdminLogin() {
           Admin Portal
         </h1>
         <p className="text-sm md:text-base text-gray-600">
-          INSPIRE Administration Panel
+          NSPIRE Administration Panel
         </p>
         <p className="text-xs md:text-sm text-[#006795] font-semibold mt-2">
           Authorized Personnel Only

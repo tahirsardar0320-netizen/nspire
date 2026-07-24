@@ -24,13 +24,13 @@ export default function ProfileSelection() {
 
       {/* Logo */}
       <div className="ps-logo" onClick={() => router.push("/")}>
-        <Image src="/logo.png" alt="INSPIRE Logo" width={180} height={65} className="h-14 w-auto" priority />
+        <Image src="/logo.png" alt="NSPIRE Logo" width={180} height={65} className="h-14 w-auto" priority />
       </div>
 
       {/* Heading */}
       <div className="ps-header">
         <h1 className="ps-title">Choose Your Portal</h1>
-        <p className="ps-subtitle">Select how you want to continue to INSPIRE</p>
+        <p className="ps-subtitle">Select how you want to continue to NSPIRE</p>
       </div>
 
       {/* Cards row */}

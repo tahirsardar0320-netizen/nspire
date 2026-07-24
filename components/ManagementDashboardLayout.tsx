@@ -108,7 +108,7 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
         <div className="p-6 border-b">
           <Image
             src="/logo.png"
-            alt="INSPIRE"
+            alt="NSPIRE"
             width={300}
             height={100}
             className="h-28 w-auto cursor-pointer"
@@ -171,7 +171,7 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
         <div className="p-4 border-b flex items-center justify-between">
           <Image
             src="/logo.png"
-            alt="INSPIRE"
+            alt="NSPIRE"
             width={180}
             height={60}
             className="w-auto h-14 cursor-pointer"
@@ -258,7 +258,7 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
             <div className="lg:hidden">
               <Image
                 src="/logo.png"
-                alt="INSPIRE"
+                alt="NSPIRE"
                 width={120}
                 height={40}
                 className="w-auto h-10 cursor-pointer"

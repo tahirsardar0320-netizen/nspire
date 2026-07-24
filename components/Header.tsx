@@ -32,7 +32,7 @@ export default function Header() {
             <Link href="/">
               <Image
                 src="/logo.png"
-                alt="INSPIRE"
+                alt="NSPIRE"
                 width={160}
                 height={44}
                 priority

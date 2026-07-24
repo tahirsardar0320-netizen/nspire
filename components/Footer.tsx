@@ -141,7 +141,7 @@ export default function Footer() {
           <NextLink href="/">
             <Image
               src="/logo.png"
-              alt="INSPIRE"
+              alt="NSPIRE"
               width={200}
               height={100}
               className="object-contain h-16 md:h-20 w-auto"

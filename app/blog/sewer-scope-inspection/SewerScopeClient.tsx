@@ -34,7 +34,7 @@ export default function SewerScopeBlogPost() {
       <div className="bg-[#E8F4F8] pt-[-25] pb-4 flex justify-center">
         <Image
           src="/logo.png"
-          alt="INSPIRE"
+          alt="NSPIRE"
           width={500}
           height={600}
           priority
@@ -85,7 +85,7 @@ export default function SewerScopeBlogPost() {
               </Link>
               <Link href="/about" className="flex flex-col group">
                 <span className="text-lg font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight">ABOUT</span>
-                <span className="text-[11px] text-gray-500 italic tracking-wider">Discover Inspire</span>
+                <span className="text-[11px] text-gray-500 italic tracking-wider">Discover Nspire</span>
               </Link>
               <Link href="/contact" className="flex flex-col group" onClick={() => setMobileMenuOpen(false)}>
                 <span className="text-lg font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight">CONTACT</span>
@@ -114,7 +114,7 @@ export default function SewerScopeBlogPost() {
             </Link>
             <Link href="/about" className="flex flex-col group items-center">
               <span className="text-sm font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight text-center">ABOUT</span>
-              <span className="text-[10px] text-gray-500 italic tracking-wider text-center">Discover Inspire</span>
+              <span className="text-[10px] text-gray-500 italic tracking-wider text-center">Discover Nspire</span>
             </Link>
             <Link href="/contact" className="flex flex-col group items-center">
               <span className="text-sm font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight">CONTACT</span>
@@ -355,7 +355,7 @@ export default function SewerScopeBlogPost() {
         <div className="max-w-7xl mx-auto text-center">
           <Image
             src="/logo.png"
-            alt="INSPIRE"
+            alt="NSPIRE"
             width={120}
             height={40}
             className="mx-auto mb-6 h-8 w-auto"

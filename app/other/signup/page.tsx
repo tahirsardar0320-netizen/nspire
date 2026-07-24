@@ -227,9 +227,9 @@ export default function OtherSignup() {
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       <div className="w-full bg-gradient-to-b from-[#1E1B4B] to-[#312E81] text-white px-6 text-center flex flex-col items-center justify-center rounded-b-[50px] shadow-lg border-b border-indigo-950/20" style={{ height: '280px' }}>
         <div className="flex justify-center mb-5 bg-white/10 backdrop-blur-md rounded-2xl p-4 shadow-inner border border-white/15">
-          <Image src="/logo.png" alt="INSPIRE Logo" width={480} height={560} className="w-auto h-16 md:h-20 lg:h-22 cursor-pointer filter brightness-0 invert" onClick={() => router.push('/')} />
+          <Image src="/logo.png" alt="NSPIRE Logo" width={480} height={560} className="w-auto h-16 md:h-20 lg:h-22 cursor-pointer filter brightness-0 invert" onClick={() => router.push('/')} />
         </div>
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-1">Create Your INSPIRE Account</h1>
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-1">Create Your NSPIRE Account</h1>
         <p className="text-xs md:text-sm font-semibold tracking-wider uppercase text-amber-400 px-4">Other Portal</p>
       </div>
 

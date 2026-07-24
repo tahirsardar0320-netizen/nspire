@@ -111,7 +111,7 @@ export default function BlogIndex() {
                   </Link>
                   
                   <div className="flex items-center gap-2 text-sm text-gray-400 mb-6 font-medium">
-                    <span>by Inspire Experts</span>
+                    <span>by Nspire Experts</span>
                     <span>|</span>
                     <span>{blog.date}</span>
                     <span>|</span>

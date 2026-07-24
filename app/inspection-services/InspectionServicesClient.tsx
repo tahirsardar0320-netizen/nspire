@@ -102,7 +102,7 @@ export default function InspectionServicesClient() {
               NSPIREinspectiom.AI provides professional Inspection Services nationwide, delivering end-to-end solutions for buyers, owners, sellers, landlords, investors, and public housing authorities.
             </p>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed mt-4">
-              From single-family homes to multi-unit commercial buildings, Inspire combines structural, mechanical, electrical, and safety evaluations into a single trusted framework. We support purchase decisions, risk management, compliance verification, and long-term asset planning through data-driven inspections.
+              From single-family homes to multi-unit commercial buildings, Nspire combines structural, mechanical, electrical, and safety evaluations into a single trusted framework. We support purchase decisions, risk management, compliance verification, and long-term asset planning through data-driven inspections.
             </p>
           </div>
         </section>

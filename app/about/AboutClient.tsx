@@ -22,7 +22,7 @@ export default function AboutClient() {
           <div className="max-w-[1400px] mx-auto px-4 md:px-6 relative z-10 text-center">
             <p className="text-[#006795] font-bold uppercase tracking-[0.2em] mb-6 animate-fade-in">Empowering Property Decisions</p>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8 leading-[1.1]">
-              About <span className="text-[#F84B5F] italic font-medium">Inspire</span>
+              About <span className="text-[#F84B5F] italic font-medium">Nspire</span>
             </h1>
             <p className="max-w-4xl mx-auto text-lg md:text-xl text-white/90 leading-relaxed font-light">
               Our Qualified NSPIRE inspectors focus on identifying risks, structural issues, and safety hazards to ensure that every inspection provides clear insights that help you make informed decisions about your property.
@@ -121,7 +121,7 @@ export default function AboutClient() {
         <section className="bg-black py-20 md:py-32 px-4 md:px-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#006795] rounded-full blur-[160px] opacity-20 translate-x-1/2 -translate-y-1/2"></div>
           <div className="max-w-4xl mx-auto text-center relative z-10">
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-8">Ready to <span className="text-[#F84B5F]">Inspire</span> Confidence?</h2>
+            <h2 className="text-4xl md:text-6xl font-bold text-white mb-8">Ready to <span className="text-[#F84B5F]">Nspire</span> Confidence?</h2>
             <p className="text-xl text-gray-400 mb-12 font-light leading-relaxed">
               Join thousands of satisfied clients who have trusted Nspire with their property inspections.
             </p>

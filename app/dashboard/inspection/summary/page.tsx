@@ -106,7 +106,6 @@ function NSPIREInspectionSummaryContent() {
   const [showUnlockSummaryModal, setShowUnlockSummaryModal] = useState(false)
   const [fullReportEmail, setFullReportEmail] = useState('')
   const [property, setProperty] = useState<any>(null)
-  const [activeTab, setActiveTab] = useState<'summary' | 'deficiencies' | 'preview'>('summary')
   // Custom column header from the building table (editable in property-details)
   const [buildingColumnHeader, setBuildingColumnHeader] = useState('Building')
 
@@ -130,15 +129,6 @@ function NSPIREInspectionSummaryContent() {
     const id = searchParams.get('id') || searchParams.get('inspectionId') || searchParams.get('propertyId')
     return id || null
   }, [searchParams])
-
-  const visibleDeficiencies = useMemo(() => {
-    if (!report) return []
-    // If we're just previewing progress (not finalizing), show everything so they can review
-    const isFinalizing = searchParams.get('finalize') === 'true';
-    if (isReportUnlocked || !isFinalizing) return report.deficiencies
-    return report.deficiencies.slice(0, 2)
-  }, [report, isReportUnlocked, searchParams])
-
 
   // Handle "Back to Inspection" - return to the active inspection screen
   const handleBackToInspection = () => {
@@ -1148,7 +1138,7 @@ function NSPIREInspectionSummaryContent() {
                         className="h-11 gap-1.5 border-2 border-amber-500 hover:bg-amber-50 text-amber-600 font-bold px-5 rounded-xl text-xs flex items-center justify-center shrink-0 bg-white"
                       >
                         <FileText className="w-4 h-4" />
-                        View Summary
+                        View Deficiency
                       </Button>
                     </div>
                   </div>
@@ -1216,25 +1206,9 @@ function NSPIREInspectionSummaryContent() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="max-w-7xl mx-auto bg-white border border-slate-200/80 rounded-2xl shadow-sm p-1.5 flex gap-1.5 overflow-x-auto scrollbar-none">
-          {(['summary', 'deficiencies'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-5 py-2.5 rounded-xl font-bold whitespace-nowrap transition-all text-xs sm:text-sm flex-1 text-center ${activeTab === tab
-                ? 'bg-teal-600 text-white shadow-sm shadow-teal-600/10'
-                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                }`}
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
-        </div>
-
         {/* Summary Tab */}
         <div className="max-w-7xl mx-auto space-y-6">
-          {activeTab === 'summary' && (
+          {(
             <div className="space-y-6">
               {/* Deficiency Summary */}
               <Card className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm space-y-5">
@@ -1386,197 +1360,6 @@ function NSPIREInspectionSummaryContent() {
                 </div>
               </Card>
             </div>
-          )}
-
-          {/* Deficiencies Tab */}
-          {activeTab === 'deficiencies' && (
-            <Card className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm space-y-6">
-              <div className="border-b border-slate-100 pb-3 flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-teal-500" />
-                <h2 className="text-base font-extrabold text-slate-900 tracking-tight">Deficiency Details</h2>
-              </div>
-
-              {!checkingUnlock && !isReportUnlocked && report.deficiencies.length > visibleDeficiencies.length && (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-4 text-xs sm:text-sm text-amber-900 font-semibold shadow-sm leading-relaxed">
-                  <span className="text-sm font-extrabold block mb-1">Unlock to Export PDF</span>
-                  <span className="italic">Locked preview:</span> showing {visibleDeficiencies.length} of {report.deficiencies.length} deficiencies. Unlock for $99.00 to view all items and export full PDF.
-                </div>
-              )}
-
-              {/* Unit header banner */}
-              {inspectionContext?.unitName && (
-                <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-2xl p-4 border border-teal-100/80 shadow-sm text-teal-800">
-                  <h3 className="text-sm font-extrabold tracking-tight">
-                    {inspectionContext.unitName} — Inspection Details
-                  </h3>
-                  <p className="text-[10px] text-teal-600 font-bold mt-0.5">{buildingColumnHeader}: {inspectionContext.buildingId}</p>
-                </div>
-              )}
-
-              {report.deficiencies.length === 0 ? (
-                <div className="text-center py-12 space-y-3">
-                  <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto text-emerald-600 shadow-sm border border-emerald-100">
-                    <CheckCircle2 className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <p className="text-base font-extrabold text-emerald-800">No Deficiencies Found</p>
-                    <p className="text-xs text-slate-500 font-semibold mt-1">This property passed inspection with no issues identified.</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-8">
-                  {/* Group by Area (Outside, Inside, Unit) */}
-                  {['Outside', 'Inside', 'Unit', 'General'].map(area => {
-                    const areaDeficiencies = visibleDeficiencies.filter(d => d.area === area);
-                    if (areaDeficiencies.length === 0) return null;
-
-                    return (
-                      <div key={area} className="space-y-4">
-                        <div className="flex items-center gap-2 px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl w-fit font-extrabold text-xs">
-                          <span className="text-slate-550 uppercase tracking-wider">{area} Summary</span>
-                          <span className="bg-teal-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                            {areaDeficiencies.length}
-                          </span>
-                        </div>
-                        
-                        {/* Desktop Table View for this Area */}
-                        <div className="hidden lg:block overflow-x-auto rounded-2xl border border-slate-100">
-                          <table className="w-full text-sm">
-                            <thead>
-                              <tr className="bg-slate-50 text-slate-705 font-bold border-b border-slate-200">
-                                <th className="p-3 text-left w-12">#</th>
-                                <th className="p-3 text-center w-24">Proof</th>
-                                <th className="p-3 text-left">Location</th>
-                                <th className="p-3 text-left">Deficiency</th>
-                                <th className="p-3 text-left">Description</th>
-                                <th className="p-3 text-center">Severity</th>
-                                <th className="p-3 text-center">H&S</th>
-                                <th className="p-3 text-center">Repair By</th>
-                                <th className="p-3 text-center">Status</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-150 text-xs font-semibold text-slate-700">
-                              {areaDeficiencies.map((def, idx) => (
-                                <tr key={def.id} className="hover:bg-slate-50/40">
-                                  <td className="p-3 font-bold text-center text-slate-400">{idx + 1}</td>
-                                  <td className="p-3 text-center">
-                                    {def.imageUri ? (
-                                      <div className="relative w-14 h-14 mx-auto group">
-                                        <img
-                                          src={def.imageUri}
-                                          alt="Deficiency Proof"
-                                          className="w-full h-full object-cover rounded-xl border border-slate-200 shadow-sm cursor-zoom-in group-hover:scale-150 transition-transform z-10 relative"
-                                        />
-                                      </div>
-                                    ) : (
-                                      <div className="w-14 h-14 mx-auto bg-slate-50 border border-slate-150 rounded-xl flex items-center justify-center text-slate-350">
-                                        <ImageIcon className="w-5 h-5" />
-                                      </div>
-                                    )}
-                                  </td>
-                                  <td className="p-3 min-w-[120px]">
-                                    <div className="space-y-0.5">
-                                      {area === 'Unit' && (
-                                        <>
-                                          <div><span className="text-slate-400 font-bold">Bldg:</span> <span className="font-extrabold text-slate-700">{def.building}</span></div>
-                                          <div><span className="text-slate-400 font-bold">Unit:</span> <span className="font-extrabold text-slate-700">{def.unit}</span></div>
-                                        </>
-                                      )}
-                                      {area !== 'Unit' && (
-                                        <div><span className="text-slate-400 font-bold">Loc:</span> <span className="font-extrabold text-slate-700">{def.building}</span></div>
-                                      )}
-                                      <div><span className="text-slate-400 font-bold">Area:</span> <span className="font-extrabold text-slate-700">{def.room}</span></div>
-                                    </div>
-                                  </td>
-                                  <td className="p-3">
-                                    <div className="font-extrabold text-slate-800 text-sm mb-1">{def.deficiencyName}</div>
-                                    <span className="inline-block bg-teal-50 text-teal-700 border border-teal-100 text-[10px] font-bold px-2 py-0.5 rounded-lg uppercase">
-                                      {def.nspireCode}
-                                    </span>
-                                  </td>
-                                  <td className="p-3 max-w-[250px] leading-relaxed">
-                                    <div className="text-slate-600 text-xs mb-2">{def.deficiencyDetails}</div>
-                                    {def.comments && (
-                                      <div className="text-[10px] text-slate-500 italic bg-slate-50 border border-slate-100 p-2 rounded-xl">
-                                        <span className="font-extrabold uppercase text-[8px] text-slate-400 block mb-0.5">Inspector Notes:</span>
-                                        {def.comments}
-                                      </div>
-                                    )}
-                                  </td>
-                                  <td className="p-3 text-center">
-                                    <span className={`inline-block px-2.5 py-1 text-[10px] ${getSeverityBadgeClass(def.severity)}`}>
-                                      {def.severity}
-                                    </span>
-                                    <div className="text-[10px] text-slate-400 mt-1 font-bold">-{def.deductionPts} PTS</div>
-                                  </td>
-                                  <td className="p-3 text-center">
-                                    <span className="text-[10px] font-extrabold text-rose-600 uppercase">{def.healthAndSafety}</span>
-                                  </td>
-                                  <td className="p-3 text-center">
-                                    <span className="inline-block bg-amber-50 text-amber-700 border border-amber-100 text-[10px] font-bold px-2.5 py-1 rounded-xl">
-                                      {def.repairTimeline}
-                                    </span>
-                                  </td>
-                                  <td className="p-3 text-center">
-                                    <span className={`inline-block ${getStatusBadgeClass(def.status)}`}>
-                                      {def.status}
-                                    </span>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-
-                        {/* Mobile View for this Area */}
-                        <div className="lg:hidden space-y-4">
-                          {areaDeficiencies.map((def, idx) => (
-                            <div key={def.id} className="border border-slate-200 rounded-2xl p-4 bg-slate-50/50 shadow-sm space-y-3">
-                              <div className="flex items-start gap-3">
-                                <div className="flex-shrink-0 w-8 h-8 bg-teal-600 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
-                                  {idx + 1}
-                                </div>
-                                {def.imageUri ? (
-                                  <img
-                                    src={def.imageUri}
-                                    alt="Deficiency Proof"
-                                    className="w-20 h-20 object-cover rounded-xl border border-slate-200 shadow-sm"
-                                  />
-                                ) : (
-                                  <div className="w-20 h-20 bg-slate-100 rounded-xl flex items-center justify-center text-slate-350 border border-slate-150">
-                                    <ImageIcon className="w-6 h-6" />
-                                  </div>
-                                )}
-                                <div className="flex-1 min-w-0">
-                                  <h3 className="font-extrabold text-slate-900 text-sm mb-1 break-words leading-tight">{def.deficiencyName}</h3>
-                                  <div className="flex flex-wrap gap-1">
-                                    <span className="inline-block bg-teal-50 text-teal-700 border border-teal-100 text-[10px] font-bold px-2 py-0.5 rounded-lg uppercase">
-                                      {def.nspireCode}
-                                    </span>
-                                    <span className={`inline-block px-2 py-0.5 text-[10px] ${getSeverityBadgeClass(def.severity)}`}>
-                                      {def.severity}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="pt-3 border-t border-slate-200/60 text-xs font-semibold space-y-2">
-                                 <p className="text-slate-650 leading-relaxed">{def.deficiencyDetails}</p>
-                                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] text-slate-450">
-                                    <div><span className="font-bold text-slate-500">Location:</span> {def.building} {def.unit !== '-' ? `| Unit ${def.unit}` : ''}</div>
-                                    <div><span className="font-bold text-slate-500">Room:</span> {def.room}</div>
-                                    <div><span className="font-bold text-slate-500">Repair By:</span> {def.repairTimeline}</div>
-                                    <div><span className="font-bold text-slate-500">Status:</span> <span className="text-slate-700 font-extrabold">{def.status}</span></div>
-                                 </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </Card>
           )}
 
           {/* General Comments */}

@@ -96,14 +96,14 @@ export default function AssetManagerSignup() {
         <div className="flex justify-center mb-8">
           <Image
             src="/logo.png"
-            alt="INSPIRE Logo"
+            alt="NSPIRE Logo"
             width={480}
             height={560}
             className="w-auto h-24 md:h-32 lg:h-36 cursor-pointer"
             onClick={() => router.push('/')}
           />
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">Welcome to INSPIRE</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">Welcome to NSPIRE</h1>
         <p className="text-sm md:text-base text-gray-600">Asset Manager Portal</p>
       </div>
 

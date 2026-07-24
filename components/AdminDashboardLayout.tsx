@@ -76,7 +76,7 @@ export default function AdminDashboardLayout({ children }: AdminDashboardLayoutP
         <div className="p-6 border-b border-[#1E3A5F] flex justify-center">
           <Image
             src="/logo.png"
-            alt="INSPIRE"
+            alt="NSPIRE"
             width={300}
             height={100}
             className="h-28 w-auto cursor-pointer"
@@ -130,7 +130,7 @@ export default function AdminDashboardLayout({ children }: AdminDashboardLayoutP
         <div className="p-4 border-b border-[#1E3A5F] flex items-center justify-between">
           <Image
             src="/logo.png"
-            alt="INSPIRE"
+            alt="NSPIRE"
             width={180}
             height={60}
             className="w-auto h-14 cursor-pointer"
@@ -203,7 +203,7 @@ export default function AdminDashboardLayout({ children }: AdminDashboardLayoutP
             <div className="lg:hidden">
               <Image
                 src="/logo.png"
-                alt="INSPIRE"
+                alt="NSPIRE"
                 width={120}
                 height={40}
                 className="w-auto h-10 cursor-pointer"

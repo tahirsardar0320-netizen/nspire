@@ -267,7 +267,7 @@ export default function Home() {
         <div className="max-w-[1400px] mx-auto px-4 md:px-6 relative z-10 text-center">
             <p className="text-[#A8D8EA] font-bold uppercase tracking-[0.2em] mb-6">Empowering Property Decisions</p>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8 leading-[1.1] serif">
-                About <span className="text-[#F84B5F] italic font-medium">Inspire</span>
+                About <span className="text-[#F84B5F] italic font-medium">Nspire</span>
             </h2>
             <p className="max-w-4xl mx-auto text-lg md:text-xl text-white/90 leading-relaxed font-light">
                 Our Qualified NSPIRE inspectors focus on identifying risks, structural issues, and safety hazards to ensure that every inspection provides clear insights that help you make informed decisions about your property.
@@ -292,7 +292,7 @@ export default function Home() {
                         <div>
                             <h3 className="text-xl font-bold text-[#0C1F3F] mb-1 serif">Buyer Inspection Services</h3>
                             <p className="text-[#00C6D7] font-bold text-xs mb-3 uppercase tracking-wider">Informed Property Decisions</p>
-                            <p className="text-gray-600 leading-relaxed text-sm">Inspire's Buyer Inspection Services support confident purchasing decisions for residential, multi-family, commercial, and public housing properties across the USA.</p>
+                            <p className="text-gray-600 leading-relaxed text-sm">Nspire's Buyer Inspection Services support confident purchasing decisions for residential, multi-family, commercial, and public housing properties across the USA.</p>
                         </div>
                         <button className="text-[#006795] font-bold text-sm hover:text-[#00C6D7] text-left mt-5 self-start transition-colors">Learn More →</button>
                     </div>
@@ -306,7 +306,7 @@ export default function Home() {
                         <div>
                             <h3 className="text-xl font-bold text-[#0C1F3F] mb-1 serif">Owner Inspection Services</h3>
                             <p className="text-[#F59E0B] font-bold text-xs mb-3 uppercase tracking-wider">Asset Protection and Longevity</p>
-                            <p className="text-gray-600 leading-relaxed text-sm">Inspire's Owner Inspection Services help property owners maintain asset value, ensure compliance, and plan preventive maintenance.</p>
+                            <p className="text-gray-600 leading-relaxed text-sm">Nspire's Owner Inspection Services help property owners maintain asset value, ensure compliance, and plan preventive maintenance.</p>
                         </div>
                         <button className="text-[#006795] font-bold text-sm hover:text-[#00C6D7] text-left mt-5 self-start transition-colors">Learn More →</button>
                     </div>
@@ -320,7 +320,7 @@ export default function Home() {
                         <div>
                             <h3 className="text-xl font-bold text-[#0C1F3F] mb-1 serif">Seller Inspection Services</h3>
                             <p className="text-orange-500 font-bold text-xs mb-3 uppercase tracking-wider">Maximize Marketability</p>
-                            <p className="text-gray-600 leading-relaxed text-sm">Inspire's Seller Inspection Services prepare properties for listing with transparency and confidence. Identify major and minor defects before marketing.</p>
+                            <p className="text-gray-600 leading-relaxed text-sm">Nspire's Seller Inspection Services prepare properties for listing with transparency and confidence. Identify major and minor defects before marketing.</p>
                         </div>
                         <button className="text-[#006795] font-bold text-sm hover:text-[#00C6D7] text-left mt-5 self-start transition-colors">Learn More →</button>
                     </div>
@@ -362,7 +362,7 @@ export default function Home() {
                         <div>
                             <h3 className="text-xl font-bold text-[#0C1F3F] mb-1 serif">Public Housing Inspection</h3>
                             <p className="text-purple-600 font-bold text-xs mb-3 uppercase tracking-wider">HUD/REAC Support</p>
-                            <p className="text-gray-600 leading-relaxed text-sm">Specializing in public housing inspection services aligned with Inspire standards. HUD/REAC inspection preparation and multi-family housing inspection.</p>
+                            <p className="text-gray-600 leading-relaxed text-sm">Specializing in public housing inspection services aligned with Nspire standards. HUD/REAC inspection preparation and multi-family housing inspection.</p>
                         </div>
                         <button className="text-[#006795] font-bold text-sm hover:text-[#00C6D7] text-left mt-5 self-start transition-colors">Learn More →</button>
                     </div>

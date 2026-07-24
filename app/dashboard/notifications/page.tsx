@@ -59,7 +59,7 @@ export default function NotificationsPage() {
         {
           _id: '4',
           title: 'System Update',
-          message: 'INSPIRE inspection criteria have been updated. Please review the new guidelines.',
+          message: 'NSPIRE inspection criteria have been updated. Please review the new guidelines.',
           type: 'info',
           isRead: true,
           createdAt: new Date(Date.now() - 172800000).toISOString()

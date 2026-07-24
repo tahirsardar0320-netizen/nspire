@@ -14,7 +14,7 @@ export default function TermsClient() {
     <main className="w-full min-h-screen bg-white overflow-x-hidden">
       {/* Logo */}
       <div className="bg-[#E8F4F8] pt-[-25] pb-4 flex justify-center">
-        <Image src="/logo.png" alt="INSPIRE" width={500} height={600} priority className="h-14 md:h-32 lg:h-40 w-auto" />
+        <Image src="/logo.png" alt="NSPIRE" width={500} height={600} priority className="h-14 md:h-32 lg:h-40 w-auto" />
       </div>
 
       {/* Navigation */}
@@ -113,7 +113,7 @@ export default function TermsClient() {
       {/* Footer */}
       <footer className="bg-black text-white py-12 px-4 md:px-6">
         <div className="max-w-7xl mx-auto text-center">
-          <Image src="/logo.png" alt="INSPIRE" width={120} height={40} className="mx-auto mb-6 h-8 w-auto" />
+          <Image src="/logo.png" alt="NSPIRE" width={120} height={40} className="mx-auto mb-6 h-8 w-auto" />
           <p className="text-gray-400 text-xs">© 2026 Nspire Home Inspections. All rights reserved.</p>
         </div>
       </footer>

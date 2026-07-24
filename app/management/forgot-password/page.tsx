@@ -181,7 +181,7 @@ export default function ManagementForgotPassword() {
         <div className="flex justify-center mb-8">
           <Image 
             src="/logo.png" 
-            alt="INSPIRE Logo" 
+            alt="NSPIRE Logo" 
             width={480} 
             height={560}
             className="w-auto h-24 md:h-32 lg:h-36 cursor-pointer"

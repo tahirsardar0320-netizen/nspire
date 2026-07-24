@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: { params: { state: string } }
   const data = stateData[params.state.toLowerCase()];
   if (!data) return { title: "Not Found" };
   return {
-    title: `Certified Home Inspectors in ${data.name} | INSPIRE`,
+    title: `Certified Home Inspectors in ${data.name} | NSPIRE`,
     description: `All certified home inspectors available in ${data.name}. Find InterNACHI-certified inspectors near you.`,
   };
 }

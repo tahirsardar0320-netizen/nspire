@@ -16,7 +16,7 @@ export default function HomeInspectionChecklist() {
       <div className="bg-[#E8F4F8] pt-[-25] pb-4 flex justify-center">
         <Image
           src="/logo.png"
-          alt="INSPIRE"
+          alt="NSPIRE"
           width={500}
           height={600}
           priority
@@ -53,7 +53,7 @@ export default function HomeInspectionChecklist() {
               </Link>
               <Link href="/about" className="flex flex-col group">
                 <span className="text-lg font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight">ABOUT</span>
-                <span className="text-[11px] text-gray-500 italic tracking-wider">Discover Inspire</span>
+                <span className="text-[11px] text-gray-500 italic tracking-wider">Discover Nspire</span>
               </Link>
               <Link href="/contact" className="flex flex-col group" onClick={() => setMobileMenuOpen(false)}>
                 <span className="text-lg font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight">CONTACT</span>
@@ -81,7 +81,7 @@ export default function HomeInspectionChecklist() {
             </Link>
             <Link href="/about" className="flex flex-col group items-center">
               <span className="text-sm font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight text-center">ABOUT</span>
-              <span className="text-[10px] text-gray-500 italic tracking-wider text-center">Discover Inspire</span>
+              <span className="text-[10px] text-gray-500 italic tracking-wider text-center">Discover Nspire</span>
             </Link>
             <Link href="/contact" className="flex flex-col group items-center">
               <span className="text-sm font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight">CONTACT</span>
@@ -183,7 +183,7 @@ export default function HomeInspectionChecklist() {
 
           <section className="py-12 text-center">
             <h2 className="text-3xl font-bold text-black mb-6">Ready for a Professional Inspection?</h2>
-            <p className="mb-8 max-w-2xl mx-auto text-gray-600">Get a clear, detailed evaluation of your potential new home with Inspire Property Inspection.</p>
+            <p className="mb-8 max-w-2xl mx-auto text-gray-600">Get a clear, detailed evaluation of your potential new home with Nspire Property Inspection.</p>
             <Button className="bg-[#F84B5F] hover:bg-[#EE3646] text-white rounded-full px-12 py-6 text-lg font-bold shadow-xl transition-all hover:scale-105">Book Now</Button>
           </section>
         </div>
@@ -198,7 +198,7 @@ export default function HomeInspectionChecklist() {
 
       <footer className="bg-black text-white py-12 px-4 md:px-6">
         <div className="max-w-7xl mx-auto text-center">
-          <Image src="/logo.png" alt="INSPIRE" width={120} height={40} className="mx-auto mb-6 h-8 w-auto" />
+          <Image src="/logo.png" alt="NSPIRE" width={120} height={40} className="mx-auto mb-6 h-8 w-auto" />
           <p className="text-gray-400 text-xs text-center">© 2026 Nspire Home Inspections. All rights reserved.</p>
         </div>
       </footer>
