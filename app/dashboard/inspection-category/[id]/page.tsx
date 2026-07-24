@@ -25,7 +25,7 @@ import {
 } from "@/lib/insideScoringCalculations"
 import { getSamplingRequirements } from "@/lib/unitSamplingService"
 import { toast } from "react-toastify"
-import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, ArrowUpDown, MoreHorizontal, Camera, X, ChevronLeft, CheckCircle2, FileText, User, Grid, Clock, Video, Monitor, Image as ImageIcon, Laptop, Tablet, Pencil, Check } from "lucide-react";
+import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, ArrowUpDown, MoreHorizontal, Camera, X, ChevronLeft, CheckCircle2, FileText, User, Grid, Clock, Video, Monitor, Image as ImageIcon, Laptop, Tablet, Pencil, Check, Lock } from "lucide-react";
 
 import { OUTSIDE_ITEMS, INSIDE_ITEMS, UNIT_ITEMS } from "@/lib/inspectionData";
 import { ReportPreviewModal } from "@/components/ReportPreviewModal";
@@ -1785,14 +1785,23 @@ export default function InspectionCategoryPage() {
                         </button>
                     </div>
                     
-                    <Button
-                        onClick={handleOpenReportPreview}
-                        disabled={loadingReportPreview}
-                        className="bg-[#006795] hover:bg-[#0a5670] text-white font-black px-6 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center gap-2"
-                    >
-                        <FileText className="w-4 h-4" />
-                        {loadingReportPreview ? 'Loading...' : 'View Summary'}
-                    </Button>
+                    <div className="flex items-center gap-3">
+                        <Button
+                            onClick={() => router.push(`/dashboard/inspection/summary?propertyId=${property?._id || id}`)}
+                            className="bg-[#F84B5F] hover:bg-[#e03a4e] text-white font-black px-6 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center gap-2"
+                        >
+                            <Lock className="w-4 h-4" />
+                            Unlock
+                        </Button>
+                        <Button
+                            onClick={handleOpenReportPreview}
+                            disabled={loadingReportPreview}
+                            className="bg-[#006795] hover:bg-[#0a5670] text-white font-black px-6 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center gap-2"
+                        >
+                            <FileText className="w-4 h-4" />
+                            {loadingReportPreview ? 'Loading...' : 'View Summary'}
+                        </Button>
+                    </div>
                 </div>
 
 
