@@ -3,34 +3,42 @@ import mongoose from 'mongoose';
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://rminhal783_db_user:pi8fODTUIsdDiKF5@cluster0.ijtzyjr.mongodb.net/?appName=Cluster0';
 
 let isConnected = false;
-let lastConnectionAttempt = 0;
-const RETRY_COOLING_PERIOD_MS = 20000; // 20 seconds cooling period
+let connectionPromise: Promise<typeof mongoose> | null = null;
 
 export async function connectDB() {
   // mongoose.connection.readyState: 1 = connected. Don't trust a stale `isConnected`
   // flag alone — on serverless the underlying connection can drop between invocations.
   if (isConnected && mongoose.connection.readyState === 1) return;
 
-  const now = Date.now();
-  if (now - lastConnectionAttempt < RETRY_COOLING_PERIOD_MS) {
-    console.warn(`⚠️ MongoDB connection in cooling period. Skipping connect attempt to prevent blocking.`);
-    throw new Error('Database connection is temporarily unavailable');
+  // A connect is already in flight on this warm instance (concurrent requests can
+  // easily land here before the first attempt resolves) — await it instead of
+  // failing the second request outright.
+  if (connectionPromise) {
+    await connectionPromise;
+    return;
   }
 
-  try {
-    lastConnectionAttempt = now;
-    isConnected = false;
-    await mongoose.connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 8000,  // serverless cold starts need more headroom than 2s
+  isConnected = false;
+  connectionPromise = mongoose
+    .connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 8000, // serverless cold starts need more headroom than 2s
       connectTimeoutMS: 8000,
       socketTimeoutMS: 10000,
+    })
+    .then((m) => {
+      isConnected = true;
+      console.log('✅ MongoDB connected');
+      return m;
+    })
+    .catch((error) => {
+      console.error('❌ MongoDB connection error:', error);
+      throw error;
+    })
+    .finally(() => {
+      connectionPromise = null;
     });
-    isConnected = true;
-    console.log('✅ MongoDB connected');
-  } catch (error) {
-    console.error('❌ MongoDB connection error:', error);
-    throw error;
-  }
+
+  await connectionPromise;
 }
 
 // ── Property Schema ──
