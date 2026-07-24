@@ -20,15 +20,15 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = getUserFromToken(req);
+    if (!user?.id) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
 
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get('property');
     const status = searchParams.get('status');
 
-    const filter: any = {};
-    if (user?.id) {
-      filter.inspectorId = user.id;
-    }
+    const filter: any = { inspectorId: user.id };
     if (propertyId) {
       filter.propertyId = propertyId;
     }

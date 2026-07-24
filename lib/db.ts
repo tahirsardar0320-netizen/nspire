@@ -7,7 +7,9 @@ let lastConnectionAttempt = 0;
 const RETRY_COOLING_PERIOD_MS = 20000; // 20 seconds cooling period
 
 export async function connectDB() {
-  if (isConnected) return;
+  // mongoose.connection.readyState: 1 = connected. Don't trust a stale `isConnected`
+  // flag alone — on serverless the underlying connection can drop between invocations.
+  if (isConnected && mongoose.connection.readyState === 1) return;
 
   const now = Date.now();
   if (now - lastConnectionAttempt < RETRY_COOLING_PERIOD_MS) {
@@ -17,10 +19,11 @@ export async function connectDB() {
 
   try {
     lastConnectionAttempt = now;
+    isConnected = false;
     await mongoose.connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 2000,  // fail fast — 2s instead of 5s
-      connectTimeoutMS: 2000,
-      socketTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 8000,  // serverless cold starts need more headroom than 2s
+      connectTimeoutMS: 8000,
+      socketTimeoutMS: 10000,
     });
     isConnected = true;
     console.log('✅ MongoDB connected');
@@ -70,6 +73,8 @@ const inspectionSchema = new mongoose.Schema({
   unitId: String,
   buildingId: String,
   status: { type: String, default: 'in-progress' },
+  responses: mongoose.Schema.Types.Mixed,
+  inspectionData: mongoose.Schema.Types.Mixed,
   data: mongoose.Schema.Types.Mixed,
   completedAt: Date,
   createdAt: { type: Date, default: Date.now },

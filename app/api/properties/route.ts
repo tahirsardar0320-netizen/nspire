@@ -21,6 +21,9 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = getUserFromToken(req);
+    if (!user?.id) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
 
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('search') || '';
@@ -29,19 +32,11 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '100');
 
-    const filter: any = {};
-    if (user?.id) {
-      // Match userId stored as either a string or as an ObjectId
-      const userId = String(user.id);
-      if (mongoose.isValidObjectId(userId)) {
-        filter.$or = [
-          { userId: userId },
-          { userId: new mongoose.Types.ObjectId(userId) },
-        ];
-      } else {
-        filter.userId = userId;
-      }
-    }
+    // Match userId stored as either a string or as an ObjectId
+    const userId = String(user.id);
+    const filter: any = mongoose.isValidObjectId(userId)
+      ? { $or: [{ userId: userId }, { userId: new mongoose.Types.ObjectId(userId) }] }
+      : { userId: userId };
     if (search) {
       const searchConditions = [
         { name: { $regex: search, $options: 'i' } },

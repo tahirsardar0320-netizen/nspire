@@ -28,7 +28,8 @@ import { toast } from "react-toastify"
 import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, ArrowUpDown, MoreHorizontal, Camera, X, ChevronLeft, CheckCircle2, FileText, User, Grid, Clock, Video, Monitor, Image as ImageIcon, Laptop, Tablet, Pencil, Check } from "lucide-react";
 
 import { OUTSIDE_ITEMS, INSIDE_ITEMS, UNIT_ITEMS } from "@/lib/inspectionData";
-import { SummaryModal } from "@/components/PropertyModals";
+import { ReportPreviewModal } from "@/components/ReportPreviewModal";
+import { fetchNSPIREReportForProperty, NSPIREInspectionReport } from "@/lib/nspireReport";
 
 
 const outsideItemsList = OUTSIDE_ITEMS.map(item => `${item.id}. ${item.name}`);
@@ -95,7 +96,8 @@ export default function InspectionCategoryPage() {
     const [user, setUser] = useState<any>(null)
     const [units, setUnits] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
-    const [showSummaryModal, setShowSummaryModal] = useState(false)
+    const [reportPreviewData, setReportPreviewData] = useState<NSPIREInspectionReport | null>(null)
+    const [loadingReportPreview, setLoadingReportPreview] = useState(false)
     const [expandedSection, setExpandedSection] = useState<string | null>(null)
     const [outsideStatuses, setOutsideStatuses] = useState<Record<string, ItemStatus>>({})
     const [insideStatuses, setInsideStatuses] = useState<Record<string, ItemStatus>>({})
@@ -119,10 +121,34 @@ export default function InspectionCategoryPage() {
     const refreshCompletedUnits = async () => {
         if (!id || !urlBuilding) return;
         try {
-            const res = await inspectionsAPI.getUnitStatus(id, urlBuilding);
-            if (res.success) {
-                setCompletedUnits(res.statuses.filter((s: any) => s.isInspected).map((s: any) => s.unitLabel));
+            let records: any[] = [];
+            try {
+                const res = await inspectionsAPI.getProgress({ property_id: id, building_id: urlBuilding });
+                if (res && Array.isArray(res.progress)) records = res.progress;
+            } catch (error) {
+                console.error("Error fetching progress from API:", error);
             }
+
+            // Merge in the local cache so this still works when the backend is unreachable
+            try {
+                const cached = localStorage.getItem(`cached_progress_${id}_${urlBuilding}`);
+                if (cached) {
+                    const cachedList = JSON.parse(cached);
+                    if (Array.isArray(cachedList)) records = [...records, ...cachedList];
+                }
+            } catch (e) {}
+
+            const completed: string[] = [];
+            const seen = new Set<string>();
+            records.forEach((p: any) => {
+                const type = String(p.inspectionType || '').toLowerCase();
+                if (type.startsWith('unit_') && p.inspectionData?.isComplete && p.unitId && !seen.has(p.unitId)) {
+                    seen.add(p.unitId);
+                    completed.push(p.unitId);
+                }
+            });
+
+            setCompletedUnits(completed);
         } catch (error) {
             console.error("Error fetching completed units:", error);
         }
@@ -570,11 +596,12 @@ export default function InspectionCategoryPage() {
 
     const loadSavedProgress = async () => {
         const localCacheKey = `cached_progress_${id}_${urlBuilding}`;
+        let cachedRecords: any[] = [];
         try {
             const cachedDataStr = localStorage.getItem(localCacheKey);
             if (cachedDataStr) {
-                const cached = JSON.parse(cachedDataStr);
-                applyProgressData(cached);
+                cachedRecords = JSON.parse(cachedDataStr);
+                applyProgressData(cachedRecords);
             }
         } catch (e) {
             console.error("Cache load error:", e);
@@ -586,7 +613,9 @@ export default function InspectionCategoryPage() {
                 building_id: urlBuilding
             });
 
-            if (res.progress) {
+            // Never let an empty/partial server response wipe out richer local progress
+            // (e.g. while the backend is unreachable or hasn't caught up yet).
+            if (res.progress && res.progress.length >= cachedRecords.length) {
                 localStorage.setItem(localCacheKey, JSON.stringify(res.progress));
                 applyProgressData(res.progress);
             }
@@ -769,8 +798,8 @@ export default function InspectionCategoryPage() {
                 setOdForm(previousData.odForm);
                 setSelectedDeficiency(previousData.selectedDeficiency);
                 setPhotos(previousData.photos);
-                // Jump to step 2 (the form) so user can review/edit their previous entry
-                setModalStep(2);
+                // Jump to step 4 (saved deficiency review) since this item already has one recorded
+                setModalStep(4);
             } else {
                 setOdForm(prev => ({
                     ...prev,
@@ -823,6 +852,24 @@ export default function InspectionCategoryPage() {
             });
         }
     };
+    const handleOpenReportPreview = async () => {
+        setLoadingReportPreview(true)
+        try {
+            const propId = property?._id || id
+            const reportData = await fetchNSPIREReportForProperty(propId)
+            if (reportData) {
+                setReportPreviewData(reportData)
+            } else {
+                toast.error("Unable to load report preview.")
+            }
+        } catch (error) {
+            console.error("Error loading report preview:", error)
+            toast.error("Unable to load report preview.")
+        } finally {
+            setLoadingReportPreview(false)
+        }
+    }
+
     const selectAll = (section: 'outside' | 'inside' | 'unit', status: ItemStatus) => {
         const list = section === 'outside' ? outsideItemsList : section === 'inside' ? insideItemsList : unitItemsList;
         const currentStatuses = section === 'outside' ? outsideStatuses : section === 'inside' ? insideStatuses : unitStatuses;
@@ -866,6 +913,39 @@ export default function InspectionCategoryPage() {
         setSelectedDeficiency(null);
         setPhotos([]);
         setOdForm({ category: "", note: "", location: "Building Site S", healthAndSafety: "", repairBy: "", codeAndCompliance: "" });
+    };
+
+    const handleRemoveODDeficiency = () => {
+        if (!currentSection || !currentModalItem) return;
+        const savedKey = `${urlBuilding}:${currentSection}:${currentModalItem}`;
+
+        if (currentSection === 'outside') {
+            setOutsideStatuses(prev => ({ ...prev, [currentModalItem]: null }));
+        } else if (currentSection === 'inside') {
+            setInsideStatuses(prev => ({ ...prev, [currentModalItem]: null }));
+        } else {
+            setUnitStatuses(prev => ({ ...prev, [currentModalItem]: null }));
+        }
+
+        setSavedODItems(prev => {
+            const next = new Set(prev);
+            next.delete(savedKey);
+            return next;
+        });
+        setSavedODFormData(prev => {
+            const next = { ...prev };
+            delete next[savedKey];
+            return next;
+        });
+        setPropertyFindings(prev => {
+            const unitVal = currentSection === 'unit' ? (activeInspectionUnit || unitsString) : '-';
+            return prev.filter((f: any) =>
+                !(f.item === currentModalItem && f.area === currentSection && f.unit === unitVal && (f.building === urlBuilding || f.building === buildingName))
+            );
+        });
+
+        toast.success('Deficiency removed.', { position: 'top-right' });
+        handleODModalClose();
     };
 
     const handleGeneralModalClose = () => {
@@ -1627,11 +1707,18 @@ export default function InspectionCategoryPage() {
     }, [urlTotalUnits, units, property]);
 
     const unitProgress = useMemo(() => {
-        const unitsOnly = completedUnits.filter(u => u !== 'Outside' && u !== 'Inside');
-        const completed = unitsOnly.length;
+        // The active unit's completion is derived from live local state so this updates
+        // instantly (same as Outside/Inside) instead of waiting on the debounced save + refetch.
+        const activeUnitDone = !!activeInspectionUnit && unitItemsList.length > 0 &&
+            unitItemsList.every(item => unitStatuses[item] !== null && unitStatuses[item] !== undefined);
+
+        const completedSet = new Set(completedUnits.filter(u => u !== 'Outside' && u !== 'Inside'));
+        if (activeUnitDone && activeInspectionUnit) completedSet.add(activeInspectionUnit);
+
+        const completed = completedSet.size;
         const total = rawUnitIds.length > 0 ? rawUnitIds.length : 1;
         return { completed, percentage: Math.round((completed / total) * 100), total };
-    }, [completedUnits, rawUnitIds]);
+    }, [completedUnits, rawUnitIds, unitStatuses, activeInspectionUnit, unitItemsList]);
 
     // Display unit names (edited names take priority)
     const unitsString = useMemo(() => {
@@ -1714,12 +1801,13 @@ export default function InspectionCategoryPage() {
                         </button>
                     </div>
                     
-                    <Button 
-                        onClick={() => setShowSummaryModal(true)}
+                    <Button
+                        onClick={handleOpenReportPreview}
+                        disabled={loadingReportPreview}
                         className="bg-[#006795] hover:bg-[#0a5670] text-white font-black px-6 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center gap-2"
                     >
                         <FileText className="w-4 h-4" />
-                        View Summary
+                        {loadingReportPreview ? 'Loading...' : 'View Summary'}
                     </Button>
                 </div>
 
@@ -2394,42 +2482,56 @@ export default function InspectionCategoryPage() {
                         </div>
 
                         {modalStep === 4 && (
-                            <div className="flex-1 overflow-y-auto flex flex-col items-center justify-start p-8 text-center space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-0">
-                                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-2">
-                                    <CheckCircle2 className="w-10 h-10 text-green-600" />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <h3 className="text-2xl font-black text-gray-900">Analysis Complete</h3>
-                                    <p className="text-gray-500 text-sm">AI has successfully inspected this item.</p>
-                                </div>
-
-                                <div className="w-full bg-gray-50 rounded-2xl p-6 border border-gray-100 text-left space-y-4">
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">Detected Defect</p>
-                                            <p className="font-bold text-gray-800">{analysisResult?.description || analysisResult?.defect || "Deficiency Detected"}</p>
+                            <div className="flex-1 overflow-y-auto flex flex-col p-6 md:p-8 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-0">
+                                <div className="w-full bg-emerald-50/60 border border-emerald-200 rounded-2xl p-4 flex items-start gap-4 text-left">
+                                    {photos[0] && (
+                                        <img src={photos[0]} alt="Deficiency" className="w-20 h-20 rounded-xl object-cover shrink-0 border-2 border-white shadow-sm" />
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <p className="font-bold text-gray-800 text-sm leading-snug">
+                                                {analysisResult?.description || analysisResult?.defect || selectedDeficiency?.detail || odForm.note || "Deficiency recorded"}
+                                            </p>
+                                            <button
+                                                onClick={handleRemoveODDeficiency}
+                                                className="shrink-0 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
+                                            >
+                                                Remove
+                                            </button>
                                         </div>
-                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${(analysisResult?.severity || "").toLowerCase().includes('life') ? 'bg-red-100 text-red-600' :
-                                            (analysisResult?.severity || "").toLowerCase().includes('severe') ? 'bg-orange-100 text-orange-600' :
-                                                'bg-blue-100 text-blue-600'
+                                        <p className={`mt-2 text-[11px] font-black uppercase tracking-widest ${(analysisResult?.severity || odForm.healthAndSafety || "").toLowerCase().includes('life') ? 'text-red-600' :
+                                            (analysisResult?.severity || odForm.healthAndSafety || "").toLowerCase().includes('severe') ? 'text-orange-600' :
+                                                (analysisResult?.severity || odForm.healthAndSafety || "").toLowerCase().includes('low') ? 'text-emerald-600' :
+                                                    'text-blue-600'
                                             }`}>
-                                            {analysisResult?.severity || "Moderate"}
-                                        </span>
+                                            {analysisResult?.severity || odForm.healthAndSafety || "Moderate"}
+                                        </p>
                                     </div>
                                 </div>
 
-                                {/* View Summary Button - Primary Action */}
                                 <Button
                                     onClick={() => {
-                                        // Close modal and open summary popup
-                                        handleODModalClose();
-                                        setShowSummaryModal(true);
+                                        setOdForm(prev => ({ ...prev, note: "", location: "Building Site S", healthAndSafety: "", repairBy: "", codeAndCompliance: "" }));
+                                        setSelectedDeficiency(null);
+                                        setPhotos([]);
+                                        setModalStep(2);
                                     }}
-                                    className="w-full bg-[#006795] hover:bg-[#0a5670] text-white font-black h-14 rounded-xl shadow-lg uppercase text-[10px] tracking-widest flex items-center justify-center gap-3"
+                                    className="w-full bg-[#006795] hover:bg-[#0a5670] text-white font-black h-14 rounded-xl shadow-lg uppercase text-[10px] tracking-widest flex items-center justify-center gap-2"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    Add Deficiency
+                                </Button>
+
+                                <Button
+                                    onClick={() => {
+                                        handleOpenReportPreview();
+                                        handleODModalClose();
+                                    }}
+                                    disabled={loadingReportPreview}
+                                    className="w-full bg-gray-900 hover:bg-black text-white font-black h-14 rounded-xl shadow-lg shadow-gray-200 uppercase text-[10px] tracking-widest flex items-center justify-center gap-3"
                                 >
                                     <FileText className="w-4 h-4" />
-                                    View NSPIRE Summary
+                                    {loadingReportPreview ? 'Loading...' : 'View NSPIRE Summary'}
                                 </Button>
 
                                 {reportUrl && (
@@ -2439,21 +2541,14 @@ export default function InspectionCategoryPage() {
                                         rel="noopener noreferrer"
                                         className="w-full"
                                     >
-                                        <Button className="w-full bg-gray-900 hover:bg-black text-white font-black h-14 rounded-xl shadow-lg shadow-gray-200 uppercase text-[10px] tracking-widest flex items-center justify-center gap-3">
+                                        <Button variant="outline" className="w-full font-black h-14 rounded-xl border-2 bg-white hover:bg-gray-50 text-gray-500 uppercase text-[10px] tracking-widest flex items-center justify-center gap-3">
                                             <FileText className="w-4 h-4" />
                                             Download Official Report
                                         </Button>
                                     </a>
                                 )}
 
-                                <Button variant="outline" onClick={() => {
-                                    // Reset modal and stay on inspection page
-                                    setModalStep(1);
-                                    setSelectedDeficiency(null);
-                                    setPhotos([]);
-                                    setOdForm({ category: "", note: "", location: "Building Site S", healthAndSafety: "", repairBy: "", codeAndCompliance: "" });
-                                    setIsODModalOpen(false);
-                                }} className="w-full font-black h-14 rounded-xl border-2 bg-white hover:bg-gray-50 text-gray-500 uppercase text-[10px] tracking-widest">
+                                <Button variant="outline" onClick={handleODModalClose} className="w-full font-black h-14 rounded-xl border-2 bg-white hover:bg-gray-50 text-gray-500 uppercase text-[10px] tracking-widest">
                                     Continue Inspection
                                 </Button>
                             </div>
@@ -2624,12 +2719,8 @@ export default function InspectionCategoryPage() {
                 </div>
             )}
 
-            {showSummaryModal && (
-                <SummaryModal
-                    isOpen={showSummaryModal}
-                    onClose={() => setShowSummaryModal(false)}
-                    propertyData={property}
-                />
+            {reportPreviewData && (
+                <ReportPreviewModal report={reportPreviewData} onClose={() => setReportPreviewData(null)} />
             )}
 
             <style jsx global>{`

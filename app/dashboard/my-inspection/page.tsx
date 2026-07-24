@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "react-toastify"
 import { useState, useEffect } from "react"
 import { propertiesAPI } from "@/lib/api"
+import { fetchPropertyProgressMap } from "@/lib/inspectionProgress"
 import { UnitSelectionModal } from "@/components/UnitSelectionModal"
 import { ActionModal, EditPropertyModal, SummaryModal } from "@/components/PropertyModals"
 import { Country, State, City } from 'country-state-city'
@@ -125,63 +126,8 @@ export default function MyInspection() {
   }
 
   const fetchProgress = async (propertyList: any[]) => {
-    try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
-      const url = API_URL ? `${API_URL}/api/inspections/progress` : '/api/inspections/progress'
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
-      const data = await response.json()
-      if (data.success && Array.isArray(data.progress)) {
-        const progressMap: Record<string, number> = {}
-        
-        propertyList.forEach(prop => {
-            const propId = prop._id
-            const propProgress = data.progress.filter((p: any) => 
-                p.propertyId === propId || p.propertyId?._id === propId
-            )
-            
-            const uniqueTasks = new Set()
-            propProgress.forEach((p: any) => {
-                const type = String(p.inspectionType || '').toLowerCase()
-                if (type.startsWith('unit_')) {
-                    uniqueTasks.add(`unit_${p.unitId}`)
-                } else if (type === 'inside' || type === 'outside') {
-                    uniqueTasks.add(type)
-                }
-            })
-            
-            let unitsToInspect = parseInt(prop.units) || 1
-            if (typeof window !== 'undefined') {
-              const saved = localStorage.getItem(`property_coverage_${propId}`)
-              if (saved) {
-                try {
-                  const parsed = JSON.parse(saved)
-                  if (parsed && typeof parsed.calculatedUnits === 'number') {
-                    unitsToInspect = parsed.calculatedUnits
-                  }
-                } catch (e) {}
-              }
-            }
-
-            const totalTasks = (parseInt(prop.buildings) * 2) + unitsToInspect
-            if (totalTasks > 0) {
-                progressMap[propId] = Math.min(100, Math.round((uniqueTasks.size / totalTasks) * 100))
-            } else {
-                progressMap[propId] = 0
-            }
-        })
-        setPropertyProgress(progressMap)
-      }
-    } catch (e) {
-      console.error('Error fetching progress:', e)
-      // Set all progress to 0 as fallback
-      const progressMap: Record<string, number> = {}
-      propertyList.forEach(prop => { progressMap[prop._id] = 0 })
-      setPropertyProgress(progressMap)
-    }
+    const progressMap = await fetchPropertyProgressMap(propertyList, process.env.NEXT_PUBLIC_API_URL || '')
+    setPropertyProgress(progressMap)
   }
 
 
@@ -443,6 +389,13 @@ export default function MyInspection() {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                               </svg>
                               Completed
+                            </button>
+                          ) : activeInspectionId === pid ? (
+                            <button
+                              onClick={() => handleInitiate(property)}
+                              className="px-4 py-1.5 text-[11px] font-bold text-white bg-[#006795] hover:bg-[#0a5670] rounded-lg whitespace-nowrap mx-auto border-0 shadow-sm transition-colors"
+                            >
+                              In Progress
                             </button>
                           ) : lockedProperties[pid] ? (
                             <button
