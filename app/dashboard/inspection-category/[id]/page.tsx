@@ -1791,7 +1791,7 @@ export default function InspectionCategoryPage() {
                             className="bg-[#F84B5F] hover:bg-[#e03a4e] text-white font-black px-6 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center gap-2"
                         >
                             <Lock className="w-4 h-4" />
-                            Unlock
+                            Pay to Unlock
                         </Button>
                         <Button
                             onClick={handleOpenReportPreview}
