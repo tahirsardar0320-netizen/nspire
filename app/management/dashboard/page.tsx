@@ -185,10 +185,7 @@ export default function ManagementDashboard() {
         }
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to add property", { position: "top-right" })
-      setNewPropertyData(Array.isArray(data) ? data[0] : data)
-      setShowAddPropertyModal(false)
-      setShowActionModal(true)
+      toast.error(error.message || "Failed to add property. Please try again.", { position: "top-right" })
     }
   }
 

@@ -747,22 +747,6 @@ export default function InspectionCategoryPage() {
 
             if (propRes.success) {
                 setProperty(propRes.property)
-                try {
-                    const unitsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/inspections/sample-units`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('token')}`
-                        },
-                        body: JSON.stringify({ propertyId: id })
-                    });
-                    const unitsData = await unitsRes.json();
-                    if (unitsData.success) {
-                        setUnits([...(unitsData.data.primaryUnits || []), ...(unitsData.data.alternateUnits || [])]);
-                    }
-                } catch (e) {
-                    console.error("Error fetching units:", e);
-                }
             }
             if (userRes.success) {
                 setUser(userRes.user)

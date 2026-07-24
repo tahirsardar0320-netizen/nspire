@@ -288,12 +288,7 @@ export default function Dashboard() {
         setShowActionModal(true)
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to add property", { position: "top-right" })
-      // Fallback for dev
-      toast.success("Data saved successfully", { position: "top-right" })
-      setNewPropertyData(data)
-      setShowBuildingDivisionModal(false)
-      setShowActionModal(true)
+      toast.error(error.message || "Failed to add property. Please try again.", { position: "top-right" })
     }
   }
 

@@ -82,6 +82,8 @@ export async function POST(req: NextRequest) {
     // Store userId as a plain string so it matches the JWT payload consistently
     const property = await Property.create({
       ...body,
+      // The "Property ID" field is optional in the UI — auto-generate one when left blank
+      propertyId: body.propertyId?.trim() || `PRP-${Date.now().toString().slice(-9)}`,
       userId: user?.id ? String(user.id) : null,
     });
 

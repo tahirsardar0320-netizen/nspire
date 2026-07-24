@@ -313,8 +313,14 @@ export const propertiesAPI = {
         saveLocalCache(cache);
         return { success: true, message: 'Property created successfully', property: result.property };
       }
-    } catch (e) {
-      console.warn('MongoDB save failed, using local fallback:', e);
+    } catch (e: any) {
+      // The server responded but rejected the request (validation error, etc.) —
+      // this is a real failure the user needs to see, not something to paper over
+      // with a fake local-only property that later breaks every downstream save.
+      if (e?.status) {
+        throw e;
+      }
+      console.warn('Backend unreachable, using local fallback:', e);
     }
 
     // 2. Fallback: save locally if backend unavailable
