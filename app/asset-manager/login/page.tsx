@@ -49,6 +49,8 @@ export default function AssetManagerLogin() {
 
       let data: any = null
       let success = false
+      let reachedServer = false
+      let serverErrorMessage = ''
 
       // Try 1: API URL
       try {
@@ -59,30 +61,46 @@ export default function AssetManagerLogin() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody),
           })
-          if (res.ok) {
-            data = await res.json()
-            if (data && data.token) success = true
+          reachedServer = true
+          data = await res.json().catch(() => null)
+          if (res.ok && data && data.token) {
+            success = true
+          } else {
+            serverErrorMessage = data?.message || 'Invalid email or password'
           }
         }
       } catch (e) {}
 
       // Try 2: Internal route
-      if (!success) {
+      if (!success && !reachedServer) {
         try {
           const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody),
           })
-          if (res.ok) {
-            data = await res.json()
-            if (data && data.token) success = true
+          reachedServer = true
+          data = await res.json().catch(() => null)
+          if (res.ok && data && data.token) {
+            success = true
+          } else {
+            serverErrorMessage = data?.message || 'Invalid email or password'
           }
         } catch (e) {}
       }
 
-      // Try 3: Fallback for Netlify / static
-      if (!success || !data?.token) {
+      // Server reachable but rejected login (wrong password, etc.) — do not fake success
+      if (reachedServer && !success) {
+        toast.error(serverErrorMessage, {
+          position: "top-right",
+          autoClose: 3000,
+        })
+        setIsLoading(false)
+        return
+      }
+
+      // Try 3: Fallback ONLY when the backend was genuinely unreachable
+      if (!success && !reachedServer) {
         data = {
           token: 'token_' + Date.now(),
           user: {

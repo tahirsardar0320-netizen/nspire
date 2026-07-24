@@ -70,6 +70,8 @@ export default function Login() {
 
       let data: any = null
       let success = false
+      let reachedServer = false
+      let serverErrorMessage = ''
 
       // Try 1: Try NEXT_PUBLIC_API_URL if configured
       try {
@@ -80,9 +82,12 @@ export default function Login() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody),
           })
-          if (res.ok) {
-            data = await res.json()
-            if (data && data.token) success = true
+          reachedServer = true
+          data = await res.json().catch(() => null)
+          if (res.ok && data && data.token) {
+            success = true
+          } else {
+            serverErrorMessage = data?.message || 'Invalid email or password'
           }
         }
       } catch (e) {
@@ -90,24 +95,39 @@ export default function Login() {
       }
 
       // Try 2: Try internal Next.js API route /api/auth/login
-      if (!success) {
+      if (!success && !reachedServer) {
         try {
           const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody),
           })
-          if (res.ok) {
-            data = await res.json()
-            if (data && data.token) success = true
+          reachedServer = true
+          data = await res.json().catch(() => null)
+          if (res.ok && data && data.token) {
+            success = true
+          } else {
+            serverErrorMessage = data?.message || 'Invalid email or password'
           }
         } catch (e) {
           console.warn('Internal API route fetch failed...')
         }
       }
 
-      // Try 3: Fallback for static hosting (Netlify) / offline mode
-      if (!success || !data?.token) {
+      // The server responded (reachable) but rejected the login — a real failure.
+      // Do NOT fall back to a fake local session here, or every subsequent API
+      // call will 401 with an unverifiable token and force-logout the user.
+      if (reachedServer && !success) {
+        toast.error(serverErrorMessage, {
+          position: "top-right",
+          autoClose: 3000,
+        })
+        setIsLoading(false)
+        return
+      }
+
+      // Try 3: Fallback ONLY when the backend was genuinely unreachable (e.g. static hosting / offline)
+      if (!success && !reachedServer) {
         const fallbackRole = role && role !== 'user' ? role : 'inspector'
         data = {
           token: 'token_' + Date.now(),

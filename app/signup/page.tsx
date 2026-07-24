@@ -130,6 +130,7 @@ export default function Signup() {
     try {
       let data: any = null
       let success = false
+      let reachedServer = false
 
       const targetRole = loginType === 'inspector' ? 'inspector' : 'management'
 
@@ -144,15 +145,26 @@ export default function Signup() {
             role: targetRole,
           }),
         })
-        if (res.ok) {
-          data = await res.json()
-          if (data && data.success) success = true
-        }
+        reachedServer = true
+        data = await res.json().catch(() => null)
+        if (res.ok && data && data.success) success = true
       } catch (e) {
         console.warn('Signup API route failed, using local session fallback...')
       }
 
-      if (!success || !data) {
+      // The server responded (reachable) but rejected the signup — a real failure
+      // (e.g. email already registered). Surface it instead of faking success,
+      // otherwise the resulting fake token will 401 on every subsequent API call.
+      if (reachedServer && !success) {
+        toast.error(data?.message || "Error creating account. Please try again.", {
+          position: "top-right",
+          autoClose: 3000,
+        })
+        setIsLoading(false)
+        return
+      }
+
+      if (!success && !reachedServer) {
         data = {
           success: true,
           token: 'token_' + Date.now(),

@@ -94,6 +94,12 @@ export async function POST(req: NextRequest) {
     }, { status: 201 });
   } catch (error: any) {
     console.error('POST /api/properties error:', error);
+    if (error.code === 11000) {
+      return NextResponse.json({
+        success: false,
+        message: 'That Property ID is already in use. Please enter a different Property ID (or leave it blank to auto-generate one).',
+      }, { status: 409 });
+    }
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }

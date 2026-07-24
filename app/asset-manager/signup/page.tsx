@@ -47,6 +47,7 @@ export default function AssetManagerSignup() {
     try {
       let data: any = null
       let success = false
+      let reachedServer = false
 
       try {
         const res = await fetch('/api/auth/register', {
@@ -54,13 +55,19 @@ export default function AssetManagerSignup() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ fullName, email: email.trim().toLowerCase(), password, role }),
         })
-        if (res.ok) {
-          data = await res.json()
-          if (data && data.success) success = true
-        }
+        reachedServer = true
+        data = await res.json().catch(() => null)
+        if (res.ok && data && data.success) success = true
       } catch (e) {}
 
-      if (!success || !data) {
+      // Server reachable but rejected signup (e.g. email already registered) — do not fake success
+      if (reachedServer && !success) {
+        toast.error(data?.message || "Error creating account. Please try again.", { position: "top-right", autoClose: 3000 })
+        setIsLoading(false)
+        return
+      }
+
+      if (!success && !reachedServer) {
         data = {
           success: true,
           token: 'token_' + Date.now(),
