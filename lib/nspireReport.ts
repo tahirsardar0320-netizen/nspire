@@ -527,7 +527,12 @@ export async function fetchNSPIREReportForProperty(propertyId: string): Promise<
         progData.progress.forEach((record: any) => {
             const recordFindings = record.inspectionData?.findings || record.inspectionData?.deficiencies || []
             if (Array.isArray(recordFindings)) {
-                const building = record.buildingId || record.inspectionData?.buildingId || ''
+                // Backend progress records use snake_case building_id, not camelCase buildingId —
+                // matching the field-name fallbacks already used in property-details/[id]/page.tsx.
+                // Without these, `building` resolved to '' for every record regardless of which
+                // building it came from, so findings from different buildings collided in the
+                // dedup key below and the report silently showed only one building's data.
+                const building = record.buildingId || record.building_id || record.inspectionData?.buildingId || record.inspectionData?.building_id || ''
                 const unit = record.unitId || record.inspectionData?.currentUnit || '-'
                 const rawArea = record.inspectionType || (unit === 'Outside' ? 'Outside' : unit === 'Inside' ? 'Inside' : 'Unit')
                 const area = rawArea.charAt(0).toUpperCase() + rawArea.slice(1).toLowerCase()
@@ -566,7 +571,11 @@ export async function fetchNSPIREReportForProperty(propertyId: string): Promise<
         const normBuilding = String(f.building || '').replace(/^Building\s+/i, 'B').toUpperCase().trim()
         const normUnit = String(f.unit || '').replace(/^Unit\s+/i, '').replace(/^-$/, '').toUpperCase().trim()
         const normName = String(f.deficiencyName || f.title || '').toLowerCase().replace(/[^a-z0-9]/g, '')
-        const key = [normName, normBuilding, normUnit].filter(Boolean).join('|')
+        const normArea = String(f.area || '').toLowerCase().trim()
+        // MUST include area — building/unit are often identical across Outside and Inside
+        // items (unit defaults to "-" for both), so without area, items from different
+        // inspection areas with the same name collide and one silently overwrites the other.
+        const key = [normName, normBuilding, normUnit, normArea].filter(Boolean).join('|')
 
         const existing = deduped.get(key)
         const isNewerOrBetter = !existing || (f.isFinalized && !existing.isFinalized) || (!existing.imageUri && f.imageUri)

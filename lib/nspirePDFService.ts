@@ -18,6 +18,7 @@ import {
   DeficiencySeverity,
   REPAIR_TIMELINES,
 } from './nspireReport';
+import { NSPIRE_LOGO_DATA_URI } from './reportAssets';
 
 /** Build a clickable data URI link showing the short NSPIRE code; clicking opens a clean HTML page with the full codeReference text */
 function makeCodeRefLink(nspireCode: string, codeReference?: string): string {
@@ -173,28 +174,18 @@ function generateStyles(options: PDFGenerationOptions): string {
     /* HUD NSPIRE Specific Styles */
     .header-logos {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
       margin-bottom: 20px;
       border-bottom: none;
     }
-    
-    .hud-logo-container {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    
-    .hud-seal {
-      width: 80px;
-      height: 80px;
-      object-fit: contain;
-    }
-    
+
     .nspire-logo {
-      width: 150px;
+      width: 240px;
       height: auto;
+      max-width: 100%;
       object-fit: contain;
+      display: block;
     }
     
     .report-meta-header {
@@ -332,12 +323,7 @@ function generateHeader(metadata: InspectionMetadata, options: PDFGenerationOpti
     <div class="report-meta-header">Report Created: ${new Date().toLocaleDateString()}</div>
     
     <div class="header-logos">
-       <div class="hud-logo-container">
-         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Seal_of_the_United_States_Department_of_Housing_and_Urban_Development.svg/1200px-Seal_of_the_United_States_Department_of_Housing_and_Urban_Development.svg.png" class="hud-seal" alt="HUD Seal" />
-       </div>
-       <div>
-         <img src="/logo.png" class="nspire-logo" alt="NSPIRE Logo" />
-       </div>
+       <img src="${NSPIRE_LOGO_DATA_URI}" class="nspire-logo" alt="NSPIRE - U.S. Department of Housing and Urban Development" />
     </div>
 
     <div class="inspection-meta-grid">

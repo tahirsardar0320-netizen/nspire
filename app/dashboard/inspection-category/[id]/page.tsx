@@ -25,7 +25,7 @@ import {
 } from "@/lib/insideScoringCalculations"
 import { getSamplingRequirements } from "@/lib/unitSamplingService"
 import { toast } from "react-toastify"
-import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, MoreHorizontal, Camera, X, ChevronLeft, CheckCircle2, FileText, User, Grid, Clock, Video, Monitor, Image as ImageIcon, Laptop, Tablet, Pencil, Check, Lock, DoorOpen, AppWindow, Bath, Zap, Flame, Layers, Thermometer, UtensilsCrossed, Lightbulb, Paintbrush, Footprints, BrickWall, Fan, Droplets, Droplet, AlertTriangle, Siren, Phone, Building, Building2, LayoutGrid, Sprout, ShieldCheck, PanelTop, type LucideIcon } from "lucide-react";
+import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, MoreHorizontal, Camera, X, ChevronLeft, CheckCircle2, FileText, User, Grid, Clock, Video, Monitor, Image as ImageIcon, Laptop, Tablet, Pencil, Check, Lock, DoorOpen, AppWindow, Bath, Zap, Flame, Layers, Thermometer, UtensilsCrossed, Lightbulb, Paintbrush, Footprints, BrickWall, Fan, Droplets, Droplet, AlertTriangle, Siren, LifeBuoy, Building, Building2, LayoutGrid, Sprout, ShieldCheck, PanelTop, type LucideIcon } from "lucide-react";
 
 import { OUTSIDE_ITEMS, INSIDE_ITEMS, UNIT_ITEMS } from "@/lib/inspectionData";
 import { ReportPreviewModal } from "@/components/ReportPreviewModal";
@@ -93,9 +93,9 @@ const CATEGORY_ICON_MAP: { keyword: string; icon: LucideIcon }[] = [
     { keyword: 'bathroom', icon: Bath },
     { keyword: 'bath', icon: Bath },
     { keyword: 'cabinet', icon: LayoutGrid },
-    { keyword: 'call-for-aid', icon: Phone },
-    { keyword: 'call for aid', icon: Phone },
-    { keyword: 'emergency pull cord', icon: Phone },
+    { keyword: 'call-for-aid', icon: LifeBuoy },
+    { keyword: 'call for aid', icon: LifeBuoy },
+    { keyword: 'emergency pull cord', icon: LifeBuoy },
     { keyword: 'co alarm', icon: Siren },
     { keyword: 'carbon monoxide', icon: Siren },
     { keyword: 'ceiling', icon: PanelTop },
@@ -2669,7 +2669,7 @@ export default function InspectionCategoryPage() {
                                     </a>
                                 )}
 
-                                <Button onClick={handleODModalClose} className="w-full bg-rose-600 hover:bg-rose-700 text-white font-black h-14 rounded-xl shadow-lg shadow-rose-600/20 uppercase text-[10px] tracking-widest">
+                                <Button onClick={handleODModalClose} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black h-14 rounded-xl shadow-lg shadow-emerald-600/20 uppercase text-[10px] tracking-widest">
                                     Continue Inspection
                                 </Button>
                             </div>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import DashboardLayout from "@/components/DashboardLayout"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { propertiesAPI, authAPI } from "@/lib/api"
+import { propertiesAPI, authAPI, paymentsAPI, inspectionsAPI } from "@/lib/api"
 import { fetchPropertyProgressMap, getActiveInspectionId } from "@/lib/inspectionProgress"
 import { fetchNSPIREReportForProperty, NSPIREInspectionReport } from "@/lib/nspireReport"
 import { ReportPreviewModal } from "@/components/ReportPreviewModal"
@@ -59,6 +59,10 @@ export default function InspectionStatusPage() {
   const [activeInspectionId, setActiveInspectionId] = useState<string | null>(null)
   const [reportPreviewData, setReportPreviewData] = useState<NSPIREInspectionReport | null>(null)
   const [loadingReportId, setLoadingReportId] = useState<string | null>(null)
+  // Report paywall: inspectionId -> unlocked. Undefined means "not checked yet", so the
+  // card keeps showing a neutral state instead of flashing the wrong button.
+  const [unlockedReports, setUnlockedReports] = useState<Record<string, boolean>>({})
+  const [unlockingId, setUnlockingId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -172,6 +176,105 @@ export default function InspectionStatusPage() {
   const handleRefresh = () => {
     toast.info("Refreshing inspection status...", { position: "top-right" })
     fetchData(true)
+  }
+
+  // A property can read 100% complete locally (propertyProgress) before the initial
+  // /api/inspections fetch has a matching completed Inspection record for it (pagination,
+  // or the record finalizing slightly after progress hits 100%). Those cards fell into the
+  // "isCompleted but !hasInspection" branch, which only rendered "View Summary" — no
+  // Pay-to-Unlock/Download button at all. Backfill the real inspection record so they flow
+  // through the same hasInspection branch as everything else.
+  useEffect(() => {
+    const targets = properties.filter((p) => !p.inspection && propertyProgress[p._id] === 100)
+    if (targets.length === 0) return
+
+    let cancelled = false
+    ;(async () => {
+      const found = await Promise.all(
+        targets.map(async (p) => {
+          try {
+            const res = await inspectionsAPI.getAll({ property: p._id, status: 'completed' })
+            const match = res?.success ? res.inspections?.[0] : null
+            return match ? ([p._id, match] as const) : null
+          } catch {
+            return null
+          }
+        })
+      )
+      if (cancelled) return
+      const resolved = found.filter((f): f is readonly [string, Inspection] => !!f)
+      if (resolved.length === 0) return
+      setProperties((prev) =>
+        prev.map((p) => {
+          const match = resolved.find(([id]) => id === p._id)
+          return match ? { ...p, inspection: match[1], hasInspection: true } : p
+        })
+      )
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [properties, propertyProgress])
+
+  // Ask the backend which completed reports are already paid for, so each card can show
+  // either "Pay to Unlock Report" or "Download PDF" instead of letting the download fail.
+  useEffect(() => {
+    const ids = properties
+      .map((p) => p.inspection?._id)
+      .filter((id): id is string => !!id)
+    if (ids.length === 0) return
+
+    let cancelled = false
+    ;(async () => {
+      const results = await Promise.all(
+        ids.map(async (id) => {
+          try {
+            const res = await paymentsAPI.checkReportUnlock(id)
+            return [id, !!res?.isReportUnlocked] as const
+          } catch {
+            // Treat an unreachable check as locked — the paid path stays behind payment.
+            return [id, false] as const
+          }
+        })
+      )
+      if (cancelled) return
+      setUnlockedReports((prev) => ({ ...prev, ...Object.fromEntries(results) }))
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [properties])
+
+  const handleUnlockReport = async (property: PropertyWithInspection) => {
+    const inspectionId = property.inspection?._id
+    if (!inspectionId) {
+      toast.error("No completed inspection found for this property.", { position: "top-right" })
+      return
+    }
+
+    setUnlockingId(property._id)
+    try {
+      const data = await paymentsAPI.createStripeCheckoutSession(inspectionId)
+
+      if (data?.isReportUnlocked || data?.alreadyUnlocked) {
+        setUnlockedReports((prev) => ({ ...prev, [inspectionId]: true }))
+        toast.success("Report is already unlocked. You can download it now.", { position: "top-right" })
+        return
+      }
+
+      if (!data?.checkoutUrl) {
+        throw new Error("Stripe checkout URL is missing.")
+      }
+
+      window.location.href = data.checkoutUrl
+    } catch (error: any) {
+      console.error("Stripe checkout start error:", error)
+      toast.error(`Unable to start payment: ${error.message}`, { position: "top-right" })
+    } finally {
+      setUnlockingId(null)
+    }
   }
 
   const handleDownloadPDF = async (property: PropertyWithInspection) => {
@@ -396,6 +499,8 @@ export default function InspectionStatusPage() {
               const isCompleted = property.hasInspection || pct === 100
               const isActive = !isCompleted && activeInspectionId === pid
               const isLocked = !isCompleted && !isActive && !!activeInspectionId && activeInspectionId !== pid
+              const inspectionId = property.inspection?._id
+              const isReportUnlocked = !!inspectionId && unlockedReports[inspectionId] === true
               return (
               <Card
                 key={pid}
@@ -473,25 +578,46 @@ export default function InspectionStatusPage() {
 
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 min-w-0">
                     {property.hasInspection ? (
-                      <Button
-                        onClick={() => handleDownloadPDF(property)}
-                        disabled={downloadingId === property._id}
-                        className="bg-[#006795] hover:bg-[#0a5670] text-white flex items-center justify-center gap-2 text-sm sm:text-base w-full sm:w-auto whitespace-nowrap"
-                      >
-                        {downloadingId === property._id ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
-                            <span className="hidden sm:inline">Generating...</span>
-                            <span className="sm:hidden">Loading...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Download className="w-4 h-4 flex-shrink-0" />
-                            <span className="hidden sm:inline">Download PDF</span>
-                            <span className="sm:hidden">Download</span>
-                          </>
-                        )}
-                      </Button>
+                      isReportUnlocked ? (
+                        <Button
+                          onClick={() => handleDownloadPDF(property)}
+                          disabled={downloadingId === property._id}
+                          className="bg-[#006795] hover:bg-[#0a5670] text-white flex items-center justify-center gap-2 text-sm sm:text-base w-full sm:w-auto whitespace-nowrap"
+                        >
+                          {downloadingId === property._id ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
+                              <span className="hidden sm:inline">Generating...</span>
+                              <span className="sm:hidden">Loading...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Download className="w-4 h-4 flex-shrink-0" />
+                              <span className="hidden sm:inline">Download PDF</span>
+                              <span className="sm:hidden">Download</span>
+                            </>
+                          )}
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => handleUnlockReport(property)}
+                          disabled={unlockingId === property._id}
+                          className="bg-amber-500 hover:bg-amber-600 text-white flex items-center justify-center gap-2 text-sm sm:text-base w-full sm:w-auto whitespace-nowrap"
+                        >
+                          {unlockingId === property._id ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
+                              <span>Redirecting...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Lock className="w-4 h-4 flex-shrink-0" />
+                              <span className="hidden sm:inline">Pay to Unlock Report</span>
+                              <span className="sm:hidden">Pay to Unlock</span>
+                            </>
+                          )}
+                        </Button>
+                      )
                     ) : isCompleted ? (
                       <Button
                         onClick={() => handleViewSummary(property._id)}
