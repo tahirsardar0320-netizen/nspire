@@ -273,9 +273,13 @@ function NSPIREInspectionSummaryContent() {
               const normBuilding = String(f.building || '').replace(/^Building\s+/i, 'B').toUpperCase().trim();
               const normUnit = String(f.unit || '').replace(/^Unit\s+/i, '').replace(/^-$/, '').toUpperCase().trim();
               const normName = String(f.deficiencyName || f.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+              const normArea = String(f.area || '').toLowerCase().trim();
 
-              // Create a key that identifies the SAME physical deficiency across different states
-              const key = [normName, normBuilding, normUnit].filter(Boolean).join('|');
+              // Create a key that identifies the SAME physical deficiency across different states.
+              // MUST include area — without it, an Outside item and an Inside item that happen to
+              // share a name (building/unit are often identical, e.g. both "-") collide and one
+              // silently overwrites the other, dropping real data from the report.
+              const key = [normName, normBuilding, normUnit, normArea].filter(Boolean).join('|');
               
               // If we have duplicates, prefer the one that came from a finalized inspection or has an image
               const existing = deduped.get(key);
