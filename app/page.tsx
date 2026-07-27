@@ -160,9 +160,11 @@ export default function Home() {
 
                 {/* Hero Content */}
                 <div className="flex-1 w-full lg:max-w-[650px] text-left relative z-20">
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[4rem] xl:text-[4.5rem] font-bold text-[#0C1F3F] mb-4 leading-[1.15] serif tracking-tight">
-                        Trusted and Certified
-                        <span className="block">Multi-Unit Inspections</span>
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[4rem] xl:text-[4.5rem] font-bold mb-4 leading-[1.15] serif tracking-tight">
+                        <span className="text-gradient">
+                            Trusted and Certified
+                            <span className="block">Multi-Unit Inspections</span>
+                        </span>
                         <span className="text-[#F84B5F] italic font-bold block">Across the NATION</span>
                     </h1>
                     <p className="text-gray-600 mb-6 leading-relaxed text-sm md:text-base max-w-xl font-medium">
