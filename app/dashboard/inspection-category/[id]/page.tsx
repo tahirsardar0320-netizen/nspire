@@ -2641,7 +2641,7 @@ export default function InspectionCategoryPage() {
                                         handleODModalClose();
                                     }}
                                     disabled={loadingReportPreview}
-                                    className="w-full bg-gray-900 hover:bg-black text-white font-black h-14 rounded-xl shadow-lg shadow-gray-200 uppercase text-[10px] tracking-widest flex items-center justify-center gap-3"
+                                    className="w-full bg-rose-600 hover:bg-rose-700 text-white font-black h-14 rounded-xl shadow-lg shadow-rose-600/20 uppercase text-[10px] tracking-widest flex items-center justify-center gap-3"
                                 >
                                     <FileText className="w-4 h-4" />
                                     {loadingReportPreview ? 'Loading...' : 'View NSPIRE Summary'}

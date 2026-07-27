@@ -730,18 +730,10 @@ function NSPIREInspectionSummaryContent() {
 
     setExportingExcel(true)
     try {
-      const blob = await inspectionsAPI.generateExcel(report);
+      const { downloadNSPIREReportExcel } = await import('@/lib/exportReportExcel')
+      await downloadNSPIREReportExcel(report, `NSPIRE_Report_${report.metadata.inspectionNo || 'Export'}.xlsx`)
 
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `NSPIRE_Report_${report.metadata.inspectionNo || 'Export'}.xlsx`
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
-
-      toast.success('Professional Excel report downloaded!', { position: 'top-right' })
+      toast.success('Excel report downloaded!', { position: 'top-right' })
       await markInspectionAsCompleted({ silentToast: true })
     } catch (error: any) {
       console.error('Excel export error:', error)
