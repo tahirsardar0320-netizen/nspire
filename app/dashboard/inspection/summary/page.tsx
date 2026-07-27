@@ -98,8 +98,8 @@ function NSPIREInspectionSummaryContent() {
   const [loading, setLoading] = useState(true)
   const [exporting, setExporting] = useState(false)
   const [exportingExcel, setExportingExcel] = useState(false)
-  const [checkingUnlock, setCheckingUnlock] = useState(true)
-  const [isReportUnlocked, setIsReportUnlocked] = useState(false)
+  const [checkingUnlock, setCheckingUnlock] = useState(false)
+  const [isReportUnlocked, setIsReportUnlocked] = useState(true)
   const [purchasingUnlock, setPurchasingUnlock] = useState(false)
   const [showSummaryModal, setShowSummaryModal] = useState(false)
   const [showReportPreview, setShowReportPreview] = useState(false)
@@ -335,29 +335,6 @@ function NSPIREInspectionSummaryContent() {
 
     loadInspectionData()
   }, [searchParams])
-
-  useEffect(() => {
-    const checkUnlockStatus = async () => {
-      if (!inspectionIdentifier) {
-        setCheckingUnlock(false)
-        setIsReportUnlocked(false)
-        return
-      }
-
-      try {
-        setCheckingUnlock(true)
-        const data = await paymentsAPI.checkReportUnlock(inspectionIdentifier);
-        setIsReportUnlocked(!!data?.isReportUnlocked)
-      } catch (error) {
-        console.error('Unlock status check error:', error)
-        setIsReportUnlocked(false)
-      } finally {
-        setCheckingUnlock(false)
-      }
-    }
-
-    checkUnlockStatus()
-  }, [inspectionIdentifier])
 
   useEffect(() => {
     const paymentStatus = searchParams.get('payment')
@@ -721,13 +698,6 @@ function NSPIREInspectionSummaryContent() {
   const handleExportPDF = async () => {
     if (!report) return
 
-    // If not unlocked, redirect to payment — no preview download allowed
-    if (!isReportUnlocked) {
-      toast.info('This report is locked. Redirecting to unlock checkout...', { position: 'top-right' })
-      await handleUnlockWithStripe()
-      return
-    }
-
     setExporting(true)
     try {
       toast.info("Generating PDF...", { position: "top-right" })
@@ -757,12 +727,6 @@ function NSPIREInspectionSummaryContent() {
 
   const handleExportExcel = async () => {
     if (!report) return
-
-    if (!isReportUnlocked) {
-      toast.info('This report is locked. Redirecting to unlock checkout...', { position: 'top-right' })
-      await handleUnlockWithStripe()
-      return
-    }
 
     setExportingExcel(true)
     try {
@@ -931,82 +895,41 @@ function NSPIREInspectionSummaryContent() {
                 </p>
               )}
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                {checkingUnlock ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600 border border-slate-200">
-                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-slate-450 border-t-transparent"></span>
-                    Checking report access...
-                  </span>
-                ) : isReportUnlocked ? (
-                  <span className="inline-flex items-center gap-1 rounded-xl bg-emerald-50 border border-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-700 shadow-sm">
-                    <Unlock className="w-3.5 h-3.5" />
-                    Report Unlocked
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 rounded-xl bg-rose-50 border border-rose-100 px-3 py-1.5 text-xs font-bold text-rose-700 shadow-sm">
-                    <Lock className="w-3.5 h-3.5" />
-                    Report Locked
-                  </span>
-                )}
-
-                {!checkingUnlock && !isReportUnlocked && (
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-amber-50/50 border border-amber-250 mt-4 w-full">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-amber-100/80 text-amber-700 rounded-xl flex-shrink-0">
-                        <Lock className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-extrabold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
-                          REPORT LOCKED
-                        </h3>
-                        <p className="text-xs text-amber-700 font-semibold mt-0.5">Pay once to unlock full export access</p>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <Button
-                        onClick={() => setShowUnlockSummaryModal(true)}
-                        disabled={purchasingUnlock}
-                        className="h-11 gap-1.5 bg-amber-500 hover:bg-amber-600 px-5 text-xs font-bold text-white rounded-xl border-0 shadow-sm shadow-amber-600/10 flex items-center justify-center shrink-0"
-                      >
-                        <Lock className="w-4 h-4" />
-                        {purchasingUnlock ? 'Redirecting...' : 'Unlock Report - $49'}
-                      </Button>
-                      <Button
-                        onClick={() => setShowReportPreview(true)}
-                        variant="outline"
-                        className="h-11 gap-1.5 border-2 border-amber-500 hover:bg-amber-50 text-amber-600 font-bold px-5 rounded-xl text-xs flex items-center justify-center shrink-0 bg-white"
-                      >
-                        <FileText className="w-4 h-4" />
-                        View Deficiency
-                      </Button>
-                    </div>
-                  </div>
-                )}
+                <span className="inline-flex items-center gap-1 rounded-xl bg-emerald-50 border border-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-700 shadow-sm">
+                  <Unlock className="w-3.5 h-3.5" />
+                  Report Unlocked
+                </span>
+                <Button
+                  onClick={() => setShowUnlockSummaryModal(true)}
+                  variant="outline"
+                  className="h-9 gap-1.5 border-2 border-teal-500 hover:bg-teal-50 text-teal-700 font-bold px-4 rounded-xl text-xs flex items-center justify-center shrink-0 bg-white"
+                >
+                  Email Report
+                </Button>
+                <Button
+                  onClick={() => setShowReportPreview(true)}
+                  variant="outline"
+                  className="h-9 gap-1.5 border-2 border-teal-500 hover:bg-teal-50 text-teal-700 font-bold px-4 rounded-xl text-xs flex items-center justify-center shrink-0 bg-white"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  View Deficiency
+                </Button>
               </div>
             </div>
             <div className="flex flex-wrap gap-2.5">
               <Button
                 onClick={handleExportPDF}
-                disabled={exporting || checkingUnlock || purchasingUnlock}
-                className={`font-bold px-5 py-2.5 rounded-xl border-0 shadow-sm text-xs flex items-center justify-center gap-1.5 ${
-                  isReportUnlocked
-                    ? 'bg-teal-600 hover:bg-teal-700 text-white shadow-teal-600/10'
-                    : 'bg-gray-200 hover:bg-amber-500 hover:text-white text-gray-500 cursor-not-allowed'
-                }`}
+                disabled={exporting}
+                className="font-bold px-5 py-2.5 rounded-xl border-0 shadow-sm text-xs flex items-center justify-center gap-1.5 bg-teal-600 hover:bg-teal-700 text-white shadow-teal-600/10"
               >
-                <Lock className="w-4 h-4" />
-                {exporting ? 'Generating...' : isReportUnlocked ? 'Export PDF' : 'Unlock to Export'}
+                {exporting ? 'Generating...' : 'Export PDF'}
               </Button>
               <Button
                 onClick={handleExportExcel}
-                disabled={exportingExcel || checkingUnlock || purchasingUnlock}
-                className={`font-bold px-5 py-2.5 rounded-xl border-0 shadow-sm text-xs flex items-center justify-center gap-1.5 ${
-                  isReportUnlocked
-                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/10'
-                    : 'bg-gray-200 hover:bg-amber-500 hover:text-white text-gray-500 cursor-not-allowed'
-                }`}
+                disabled={exportingExcel}
+                className="font-bold px-5 py-2.5 rounded-xl border-0 shadow-sm text-xs flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/10"
               >
-                <Lock className="w-4 h-4" />
-                {exportingExcel ? 'Generating...' : isReportUnlocked ? 'Export Excel' : 'Unlock to Export Excel'}
+                {exportingExcel ? 'Generating...' : 'Export Excel'}
               </Button>
               <Button
                 onClick={handleBackToInspection}
@@ -1058,15 +981,15 @@ function NSPIREInspectionSummaryContent() {
                 <ol className="space-y-3 text-sm font-medium text-slate-700">
                   <li className="flex items-start gap-3">
                     <span className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-50 border border-teal-200 text-teal-700 font-extrabold text-xs flex items-center justify-center">1</span>
-                    <span>If the report shows <span className="font-extrabold text-slate-900">Report Locked</span>, click <span className="font-extrabold text-slate-900">Unlock Report - $49</span> above to unlock full export access.</span>
+                    <span>Click <span className="font-extrabold text-slate-900">Export PDF</span> or <span className="font-extrabold text-slate-900">Export Excel</span> at the top of this page.</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-50 border border-teal-200 text-teal-700 font-extrabold text-xs flex items-center justify-center">2</span>
-                    <span>Once unlocked, click <span className="font-extrabold text-slate-900">Export PDF</span> or <span className="font-extrabold text-slate-900">Export Excel</span> at the top of this page.</span>
+                    <span>Your file will download automatically to your device's <span className="font-extrabold text-slate-900">Downloads</span> folder — check there or your browser's download tray.</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-50 border border-teal-200 text-teal-700 font-extrabold text-xs flex items-center justify-center">3</span>
-                    <span>Your file will download automatically to your device's <span className="font-extrabold text-slate-900">Downloads</span> folder — check there or your browser's download tray.</span>
+                    <span>Prefer email? Click <span className="font-extrabold text-slate-900">Email Report</span> to have the full PDF sent to any email address.</span>
                   </li>
                 </ol>
 
