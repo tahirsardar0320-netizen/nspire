@@ -2295,7 +2295,7 @@ export default function InspectionCategoryPage() {
                                 <X className="w-5 h-5" />
                             </button>
                             <div className="flex flex-col items-center text-center">
-                                <img src="/logo.png" alt="NSPIRE" className="h-12 mb-2 object-contain" />
+                                <img src="/logo.png" alt="NSPIRE" className="h-20 sm:h-24 mb-2 object-contain" />
                                 <h3 className="text-base font-extrabold text-gradient uppercase tracking-tight truncate max-w-[85%] font-lexend">{currentModalItem}</h3>
                             </div>
                         </div>

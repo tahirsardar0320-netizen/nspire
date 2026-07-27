@@ -81,8 +81,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="min-h-screen bg-slate-100 flex font-lexend">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col w-64 bg-gradient-to-b from-[#0F4C5C] to-[#142834] shadow-xl border-r border-[#0F4C5C]/30 fixed h-full z-10">
+      <aside className="hidden lg:flex lg:flex-col w-64 bg-gradient-to-b from-[#0F4C5C] to-[#142834] shadow-xl border-r border-[#0F4C5C]/30 fixed h-full z-10 overflow-hidden">
         <div className="h-1.5 shrink-0 bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F]" />
+        {/* Decorative color blooms so the panel isn't a flat block of color */}
+        <div className="absolute -top-16 -right-16 w-64 h-64 bg-[#00C6D7]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 -left-20 w-56 h-56 bg-[#F84B5F]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-24 -right-10 w-48 h-48 bg-[#00C6D7]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative p-6 border-b border-[#0F4C5C]/40 flex justify-center overflow-hidden">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-[#00C6D7]/20 rounded-full blur-3xl pointer-events-none" />
           <Image
@@ -102,7 +106,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               onClick={() => router.push(item.path)}
               className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg font-medium transition-all duration-200 ${
                 isActive(item.path)
-                  ? 'bg-teal-600 text-white font-bold shadow-md shadow-teal-600/20'
+                  ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
               }`}
             >
@@ -117,7 +121,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             onClick={() => router.push('/dashboard/settings')}
             className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg font-medium transition-all duration-200 ${
               isActive('/dashboard/settings')
-                ? 'bg-teal-600 text-white font-bold shadow-md shadow-teal-600/20'
+                ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30'
                 : 'text-white/80 hover:text-white hover:bg-white/10'
             }`}
           >
@@ -153,9 +157,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       )}
 
       {/* Mobile Sidebar */}
-      <aside className={`fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-[#0F4C5C] to-[#142834] shadow-lg z-50 transform transition-transform duration-300 lg:hidden flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+      <aside className={`fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-[#0F4C5C] to-[#142834] shadow-lg z-50 transform transition-transform duration-300 lg:hidden flex flex-col overflow-hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}>
         <div className="h-1.5 shrink-0 bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F]" />
+        {/* Decorative color blooms so the panel isn't a flat block of color */}
+        <div className="absolute -top-16 -right-16 w-64 h-64 bg-[#00C6D7]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 -left-20 w-56 h-56 bg-[#F84B5F]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-24 -right-10 w-48 h-48 bg-[#00C6D7]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative p-4 border-b border-[#0F4C5C]/40 flex items-center justify-between overflow-hidden">
           <div className="absolute top-1/2 left-8 -translate-y-1/2 w-28 h-28 bg-[#00C6D7]/20 rounded-full blur-3xl pointer-events-none" />
           <Image
@@ -187,7 +195,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 router.push(item.path)
                 setIsMobileMenuOpen(false)
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg font-medium transition-all duration-200 ${isActive(item.path) ? 'bg-teal-600 text-white font-bold shadow-md shadow-teal-600/20' : 'text-white/80 hover:text-white hover:bg-white/10'
+              className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg font-medium transition-all duration-200 ${isActive(item.path) ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30' : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`}
             >
               {item.icon}
@@ -202,7 +210,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               router.push('/dashboard/settings')
               setIsMobileMenuOpen(false)
             }}
-            className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg font-medium transition-all duration-200 ${isActive('/dashboard/settings') ? 'bg-teal-600 text-white font-bold shadow-md shadow-teal-600/20' : 'text-white/80 hover:text-white hover:bg-white/10'
+            className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg font-medium transition-all duration-200 ${isActive('/dashboard/settings') ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30' : 'text-white/80 hover:text-white hover:bg-white/10'
               }`}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
