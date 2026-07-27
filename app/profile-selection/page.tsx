@@ -17,6 +17,10 @@ export default function ProfileSelection() {
 
   return (
     <div className="ps-root">
+      {/* Background building photo, hero-style */}
+      <img src="/candid_commercial_building.png" alt="" aria-hidden="true" className="ps-bg-photo" />
+      <div className="ps-bg-overlay" />
+
       {/* Floating background blobs */}
       <div className="ps-blob ps-blob-1" />
       <div className="ps-blob ps-blob-2" />
@@ -139,9 +143,30 @@ export default function ProfileSelection() {
           overflow-y: auto;
         }
 
-        /* ─── Background blobs ─── */
+        /* ─── Background building photo ─── */
+        .ps-bg-photo {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center 30%;
+          z-index: 0;
+          opacity: 0.4;
+          pointer-events: none;
+        }
+        .ps-bg-overlay {
+          position: absolute;
+          inset: 0;
+          z-index: 1;
+          background: linear-gradient(160deg, rgba(223,242,251,0.82) 0%, rgba(234,246,255,0.72) 35%, rgba(240,249,255,0.68) 60%, rgba(224,243,250,0.82) 100%);
+          pointer-events: none;
+        }
+
+        /* ─── Floating background blobs ─── */
         .ps-blob {
           position: absolute;
+          z-index: 2;
           border-radius: 50%;
           filter: blur(70px);
           pointer-events: none;

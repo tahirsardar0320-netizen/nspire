@@ -405,31 +405,42 @@ export default function Dashboard() {
   return (
     <DashboardLayout>
       <div className="min-h-screen bg-[#EBF5FB] p-4 sm:p-6 lg:p-8 font-lexend">
-        {/* Header */}
-        <div className="mb-5">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-gradient tracking-tight">Property Dashboard</h1>
-          <p className="text-slate-500 text-sm mt-1">Manage your properties and initiate inspections</p>
-        </div>
+        {/* Header + Action Buttons, with a soft blurred building photo behind */}
+        <div className="relative overflow-hidden rounded-2xl mb-6 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 pb-6">
+          <img
+            src="/multiunit_residence.png"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover opacity-[0.14] blur-md scale-110 pointer-events-none select-none"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#EBF5FB]/70 via-[#EBF5FB]/85 to-[#EBF5FB] pointer-events-none" />
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-3 mb-6">
-          <Button
-            onClick={() => setShowAddPropertyModal(true)}
-            className="bg-rose-500 hover:bg-rose-600 text-white font-bold px-5 py-2.5 rounded-lg text-sm shadow-md transition-all duration-200 flex items-center gap-2 border-0"
-          >
-            Add New Property
-          </Button>
-          {selectedIds.size > 0 && (
+          {/* Header */}
+          <div className="relative mb-5">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-gradient tracking-tight">Property Dashboard</h1>
+            <p className="text-slate-500 text-sm mt-1">Manage your properties and initiate inspections</p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="relative flex flex-wrap items-center gap-3">
             <Button
-              onClick={handleDeleteSelected}
-              className="bg-rose-700 hover:bg-rose-800 text-white font-bold px-5 py-2.5 rounded-lg text-sm shadow-md transition-all duration-200 flex items-center gap-2 border-0"
+              onClick={() => setShowAddPropertyModal(true)}
+              className="bg-rose-500 hover:bg-rose-600 text-white font-bold px-5 py-2.5 rounded-lg text-sm shadow-md transition-all duration-200 flex items-center gap-2 border-0"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              Delete Selected ({selectedIds.size})
+              Add New Property
             </Button>
-          )}
+            {selectedIds.size > 0 && (
+              <Button
+                onClick={handleDeleteSelected}
+                className="bg-rose-700 hover:bg-rose-800 text-white font-bold px-5 py-2.5 rounded-lg text-sm shadow-md transition-all duration-200 flex items-center gap-2 border-0"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete Selected ({selectedIds.size})
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Properties Section */}

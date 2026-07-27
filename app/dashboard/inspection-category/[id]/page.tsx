@@ -701,6 +701,14 @@ export default function InspectionCategoryPage() {
         try {
             const payloads = [];
             
+            // Saving inspectionData here REPLACES the whole field on the backend (no deep
+            // merge), so we must carry forward any findings already recorded for each
+            // section — otherwise this debounced/auto save silently wipes out deficiencies
+            // added via the Add-Deficiency modal.
+            const outsideFindings = propertyFindings.filter((f: any) => f.area === 'outside');
+            const insideFindings = propertyFindings.filter((f: any) => f.area === 'inside');
+            const unitFindings = propertyFindings.filter((f: any) => f.area === 'unit' && f.unit === activeInspectionUnit);
+
             if (Object.keys(outsideStatuses).length > 0) {
                 const isComplete = outsideItemsList.every(item => outsideStatuses[item] !== null && outsideStatuses[item] !== undefined);
                 const payload = {
@@ -709,12 +717,12 @@ export default function InspectionCategoryPage() {
                     inspection_type: 'Outside',
                     responses: outsideStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete }
+                    inspectionData: { isComplete, findings: outsideFindings }
                 };
                 payloads.push({ type: 'Outside', isComplete, payload });
                 updateLocalCache('Outside', outsideStatuses, isComplete);
             }
-            
+
             if (Object.keys(insideStatuses).length > 0) {
                 const isComplete = insideItemsList.every(item => insideStatuses[item] !== null && insideStatuses[item] !== undefined);
                 const payload = {
@@ -723,12 +731,12 @@ export default function InspectionCategoryPage() {
                     inspection_type: 'Inside',
                     responses: insideStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete }
+                    inspectionData: { isComplete, findings: insideFindings }
                 };
                 payloads.push({ type: 'Inside', isComplete, payload });
                 updateLocalCache('Inside', insideStatuses, isComplete);
             }
-            
+
             if (Object.keys(unitStatuses).length > 0 && activeInspectionUnit) {
                 const isComplete = unitItemsList.every(item => {
                     const status = unitStatuses[item];
@@ -740,7 +748,7 @@ export default function InspectionCategoryPage() {
                     inspection_type: `unit_${urlBuilding}_${activeInspectionUnit}`,
                     responses: unitStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete }
+                    inspectionData: { isComplete, findings: unitFindings }
                 };
                 payloads.push({ type: `unit_${urlBuilding}_${activeInspectionUnit}`, isComplete, payload, unitId: activeInspectionUnit });
                 updateLocalCache(`unit_${urlBuilding}_${activeInspectionUnit}`, unitStatuses, isComplete, activeInspectionUnit);
@@ -755,6 +763,10 @@ export default function InspectionCategoryPage() {
             }
         } catch (error) {
             console.error("Error saving progress:", error);
+            const outsideFindings = propertyFindings.filter((f: any) => f.area === 'outside');
+            const insideFindings = propertyFindings.filter((f: any) => f.area === 'inside');
+            const unitFindings = propertyFindings.filter((f: any) => f.area === 'unit' && f.unit === activeInspectionUnit);
+
             if (Object.keys(outsideStatuses).length > 0) {
                 const isComplete = outsideItemsList.every(item => outsideStatuses[item] !== null && outsideStatuses[item] !== undefined);
                 queueForOfflineSync({
@@ -763,7 +775,7 @@ export default function InspectionCategoryPage() {
                     inspection_type: 'Outside',
                     responses: outsideStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete }
+                    inspectionData: { isComplete, findings: outsideFindings }
                 });
             }
             if (Object.keys(insideStatuses).length > 0) {
@@ -774,7 +786,7 @@ export default function InspectionCategoryPage() {
                     inspection_type: 'Inside',
                     responses: insideStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete }
+                    inspectionData: { isComplete, findings: insideFindings }
                 });
             }
             if (Object.keys(unitStatuses).length > 0 && activeInspectionUnit) {
@@ -788,7 +800,7 @@ export default function InspectionCategoryPage() {
                     inspection_type: `unit_${urlBuilding}_${activeInspectionUnit}`,
                     responses: unitStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete }
+                    inspectionData: { isComplete, findings: unitFindings }
                 });
             }
         }
@@ -2278,11 +2290,14 @@ export default function InspectionCategoryPage() {
                     <div className="absolute inset-0 -z-10" onClick={handleODModalClose} />
 
                     <Card className="font-lexend w-full max-w-xl bg-white rounded-3xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.35)] animate-in slide-in-from-top-4 duration-300 flex flex-col h-auto max-h-[70vh] self-center border border-slate-100">
-                        <div className="p-5 border-b shrink-0 flex items-center justify-between bg-white/90 backdrop-blur-md sticky top-0 z-20">
-                            <h3 className="text-base font-extrabold text-slate-800 uppercase tracking-tight truncate pr-4 font-lexend">{currentModalItem}</h3>
-                            <button onClick={handleODModalClose} className="p-2 hover:bg-slate-150 rounded-full transition-colors text-slate-450 shrink-0">
+                        <div className="relative p-5 border-b shrink-0 bg-white/90 backdrop-blur-md sticky top-0 z-20">
+                            <button onClick={handleODModalClose} className="absolute top-3 right-3 p-2 hover:bg-slate-150 rounded-full transition-colors text-slate-450">
                                 <X className="w-5 h-5" />
                             </button>
+                            <div className="flex flex-col items-center text-center">
+                                <img src="/logo.png" alt="NSPIRE" className="h-12 mb-2 object-contain" />
+                                <h3 className="text-base font-extrabold text-gradient uppercase tracking-tight truncate max-w-[85%] font-lexend">{currentModalItem}</h3>
+                            </div>
                         </div>
 
                         {(modalStep === 1 || modalStep === 2 || modalStep === 3) && (
@@ -2308,7 +2323,6 @@ export default function InspectionCategoryPage() {
                                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 bg-gradient-to-br from-[#00C6D7]/25 to-[#006795]/25 rounded-full blur-2xl pointer-events-none" />
 
                                     <div className="relative z-10 flex flex-col items-center">
-                                        <img src="/logo.png" alt="NSPIRE" className="h-9 mb-5 object-contain opacity-90" />
                                         <button
                                             type="button"
                                             onClick={() => setModalStep(2)}

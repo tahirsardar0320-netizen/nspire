@@ -82,13 +82,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="min-h-screen bg-slate-100 flex font-lexend">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex lg:flex-col w-64 bg-gradient-to-b from-[#0F4C5C] to-[#142834] shadow-xl border-r border-[#0F4C5C]/30 fixed h-full z-10">
-        <div className="p-6 border-b border-[#0F4C5C]/40 flex justify-center">
+        <div className="h-1.5 shrink-0 bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F]" />
+        <div className="relative p-6 border-b border-[#0F4C5C]/40 flex justify-center overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-[#00C6D7]/20 rounded-full blur-3xl pointer-events-none" />
           <Image
             src="/logo.png"
             alt="NSPIRE"
             width={300}
             height={100}
-            className="h-28 w-auto cursor-pointer filter brightness-110"
+            className="relative h-28 w-auto cursor-pointer filter brightness-110"
             onClick={() => router.push('/')}
           />
         </div>
@@ -151,15 +153,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       )}
 
       {/* Mobile Sidebar */}
-      <aside className={`fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-[#0F4C5C] to-[#142834] shadow-lg z-50 transform transition-transform duration-300 lg:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+      <aside className={`fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-[#0F4C5C] to-[#142834] shadow-lg z-50 transform transition-transform duration-300 lg:hidden flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}>
-        <div className="p-4 border-b border-[#0F4C5C]/40 flex items-center justify-between">
+        <div className="h-1.5 shrink-0 bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F]" />
+        <div className="relative p-4 border-b border-[#0F4C5C]/40 flex items-center justify-between overflow-hidden">
+          <div className="absolute top-1/2 left-8 -translate-y-1/2 w-28 h-28 bg-[#00C6D7]/20 rounded-full blur-3xl pointer-events-none" />
           <Image
             src="/logo.png"
             alt="NSPIRE"
             width={180}
             height={60}
-            className="w-auto h-14 cursor-pointer"
+            className="relative w-auto h-14 cursor-pointer"
             onClick={() => {
               router.push('/')
               setIsMobileMenuOpen(false)
@@ -249,18 +253,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 height={40}
                 className="w-auto h-10 cursor-pointer"
                 onClick={() => router.push('/')}
-              />
-            </div>
-
-            {/* Desktop Search */}
-            <div className="hidden md:flex items-center gap-3 flex-1 max-w-xl px-4 py-2 border border-slate-200 rounded-lg bg-slate-50 focus-within:ring-2 focus-within:ring-teal-500/20 focus-within:border-teal-500 transition-all">
-              <svg className="w-5 h-5 text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search inspections, properties..."
-                className="flex-1 outline-none text-sm bg-transparent text-slate-800 placeholder-slate-400"
               />
             </div>
 
