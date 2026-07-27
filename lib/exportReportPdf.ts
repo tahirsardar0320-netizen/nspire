@@ -61,11 +61,11 @@ export async function generateNSPIREReportPDFBlob(report: NSPIREInspectionReport
 
     const doc = iframe.contentDocument!
     const canvas = await html2canvas(doc.body, {
-      scale: 2,
+      scale: 1.5,
       useCORS: true,
       allowTaint: true,
       logging: false,
-      foreignObjectRendering: true,
+      foreignObjectRendering: false,
       windowWidth: 800,
       width: 800,
       height: doc.body.scrollHeight,
