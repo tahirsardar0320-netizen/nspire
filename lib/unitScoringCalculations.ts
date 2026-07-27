@@ -5,11 +5,14 @@
 
 import {
     SEVERITY_LEVELS,
-    POSSIBLE_SCORE,
     parsePointsFormula,
     LIFE_THREATENING_60_POINTS,
     LIFE_THREATENING_30_POINTS,
 } from './scoringCalculations';
+
+// Unit-level inspectable areas use a 50-point base score (distinct from the
+// 25-point base used for Inside/Outside areas).
+const POSSIBLE_SCORE = 50;
 
 export interface UnitScoringInput {
     totalSamples: number;           // n - total number of inspected units/samples
@@ -24,8 +27,8 @@ export interface UnitScoringResult {
     pointsLostRaw: number;          // Base points for severity (X in X/n formula)
     pointsLost: number;             // Pts Lost = X / n
     maxPtsLost: number;             // Same as pointsLost per deficiency
-    possibleScore: number;          // Fixed at 25
-    score: number;                  // Section Score = 25 - pointsLost
+    possibleScore: number;          // Fixed at 50
+    score: number;                  // Section Score = 50 - pointsLost
     severity: string;               // Severity level from deficiency mapping
 }
 
@@ -69,8 +72,8 @@ export function getUnitBasePoints(severity: string, pointsFormula?: string): num
  * Formula:
  *   Points Lost (Raw) = X (base points for the severity)
  *   Pts Lost = X / n (where n = total samples)
- *   Score = 25 - Pts Lost
- * 
+ *   Score = 50 - Pts Lost
+ *
  * @param input Unit scoring input parameters
  * @returns Complete scoring result
  */
@@ -98,7 +101,7 @@ export function calculateUnitInspectionScore(input: UnitScoringInput): UnitScori
     // Max Pts Lost = X / n (same as pointsLost)
     const maxPtsLost = basePoints / n;
 
-    // Score = 25 - Pts Lost
+    // Score = 50 - Pts Lost
     const score = POSSIBLE_SCORE - pointsLost;
 
     return {

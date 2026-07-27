@@ -25,7 +25,7 @@ import {
 } from "@/lib/insideScoringCalculations"
 import { getSamplingRequirements } from "@/lib/unitSamplingService"
 import { toast } from "react-toastify"
-import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, ArrowUpDown, MoreHorizontal, Camera, X, ChevronLeft, CheckCircle2, FileText, User, Grid, Clock, Video, Monitor, Image as ImageIcon, Laptop, Tablet, Pencil, Check, Lock } from "lucide-react";
+import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, MoreHorizontal, Camera, X, ChevronLeft, CheckCircle2, FileText, User, Grid, Clock, Video, Monitor, Image as ImageIcon, Laptop, Tablet, Pencil, Check, Lock, DoorOpen, AppWindow, Bath, Zap, Flame, Layers, Thermometer, UtensilsCrossed, Lightbulb, Paintbrush, Footprints, BrickWall, Fan, Droplets, Droplet, AlertTriangle, Siren, Phone, Building, Building2, LayoutGrid, Sprout, ShieldCheck, PanelTop, type LucideIcon } from "lucide-react";
 
 import { OUTSIDE_ITEMS, INSIDE_ITEMS, UNIT_ITEMS } from "@/lib/inspectionData";
 import { ReportPreviewModal } from "@/components/ReportPreviewModal";
@@ -86,6 +86,77 @@ const mapToBackendCategory = (category: string): string => {
 };
 
 type ItemStatus = 'No OD' | 'OD' | 'N/A' | null;
+
+// Category name -> icon, so the empty-deficiency state shows a door icon for
+// "Doors", a window icon for "Windows", etc. instead of a generic plus.
+const CATEGORY_ICON_MAP: { keyword: string; icon: LucideIcon }[] = [
+    { keyword: 'bathroom', icon: Bath },
+    { keyword: 'bath', icon: Bath },
+    { keyword: 'cabinet', icon: LayoutGrid },
+    { keyword: 'call-for-aid', icon: Phone },
+    { keyword: 'call for aid', icon: Phone },
+    { keyword: 'emergency pull cord', icon: Phone },
+    { keyword: 'co alarm', icon: Siren },
+    { keyword: 'carbon monoxide', icon: Siren },
+    { keyword: 'ceiling', icon: PanelTop },
+    { keyword: 'chimney', icon: Flame },
+    { keyword: 'fireplace', icon: Flame },
+    { keyword: 'dryer', icon: Fan },
+    { keyword: 'door', icon: DoorOpen },
+    { keyword: 'drainage', icon: Droplets },
+    { keyword: 'drain', icon: Droplets },
+    { keyword: 'egress', icon: DoorOpen },
+    { keyword: 'exit', icon: DoorOpen },
+    { keyword: 'electrical', icon: Zap },
+    { keyword: 'outlet', icon: Zap },
+    { keyword: 'receptacle', icon: Zap },
+    { keyword: 'fire', icon: Flame },
+    { keyword: 'smoke', icon: Siren },
+    { keyword: 'floor', icon: Layers },
+    { keyword: 'foundation', icon: Building2 },
+    { keyword: 'hazard', icon: AlertTriangle },
+    { keyword: 'sharp edge', icon: AlertTriangle },
+    { keyword: 'hvac', icon: Thermometer },
+    { keyword: 'heating', icon: Thermometer },
+    { keyword: 'cooling', icon: Thermometer },
+    { keyword: 'air condition', icon: Thermometer },
+    { keyword: 'furnace', icon: Thermometer },
+    { keyword: 'kitchen', icon: UtensilsCrossed },
+    { keyword: 'range', icon: UtensilsCrossed },
+    { keyword: 'stove', icon: UtensilsCrossed },
+    { keyword: 'oven', icon: UtensilsCrossed },
+    { keyword: 'refrigerator', icon: UtensilsCrossed },
+    { keyword: 'gas leak', icon: AlertTriangle },
+    { keyword: 'sewage', icon: Droplets },
+    { keyword: 'water leak', icon: Droplet },
+    { keyword: 'leak', icon: Droplet },
+    { keyword: 'lighting', icon: Lightbulb },
+    { keyword: 'light', icon: Lightbulb },
+    { keyword: 'mold', icon: Sprout },
+    { keyword: 'paint', icon: Paintbrush },
+    { keyword: 'rail', icon: ShieldCheck },
+    { keyword: 'guardrail', icon: ShieldCheck },
+    { keyword: 'handrail', icon: ShieldCheck },
+    { keyword: 'sink', icon: Droplet },
+    { keyword: 'step', icon: Footprints },
+    { keyword: 'stair', icon: Footprints },
+    { keyword: 'structural', icon: Building },
+    { keyword: 'ventilation', icon: Fan },
+    { keyword: 'vent', icon: Fan },
+    { keyword: 'wall', icon: BrickWall },
+    { keyword: 'water heater', icon: Thermometer },
+    { keyword: 'window', icon: AppWindow },
+    { keyword: 'signage', icon: FileText },
+    { keyword: 'address', icon: FileText },
+    { keyword: 'comment', icon: FileText },
+];
+
+function getCategoryIcon(itemName: string | null): LucideIcon {
+    if (!itemName) return Plus;
+    const name = itemName.toLowerCase();
+    const match = CATEGORY_ICON_MAP.find(({ keyword }) => name.includes(keyword));
+    return match?.icon || Plus;
+}
 
 export default function InspectionCategoryPage() {
     const params = useParams()
@@ -1933,26 +2004,17 @@ export default function InspectionCategoryPage() {
                                                     <User className="w-3.5 h-3.5" /> Inspecting: {activeInspectionUnit}
                                                 </span>
                                                 <button
-                                                    onClick={() => setUnitSelectionPopupOpen(true)}
-                                                    className="text-xs font-bold text-[#006795] hover:underline flex items-center gap-1 bg-[#006795]/5 px-2 py-1 rounded-md transition-colors"
+                                                    onClick={async () => {
+                                                        await saveCurrentProgress();
+                                                        await refreshCompletedUnits();
+                                                        toast.success(`${activeInspectionUnit} saved!`, { position: 'top-right' });
+                                                        setUnitSelectionPopupOpen(true);
+                                                    }}
+                                                    className="text-xs font-bold text-rose-600 hover:underline flex items-center gap-1 bg-rose-50 px-2 py-1 rounded-full transition-colors"
                                                 >
-                                                    <ArrowUpDown className="w-3 h-3" />
-                                                    Change Unit
+                                                    <CheckCircle2 className="w-3 h-3" />
+                                                    Submit
                                                 </button>
-                                                {unitItemsList.length > 0 && unitItemsList.every(item => unitStatuses[item] !== null && unitStatuses[item] !== undefined) && (
-                                                    <button
-                                                        onClick={async () => {
-                                                            await saveCurrentProgress();
-                                                            await refreshCompletedUnits();
-                                                            toast.success(`${activeInspectionUnit} submitted!`, { position: 'top-right' });
-                                                            setUnitSelectionPopupOpen(true);
-                                                        }}
-                                                        className="text-xs font-bold text-rose-600 hover:underline flex items-center gap-1 bg-rose-50 px-2 py-1 rounded-full transition-colors"
-                                                    >
-                                                        <CheckCircle2 className="w-3 h-3" />
-                                                        Submit
-                                                    </button>
-                                                )}
                                             </div>
                                         )}
                                         <div className="flex items-center gap-3">
@@ -2223,41 +2285,52 @@ export default function InspectionCategoryPage() {
                             </button>
                         </div>
 
+                        {(modalStep === 1 || modalStep === 2 || modalStep === 3) && (
                         <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 custom-scrollbar overscroll-contain">
-                            {modalStep === 1 && (
-                                <div className="relative -m-6 md:-m-8 py-16 px-6 flex flex-col items-center justify-center text-center overflow-hidden rounded-2xl bg-gradient-to-b from-[#E8F4F8] via-[#F1F7FE] to-white">
-                                    {/* Soft blurred building photo, hero-style */}
+                            {modalStep === 1 && (() => {
+                                const CategoryIcon = getCategoryIcon(currentModalItem);
+                                return (
+                                <div className="relative py-16 px-6 flex flex-col items-center justify-center text-center overflow-hidden rounded-2xl bg-gradient-to-b from-[#E8F4F8] via-[#F1F7FE] to-white">
+                                    {/* Colorful accent strip */}
+                                    <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F]" />
+                                    {/* Building photo, hero-style */}
                                     <img
                                         src="/multiunit_residence.png"
                                         alt=""
                                         aria-hidden="true"
-                                        className="absolute inset-0 w-full h-full object-cover opacity-[0.08] blur-sm scale-110 pointer-events-none select-none"
+                                        className="absolute inset-0 w-full h-full object-cover opacity-[0.22] scale-105 pointer-events-none select-none"
                                     />
+                                    <div className="absolute inset-0 bg-gradient-to-b from-[#E8F4F8]/60 via-white/50 to-white/80 pointer-events-none" />
                                     {/* Decorative color blooms, matching the marketing site's About section */}
                                     <div className="absolute -top-10 -left-10 w-48 h-48 bg-[#006795]/10 rounded-full blur-3xl pointer-events-none" />
                                     <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-[#F84B5F]/10 rounded-full blur-3xl pointer-events-none" />
 
                                     <div className="relative z-10 flex flex-col items-center">
-                                        <img src="/logo.png" alt="NSPIRE" className="h-9 mb-6 object-contain" />
-                                        <div className="w-16 h-16 bg-white shadow-sm border border-slate-100 rounded-full flex items-center justify-center mb-6">
-                                            <Plus className="w-8 h-8 text-[#006795]" />
-                                        </div>
+                                        <img src="/logo.png" alt="NSPIRE" className="h-16 mb-6 object-contain" />
+                                        <button
+                                            type="button"
+                                            onClick={() => setModalStep(2)}
+                                            className="w-16 h-16 bg-white shadow-sm border border-slate-100 rounded-full flex items-center justify-center mb-6 transition-all hover:scale-110 hover:shadow-lg hover:border-[#006795]/40 cursor-pointer"
+                                        >
+                                            <CategoryIcon className="w-8 h-8 text-[#006795]" />
+                                        </button>
                                         <p className="text-sm font-semibold text-slate-500 mb-8 max-w-xs">{`No existing deficiency record for this item.`}</p>
                                         <Button onClick={() => setModalStep(2)} className="bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white font-extrabold px-12 h-14 rounded-2xl shadow-lg shadow-[#006795]/20 uppercase tracking-widest text-xs font-lexend border-0">Add New</Button>
                                     </div>
                                 </div>
-                            )}
+                                );
+                            })()}
 
                             {modalStep === 2 && (
                                 <div className="space-y-6 animate-in fade-in duration-300 pb-6">
                                     {/* 1. DEFICIENCY SELECTED - Full width dropdown */}
                                     <div>
                                         <label className="block text-[10px] font-extrabold text-slate-400 uppercase mb-2 tracking-wider font-lexend">Deficiency Selected</label>
-                                        <div onClick={() => handleOpenSelection('selected')} className={`w-full bg-slate-50 border rounded-2xl p-4 text-xs font-semibold cursor-pointer hover:bg-white hover:border-[#0E7490] transition-all flex justify-between items-center group font-lexend ${selectedDeficiency ? 'border-[#0E7490] border-2 bg-white text-slate-800' : 'border-slate-150 text-slate-400'}`}>
+                                        <div onClick={() => handleOpenSelection('selected')} className={`w-full border rounded-2xl p-4 text-xs font-semibold cursor-pointer transition-all flex justify-between items-center group font-lexend ${selectedDeficiency ? 'border-[#0E7490] border-2 bg-white text-slate-800 hover:border-[#0E7490]' : 'border-2 border-rose-300 bg-rose-50/40 text-rose-500 hover:border-rose-400 hover:bg-rose-50 hover:scale-[1.01] hover:shadow-sm'}`}>
                                             <span>
                                                 {selectedDeficiency ? selectedDeficiency.selected : "--Select--"}
                                             </span>
-                                            <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-[#0E7490]" />
+                                            <ChevronDown className={`w-4 h-4 ${selectedDeficiency ? 'text-slate-400 group-hover:text-[#0E7490]' : 'text-rose-400'}`} />
                                         </div>
                                         {selectedDeficiency && (
                                             <button onClick={() => setSelectedDeficiency(null)} className="flex items-center gap-1 mt-2 text-xs font-semibold text-rose-500 hover:text-rose-600 font-lexend">
@@ -2269,7 +2342,7 @@ export default function InspectionCategoryPage() {
                                     {/* 2. DEFICIENCY DETAIL - Clickable Dropdown */}
                                     <div>
                                         <label className="block text-[10px] font-extrabold text-slate-400 uppercase mb-2 tracking-wider font-lexend">Deficiency Detail</label>
-                                        <div onClick={() => selectedDeficiency && handleOpenSelection('detail')} className={`w-full bg-slate-50 border rounded-2xl p-4 text-xs font-semibold ${selectedDeficiency ? 'cursor-pointer hover:bg-white hover:border-[#0E7490]' : 'cursor-not-allowed opacity-70'} transition-all flex justify-between items-center group font-lexend ${selectedDeficiency ? 'border-[#0E7490] border-2 bg-white text-slate-800' : 'border-slate-150 text-slate-400'}`}>
+                                        <div onClick={() => selectedDeficiency && handleOpenSelection('detail')} className={`w-full border rounded-2xl p-4 text-xs font-semibold transition-all flex justify-between items-center group font-lexend ${selectedDeficiency ? 'cursor-pointer border-[#0E7490] border-2 bg-white text-slate-800 hover:border-[#0E7490]' : 'cursor-not-allowed border-2 border-rose-200 bg-rose-50/30 text-rose-400'}`}>
                                             <span>
                                                 {selectedDeficiency ? selectedDeficiency.detail : "-- Select deficiency first --"}
                                             </span>
@@ -2501,6 +2574,7 @@ export default function InspectionCategoryPage() {
                                 </div>
                             )}
                         </div>
+                        )}
 
                         {modalStep === 4 && (
                             <div className="flex-1 overflow-y-auto flex flex-col p-6 md:p-8 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-0">
