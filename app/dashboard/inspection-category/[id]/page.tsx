@@ -2290,14 +2290,17 @@ export default function InspectionCategoryPage() {
                     <div className="absolute inset-0 -z-10" onClick={handleODModalClose} />
 
                     <Card className="font-lexend w-full max-w-xl bg-white rounded-3xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.35)] animate-in slide-in-from-top-4 duration-300 flex flex-col h-auto max-h-[70vh] self-center border border-slate-100">
-                        <div className="relative p-3 border-b shrink-0 bg-white/90 backdrop-blur-md sticky top-0 z-20">
-                            <button onClick={handleODModalClose} className="absolute top-3 right-3 p-2 hover:bg-slate-150 rounded-full transition-colors text-slate-450">
+                        <div className="flex items-center gap-3 px-4 py-3 shrink-0 bg-gradient-to-r from-[#00C6D7] to-[#006795] sticky top-0 z-20 shadow-sm">
+                            <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center shrink-0 overflow-hidden">
+                                <img src="/logo.png" alt="NSPIRE" className="h-6 w-6 object-contain" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <h3 className="text-sm font-extrabold text-white uppercase tracking-tight truncate font-lexend">{currentModalItem}</h3>
+                                <p className="text-[10px] text-white/80 font-semibold tracking-wide">NSPIRE Deficiency Inspection</p>
+                            </div>
+                            <button onClick={handleODModalClose} className="p-1.5 hover:bg-white/15 rounded-full transition-colors text-white shrink-0">
                                 <X className="w-5 h-5" />
                             </button>
-                            <div className="flex flex-col items-center text-center">
-                                <img src="/logo.png" alt="NSPIRE" className="h-9 mb-1 object-contain" />
-                                <h3 className="text-base font-extrabold text-gradient uppercase tracking-tight truncate max-w-[85%] font-lexend">{currentModalItem}</h3>
-                            </div>
                         </div>
 
                         {(modalStep === 1 || modalStep === 2 || modalStep === 3) && (
@@ -2595,7 +2598,12 @@ export default function InspectionCategoryPage() {
                         )}
 
                         {modalStep === 4 && (
-                            <div className="flex-1 overflow-y-auto flex flex-col p-6 md:p-8 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-0">
+                            <div className="flex-1 overflow-y-auto flex flex-col p-6 md:p-8 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-0 bg-gradient-to-b from-[#0F4C5C] to-[#142834]">
+                                <div className="text-center mb-1">
+                                    <img src="/logo.png" alt="NSPIRE" className="h-7 mx-auto mb-3 object-contain brightness-125" />
+                                    <h4 className="text-white font-extrabold text-lg font-lexend">Saved for Summary Report</h4>
+                                    <p className="text-white/60 text-xs font-semibold mt-0.5">1 deficiency on this item</p>
+                                </div>
                                 <div className="w-full bg-emerald-50/60 border border-emerald-200 rounded-2xl p-4 flex items-start gap-4 text-left">
                                     {photos[0] && (
                                         <img src={photos[0]} alt="Deficiency" className="w-20 h-20 rounded-xl object-cover shrink-0 border-2 border-white shadow-sm" />
@@ -2654,14 +2662,14 @@ export default function InspectionCategoryPage() {
                                         rel="noopener noreferrer"
                                         className="w-full"
                                     >
-                                        <Button variant="outline" className="w-full font-black h-14 rounded-xl border-2 bg-white hover:bg-gray-50 text-gray-500 uppercase text-[10px] tracking-widest flex items-center justify-center gap-3">
+                                        <Button variant="outline" className="w-full font-black h-14 rounded-xl border-2 border-white/20 bg-white/5 hover:bg-white/10 text-white/80 uppercase text-[10px] tracking-widest flex items-center justify-center gap-3">
                                             <FileText className="w-4 h-4" />
                                             Download Official Report
                                         </Button>
                                     </a>
                                 )}
 
-                                <Button variant="outline" onClick={handleODModalClose} className="w-full font-black h-14 rounded-xl border-2 bg-white hover:bg-gray-50 text-gray-500 uppercase text-[10px] tracking-widest">
+                                <Button onClick={handleODModalClose} className="w-full bg-rose-600 hover:bg-rose-700 text-white font-black h-14 rounded-xl shadow-lg shadow-rose-600/20 uppercase text-[10px] tracking-widest">
                                     Continue Inspection
                                 </Button>
                             </div>
