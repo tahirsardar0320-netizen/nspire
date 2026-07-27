@@ -812,7 +812,7 @@ export default function InspectionCategoryPage() {
         }, 2000); // Debounce save
 
         return () => clearTimeout(timer);
-    }, [outsideStatuses, insideStatuses, unitStatuses, urlBuilding, activeInspectionUnit]);
+    }, [outsideStatuses, insideStatuses, unitStatuses, urlBuilding, activeInspectionUnit, propertyFindings]);
 
     useEffect(() => {
         if (activeInspectionUnit) {
@@ -2290,12 +2290,12 @@ export default function InspectionCategoryPage() {
                     <div className="absolute inset-0 -z-10" onClick={handleODModalClose} />
 
                     <Card className="font-lexend w-full max-w-xl bg-white rounded-3xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.35)] animate-in slide-in-from-top-4 duration-300 flex flex-col h-auto max-h-[70vh] self-center border border-slate-100">
-                        <div className="relative p-5 border-b shrink-0 bg-white/90 backdrop-blur-md sticky top-0 z-20">
+                        <div className="relative p-3 border-b shrink-0 bg-white/90 backdrop-blur-md sticky top-0 z-20">
                             <button onClick={handleODModalClose} className="absolute top-3 right-3 p-2 hover:bg-slate-150 rounded-full transition-colors text-slate-450">
                                 <X className="w-5 h-5" />
                             </button>
                             <div className="flex flex-col items-center text-center">
-                                <img src="/logo.png" alt="NSPIRE" className="h-20 sm:h-24 mb-2 object-contain" />
+                                <img src="/logo.png" alt="NSPIRE" className="h-9 mb-1 object-contain" />
                                 <h3 className="text-base font-extrabold text-gradient uppercase tracking-tight truncate max-w-[85%] font-lexend">{currentModalItem}</h3>
                             </div>
                         </div>

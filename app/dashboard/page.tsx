@@ -528,7 +528,7 @@ export default function Dashboard() {
                       <td className="py-4 px-3">
                         <div className="w-full bg-slate-100 rounded-full h-2 mb-1">
                           <div
-                            className="bg-gradient-to-r from-teal-500 to-emerald-500 h-2 rounded-full transition-all duration-500"
+                            className="bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F] h-2 rounded-full transition-all duration-500"
                             style={{ width: `${propertyProgress[pid] || 0}%` }}
                           />
                         </div>
@@ -675,7 +675,7 @@ export default function Dashboard() {
                         </div>
                         <div className="w-full bg-slate-200 rounded-full h-2">
                           <div
-                            className="bg-gradient-to-r from-teal-500 to-emerald-500 h-2 rounded-full transition-all duration-500"
+                            className="bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F] h-2 rounded-full transition-all duration-500"
                             style={{ width: `${propertyProgress[pid] || 0}%` }}
                           />
                         </div>

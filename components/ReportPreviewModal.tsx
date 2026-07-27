@@ -9,13 +9,14 @@ interface ReportPreviewModalProps {
 }
 
 export function ReportPreviewModal({ report, onClose }: ReportPreviewModalProps) {
+  const AREA_SECTIONS = [
+    { label: 'Outside', subtitle: 'Areas affected by Rain, Snow, Wind', match: (a: string) => a.includes('outside') },
+    { label: 'Inside', subtitle: 'Interior Common area, Utility closet, Mechanical rooms', match: (a: string) => a.includes('inside') },
+    { label: 'Units', subtitle: 'Individual unit inspections', match: (a: string) => a.includes('unit') },
+  ]
+
   const deficiencySummaryByArea = useMemo(() => {
-    const areas = [
-      { label: 'Inside', match: (a: string) => a.includes('inside') },
-      { label: 'Outside', match: (a: string) => a.includes('outside') },
-      { label: 'Units', match: (a: string) => a.includes('unit') },
-    ]
-    return areas.map(({ label, match }) => {
+    return AREA_SECTIONS.map(({ label, match }) => {
       const items = (report.deficiencies || []).filter(d => match(String(d.area || '').toLowerCase()))
       return {
         label,
@@ -25,6 +26,14 @@ export function ReportPreviewModal({ report, onClose }: ReportPreviewModalProps)
         low: items.filter(d => d.severity === 'Low').length,
       }
     })
+  }, [report])
+
+  const deficienciesByArea = useMemo(() => {
+    return AREA_SECTIONS.map(({ label, subtitle, match }) => ({
+      label,
+      subtitle,
+      items: (report.deficiencies || []).filter(d => match(String(d.area || '').toLowerCase())),
+    }))
   }, [report])
 
   return (
@@ -141,13 +150,24 @@ export function ReportPreviewModal({ report, onClose }: ReportPreviewModalProps)
           {report.deficiencies.length === 0 ? (
             <p className="italic text-center text-gray-500 my-6">No deficiencies found during this inspection.</p>
           ) : (
-            <ul className="list-disc list-inside space-y-1 mb-6 text-xs">
-              {report.deficiencies.map((d) => (
-                <li key={d.id}>
-                  <span className="font-bold">{d.deficiencyName}</span> — {d.area} ({d.severity})
-                </li>
+            <div className="mb-6 space-y-4">
+              {deficienciesByArea.map(({ label, subtitle, items }) => (
+                <div key={label}>
+                  <p className="font-bold text-sm">{label} <span className="font-normal text-gray-500">({subtitle})</span></p>
+                  {items.length === 0 ? (
+                    <p className="italic text-gray-400 text-xs pl-4 mt-1">No deficiencies found.</p>
+                  ) : (
+                    <ul className="list-disc list-inside space-y-1 mt-1 text-xs pl-2">
+                      {items.map((d) => (
+                        <li key={d.id}>
+                          <span className="font-bold">{d.deficiencyName}</span> — {d.area} ({d.severity})
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               ))}
-            </ul>
+            </div>
           )}
 
           {report.certification && (

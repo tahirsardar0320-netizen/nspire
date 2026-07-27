@@ -46,7 +46,16 @@ function generateStyles(options: PDFGenerationOptions): string {
       padding: 20px;
       background: #FFFFFF;
     }
-    
+
+    /* Keep table rows and section headers intact when paginating (print or PDF export) */
+    tr, .avoid-break, .section-header {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    thead {
+      display: table-header-group;
+    }
+
     .report-container {
       max-width: 100%;
       margin: 0 auto;
@@ -536,18 +545,48 @@ function getStatusBadge(status: string): string {
 /**
  * Generate Deficiency Table HTML (HUD NSPIRE Format)
  */
-function generateDeficiencyTable(deficiencies: DeficiencyEntry[], options: PDFGenerationOptions): string {
-  // Group deficiencies by Inspectable Area for the header if needed, but here we list all
-  const OutsideDeficiencies = deficiencies.filter(d => ['site', 'exterior'].some(t => d.area?.toLowerCase().includes(t)));
-  const BuildingDeficiencies = deficiencies.filter(d => !OutsideDeficiencies.includes(d));
+const DEFICIENCY_AREA_SECTIONS: { label: string; subtitle: string; match: (area: string) => boolean }[] = [
+  { label: 'Outside', subtitle: 'Areas affected by Rain, Snow, Wind', match: (a) => a.includes('outside') || a.includes('site') || a.includes('exterior') },
+  { label: 'Inside', subtitle: 'Interior Common area, Utility closet, Mechanical rooms', match: (a) => a.includes('inside') },
+  { label: 'Units', subtitle: 'Individual unit inspections', match: (a) => a.includes('unit') },
+];
 
+function generateDeficiencyRow(def: DeficiencyEntry): string {
+  const isGC = !!(def as any).isGeneralComment;
   return `
-    <div class="summary-section">
-      <h2 class="section-header">Inspectable Areas Deficiencies:</h2>
-      
-      <!-- Table Header for Building/Unit (Using first deficiency building name for header if available, logically sound for single building report) -->
-      ${deficiencies.length > 0 ? `<div style="background:#D1D5DB; padding:4px; border:1px solid #000; font-weight:bold; font-size:9pt; margin-top:10px;">Building/Units:</div>` : ''}
+    <tr class="avoid-break">
+      <td>
+        <div>${isGC ? '-' : (def.deficiencyDetails || 'No details provided')}</div>
+      </td>
+       <td style="text-align:center;vertical-align:middle;">
+        ${isGC ? '-' : makeCodeRefLink(def.nspireCode, def.codeReference)}
+      </td>
+       <td>
+         ${def.imageUri ?
+      `<img src="${def.imageUri}" class="deficiency-pic" alt="Proof" />` :
+      `<div style="text-align:center; color:#ccc;">No Image</div>`
+    }
+      </td>
+       <td style="text-align:center;">
+        ${isGC ? '-' : def.deductionPts}
+      </td>
+       <td style="text-align:center;">
+        ${isGC ? '-' : (def.repeatIndicator ? 'Repeat' : 'Not Repeat')}
+      </td>
+      <td style="text-align:center;">
+         ${isGC ? '-' : def.severity}
+      </td>
+      <td style="vertical-align:top;padding:4px 6px;">${def.note || '-'}</td>
+    </tr>
+  `;
+}
 
+function generateDeficiencyAreaTable(label: string, subtitle: string, items: DeficiencyEntry[]): string {
+  return `
+    <div style="background:#D1D5DB; padding:4px; border:1px solid #000; font-weight:bold; font-size:9pt; margin-top:14px;">${label} <span style="font-weight:normal;">(${subtitle})</span></div>
+    ${items.length === 0 ? `
+      <div style="padding:8px; border:1px solid #000; border-top:none; font-style:italic; color:#666; font-size:9pt;">No deficiencies found.</div>
+    ` : `
       <table class="deficiency-details-table">
         <thead>
           <tr style="background-color: #D1D5DB;">
@@ -561,41 +600,24 @@ function generateDeficiencyTable(deficiencies: DeficiencyEntry[], options: PDFGe
           </tr>
         </thead>
         <tbody>
-          ${deficiencies.map((def, index) => {
-            const isGC = !!(def as any).isGeneralComment;
-            return `
-            <tr class="avoid-break">
-              <td>
-                <div>${isGC ? '-' : (def.deficiencyDetails || 'No details provided')}</div>
-              </td>
-
-               <td style="text-align:center;vertical-align:middle;">
-                ${isGC ? '-' : makeCodeRefLink(def.nspireCode, def.codeReference)}
-              </td>
-
-               <td>
-                 ${def.imageUri ?
-      `<img src="${def.imageUri}" class="deficiency-pic" alt="Proof" />` :
-      `<div style="text-align:center; color:#ccc;">No Image</div>`
-    }
-              </td>
-
-               <td style="text-align:center;">
-                ${isGC ? '-' : def.deductionPts}
-              </td>
-
-               <td style="text-align:center;">
-                ${isGC ? '-' : (def.repeatIndicator ? 'Repeat' : 'Not Repeat')}
-              </td>
-
-              <td style="text-align:center;">
-                 ${isGC ? '-' : def.severity}
-              </td>
-              <td style="vertical-align:top;padding:4px 6px;">${def.note || '-'}</td>
-            </tr>
-          `; }).join('')}
+          ${items.map(generateDeficiencyRow).join('')}
         </tbody>
       </table>
+    `}
+  `;
+}
+
+function generateDeficiencyTable(deficiencies: DeficiencyEntry[], options: PDFGenerationOptions): string {
+  const sections = DEFICIENCY_AREA_SECTIONS.map(({ label, subtitle, match }) => ({
+    label,
+    subtitle,
+    items: deficiencies.filter(d => match(String(d.area || '').toLowerCase())),
+  }));
+
+  return `
+    <div class="summary-section">
+      <h2 class="section-header">Inspectable Areas Deficiencies:</h2>
+      ${sections.map(s => generateDeficiencyAreaTable(s.label, s.subtitle, s.items)).join('')}
     </div>
   `;
 }
