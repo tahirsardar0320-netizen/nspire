@@ -1552,7 +1552,7 @@ export default function InspectionCategoryPage() {
                             (() => {
                                 const toggleableItems = items.filter(i => !savedODItems.has(`${section}:${i}`));
                                 return toggleableItems.length > 0 && toggleableItems.every(item => statuses[item] === 'No OD');
-                            })() ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-[#006795] hover:bg-[#0a5670] text-white'
+                            })() ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white'
                         }`}
                     >
                         <div className="w-4 h-4 bg-white/20 border border-white/40 flex items-center justify-center rounded">
@@ -1582,7 +1582,7 @@ export default function InspectionCategoryPage() {
                                 (() => {
                                     const toggleableItems = items.filter(i => !savedODItems.has(`${section}:${i}`));
                                     return toggleableItems.length > 0 && toggleableItems.every(item => statuses[item] === 'N/A');
-                                })() ? 'bg-gray-600 hover:bg-gray-700 text-white' : 'bg-[#006795] hover:bg-[#0a5670] text-white'
+                                })() ? 'bg-gray-600 hover:bg-gray-700 text-white' : 'bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white'
                             }`}
                         >
                             <div className="w-4 h-4 bg-white/20 border border-white/40 flex items-center justify-center rounded">
@@ -1606,7 +1606,7 @@ export default function InspectionCategoryPage() {
                             {isGeneral ? (
                                 <button
                                     onClick={() => handleStatusChange(section, item, 'OD')}
-                                    className="w-full py-3 rounded text-[11px] font-bold bg-[#006795] hover:bg-[#0a5670] text-white shadow-sm transition-all uppercase tracking-wider"
+                                    className="w-full py-3 rounded text-[11px] font-bold bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white shadow-sm transition-all uppercase tracking-wider"
                                 >
                                     General Button
                                 </button>
@@ -1653,7 +1653,7 @@ export default function InspectionCategoryPage() {
                         <tr className="border-b-2 border-gray-100">
                             <th className="text-center py-4 px-4 text-xs font-black text-gray-900 uppercase">Outline Items</th>
                             <th className="py-2 px-2">
-                                <Button onClick={() => selectAll(section, 'No OD')} className="w-full bg-[#006795] hover:bg-[#0a5670] text-white text-[10px] h-8 font-bold flex items-center gap-1.5 px-3 uppercase">
+                                <Button onClick={() => selectAll(section, 'No OD')} className="w-full bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white text-[10px] h-8 font-bold flex items-center gap-1.5 px-3 uppercase">
                                     <div className="w-3 h-3 bg-white border border-cyan-800 flex items-center justify-center">
                                         {(() => {
                                             const toggleableItems = items.filter(i => !savedODItems.has(`${section}:${i}`));
@@ -1679,7 +1679,7 @@ export default function InspectionCategoryPage() {
                                 </Button>
                             </th>
                             <th className="py-2 px-2">
-                                <Button onClick={() => selectAll(section, 'N/A')} className="w-full bg-[#006795] hover:bg-[#0a5670] text-white text-[10px] h-8 font-bold flex items-center gap-1.5 px-3 uppercase">
+                                <Button onClick={() => selectAll(section, 'N/A')} className="w-full bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white text-[10px] h-8 font-bold flex items-center gap-1.5 px-3 uppercase">
                                     <div className="w-3 h-3 bg-white border border-cyan-800 flex items-center justify-center">
                                         {(() => {
                                             const toggleableItems = items.filter(i => !savedODItems.has(`${section}:${i}`));
@@ -1702,7 +1702,7 @@ export default function InspectionCategoryPage() {
                                         <td colSpan={3} className="py-2 px-2 text-center">
                                             <button
                                                 onClick={() => handleStatusChange(section, item, 'OD')}
-                                                className="w-full py-2.5 rounded text-[11px] font-bold bg-[#006795] hover:bg-[#0a5670] text-white shadow-sm transition-all uppercase tracking-wider"
+                                                className="w-full py-2.5 rounded text-[11px] font-bold bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white shadow-sm transition-all uppercase tracking-wider"
                                             >
                                                 General Button
                                             </button>
@@ -1867,7 +1867,7 @@ export default function InspectionCategoryPage() {
                         <Button
                             onClick={handleOpenReportPreview}
                             disabled={loadingReportPreview}
-                            className="bg-[#006795] hover:bg-[#0a5670] text-white font-black px-6 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center gap-2"
+                            className="bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white font-black px-6 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center gap-2"
                         >
                             <FileText className="w-4 h-4" />
                             {loadingReportPreview ? 'Loading...' : 'View Summary'}
@@ -1977,7 +1977,7 @@ export default function InspectionCategoryPage() {
                                         {sec === 'outside' ? 'Outside (Areas affected by Rain, Snow, Wind)' : sec === 'inside' ? 'Inside (Interior Common area, Utility closet, Mechanical rooms)' : 'Units (Individual unit inspections)'}
                                     </p>
                                     {/* Folder link indicator */}
-                                    <span className="flex-shrink-0 inline-flex items-center gap-1 text-[10px] font-bold text-white bg-[#006795] px-2 py-0.5 rounded-full shadow-sm">
+                                    <span className="flex-shrink-0 inline-flex items-center gap-1 text-[10px] font-bold text-white bg-gradient-to-r from-[#00C6D7] to-[#006795] px-2 py-0.5 rounded-full shadow-sm">
                                         <ChevronRight className="w-3 h-3" />
                                         {sec === 'unit' && !activeInspectionUnit ? 'Select' : expandedSection === sec ? 'Open' : 'Open'}
                                     </span>
@@ -1987,7 +1987,7 @@ export default function InspectionCategoryPage() {
                                     <p className="text-[11px]">{sec === 'outside' ? outsideProgress.percentage : sec === 'inside' ? insideProgress.percentage : unitProgress.percentage}% Completed</p>
                                 </div>
                                 <div className="w-full h-2 bg-white rounded-full overflow-hidden max-w-4xl shadow-inner">
-                                    <div className="h-full bg-[#006795] transition-all duration-500" style={{ width: `${sec === 'outside' ? outsideProgress.percentage : sec === 'inside' ? insideProgress.percentage : unitProgress.percentage}%` }}></div>
+                                    <div className="h-full bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F] transition-all duration-500" style={{ width: `${sec === 'outside' ? outsideProgress.percentage : sec === 'inside' ? insideProgress.percentage : unitProgress.percentage}%` }}></div>
                                 </div>
                             </div>
                             <div className="ml-3 flex-shrink-0">
@@ -2089,7 +2089,7 @@ export default function InspectionCategoryPage() {
                                             }`}
                                     >
                                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-black shrink-0 ${activeInspectionUnit === displayName ? 'bg-[#006795] text-white' : 'bg-gray-100 text-gray-600'
+                                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-black shrink-0 ${activeInspectionUnit === displayName ? 'bg-gradient-to-br from-[#00C6D7] to-[#006795] text-white' : 'bg-gray-100 text-gray-600'
                                                 }`}>
                                                 {idx + 1}
                                             </div>
@@ -2263,7 +2263,7 @@ export default function InspectionCategoryPage() {
                             </button>
                             <button
                                 onClick={handleSaveGeneralComment}
-                                className="flex-1 px-4 py-3 bg-[#006795] hover:bg-[#0a5670] text-white rounded-xl text-sm font-bold transition-colors"
+                                className="flex-1 px-4 py-3 bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white rounded-xl text-sm font-bold transition-colors"
                             >
                                 Save Comment
                             </button>
@@ -2290,7 +2290,7 @@ export default function InspectionCategoryPage() {
                             {modalStep === 1 && (() => {
                                 const CategoryIcon = getCategoryIcon(currentModalItem);
                                 return (
-                                <div className="relative py-16 px-6 flex flex-col items-center justify-center text-center overflow-hidden rounded-2xl bg-gradient-to-b from-[#E8F4F8] via-[#F1F7FE] to-white">
+                                <div className="relative py-10 px-6 flex flex-col items-center justify-center text-center overflow-hidden rounded-2xl bg-gradient-to-b from-[#E8F4F8] via-[#F1F7FE] to-white">
                                     {/* Colorful accent strip */}
                                     <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F]" />
                                     {/* Building photo, hero-style */}
@@ -2304,15 +2304,19 @@ export default function InspectionCategoryPage() {
                                     {/* Decorative color blooms, matching the marketing site's About section */}
                                     <div className="absolute -top-10 -left-10 w-48 h-48 bg-[#006795]/10 rounded-full blur-3xl pointer-events-none" />
                                     <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-[#F84B5F]/10 rounded-full blur-3xl pointer-events-none" />
+                                    {/* Colorful glow directly behind the icon, so it's the focal point */}
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 bg-gradient-to-br from-[#00C6D7]/25 to-[#006795]/25 rounded-full blur-2xl pointer-events-none" />
 
                                     <div className="relative z-10 flex flex-col items-center">
-                                        <img src="/logo.png" alt="NSPIRE" className="h-16 mb-6 object-contain" />
+                                        <img src="/logo.png" alt="NSPIRE" className="h-9 mb-5 object-contain opacity-90" />
                                         <button
                                             type="button"
                                             onClick={() => setModalStep(2)}
-                                            className="w-16 h-16 bg-white shadow-sm border border-slate-100 rounded-full flex items-center justify-center mb-6 transition-all hover:scale-110 hover:shadow-lg hover:border-[#006795]/40 cursor-pointer"
+                                            className="p-1 bg-gradient-to-br from-[#00C6D7] to-[#006795] rounded-full shadow-lg shadow-[#006795]/25 mb-6 transition-all hover:scale-110 hover:shadow-xl cursor-pointer"
                                         >
-                                            <CategoryIcon className="w-8 h-8 text-[#006795]" />
+                                            <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center">
+                                                <CategoryIcon className="w-14 h-14 text-[#006795]" strokeWidth={1.5} />
+                                            </div>
                                         </button>
                                         <p className="text-sm font-semibold text-slate-500 mb-8 max-w-xs">{`No existing deficiency record for this item.`}</p>
                                         <Button onClick={() => setModalStep(2)} className="bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white font-extrabold px-12 h-14 rounded-2xl shadow-lg shadow-[#006795]/20 uppercase tracking-widest text-xs font-lexend border-0">Add New</Button>
@@ -2611,7 +2615,7 @@ export default function InspectionCategoryPage() {
                                         setPhotos([]);
                                         setModalStep(2);
                                     }}
-                                    className="w-full bg-[#006795] hover:bg-[#0a5670] text-white font-black h-14 rounded-xl shadow-lg uppercase text-[10px] tracking-widest flex items-center justify-center gap-2"
+                                    className="w-full bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white font-black h-14 rounded-xl shadow-lg uppercase text-[10px] tracking-widest flex items-center justify-center gap-2"
                                 >
                                     <Plus className="w-4 h-4" />
                                     Add Deficiency
