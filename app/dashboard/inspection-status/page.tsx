@@ -223,74 +223,13 @@ export default function InspectionStatusPage() {
     try {
       toast.info("Generating PDF report...", { position: "top-right" })
 
-      const token = localStorage.getItem('token')
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || ''}/api/inspections/${property.inspection._id}/nspire-pdf?includeImages=true`,
-        {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      )
-
-      const contentType = response.headers.get('content-type')
-
-      if (contentType && contentType.includes('application/json')) {
-        const data = await response.json()
-
-        if (!response.ok) {
-          throw new Error(data.message || 'Failed to generate PDF')
-        }
-
-        if (data.html) {
-          console.log('Received HTML fallback from backend')
-          toast.info("Opening report for printing...", { position: "top-right" })
-
-          const printWindow = window.open('', '_blank')
-          if (printWindow) {
-            printWindow.document.write(data.html)
-            printWindow.document.close()
-            printWindow.onload = () => {
-              printWindow.focus()
-              printWindow.print()
-            }
-          } else {
-            throw new Error("Popup blocked. Please allow popups to print the report.")
-          }
-          return
-        }
+      const report = await fetchNSPIREReportForProperty(property._id)
+      if (!report) {
+        throw new Error('Unable to load report data for this property.')
       }
 
-      if (!response.ok) {
-        throw new Error('Failed to generate PDF')
-      }
-
-      const blob = await response.blob()
-      if (blob.size < 1000 || !blob.type.includes('pdf')) {
-        const text = await blob.text()
-        let errorMsg = 'Failed to generate PDF'
-        try {
-          const parsed = JSON.parse(text)
-          errorMsg = parsed.message || errorMsg
-        } catch (e) {
-          if (text.toLowerCase().includes('lock') || text.toLowerCase().includes('pay')) {
-            errorMsg = 'This report is locked. Please view the summary or unlock it to export.'
-          } else {
-            errorMsg = 'The PDF report is currently locked or unavailable.'
-          }
-        }
-        throw new Error(errorMsg)
-      }
-
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `NSPIRE_Report_${property.name.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      const { downloadNSPIREReportPDF } = await import('@/lib/exportReportPdf')
+      await downloadNSPIREReportPDF(report, `NSPIRE_Report_${property.name.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`)
 
       toast.success("PDF downloaded successfully", { position: "top-right" })
     } catch (error: any) {
@@ -532,7 +471,7 @@ export default function InspectionStatusPage() {
                       <Button
                         onClick={() => handleDownloadPDF(property)}
                         disabled={downloadingId === property._id}
-                        className="bg-[#006795] hover:bg-[#0a5670] text-white flex items-center justify-center gap-2 text-sm sm:text-base w-full sm:w-auto whitespace-nowrap"
+                        className="bg-amber-500 hover:bg-amber-600 text-white flex items-center justify-center gap-2 text-sm sm:text-base w-full sm:w-auto whitespace-nowrap"
                       >
                         {downloadingId === property._id ? (
                           <>
