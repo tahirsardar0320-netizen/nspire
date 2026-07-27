@@ -558,9 +558,12 @@ function generateDeficiencyRow(def: DeficiencyEntry): string {
       <td>
         <div>${isGC ? '-' : (def.deficiencyDetails || 'No details provided')}</div>
       </td>
-       <td style="text-align:center;vertical-align:middle;">
-        ${isGC ? '-' : makeCodeRefLink(def.nspireCode, def.codeReference)}
+      <td>
+        <div style="font-weight:bold;">${isGC ? '-' : (def.deficiencyName || '-')}</div>
+        ${isGC ? '' : `<div style="font-style:italic; color:#6B7280; font-size:8pt;">${def.nspireCode || ''}</div>`}
+        <div style="font-size:8pt; color:#6B7280;">${def.building || '-'} | ${def.unit || def.room || '-'}</div>
       </td>
+      <td style="vertical-align:top;padding:4px 6px;">${isGC ? '-' : (def.comments || 'Wait for Input')}</td>
        <td>
          ${def.imageUri ?
       `<img src="${def.imageUri}" class="deficiency-pic" alt="Proof" />` :
@@ -576,27 +579,27 @@ function generateDeficiencyRow(def: DeficiencyEntry): string {
       <td style="text-align:center;">
          ${isGC ? '-' : def.severity}
       </td>
-      <td style="vertical-align:top;padding:4px 6px;">${def.note || '-'}</td>
     </tr>
   `;
 }
 
 function generateDeficiencyAreaTable(label: string, subtitle: string, items: DeficiencyEntry[]): string {
+  const headingLabel = label === 'Units' ? 'Unit' : label;
   return `
-    <div style="background:#D1D5DB; padding:4px; border:1px solid #000; font-weight:bold; font-size:9pt; margin-top:14px;">${label} <span style="font-weight:normal;">(${subtitle})</span></div>
+    <p style="font-weight:bold; text-decoration:underline; font-size:10pt; margin-top:14px; margin-bottom:4px;">${headingLabel} Deficiencies</p>
     ${items.length === 0 ? `
       <div style="padding:8px; border:1px solid #000; border-top:none; font-style:italic; color:#666; font-size:9pt;">No deficiencies found.</div>
     ` : `
       <table class="deficiency-details-table">
         <thead>
           <tr style="background-color: #D1D5DB;">
-            <th style="width: 23%; background-color:#D1D5DB;">Deficiency Details</th>
-            <th style="width: 10%; background-color:#D1D5DB;">Code of Reference</th>
+            <th style="width: 18%; background-color:#D1D5DB;">Deficiency Details</th>
+            <th style="width: 18%; background-color:#D1D5DB;">Deficiency Name/Location</th>
+            <th style="width: 14%; background-color:#D1D5DB;">Comments</th>
             <th style="width: 16%; background-color:#D1D5DB;">Deficiency Picture</th>
-            <th style="width: 9%; background-color:#D1D5DB;">Deduction Pts.</th>
-            <th style="width: 10%; background-color:#D1D5DB;">Repeat Indicator</th>
-            <th style="width: 10%; background-color:#D1D5DB;">Severity</th>
-            <th style="width: 12%; background-color:#D1D5DB;">Note</th>
+            <th style="width: 10%; background-color:#D1D5DB;">Deduction Pts.</th>
+            <th style="width: 12%; background-color:#D1D5DB;">Repeat Indicator</th>
+            <th style="width: 12%; background-color:#D1D5DB;">Severity</th>
           </tr>
         </thead>
         <tbody>

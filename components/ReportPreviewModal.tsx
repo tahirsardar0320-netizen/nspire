@@ -150,20 +150,51 @@ export function ReportPreviewModal({ report, onClose }: ReportPreviewModalProps)
           {report.deficiencies.length === 0 ? (
             <p className="italic text-center text-gray-500 my-6">No deficiencies found during this inspection.</p>
           ) : (
-            <div className="mb-6 space-y-4">
-              {deficienciesByArea.map(({ label, subtitle, items }) => (
+            <div className="mb-6 space-y-6">
+              {deficienciesByArea.map(({ label, items }) => (
                 <div key={label}>
-                  <p className="font-bold text-sm">{label} <span className="font-normal text-gray-500">({subtitle})</span></p>
+                  <p className="font-bold underline mb-1">{label === 'Units' ? 'Unit' : label} Deficiencies</p>
                   {items.length === 0 ? (
-                    <p className="italic text-gray-400 text-xs pl-4 mt-1">No deficiencies found.</p>
+                    <p className="italic text-gray-400 text-xs pl-1">No deficiencies found.</p>
                   ) : (
-                    <ul className="list-disc list-inside space-y-1 mt-1 text-xs pl-2">
-                      {items.map((d) => (
-                        <li key={d.id}>
-                          <span className="font-bold">{d.deficiencyName}</span> — {d.area} ({d.severity})
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[600px] border-collapse border border-gray-400 text-xs">
+                        <thead>
+                          <tr className="bg-gray-200">
+                            <th className="border border-gray-400 p-2 text-left">Deficiency Details</th>
+                            <th className="border border-gray-400 p-2 text-left">Deficiency Name/Location</th>
+                            <th className="border border-gray-400 p-2 text-left">Comments</th>
+                            <th className="border border-gray-400 p-2">Deficiency Picture</th>
+                            <th className="border border-gray-400 p-2">Deduction Pts</th>
+                            <th className="border border-gray-400 p-2">Repeat Indicator</th>
+                            <th className="border border-gray-400 p-2">Severity</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {items.map((d) => (
+                            <tr key={d.id}>
+                              <td className="border border-gray-400 p-2">{d.deficiencyDetails || 'No details provided'}</td>
+                              <td className="border border-gray-400 p-2">
+                                <p className="font-bold">{d.deficiencyName}</p>
+                                <p className="italic text-gray-500">{d.nspireCode}</p>
+                                <p className="text-gray-500">{d.building || '-'} | {d.unit || d.room || '-'}</p>
+                              </td>
+                              <td className="border border-gray-400 p-2">{d.comments || 'Wait for Input'}</td>
+                              <td className="border border-gray-400 p-2 text-center">
+                                {d.imageUri ? (
+                                  <img src={d.imageUri} alt="Proof" className="w-16 h-16 object-cover mx-auto" />
+                                ) : (
+                                  <span className="text-gray-400">No Image</span>
+                                )}
+                              </td>
+                              <td className="border border-gray-400 p-2 text-center">{d.deductionPts}</td>
+                              <td className="border border-gray-400 p-2 text-center">{d.repeatIndicator ? 'Repeat' : 'Not Repeat'}</td>
+                              <td className="border border-gray-400 p-2 text-center">{d.severity}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   )}
                 </div>
               ))}

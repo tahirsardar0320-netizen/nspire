@@ -153,6 +153,7 @@ export default function ProfileSelection() {
           object-position: center 30%;
           z-index: 0;
           opacity: 0.4;
+          filter: blur(3px);
           pointer-events: none;
         }
         .ps-bg-overlay {
