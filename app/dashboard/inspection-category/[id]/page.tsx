@@ -2225,12 +2225,26 @@ export default function InspectionCategoryPage() {
 
                         <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 custom-scrollbar overscroll-contain">
                             {modalStep === 1 && (
-                                <div className="py-20 flex flex-col items-center justify-center text-center">
-                                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-                                        <Plus className="w-8 h-8 text-slate-300" />
+                                <div className="relative -m-6 md:-m-8 py-16 px-6 flex flex-col items-center justify-center text-center overflow-hidden rounded-2xl bg-gradient-to-b from-[#E8F4F8] via-[#F1F7FE] to-white">
+                                    {/* Soft blurred building photo, hero-style */}
+                                    <img
+                                        src="/multiunit_residence.png"
+                                        alt=""
+                                        aria-hidden="true"
+                                        className="absolute inset-0 w-full h-full object-cover opacity-[0.08] blur-sm scale-110 pointer-events-none select-none"
+                                    />
+                                    {/* Decorative color blooms, matching the marketing site's About section */}
+                                    <div className="absolute -top-10 -left-10 w-48 h-48 bg-[#006795]/10 rounded-full blur-3xl pointer-events-none" />
+                                    <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-[#F84B5F]/10 rounded-full blur-3xl pointer-events-none" />
+
+                                    <div className="relative z-10 flex flex-col items-center">
+                                        <img src="/logo.png" alt="NSPIRE" className="h-9 mb-6 object-contain" />
+                                        <div className="w-16 h-16 bg-white shadow-sm border border-slate-100 rounded-full flex items-center justify-center mb-6">
+                                            <Plus className="w-8 h-8 text-[#006795]" />
+                                        </div>
+                                        <p className="text-sm font-semibold text-slate-500 mb-8 max-w-xs">{`No existing deficiency record for this item.`}</p>
+                                        <Button onClick={() => setModalStep(2)} className="bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white font-extrabold px-12 h-14 rounded-2xl shadow-lg shadow-[#006795]/20 uppercase tracking-widest text-xs font-lexend border-0">Add New</Button>
                                     </div>
-                                    <p className="text-sm font-semibold text-slate-400 mb-8 max-w-xs">{`No existing deficiency record for this item.`}</p>
-                                    <Button onClick={() => setModalStep(2)} className="bg-[#006795] hover:bg-[#0a5670] text-white font-extrabold px-12 h-14 rounded-2xl shadow-lg uppercase tracking-widest text-xs font-lexend">Add New</Button>
                                 </div>
                             )}
 
