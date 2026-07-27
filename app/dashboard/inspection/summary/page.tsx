@@ -105,6 +105,7 @@ function NSPIREInspectionSummaryContent() {
   const [showReportPreview, setShowReportPreview] = useState(false)
   const [showUnlockSummaryModal, setShowUnlockSummaryModal] = useState(false)
   const [fullReportEmail, setFullReportEmail] = useState('')
+  const [sendingReportEmail, setSendingReportEmail] = useState(false)
   const [property, setProperty] = useState<any>(null)
   // Custom column header from the building table (editable in property-details)
   const [buildingColumnHeader, setBuildingColumnHeader] = useState('Building')
@@ -676,13 +677,45 @@ function NSPIREInspectionSummaryContent() {
     }
   }
 
-  const handleSendFullReportLink = () => {
+  const handleSendFullReportLink = async () => {
     if (!fullReportEmail.trim() || !/^\S+@\S+\.\S+$/.test(fullReportEmail.trim())) {
       toast.error('Please enter a valid email address.', { position: 'top-right' })
       return
     }
-    setShowUnlockSummaryModal(false)
-    handleUnlockWithStripe()
+    if (!report) return
+
+    setSendingReportEmail(true)
+    try {
+      const { generateNSPIREReportPDFBlob, blobToBase64 } = await import('@/lib/exportReportPdf')
+      const blob = await generateNSPIREReportPDFBlob(report)
+      const pdfBase64 = await blobToBase64(blob)
+
+      const res = await fetch('/api/inspections/send-report-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: fullReportEmail.trim(),
+          pdfBase64,
+          filename: `NSPIRE_Report_${report.metadata.inspectionNo}.pdf`,
+          propertyName: report.metadata.propertyName,
+          propertyAddress: report.metadata.propertyAddress,
+          inspectionNo: report.metadata.inspectionNo,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Failed to send report email.')
+      }
+
+      toast.success(`Full report sent to ${fullReportEmail.trim()}`, { position: 'top-right' })
+      setShowUnlockSummaryModal(false)
+      setFullReportEmail('')
+    } catch (error: any) {
+      console.error('Send report email error:', error)
+      toast.error(`Unable to send report: ${error.message}`, { position: 'top-right' })
+    } finally {
+      setSendingReportEmail(false)
+    }
   }
 
   const handleExportPDF = async () => {
@@ -697,218 +730,23 @@ function NSPIREInspectionSummaryContent() {
 
     setExporting(true)
     try {
-      toast.info("Generating PDF through Puppeteer service...", { position: "top-right" })
-
-      const token = localStorage.getItem('token')
-
-      // Prepare the payload matching backend expectations
-      let payloadData;
-      let mergedInspectionPayload: any = null;
+      toast.info("Generating PDF...", { position: "top-right" })
 
       const storedData = localStorage.getItem('currentInspectionData');
       const storedProperty = localStorage.getItem('currentInspectionProperty');
 
-      // First persist/update the inspection in backend to obtain merged property-level data
-      // (prevents previous building details from being dropped when exporting after partial updates)
+      // Persist/update the inspection in backend first so the exported report reflects
+      // the latest saved data.
       if (storedData && storedProperty) {
-        mergedInspectionPayload = await markInspectionAsCompleted({
-          silentToast: true,
-          returnInspection: true,
-        });
+        await markInspectionAsCompleted({ silentToast: true, returnInspection: true });
       }
 
-      if (mergedInspectionPayload) {
-        const propertyData = storedProperty ? JSON.parse(storedProperty) : null;
-        
-        // PHOTO FIX: Prefer `findings` (raw data with imageUri strings) over
-        // `deficiencies` (transformed objects where imageUri is nested inside photos[].url)
-        const rawItems = mergedInspectionPayload.findings || mergedInspectionPayload.deficiencies || [];
-
-        // Deep-scan helper: extract the first valid image URL from any field
-        const extractImageUrl = (d: any): string => {
-          // 1. Direct string fields
-          if (typeof d.imageUri === 'string' && d.imageUri.startsWith('http')) return d.imageUri;
-          if (typeof d.imageUrl === 'string' && d.imageUrl.startsWith('http')) return d.imageUrl;
-          if (typeof d.photo === 'string' && d.photo.startsWith('http')) return d.photo;
-          if (typeof d.image === 'string' && d.image.startsWith('http')) return d.image;
-          // 2. photos array (could be strings or {url} objects)
-          if (Array.isArray(d.photos) && d.photos.length > 0) {
-            const first = d.photos[0];
-            if (typeof first === 'string' && first.startsWith('http')) return first;
-            if (first?.url && typeof first.url === 'string' && first.url.startsWith('http')) return first.url;
-          }
-          // 3. Fallback: scan all keys for any http URL
-          for (const key of Object.keys(d)) {
-            const val = d[key];
-            if (typeof val === 'string' && val.startsWith('http') && (val.includes('cloudinary') || val.includes('.jpg') || val.includes('.png') || val.includes('.jpeg') || val.includes('.webp'))) {
-              return val;
-            }
-          }
-          return '';
-        };
-
-        // MAPPING FIX: Ensure photos are correctly formatted for the generator
-        const exportDeficiencies = rawItems.map((d: any) => {
-          const img = extractImageUrl(d);
-          return {
-            ...d,
-            title: d.deficiencyName || d.title,
-            description: d.deficiencyDetails || d.description,
-            notes: d.comments || d.notes,
-            category: d.area || d.category,
-            imageUri: img,
-            imageUrl: img,
-            photos: img ? [img] : []
-          };
-        });
-
-        payloadData = {
-          ...mergedInspectionPayload,
-          property: propertyData || mergedInspectionPayload.property,
-          findings: exportDeficiencies,
-          deficiencies: exportDeficiencies,
-          inspectionNo: mergedInspectionPayload.inspectionId || report.metadata.inspectionNo,
-          propertyName: propertyData?.name || report.metadata.propertyName,
-          propertyAddress: propertyData?.address || report.metadata.propertyAddress,
-        };
-      }
-
-      if (!payloadData && storedData) {
-        // Use raw data if available (best for metadata preservation)
-        const rawData = JSON.parse(storedData);
-        if (storedProperty) {
-          rawData.property = JSON.parse(storedProperty);
-        }
-        
-        payloadData = rawData;
-      } else if (!payloadData) {
-        // Fallback: Reconstruct compatible object from current report state
-        // The backend expects flat properties for metadata (e.g. propertyName)
-        // or a nested property object.
-        // Limit deficiencies for preview export if locked
-        const exportDeficiencies = report.deficiencies;
-
-        payloadData = {
-          ...report.metadata, // Spread metadata (inspectionNo, propertyName, etc.) to root
-          deficiencies: exportDeficiencies.map((d: any) => {
-            const img = d.imageUri || d.imageUrl || (Array.isArray(d.photos) && d.photos.length > 0 ? (typeof d.photos[0] === 'string' ? d.photos[0] : d.photos[0].url) : '') || '';
-            return {
-              ...d,
-              title: d.deficiencyName,
-              description: d.deficiencyDetails,
-              notes: d.comments,
-              category: d.area,
-              imageUri: img,
-              imageUrl: img,
-              photos: [img]
-            };
-          }),
-          findings: exportDeficiencies.map((d: any) => {
-            const img = d.imageUri || d.imageUrl || (Array.isArray(d.photos) && d.photos.length > 0 ? (typeof d.photos[0] === 'string' ? d.photos[0] : d.photos[0].url) : '') || '';
-            return {
-              ...d,
-              imageUri: img,
-              imageUrl: img,
-              photos: [img]
-            };
-          })
-        };
-
-        const imageCount = payloadData.deficiencies.filter((d: any) => d.imageUri || (d.photos && d.photos.length > 0)).length;
-        console.log(`FINAL PDF PAYLOAD: ${payloadData.deficiencies.length} items, ${imageCount} have images.`);
-        console.log("PAYLOAD SAMPLE:", JSON.stringify(payloadData.deficiencies[0]).substring(0, 500));
-      }
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/inspections/generate-pdf?includeImages=true`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          inspectionData: payloadData,
-          reportType: 'nspire'
-        })
-      })
-
-      const contentType = response.headers.get('content-type');
-
-      if (contentType && contentType.includes('application/json')) {
-        // Handle JSON response (possible fallback or error)
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || 'Failed to generate PDF');
-        }
-
-        if (data.html) {
-          // Fallback: Backend returned HTML because PDF generation failed
-          console.log('Received HTML fallback from backend');
-          toast.info("Backend PDF generation unavailable. Printing report locally...", { position: "top-right" });
-
-          const printWindow = window.open('', '_blank');
-          if (printWindow) {
-            printWindow.document.write(data.html);
-            printWindow.document.close();
-            // Wait for images to load before printing
-            printWindow.onload = () => {
-              printWindow.focus();
-              printWindow.print();
-            };
-          } else {
-            const htmlBlob = new Blob([data.html], { type: 'text/html' });
-            const htmlUrl = window.URL.createObjectURL(htmlBlob);
-            const htmlLink = document.createElement('a');
-            htmlLink.href = htmlUrl;
-            htmlLink.download = (data.filename || `INSPIRE_Report_${report.metadata.inspectionNo}.html`).replace(/\.pdf$/i, '.html');
-            document.body.appendChild(htmlLink);
-            htmlLink.click();
-            document.body.removeChild(htmlLink);
-            window.URL.revokeObjectURL(htmlUrl);
-            toast.warning('Popup blocked. Downloaded HTML backup instead—open it and print to PDF.', { position: 'top-right' });
-          }
-          
-          // Still mark as completed even with HTML fallback
-          await markInspectionAsCompleted();
-          return; // Exit, handled
-        }
-      }
-
-      if (!response.ok) {
-        throw new Error('Failed to generate PDF');
-      }
-
-      // Handle standard PDF Blob download
-      const blob = await response.blob()
-
-      if (blob.size < 100 || blob.type.includes('json')) {
-        console.warn("Received suspicious blob", blob);
-        // Attempt to read as text to see error
-        const text = await blob.text();
-        try {
-          const errJson = JSON.parse(text);
-          throw new Error(errJson.message || "Invalid PDF response");
-        } catch (e) {
-          // Not JSON, just small blob?
-        }
-      }
-
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `INSPIRE_Report_${report.metadata.inspectionNo}.pdf`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      const { downloadNSPIREReportPDF } = await import('@/lib/exportReportPdf')
+      await downloadNSPIREReportPDF(report, `INSPIRE_Report_${report.metadata.inspectionNo}.pdf`)
 
       toast.success("PDF downloaded successfully", { position: "top-right" })
 
-      // If pre-update did not run/succeed, attempt completion now
-      if (!mergedInspectionPayload) {
-        await markInspectionAsCompleted();
-      }
-      
+      await markInspectionAsCompleted({ silentToast: true });
     } catch (error: any) {
       console.error('PDF export error:', error)
       toast.error(`Failed to export PDF: ${error.message}`, { position: "top-right" })
@@ -1210,45 +1048,31 @@ function NSPIREInspectionSummaryContent() {
         <div className="max-w-7xl mx-auto space-y-6">
           {(
             <div className="space-y-6">
-              {/* Deficiency Summary */}
+              {/* Download Instructions + Thank You */}
               <Card className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm space-y-5">
                 <div className="border-b border-slate-100 pb-3 flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-teal-500" />
-                  <h2 className="text-base font-extrabold text-slate-900 tracking-tight">Deficiency Summary</h2>
-                </div>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5">
-                  <div className="bg-rose-50/50 border-l-4 border-l-rose-500 border border-rose-100 rounded-r-2xl p-4 text-center shadow-sm">
-                    <p className="text-3xl font-extrabold text-rose-700">{report.summary.lifeThreatening}</p>
-                    <p className="text-[10px] font-bold text-rose-600 uppercase tracking-wider mt-0.5">Life-Threat</p>
-                  </div>
-                  <div className="bg-amber-50/50 border-l-4 border-l-amber-500 border border-amber-100 rounded-r-2xl p-4 text-center shadow-sm">
-                    <p className="text-3xl font-extrabold text-amber-700">{report.summary.severe}</p>
-                    <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mt-0.5">Severe</p>
-                  </div>
-                  <div className="bg-sky-50/50 border-l-4 border-l-sky-500 border border-sky-100 rounded-r-2xl p-4 text-center shadow-sm">
-                    <p className="text-3xl font-extrabold text-sky-700">{report.summary.moderate}</p>
-                    <p className="text-[10px] font-bold text-sky-600 uppercase tracking-wider mt-0.5">Moderate</p>
-                  </div>
-                  <div className="bg-slate-50 border-l-4 border-l-slate-400 border border-slate-200 rounded-r-2xl p-4 text-center shadow-sm">
-                    <p className="text-3xl font-extrabold text-slate-700">{report.summary.low}</p>
-                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider mt-0.5">Low</p>
-                  </div>
-                  <div className="bg-teal-50/50 border-l-4 border-l-teal-600 border border-teal-100 rounded-r-2xl p-4 text-center shadow-sm">
-                    <p className="text-3xl font-extrabold text-teal-700">{report.summary.total}</p>
-                    <p className="text-[10px] font-bold text-teal-600 uppercase tracking-wider mt-0.5">Total</p>
-                  </div>
+                  <h2 className="text-base font-extrabold text-slate-900 tracking-tight">How to Download Your Report</h2>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                  <div className="bg-amber-50/50 border border-amber-100 p-4 rounded-2xl text-center shadow-sm">
-                    <p className="text-2xl font-extrabold text-amber-800">{report.summary.repeatDeficiencies}</p>
-                    <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mt-0.5">Repeat Deficiencies</p>
-                  </div>
-                  <div className="bg-sky-50/50 border border-sky-100 p-4 rounded-2xl text-center shadow-sm">
-                    <p className="text-2xl font-extrabold text-sky-800">{report.summary.newDeficiencies}</p>
-                    <p className="text-[10px] font-bold text-sky-600 uppercase tracking-wider mt-0.5">New Deficiencies</p>
-                  </div>
+                <ol className="space-y-3 text-sm font-medium text-slate-700">
+                  <li className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-50 border border-teal-200 text-teal-700 font-extrabold text-xs flex items-center justify-center">1</span>
+                    <span>If the report shows <span className="font-extrabold text-slate-900">Report Locked</span>, click <span className="font-extrabold text-slate-900">Unlock Report - $49</span> above to unlock full export access.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-50 border border-teal-200 text-teal-700 font-extrabold text-xs flex items-center justify-center">2</span>
+                    <span>Once unlocked, click <span className="font-extrabold text-slate-900">Export PDF</span> or <span className="font-extrabold text-slate-900">Export Excel</span> at the top of this page.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-50 border border-teal-200 text-teal-700 font-extrabold text-xs flex items-center justify-center">3</span>
+                    <span>Your file will download automatically to your device's <span className="font-extrabold text-slate-900">Downloads</span> folder — check there or your browser's download tray.</span>
+                  </li>
+                </ol>
+
+                <div className="border-t border-slate-100 pt-5 text-center">
+                  <p className="text-base font-extrabold text-teal-700">Thank you for using NSPIRE Inspection!</p>
+                  <p className="text-sm text-slate-500 mt-1">We appreciate you completing this inspection with us.</p>
                 </div>
               </Card>
 
@@ -1513,10 +1337,10 @@ function NSPIREInspectionSummaryContent() {
                     <div className="flex gap-3">
                       <Button
                         onClick={handleSendFullReportLink}
-                        disabled={purchasingUnlock}
+                        disabled={sendingReportEmail}
                         className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl border-0"
                       >
-                        {purchasingUnlock ? 'Redirecting...' : 'Send Full Report Link'}
+                        {sendingReportEmail ? 'Sending...' : 'Send Full Report Link'}
                       </Button>
                       <Button
                         onClick={() => setShowUnlockSummaryModal(false)}
