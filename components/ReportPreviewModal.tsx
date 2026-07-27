@@ -88,50 +88,54 @@ export function ReportPreviewModal({ report, onClose }: ReportPreviewModalProps)
           </div>
 
           <p className="font-bold underline mb-2">Building/Unit Inspection Data</p>
-          <table className="w-full border-collapse border border-gray-400 mb-6 text-xs">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border border-gray-400 p-2 text-left">Type</th>
-                <th className="border border-gray-400 p-2">Property Total</th>
-                <th className="border border-gray-400 p-2">Sample Size</th>
-                <th className="border border-gray-400 p-2">Total Units Inspected</th>
-              </tr>
-            </thead>
-            <tbody>
-              {report.inspectionData.map((row) => (
-                <tr key={row.type}>
-                  <td className="border border-gray-400 p-2">{row.type}</td>
-                  <td className="border border-gray-400 p-2 text-center">{row.propertyTotal}</td>
-                  <td className="border border-gray-400 p-2 text-center">{row.sampleSize}</td>
-                  <td className="border border-gray-400 p-2 text-center">{row.totalUnitsInspected}</td>
+          <div className="overflow-x-auto mb-6">
+            <table className="w-full min-w-[420px] border-collapse border border-gray-400 text-xs">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="border border-gray-400 p-2 text-left">Type</th>
+                  <th className="border border-gray-400 p-2">Property Total</th>
+                  <th className="border border-gray-400 p-2">Sample Size</th>
+                  <th className="border border-gray-400 p-2">Total Units Inspected</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {report.inspectionData.map((row) => (
+                  <tr key={row.type}>
+                    <td className="border border-gray-400 p-2">{row.type}</td>
+                    <td className="border border-gray-400 p-2 text-center">{row.propertyTotal}</td>
+                    <td className="border border-gray-400 p-2 text-center">{row.sampleSize}</td>
+                    <td className="border border-gray-400 p-2 text-center">{row.totalUnitsInspected}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           <p className="font-bold underline mb-2">Deficiency Summary</p>
-          <table className="w-full border-collapse border border-gray-400 mb-6 text-xs">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border border-gray-400 p-2 text-left">Inspectable Area</th>
-                <th className="border border-gray-400 p-2">Life-Threatening</th>
-                <th className="border border-gray-400 p-2">Severe</th>
-                <th className="border border-gray-400 p-2">Moderate</th>
-                <th className="border border-gray-400 p-2">Low</th>
-              </tr>
-            </thead>
-            <tbody>
-              {deficiencySummaryByArea.map((row) => (
-                <tr key={row.label}>
-                  <td className="border border-gray-400 p-2">{row.label}</td>
-                  <td className="border border-gray-400 p-2 text-center">{row.lifeThreatening}</td>
-                  <td className="border border-gray-400 p-2 text-center">{row.severe}</td>
-                  <td className="border border-gray-400 p-2 text-center">{row.moderate}</td>
-                  <td className="border border-gray-400 p-2 text-center">{row.low}</td>
+          <div className="overflow-x-auto mb-6">
+            <table className="w-full min-w-[420px] border-collapse border border-gray-400 text-xs">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="border border-gray-400 p-2 text-left">Inspectable Area</th>
+                  <th className="border border-gray-400 p-2">Life-Threatening</th>
+                  <th className="border border-gray-400 p-2">Severe</th>
+                  <th className="border border-gray-400 p-2">Moderate</th>
+                  <th className="border border-gray-400 p-2">Low</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {deficiencySummaryByArea.map((row) => (
+                  <tr key={row.label}>
+                    <td className="border border-gray-400 p-2">{row.label}</td>
+                    <td className="border border-gray-400 p-2 text-center">{row.lifeThreatening}</td>
+                    <td className="border border-gray-400 p-2 text-center">{row.severe}</td>
+                    <td className="border border-gray-400 p-2 text-center">{row.moderate}</td>
+                    <td className="border border-gray-400 p-2 text-center">{row.low}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           <p className="font-bold underline mb-2">Inspectable Areas Deficiencies</p>
           {report.deficiencies.length === 0 ? (

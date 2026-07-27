@@ -1257,7 +1257,7 @@ function NSPIREInspectionSummaryContent() {
                       placeholder="Enter your email address"
                       className="w-full px-4 py-2.5 rounded-xl border border-amber-300 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-amber-400"
                     />
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <Button
                         onClick={handleSendFullReportLink}
                         disabled={sendingReportEmail}
@@ -1268,7 +1268,7 @@ function NSPIREInspectionSummaryContent() {
                       <Button
                         onClick={() => setShowUnlockSummaryModal(false)}
                         variant="outline"
-                        className="border border-gray-300 text-gray-600 font-bold rounded-xl"
+                        className="w-full sm:w-auto border border-gray-300 text-gray-600 font-bold rounded-xl"
                       >
                         Cancel
                       </Button>
