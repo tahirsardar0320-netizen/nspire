@@ -65,6 +65,7 @@ export async function generateNSPIREReportPDFBlob(report: NSPIREInspectionReport
       useCORS: true,
       allowTaint: true,
       logging: false,
+      foreignObjectRendering: true,
       windowWidth: 800,
       width: 800,
       height: doc.body.scrollHeight,
