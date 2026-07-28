@@ -165,7 +165,7 @@ export function ReportPreviewModal({ report, onClose }: ReportPreviewModalProps)
             <div className="mb-6 space-y-8">
               {deficienciesByBuildingAndArea.map(({ building, areas }) => (
                 <div key={building}>
-                  <p className="font-bold text-xs bg-gray-100 border border-gray-400 px-2 py-1 mb-3">Building: {building}</p>
+                  <p className="font-bold text-xs text-[#006795] bg-[#006795]/10 border border-[#006795] px-2 py-1 mb-3">Building: {building}</p>
                   <div className="space-y-6 pl-1">
                     {areas.map(({ label, items }) => (
                       <div key={label}>

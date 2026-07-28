@@ -613,7 +613,7 @@ function generateDeficiencyTable(deficiencies: DeficiencyEntry[], options: PDFGe
 
     return `
       <div class="avoid-break" style="margin-top:16px;">
-        <p style="font-weight:bold; font-size:9pt; background-color:#F3F4F6; border:1px solid #000; padding:4px 6px; margin-bottom:6px;">Building: ${building}</p>
+        <p style="font-weight:bold; font-size:9pt; color:#006795; background-color:#E6F0F5; border:1px solid #006795; padding:4px 6px; margin-bottom:6px;">Building: ${building}</p>
         ${areaSections.map(s => generateDeficiencyAreaTable(s.label, s.subtitle, s.items)).join('')}
       </div>
     `;
