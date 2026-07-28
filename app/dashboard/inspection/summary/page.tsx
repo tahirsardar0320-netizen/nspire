@@ -681,6 +681,7 @@ function NSPIREInspectionSummaryContent() {
           propertyName: report.metadata.propertyName,
           propertyAddress: report.metadata.propertyAddress,
           inspectionNo: report.metadata.inspectionNo,
+          reportUrl: `${window.location.origin}/dashboard/inspection-status`,
         }),
       })
       const data = await res.json()
