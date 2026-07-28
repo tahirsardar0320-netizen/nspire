@@ -40,6 +40,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [propertyProgress, setPropertyProgress] = useState<Record<string, number>>({})
   const [lockedProperties, setLockedProperties] = useState<Record<string, boolean>>({})
+  const [reportEmailed, setReportEmailed] = useState<Record<string, boolean>>({})
   // The one property that is currently being inspected (all others get locked)
   const [activeInspectionId, setActiveInspectionId] = useState<string | null>(null)
   // Multi-select state
@@ -151,6 +152,13 @@ export default function Dashboard() {
         lockMap[pid] = !!isOtherActive
       })
       setLockedProperties(lockMap)
+
+      const emailedMap: Record<string, boolean> = {}
+      properties.forEach(p => {
+        const pid = p._id || p.propertyId
+        if (pid) emailedMap[pid] = localStorage.getItem(`report_emailed_${pid}`) === 'true'
+      })
+      setReportEmailed(emailedMap)
     }
   }, [properties, loading])
 
@@ -539,12 +547,21 @@ export default function Dashboard() {
                       <td className="py-4 px-3">
                         <div className="flex items-center justify-center gap-2">
                           {propertyProgress[pid] === 100 ? (
-                            <button
-                              onClick={() => handleViewCompleted(property)}
-                              className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
-                            >
-                              Completed
-                            </button>
+                            reportEmailed[pid] ? (
+                              <button
+                                onClick={() => handleViewCompleted(property)}
+                                className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
+                              >
+                                View Report
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 rounded-lg whitespace-nowrap cursor-not-allowed border-0 shadow-sm"
+                              >
+                                Completed
+                              </button>
+                            )
                           ) : activeInspectionId === pid ? (
                             <button
                               onClick={() => handleInitiate(property)}
@@ -617,12 +634,21 @@ export default function Dashboard() {
                         <p className="text-slate-500 text-xs font-medium">{property.address}</p>
                       </div>
                       {propertyProgress[pid] === 100 ? (
-                        <button
-                          onClick={() => handleViewCompleted(property)}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs whitespace-nowrap ml-2 border-0 shadow-sm transition-colors"
-                        >
-                          Completed
-                        </button>
+                        reportEmailed[pid] ? (
+                          <button
+                            onClick={() => handleViewCompleted(property)}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs whitespace-nowrap ml-2 border-0 shadow-sm transition-colors"
+                          >
+                            View Report
+                          </button>
+                        ) : (
+                          <button
+                            disabled
+                            className="bg-emerald-600 text-white font-bold px-3.5 py-2 rounded-xl text-xs whitespace-nowrap ml-2 cursor-not-allowed border-0 shadow-sm"
+                          >
+                            Completed
+                          </button>
+                        )
                       ) : activeInspectionId === pid ? (
                         <Button
                           onClick={() => handleInitiate(property)}
