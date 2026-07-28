@@ -1585,7 +1585,7 @@ Inspect for physical damage or missing components:
     },
     {
       id: 'door_out_2',
-      name: 'Garage Door',
+      name: 'The garage door does not open, close, or remain ns closedhe garagee.The door will not open and remain open.',
       detail: 'The garage door does not open, close, or remain ns closedhe garagee.The door will not open and remain open.',
       criteria: 'Garage door has a hole of any size that penetrates through to the interior.',
       severity: 'Moderate',
@@ -1622,7 +1622,7 @@ IRC requires garage doors to meet wind load and structural performance standards
     },
     {
       id: 'door_out_3',
-      name: 'Garage Door',
+      name: 'Garage door has a hole of any size that penetrates through to the interior.',
       detail: 'Garage door has a hole of any size that penetrates through to the interior.',
       criteria: 'Door will not open and remain open.',
       severity: 'Moderate',
@@ -1702,7 +1702,7 @@ Drain cover/grate, Drain body, Surrounding surface, and Foundation exposure
     },
     {
       id: 'drain_out_2',
-      name: 'Site Drainage',
+      name: 'Erosion is present. Or exposed the footer, or, when more than 2 feet from the built environment, is deep enough to potentially undermine supporting soil as determined by the inspector.',
       detail: 'Erosion is present. Or exposed the footer, or, when more than 2 feet from the built environment, is deep enough to potentially undermine supporting soil as determined by the inspector.',
       criteria: 'exposed the footer or, when more than 2 feet from the built environment, is deep enough to potentially undermine supporting soil as determined by the inspector.',
       severity: 'Moderate',
@@ -1738,7 +1738,7 @@ Drain cover/grate, Drain body, Surrounding surface, and Foundation exposure
     },
     {
       id: 'drain_out_3',
-      name: 'Site Drainage',
+      name: 'Grate is not secure or does not cover the site\'s drainage systems at the collection point.',
       detail: 'Grate is not secure or does not cover the site\'s drainage systems at the collection point.',
       criteria: 'Grate is not secure or does not cover the site drainage system\'s collection point.',
       severity: 'Moderate',
@@ -1774,7 +1774,7 @@ Drain cover/grate, Drain body, Surrounding surface, and Foundation exposure
     },
     {
       id: 'drain_out_4',
-      name: 'Site Drainage',
+      name: 'Water runoff is unable to flow through the site drainage system.',
       detail: 'Water runoff is unable to flow through the site drainage system.',
       criteria: 'Standing water is present at the entrance of the outflow pipe. OR Drainage is blocked such that the inspector believes water is unable to drain in the event of precipitation.',
       severity: 'Low',
@@ -1873,7 +1873,7 @@ export const ELECTRICAL_OUTSIDE: ItemDeficiencies = {
   deficiencies: [
     {
       id: 'elec_out_1',
-      name: 'Electrical - Conductor, Outlet, and Switch',
+      name: 'Electrical systems are deficient if conductors lack proper insulation or enclosure—such as exposed wiring, open ports, or missing covers—or if there\'s an opening or gap larger than 1/2 inch.',
       detail: 'Electrical systems are deficient if conductors lack proper insulation or enclosure—such as exposed wiring, open ports, or missing covers—or if there\'s an opening or gap larger than 1/2 inch.',
       criteria: 'Electrical systems are deficient if conductors lack proper insulation or enclosure—such as exposed wiring, open ports, or missing covers—or if there\'s an opening or gap larger than 1/2 inch.',
       severity: 'Life-Threatening',
@@ -1910,7 +1910,7 @@ Outlet/switch cover, Electrical box, Conductors/wiring, GFCI protection
     },
     {
       id: 'elec_out_1b',
-      name: 'Electrical - Conductor, Outlet, and Switch',
+      name: 'The AFCI outlet or AFCI breaker does not reset, and if damaged, it is considered as exposed conductor.(i.e., overall system or component thereof is not meeting function or purpose).',
       detail: 'The AFCI outlet or AFCI breaker does not reset, and if damaged, it is considered as exposed conductor.(i.e., overall system or component thereof is not meeting function or purpose).',
       criteria: 'The AFCI outlet or AFCI breaker does not reset, and if damaged, it is considered as exposed conductor.(i.e., overall system or component thereof is not meeting function or purpose).',
       severity: 'Life-Threatening',
@@ -1947,7 +1947,7 @@ Outlet/switch cover, Electrical box, Conductors/wiring, GFCI protection
     },
     {
       id: 'elec_out_1c',
-      name: 'Electrical - Conductor, Outlet, and Switch',
+      name: 'Electrical service panel is not reasonably accessible.(i.e., it cannot be reached and opened without moving obstructions, dismantling, destructive measures, or actions that may pose a risk to persons or their personal property).',
       detail: 'Electrical service panel is not reasonably accessible.(i.e., it cannot be reached and opened without moving obstructions, dismantling, destructive measures, or actions that may pose a risk to persons or their personal property).',
       criteria: 'Electrical service panel is not reasonably accessible.(i.e., it cannot be reached and opened without moving obstructions, dismantling, destructive measures, or actions that may pose a risk to persons or their personal property).',
       severity: 'Life-Threatening',
@@ -2110,7 +2110,7 @@ Outlet/breaker faceplate, Test/reset buttons, Wiring/conductors, Weatherproof co
     },
     {
       id: 'elec_out_5',
-      name: 'Electrical Service Panel',
+      name: 'Electrical service panel is not reasonably accessible.',
       detail: 'Electrical service panel is not reasonably accessible.',
       criteria: 'The electrical service panel is not reasonably accessible (i.e., it cannot be reached and opened without moving obstructions, dismantling, destructive measures, or actions that may pose a risk to persons or their personal property).',
       severity: 'Moderate',
@@ -2147,7 +2147,7 @@ Panel enclosure, Mounting, Locking mechanism and Live conductors
     },
     {
       id: 'elec_out_6',
-      name: 'Electrical Service Panel',
+      name: 'The overcurrent protection device is contaminated by infestation, paint, or other foreign materials.',
       detail: 'The overcurrent protection device is contaminated by infestation, paint, or other foreign materials.',
       criteria: 'The overcurrent protection device (i.e., fuse or breaker) is contaminated (e.g., water, rust, corrosion).',
       severity: 'Severe',
@@ -2184,7 +2184,7 @@ Panel enclosure, Mounting, Locking mechanism and Live conductors
     },
     {
       id: 'elec_out_7',
-      name: 'Electrical Service Panel',
+      name: 'The overcurrent protection device is damaged.',
       detail: 'The overcurrent protection device is damaged.',
       criteria: 'The overcurrent protection device (i.e., fuse or breaker) is damaged (i.e., visibly defective; impacts functionality) such that it may not interrupt the circuit during an overcurrent condition.',
       severity: 'Life-Threatening',
@@ -2237,7 +2237,7 @@ export const FENCING_GATE_OUTSIDE: ItemDeficiencies = {
   deficiencies: [
     {
       id: 'fence_out_1',
-      name: 'Fencing/Gate',
+      name: 'Fence components are missing. such as pickets, posts, or panels—create a hole covering 10% or more of a single section’s area.',
       detail: 'Fence components are missing. such as pickets, posts, or panels—create a hole covering 10% or more of a single section’s area.',
       criteria: 'A fence is deficient if missing components—such as pickets, posts, or panels—create a hole covering 10% or more of a single section\'s area.',
       severity: 'Moderate',
@@ -2274,7 +2274,7 @@ Fence panels/posts, Gate frame/hardware, Latch/lock mechanism, Foundation/footin
     },
     {
       id: 'fence_out_2',
-      name: 'Fencing/Gate',
+      name: 'Fence demonstrates signs of collapse.',
       detail: 'Fence demonstrates signs of collapse.',
       criteria: 'Fence demonstrates signs of collapse.',
       severity: 'Moderate',
@@ -2311,7 +2311,7 @@ Fence panels/posts, Gate frame/hardware, Latch/lock mechanism, Foundation/footin
     },
     {
       id: 'fence_out_3',
-      name: 'Fencing/Gate',
+      name: 'The gate does not open, close, latch, or lock.',
       detail: 'The gate does not open, close, latch, or lock.',
       criteria: 'Gate will not open. OR Gate will open when locked or latched. OR Gate will not close.',
       severity: 'Moderate',
@@ -2432,7 +2432,7 @@ IRC / IBC Requirements:
     },
     {
       id: 'fire_out_3',
-      name: 'Fire Extinguisher',
+      name: 'A fire extinguisher is damaged or missing. A stair, ladder, platform, guardrail, or handrail is deficient if it is visibly damaged or missing in a way that affects its functionality or intended safety',
       detail: 'A fire extinguisher is damaged or missing. A stair, ladder, platform, guardrail, or handrail is deficient if it is visibly damaged or missing in a way that affects its functionality or intended safety',
       criteria: 'A fire extinguisher is deficient if it is visibly damaged or missing, including cases where prior installation is evident but the unit is no longer present or complete.',
       severity: 'Life-Threatening',
@@ -2470,7 +2470,7 @@ IRC aligns with NFPA standards for extinguisher placement, maintenance, and visi
     },
     {
       id: 'fire_out_4',
-      name: 'Fire Extinguisher',
+      name: 'The fire extinguisher pressure gauge reads over or undercharged.',
       detail: 'The fire extinguisher pressure gauge reads over or undercharged.',
       criteria: 'Pressure gauge indicates that the fire extinguisher is over or under charged.',
       severity: 'Life-Threatening',
@@ -2508,7 +2508,7 @@ IRC aligns with NFPA standards for extinguisher placement, maintenance, and visi
     },
     {
       id: 'fire_out_5',
-      name: 'Fire Extinguisher',
+      name: 'The fire extinguisher tag is missing or illegible or expired.',
       detail: 'The fire extinguisher tag is missing or illegible or expired.',
       criteria: 'The date on the service tag of any fire extinguisher has exceeded one year. OR The fire extinguisher tag is missing or illegible. OR A non-chargeable or disposable fire extinguisher is more than 12 years old (based on manufacture date).',
       severity: 'Life-Threatening',
@@ -2577,7 +2577,7 @@ Inspect all shared-use areas where flammable or combustible materials may be sto
     },
     {
       id: 'fire_out_7',
-      name: 'Sprinkler Assembly',
+      name: 'The sprinkler assembly component is damaged, inoperable, or missing, and it is detrimental to performance.',
       detail: 'The sprinkler assembly component is damaged, inoperable, or missing, and it is detrimental to performance.',
       criteria: 'The sprinkler assembly component is damaged, inoperable, or missing.',
       severity: 'Life-Threatening',
@@ -2610,7 +2610,7 @@ Use a flashlight and measuring tape for an accurate assessment. Do not touch or 
     },
     {
       id: 'fire_out_8',
-      name: 'Sprinkler Assembly',
+      name: 'Sprinkler head assembly has evidence of corrossion.',
       detail: 'Sprinkler head assembly has evidence of corrossion.',
       criteria: 'Sprinkler head assembly has evidence of corrossion.',
       severity: 'Life-Threatening',
@@ -2643,7 +2643,7 @@ Use a flashlight and measuring tape for an accurate assessment. Do not touch or 
     },
     {
       id: 'fire_out_9',
-      name: 'Sprinkler Assembly',
+      name: 'Sprinkler assembly has evidence of debris, paint, or foreign material that covers 50% or more of the sprinkler assembly or 50% or more of the glass bulb on the sprinkler assembly.',
       detail: 'Sprinkler assembly has evidence of debris, paint, or foreign material that covers 50% or more of the sprinkler assembly or 50% or more of the glass bulb on the sprinkler assembly.',
       criteria: 'Foreign material covers 50% or more of the sprinkler assembly or 50% or more of the glass bulb on the sprinkler assembly.',
       severity: 'Life-Threatening',
@@ -2676,7 +2676,7 @@ Use a flashlight and measuring tape for an accurate assessment. Do not touch or 
     },
     {
       id: 'fire_out_10',
-      name: 'Sprinkler Assembly',
+      name: 'Sprinkler head assembly is obstructed by an item, object, or encasement within 18 inches of the sprinkler head.',
       detail: 'Sprinkler head assembly is obstructed by an item, object, or encasement within 18 inches of the sprinkler head.',
       criteria: 'Sprinkler head assembly is obstructed by item, object, or encasement within 18 inches of the sprinkler head.',
       severity: 'Life-Threatening',
@@ -3472,7 +3472,7 @@ export const PARKING_OUTSIDE: ItemDeficiencies = {
   deficiencies: [
     {
       id: 'park_out_1',
-      name: 'Parking Lot',
+      name: 'A parking lot is deficient if it has a single pothole over 4 inches deep and 1 square foot in size, or multiple potholes that together exceed 4 inches in depth and 144 square inches in area.',
       detail: 'A parking lot is deficient if it has a single pothole over 4 inches deep and 1 square foot in size, or multiple potholes that together exceed 4 inches in depth and 144 square inches in area.',
       criteria: 'A parking lot is deficient if it has a single pothole over 4 inches deep and 1 square foot in size, or multiple potholes that together exceed 4 inches in depth and 144 square inches in area.',
       severity: 'Moderate',
@@ -3512,7 +3512,7 @@ Surface condition, Cracks or heaving, Obstructions, Curbing & joints
     },
     {
       id: 'park_out_2',
-      name: 'Parking Lot',
+      name: 'More than 3 inches of water have accumulated in the parking lot, and 5% or more of the area is unusable.',
       detail: 'More than 3 inches of water have accumulated in the parking lot, and 5% or more of the area is unusable.',
       criteria: 'More than 3 inches of water have accumulated in the parking lot, and 5% or more of the area is unusable.',
       severity: 'Moderate',
@@ -3552,7 +3552,7 @@ Surface condition, Cracks or heaving, Obstructions, Curbing & joints
     },
     {
       id: 'park_out_3',
-      name: 'Private Roads and Drivways',
+      name: 'Road or driveway access to the property is blocked or impassable for vehicles.',
       detail: 'Road or driveway access to the property is blocked or impassable for vehicles.',
       criteria: 'Not including temporary obstruction.',
       severity: 'Severe',
@@ -3592,7 +3592,7 @@ Surface condition, Cracks or heaving, Obstructions, Curbing & joints
     },
     {
       id: 'park_out_4',
-      name: 'Private Roads and Drivways',
+      name: 'Any one pothole is at least 4 inches deep and covers an area of 1 square foot or greater. The driveway is not functionally adequate.',
       detail: 'Any one pothole is at least 4 inches deep and covers an area of 1 square foot or greater. The driveway is not functionally adequate.',
       criteria: 'The driveway is not functionally adequate.',
       severity: 'Moderate',
@@ -3722,7 +3722,7 @@ export const RAILINGS_OUTSIDE: ItemDeficiencies = {
   deficiencies: [
     {
       id: 'rail_out_1',
-      name: 'Guardrail',
+      name: 'A guardrail is deficient if it\'s missing or not installed along a walking surface over 30 inches above the floor or grade in areas accessible to residents. Limiting its safe use',
       detail: 'A guardrail is deficient if it\'s missing or not installed along a walking surface over 30 inches above the floor or grade in areas accessible to residents. Limiting its safe use',
       criteria: 'A guardrail is deficient if it\'s missing or not installed along a walking surface over 30 inches above the floor or grade in areas accessible to residents',
       severity: 'Life-Threatening',
@@ -3762,7 +3762,7 @@ Guardrail missing, Top/mid rail, Posts & anchors, Balusters/pickets, Height comp
     },
     {
       id: 'rail_out_2',
-      name: 'Guardrail',
+      name: 'A guardrail is deficient if it\'s missing critical components, visibly damaged, under 30 inches in height, or not securely attached enough to prevent fall hazards. The guardrail is functionally adequate.',
       detail: 'A guardrail is deficient if it\'s missing critical components, visibly damaged, under 30 inches in height, or not securely attached enough to prevent fall hazards. The guardrail is functionally adequate.',
       criteria: 'A guardrail is deficient if it\'s missing critical components, visibly damaged, under 30 inches in height, or not securely attached enough to prevent fall hazards.',
       severity: 'Life-Threatening',
@@ -3802,7 +3802,7 @@ Guardrail missing, Top/mid rail, Posts & anchors, Balusters/pickets, Height comp
     },
     {
       id: 'rail_out_3',
-      name: 'Handrail',
+      name: 'Handrail is missing (i.e., evidence of prior installation, but now not present or is incomplete).',
       detail: 'Handrail is missing (i.e., evidence of prior installation, but now not present or is incomplete).',
       criteria: 'Handrail is missing (i.e., evidence of prior installation, but now not present or is incomplete).',
       severity: 'Moderate',
@@ -3840,7 +3840,7 @@ Railing structure, Mounting hardware, Top rail, Vertical supports, Height compli
     },
     {
       id: 'rail_out_4',
-      name: 'Handrail',
+      name: 'Handrail is not functionally adequate. The handrail is deficient if it cannot be reasonably grasped for support, is not continuous along the full flight of stairs, or is installed at a height outside the 28-42 inch range.',
       detail: 'Handrail is not functionally adequate. The handrail is deficient if it cannot be reasonably grasped for support, is not continuous along the full flight of stairs, or is installed at a height outside the 28-42 inch range.',
       criteria: 'Handrail is not functionally adequate (i.e., it cannot reasonably be grasped by hand to provide stability or support when ascending or descending stairways). OR Handrail is not continuous for the full length of each flight of stairs. OR Handrail is not between 28 inches and 42 inches in height.',
       severity: 'Moderate',
@@ -3878,7 +3878,7 @@ Railing structure, Mounting hardware, Top rail, Vertical supports, Height compli
     },
     {
       id: 'rail_out_5',
-      name: 'Handrail',
+      name: 'Handrail is not installed where required.',
       detail: 'Handrail is not installed where required.',
       criteria: '4 or more stair risers are present, and a handrail is not installed. OR A ramp has a rise greater than 6 inches or a horizontal projection greater than 72 inches and a handrail is not installed on both sides.',
       severity: 'Severe',
@@ -3916,7 +3916,7 @@ Railing structure, Mounting hardware, Top rail, Vertical supports, Height compli
     },
     {
       id: 'rail_out_6',
-      name: 'Handrail',
+      name: 'Handrail is not secured. There is movement in the anchors of the handrail.',
       detail: 'Handrail is not secured. There is movement in the anchors of the handrail.',
       criteria: 'There is movement in the anchors of the handrail.',
       severity: 'Moderate',
@@ -4446,7 +4446,7 @@ export const RETAINING_WALL_OUTSIDE: ItemDeficiencies = {
   deficiencies: [
     {
       id: 'ret_out_1',
-      name: 'Retaining wall',
+      name: 'Retaining wall is leaning away from the fill side.',
       detail: 'Retaining wall is leaning away from the fill side.',
       criteria: 'Retaining wall is leaning away from the fill side.',
       severity: 'Moderate',
@@ -4485,7 +4485,7 @@ IRC §R606.1.1 requires masonry walls to be structurally sound and properly rein
     },
     {
       id: 'ret_out_2',
-      name: 'Retaining wall',
+      name: 'Retaining wall is partially or completely collapsed.',
       detail: 'Retaining wall is partially or completely collapsed.',
       criteria: 'The retaining wall is (sloped )partialy or completely collapsed.',
       severity: 'Moderate',
@@ -4524,7 +4524,7 @@ IRC §R606.1.1 requires masonry walls to be structurally sound and properly rein
     },
     {
       id: 'ret_out_3',
-      name: 'Wall - Exterior',
+      name: 'Exterior wall component(s) is not functionally adequate (i.e., impacts the integrity of the wall assembly or building envelope, or does not allow exterior wall to separate the accommodation inside from that outside).',
       detail: 'Exterior wall component(s) is not functionally adequate (i.e., impacts the integrity of the wall assembly or building envelope, or does not allow exterior wall to separate the accommodation inside from that outside).',
       criteria: 'Exterior wall component(s) is not functionally adequate (i.e., impacts the integrity of the wall assembly or building envelope, or does not allow exterior wall to separate the accommodation inside from that outside).',
       severity: 'Moderate',
@@ -4563,7 +4563,7 @@ IRC §R606.1.1 requires masonry walls to be structurally sound and properly rein
     },
     {
       id: 'ret_out_4',
-      name: 'Wall - Exterior',
+      name: 'Cumulatively, 1 square foot or more of an exterior wall covering is missing (i.e., evidence of prior installation, but now not present or is incomplete).',
       detail: 'Cumulatively, 1 square foot or more of an exterior wall covering is missing (i.e., evidence of prior installation, but now not present or is incomplete).',
       criteria: 'Cumulatively, 1 square foot or more of an exterior wall covering is missing (i.e., evidence of prior installation, but now not present or is incomplete).',
       severity: 'Moderate',
@@ -4602,7 +4602,7 @@ IRC §R606.1.1 requires masonry walls to be structurally sound and properly rein
     },
     {
       id: 'ret_out_5',
-      name: 'Wall - Exterior',
+      name: 'Cumulatively, there is 10 square feet or more of peeling paint on an exterior wall',
       detail: 'Cumulatively, there is 10 square feet or more of peeling paint on an exterior wall',
       criteria: 'Cumulatively, there is 10 square feet or more of peeling paint on an exterior wall built after 1978.',
       severity: 'Moderate',
