@@ -15,11 +15,14 @@ function getTransporter() {
     host: 'smtp.gmail.com',
     port: 587,
     secure: false,
+    // Railway's containers have no IPv6 route, but Node resolves smtp.gmail.com to an
+    // AAAA record first and the connection dies with ENETUNREACH. Pin the socket to IPv4.
+    family: 4,
     auth: { user, pass },
     connectionTimeout: 15000,
     greetingTimeout: 15000,
     socketTimeout: 15000,
-  });
+  } as nodemailer.TransportOptions);
 }
 
 // POST /api/inspections/send-report-email — email the generated NSPIRE report PDF to a recipient

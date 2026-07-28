@@ -16,7 +16,10 @@ async function renderReportIframe(report: NSPIREInspectionReport): Promise<HTMLI
   iframe.style.left = '-10000px'
   iframe.style.top = '0'
   iframe.style.width = '800px'
-  iframe.style.height = '0px'
+  // A zero-height iframe gives html2canvas a zero-height viewport to clone into, so it
+  // rasterized only the first screenful and the export came out truncated to ~2 pages.
+  // The iframe is off-screen anyway, so it can be as tall as the report needs.
+  iframe.style.height = '2000px'
   iframe.style.border = '0'
   document.body.appendChild(iframe)
 
@@ -60,15 +63,26 @@ export async function generateNSPIREReportPDFBlob(report: NSPIREInspectionReport
     const html2canvas = html2canvasModule.default
 
     const doc = iframe.contentDocument!
+    const fullHeight = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight)
+    // Grow the iframe to the whole report so the cloned viewport html2canvas renders
+    // into is tall enough to hold every section.
+    iframe.style.height = `${fullHeight}px`
+
+    // Browsers cap canvas dimensions (~16k px); past that the canvas comes back blank,
+    // which would silently drop the tail of a long report. Scale down to stay under it.
+    const MAX_CANVAS_PX = 16000
+    const scale = fullHeight * 1.5 > MAX_CANVAS_PX ? Math.max(1, MAX_CANVAS_PX / fullHeight) : 1.5
+
     const canvas = await html2canvas(doc.body, {
-      scale: 1.5,
+      scale,
       useCORS: true,
       allowTaint: true,
       logging: false,
       foreignObjectRendering: false,
       windowWidth: 800,
+      windowHeight: fullHeight,
       width: 800,
-      height: doc.body.scrollHeight,
+      height: fullHeight,
     })
 
     const pdf = new jsPDF('p', 'pt', 'a4')
