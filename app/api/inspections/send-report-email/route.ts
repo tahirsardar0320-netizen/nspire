@@ -9,8 +9,16 @@ function getTransporter() {
   if (!user || !pass) return null;
 
   return nodemailer.createTransport({
-    service: 'gmail',
+    // The 'gmail' service preset connects on port 465 (implicit TLS), which Railway's
+    // network was blocking outright — connections hung until nodemailer's ETIMEDOUT.
+    // Port 587 (STARTTLS) is the port cloud hosts typically leave open for outbound SMTP.
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
     auth: { user, pass },
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 15000,
   });
 }
 
