@@ -1533,8 +1533,8 @@ export default function InspectionCategoryPage() {
         const mapping = currentSection === 'outside'
             ? outsideDeficiencyMapping
             : currentSection === 'inside'
-                ? unitDeficiencyMapping
-                : insideDeficiencyMapping;
+                ? insideDeficiencyMapping
+                : unitDeficiencyMapping;
 
         // Try exact match first (case-insensitive)
         const exactKey = Object.keys(mapping).find(k => k.toLowerCase() === baseName.toLowerCase());
