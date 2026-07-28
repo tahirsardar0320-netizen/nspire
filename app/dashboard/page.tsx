@@ -399,15 +399,7 @@ export default function Dashboard() {
   const handleViewCompleted = (property: any) => {
     const propId = property?._id || property?.id
     if (!propId) return
-    const saved = localStorage.getItem(`property_coverage_${propId}`)
-    if (saved) {
-      try {
-        const { coverage, calculatedUnits } = JSON.parse(saved)
-        router.push(`/dashboard/property-details/${propId}?coverage=${coverage}&calculatedUnits=${calculatedUnits}`)
-        return
-      } catch (e) {}
-    }
-    router.push(`/dashboard/property-details/${propId}`)
+    router.push(`/dashboard/inspection/summary?propertyId=${propId}`)
   }
 
   return (
@@ -556,8 +548,8 @@ export default function Dashboard() {
                               </button>
                             ) : (
                               <button
-                                disabled
-                                className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 rounded-lg whitespace-nowrap cursor-not-allowed border-0 shadow-sm"
+                                onClick={() => handleViewCompleted(property)}
+                                className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
                               >
                                 Completed
                               </button>
@@ -643,8 +635,8 @@ export default function Dashboard() {
                           </button>
                         ) : (
                           <button
-                            disabled
-                            className="bg-emerald-600 text-white font-bold px-3.5 py-2 rounded-xl text-xs whitespace-nowrap ml-2 cursor-not-allowed border-0 shadow-sm"
+                            onClick={() => handleViewCompleted(property)}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs whitespace-nowrap ml-2 border-0 shadow-sm transition-colors"
                           >
                             Completed
                           </button>
