@@ -597,16 +597,32 @@ function generateDeficiencyAreaTable(label: string, subtitle: string, items: Def
 }
 
 function generateDeficiencyTable(deficiencies: DeficiencyEntry[], options: PDFGenerationOptions): string {
-  const sections = DEFICIENCY_AREA_SECTIONS.map(({ label, subtitle, match }) => ({
-    label,
-    subtitle,
-    items: deficiencies.filter(d => match(String(d.area || '').toLowerCase())),
-  }));
+  // Each building gets its own Outside/Inside/Units breakdown — a single Outside
+  // table combining every building's exterior deficiencies made it impossible to
+  // tell which building a deficiency belonged to.
+  const buildings = Array.from(new Set(deficiencies.map(d => d.building || 'Unassigned')))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+  const buildingSections = buildings.map(building => {
+    const buildingDeficiencies = deficiencies.filter(d => (d.building || 'Unassigned') === building);
+    const areaSections = DEFICIENCY_AREA_SECTIONS.map(({ label, subtitle, match }) => ({
+      label,
+      subtitle,
+      items: buildingDeficiencies.filter(d => match(String(d.area || '').toLowerCase())),
+    }));
+
+    return `
+      <div class="avoid-break" style="margin-top:16px;">
+        <p style="font-weight:bold; font-size:9pt; background-color:#F3F4F6; border:1px solid #000; padding:4px 6px; margin-bottom:6px;">Building: ${building}</p>
+        ${areaSections.map(s => generateDeficiencyAreaTable(s.label, s.subtitle, s.items)).join('')}
+      </div>
+    `;
+  });
 
   return `
     <div class="summary-section">
       <h2 class="section-header">Inspectable Areas Deficiencies:</h2>
-      ${sections.map(s => generateDeficiencyAreaTable(s.label, s.subtitle, s.items)).join('')}
+      ${buildingSections.join('')}
     </div>
   `;
 }

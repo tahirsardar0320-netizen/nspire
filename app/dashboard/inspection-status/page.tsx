@@ -385,7 +385,7 @@ export default function InspectionStatusPage() {
                       : 'border-2 border-red-500 bg-red-50/30'
                 }`}
               >
-                <div className="flex flex-col gap-4 min-w-0">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 min-w-0">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start gap-3 sm:gap-4 min-w-0">
                       <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
@@ -466,7 +466,7 @@ export default function InspectionStatusPage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 min-w-0">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 min-w-0 sm:flex-shrink-0">
                     {property.hasInspection ? (
                       <Button
                         onClick={() => handleDownloadPDF(property)}

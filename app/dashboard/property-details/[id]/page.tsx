@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { propertiesAPI, authAPI, inspectionsAPI } from "@/lib/api"
 import { toast } from "react-toastify"
-import { ChevronLeft, CheckCircle2, Clock, X, ChevronRight, Pencil, Check, RefreshCw } from "lucide-react"
+import { ChevronLeft, CheckCircle2, X, ChevronRight, Pencil, Check, RefreshCw } from "lucide-react"
 import { generateRandomUnitSample, getUnitsToInspect, getSamplingExplanation } from "@/lib/unitSamplingService"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
@@ -501,8 +501,24 @@ export default function PropertyDetailsPage() {
         const hasOutside = completed.includes('Outside')
         const hasInside = completed.includes('Inside')
         const unitCompletedCount = getCompletedCount(building.buildingId)
-        
+
         return hasOutside && hasInside && unitCompletedCount >= building.unitsForInspection && building.unitsForInspection > 0
+    }
+
+    const getProgressBreakdown = (building: typeof buildings[0]) => {
+        const completed = completedUnitsMap[building.buildingId] || []
+        const hasOutside = completed.includes('Outside')
+        const hasInside = completed.includes('Inside')
+        const unitsDone = getCompletedCount(building.buildingId)
+        const unitsPct = building.unitsForInspection > 0
+            ? Math.round((Math.min(unitsDone, building.unitsForInspection) / building.unitsForInspection) * 100)
+            : 0
+
+        return {
+            outsidePct: hasOutside ? 100 : 0,
+            insidePct: hasInside ? 100 : 0,
+            unitsPct,
+        }
     }
 
     const normalizeToken = (value: unknown): string => String(value ?? '').trim().toLowerCase()
@@ -1039,6 +1055,7 @@ export default function PropertyDetailsPage() {
                                 {buildings.map((building) => {
                                     const completed = getCompletedCount(building.buildingId)
                                     const allDone = isAllCompleted(building)
+                                    const { outsidePct, insidePct, unitsPct } = getProgressBreakdown(building)
                                     return (
                                         <tr key={building.buildingId} className="hover:bg-slate-50/30 transition-colors">
                                             <td className="py-5 px-6">
@@ -1079,14 +1096,11 @@ export default function PropertyDetailsPage() {
                                                 />
                                             </td>
                                             <td className="py-5 px-6 text-center">
-                                                {completed > 0 ? (
-                                                    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border ${allDone ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
-                                                        {allDone ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> : <Clock className="w-3.5 h-3.5 text-amber-500" />}
-                                                        {completed}/{building.unitsForInspection}
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-xs text-slate-400 font-bold">Not started</span>
-                                                )}
+                                                <div className="flex flex-col gap-0.5 text-[11px] font-bold leading-tight">
+                                                    <span className={outsidePct === 100 ? 'text-emerald-600' : 'text-slate-400'}>Outside {outsidePct}%</span>
+                                                    <span className={insidePct === 100 ? 'text-emerald-600' : 'text-slate-400'}>Inside {insidePct}%</span>
+                                                    <span className={unitsPct === 100 ? 'text-emerald-600' : 'text-slate-400'}>Units {unitsPct}%</span>
+                                                </div>
                                             </td>
                                             <td className="py-5 px-6">
                                                 <Button
@@ -1134,6 +1148,7 @@ export default function PropertyDetailsPage() {
                     {buildings.map((building) => {
                         const completed = getCompletedCount(building.buildingId)
                         const allDone = isAllCompleted(building)
+                        const { outsidePct, insidePct, unitsPct } = getProgressBreakdown(building)
                         return (
                             <div key={building.buildingId} className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm space-y-4">
                                 <div className="flex justify-between items-center pb-3 border-b border-slate-100">
@@ -1185,14 +1200,11 @@ export default function PropertyDetailsPage() {
                                 </div>
                                 <div className="flex justify-between items-center pb-4 border-b border-slate-100 text-xs font-medium">
                                     <span className="text-slate-400 font-bold uppercase tracking-wider">Progress</span>
-                                    {completed > 0 ? (
-                                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${allDone ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
-                                            {allDone ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> : <Clock className="w-3.5 h-3.5 text-amber-500" />}
-                                            {completed}/{building.unitsForInspection}
-                                        </span>
-                                    ) : (
-                                        <span className="text-slate-400 font-bold">Not started</span>
-                                    )}
+                                    <div className="flex flex-col gap-0.5 text-[11px] font-bold leading-tight text-right">
+                                        <span className={outsidePct === 100 ? 'text-emerald-600' : 'text-slate-400'}>Outside {outsidePct}%</span>
+                                        <span className={insidePct === 100 ? 'text-emerald-600' : 'text-slate-400'}>Inside {insidePct}%</span>
+                                        <span className={unitsPct === 100 ? 'text-emerald-600' : 'text-slate-400'}>Units {unitsPct}%</span>
+                                    </div>
                                 </div>
                                 <Button
                                     onClick={() => handleBuildingClick(building)}
