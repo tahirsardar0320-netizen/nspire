@@ -388,6 +388,7 @@ export {
     extractUnitCategoryNumber,
     isUnitLocation,
     getUnitBasePoints,
+    UNIT_POSSIBLE_SCORE,
 } from './unitScoringCalculations';
 export type {
     UnitScoringInput,

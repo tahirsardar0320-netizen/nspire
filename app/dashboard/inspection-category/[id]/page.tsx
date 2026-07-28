@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { propertiesAPI, authAPI, inspectionsAPI } from "@/lib/api"
 import { outsideDeficiencyMapping, insideDeficiencyMapping, DeficiencyDetail } from "@/lib/deficiencyMapping"
 import { unitDeficiencyMapping } from "@/lib/unitDeficiencyMapping"
-import { calculateUnitInspectionScore, calculateUnitScore, ScoringResult, POSSIBLE_SCORE, SEVERITY_LEVELS } from "@/lib/scoringCalculations"
+import { calculateUnitInspectionScore, calculateUnitScore, ScoringResult, POSSIBLE_SCORE, SEVERITY_LEVELS, UNIT_POSSIBLE_SCORE } from "@/lib/scoringCalculations"
 import { lookupCodeReference } from "@/lib/appDeficiencyLookup"
 import {
     calculateOutsideScore,
@@ -173,6 +173,13 @@ export default function InspectionCategoryPage() {
     const [outsideStatuses, setOutsideStatuses] = useState<Record<string, ItemStatus>>({})
     const [insideStatuses, setInsideStatuses] = useState<Record<string, ItemStatus>>({})
     const [unitStatuses, setUnitStatuses] = useState<Record<string, ItemStatus>>({})
+    // The debounced save in saveCurrentProgress fires ~2s after being scheduled. Switching
+    // units updates activeInspectionUnit on one render while unitStatuses (still Unit A's
+    // answers) hasn't been reset yet — if that render's closure is what ends up saving,
+    // Unit A's responses get written under Unit B's id. Refs stay current up to the exact
+    // moment the save actually runs, so the payload always reflects the real active unit.
+    const activeInspectionUnitRef = useRef('')
+    const unitStatusesRef = useRef<Record<string, ItemStatus>>({})
     const [propertyFindings, setPropertyFindings] = useState<any[]>([])
     const [currentSection, setCurrentSection] = useState<'outside' | 'inside' | 'unit'>('outside')
     const [completedUnits, setCompletedUnits] = useState<string[]>([])
@@ -188,6 +195,11 @@ export default function InspectionCategoryPage() {
     // Unit selection popup (shown when user clicks Units section and no unit is pre-selected)
     const [unitSelectionPopupOpen, setUnitSelectionPopupOpen] = useState(false)
     const [activeInspectionUnit, setActiveInspectionUnit] = useState(currentUnitName)
+
+    // Kept in sync every render (not via a separate effect) so they're always current
+    // by the time the debounced save in saveCurrentProgress actually executes.
+    activeInspectionUnitRef.current = activeInspectionUnit
+    unitStatusesRef.current = unitStatuses
 
     const refreshCompletedUnits = async () => {
         if (!id || !urlBuilding) return;
@@ -707,7 +719,12 @@ export default function InspectionCategoryPage() {
             // added via the Add-Deficiency modal.
             const outsideFindings = propertyFindings.filter((f: any) => f.area === 'outside');
             const insideFindings = propertyFindings.filter((f: any) => f.area === 'inside');
-            const unitFindings = propertyFindings.filter((f: any) => f.area === 'unit' && f.unit === activeInspectionUnit);
+            // Read the unit portion from refs, not the closed-over unitStatuses/activeInspectionUnit —
+            // those reflect whichever unit was active when THIS debounce cycle was scheduled, which
+            // can be stale by the time this actually runs a couple seconds later.
+            const currentUnitId = activeInspectionUnitRef.current
+            const currentUnitStatuses = unitStatusesRef.current
+            const unitFindings = propertyFindings.filter((f: any) => f.area === 'unit' && f.unit === currentUnitId);
 
             if (Object.keys(outsideStatuses).length > 0) {
                 const isComplete = outsideItemsList.every(item => outsideStatuses[item] !== null && outsideStatuses[item] !== undefined);
@@ -737,21 +754,21 @@ export default function InspectionCategoryPage() {
                 updateLocalCache('Inside', insideStatuses, isComplete);
             }
 
-            if (Object.keys(unitStatuses).length > 0 && activeInspectionUnit) {
+            if (Object.keys(currentUnitStatuses).length > 0 && currentUnitId) {
                 const isComplete = unitItemsList.every(item => {
-                    const status = unitStatuses[item];
+                    const status = currentUnitStatuses[item];
                     return status !== null && status !== undefined;
                 });
                 const payload = {
                     property_id: id,
-                    unit_id: activeInspectionUnit,
-                    inspection_type: `unit_${urlBuilding}_${activeInspectionUnit}`,
-                    responses: unitStatuses,
+                    unit_id: currentUnitId,
+                    inspection_type: `unit_${urlBuilding}_${currentUnitId}`,
+                    responses: currentUnitStatuses,
                     building_id: urlBuilding,
                     inspectionData: { isComplete, findings: unitFindings }
                 };
-                payloads.push({ type: `unit_${urlBuilding}_${activeInspectionUnit}`, isComplete, payload, unitId: activeInspectionUnit });
-                updateLocalCache(`unit_${urlBuilding}_${activeInspectionUnit}`, unitStatuses, isComplete, activeInspectionUnit);
+                payloads.push({ type: `unit_${urlBuilding}_${currentUnitId}`, isComplete, payload, unitId: currentUnitId });
+                updateLocalCache(`unit_${urlBuilding}_${currentUnitId}`, currentUnitStatuses, isComplete, currentUnitId);
             }
             
             if (navigator.onLine) {
@@ -763,9 +780,11 @@ export default function InspectionCategoryPage() {
             }
         } catch (error) {
             console.error("Error saving progress:", error);
+            const currentUnitId = activeInspectionUnitRef.current
+            const currentUnitStatuses = unitStatusesRef.current
             const outsideFindings = propertyFindings.filter((f: any) => f.area === 'outside');
             const insideFindings = propertyFindings.filter((f: any) => f.area === 'inside');
-            const unitFindings = propertyFindings.filter((f: any) => f.area === 'unit' && f.unit === activeInspectionUnit);
+            const unitFindings = propertyFindings.filter((f: any) => f.area === 'unit' && f.unit === currentUnitId);
 
             if (Object.keys(outsideStatuses).length > 0) {
                 const isComplete = outsideItemsList.every(item => outsideStatuses[item] !== null && outsideStatuses[item] !== undefined);
@@ -789,16 +808,16 @@ export default function InspectionCategoryPage() {
                     inspectionData: { isComplete, findings: insideFindings }
                 });
             }
-            if (Object.keys(unitStatuses).length > 0 && activeInspectionUnit) {
+            if (Object.keys(currentUnitStatuses).length > 0 && currentUnitId) {
                 const isComplete = unitItemsList.every(item => {
-                    const status = unitStatuses[item];
+                    const status = currentUnitStatuses[item];
                     return status !== null && status !== undefined;
                 });
                 queueForOfflineSync({
                     property_id: id,
-                    unit_id: activeInspectionUnit,
-                    inspection_type: `unit_${urlBuilding}_${activeInspectionUnit}`,
-                    responses: unitStatuses,
+                    unit_id: currentUnitId,
+                    inspection_type: `unit_${urlBuilding}_${currentUnitId}`,
+                    responses: currentUnitStatuses,
                     building_id: urlBuilding,
                     inspectionData: { isComplete, findings: unitFindings }
                 });
@@ -2499,7 +2518,7 @@ export default function InspectionCategoryPage() {
                                                 <div>
                                                     <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Possible Score</p>
                                                     <div className="bg-slate-50/50 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 border border-slate-100">
-                                                        {currentSection === 'outside' ? OUTSIDE_POSSIBLE_SCORE : INSIDE_POSSIBLE_SCORE}
+                                                        {currentSection === 'outside' ? OUTSIDE_POSSIBLE_SCORE : currentSection === 'unit' ? UNIT_POSSIBLE_SCORE : INSIDE_POSSIBLE_SCORE}
                                                     </div>
                                                 </div>
                                             </div>
@@ -2515,7 +2534,7 @@ export default function InspectionCategoryPage() {
                                                 <div>
                                                     <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Score</p>
                                                     <div className="bg-cyan-50/30 border border-cyan-150 rounded-xl px-3 py-2 text-sm font-extrabold text-[#0E7490]">
-                                                        {scoringResult?.score?.toFixed(2) || (currentSection === 'outside' ? OUTSIDE_POSSIBLE_SCORE.toFixed(2) : INSIDE_POSSIBLE_SCORE.toFixed(2))}
+                                                        {scoringResult?.score?.toFixed(2) || (currentSection === 'outside' ? OUTSIDE_POSSIBLE_SCORE.toFixed(2) : currentSection === 'unit' ? UNIT_POSSIBLE_SCORE.toFixed(2) : INSIDE_POSSIBLE_SCORE.toFixed(2))}
                                                     </div>
                                                 </div>
                                             </div>

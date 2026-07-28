@@ -13,6 +13,7 @@ import {
 // Unit-level inspectable areas use a 50-point base score (distinct from the
 // 25-point base used for Inside/Outside areas).
 const POSSIBLE_SCORE = 50;
+export const UNIT_POSSIBLE_SCORE = POSSIBLE_SCORE;
 
 export interface UnitScoringInput {
     totalSamples: number;           // n - total number of inspected units/samples
