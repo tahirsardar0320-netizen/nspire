@@ -425,6 +425,14 @@ export default function InspectionStatusPage() {
                             {property.city && <span className="hidden sm:inline whitespace-nowrap">, {property.city}</span>}
                             {property.state && <span className="hidden sm:inline whitespace-nowrap">, {property.state}</span>}
                           </div>
+                          <button
+                            onClick={() => handleViewSummary(property._id)}
+                            disabled={loadingReportId === property._id}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold text-[#006795] border border-[#006795]/30 hover:bg-[#006795]/10 transition-colors flex-shrink-0 disabled:opacity-50"
+                          >
+                            <FileText className="w-3 h-3 flex-shrink-0" />
+                            {loadingReportId === property._id ? 'Loading...' : 'View Report Summary'}
+                          </button>
                           {property.inspection && (
                             <>
                               <div className="flex items-center gap-1 flex-shrink-0">

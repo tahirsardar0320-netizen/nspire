@@ -396,13 +396,13 @@ export default function MyInspection() {
                         <td className="py-4 px-4 text-center">
                           {propertyProgress[pid] === 100 ? (
                             <button
-                              disabled
-                              className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 rounded-lg flex items-center justify-center gap-1.5 cursor-not-allowed mx-auto border-0 shadow-sm"
+                              onClick={() => handleViewCompleted(property)}
+                              className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center justify-center gap-1.5 mx-auto border-0 shadow-sm transition-colors"
                             >
                               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                               </svg>
-                              Completed
+                              View Report
                             </button>
                           ) : activeInspectionId === pid ? (
                             <button
