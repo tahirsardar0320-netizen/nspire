@@ -1,28 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import dns from 'node:dns/promises';
 
 const MAX_PDF_BYTES = 15 * 1024 * 1024; // 15MB
 
-function getTransporter() {
+const SMTP_HOSTNAME = 'smtp.gmail.com';
+
+async function getTransporter() {
   const user = process.env.EMAIL_USER;
   const pass = process.env.EMAIL_APP_PASSWORD;
   if (!user || !pass) return null;
+
+  // nodemailer resolves the SMTP host to both its A and AAAA records and then picks one
+  // at RANDOM. Railway's containers advertise an IPv6 interface but have no IPv6 route,
+  // so every send that happened to draw the AAAA address died with ENETUNREACH. Resolve
+  // the IPv4 address here and hand nodemailer a literal IP so it never gets the choice.
+  let host = SMTP_HOSTNAME;
+  try {
+    const [ipv4] = await dns.resolve4(SMTP_HOSTNAME);
+    if (ipv4) host = ipv4;
+  } catch {
+    // Fall back to the hostname — a random-address retry beats not trying at all.
+  }
 
   return nodemailer.createTransport({
     // The 'gmail' service preset connects on port 465 (implicit TLS), which Railway's
     // network was blocking outright — connections hung until nodemailer's ETIMEDOUT.
     // Port 587 (STARTTLS) is the port cloud hosts typically leave open for outbound SMTP.
-    host: 'smtp.gmail.com',
+    host,
     port: 587,
     secure: false,
-    // Railway's containers have no IPv6 route, but Node resolves smtp.gmail.com to an
-    // AAAA record first and the connection dies with ENETUNREACH. Pin the socket to IPv4.
-    family: 4,
     auth: { user, pass },
+    // Certificate is issued to the hostname, not the IP we just dialed.
+    tls: { servername: SMTP_HOSTNAME },
     connectionTimeout: 15000,
     greetingTimeout: 15000,
     socketTimeout: 15000,
-  } as nodemailer.TransportOptions);
+  });
 }
 
 // POST /api/inspections/send-report-email — email the generated NSPIRE report PDF to a recipient
@@ -40,7 +54,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'Report PDF is too large to email.' }, { status: 413 });
     }
 
-    const transporter = getTransporter();
+    const transporter = await getTransporter();
     if (!transporter) {
       return NextResponse.json(
         { success: false, message: 'Email sending is not configured on the server yet.' },
