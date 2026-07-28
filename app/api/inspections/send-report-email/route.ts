@@ -54,6 +54,46 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'Report PDF is too large to email.' }, { status: 413 });
     }
 
+    const attachmentName = (filename || `NSPIRE_Report_${inspectionNo || 'report'}.pdf`).replace(/[^a-zA-Z0-9_.-]/g, '_');
+    const subject = `NSPIRE Inspection Report${propertyName ? ` — ${propertyName}` : ''}`;
+    const body = `Attached is the full NSPIRE inspection report${propertyName ? ` for ${propertyName}` : ''}${propertyAddress ? ` (${propertyAddress})` : ''}.${inspectionNo ? `\n\nInspection #${inspectionNo}` : ''}`;
+
+    // Railway drops outbound SMTP (ports 25/465/587 all time out even on a reachable
+    // IPv4 address), so Gmail SMTP can never deliver from here. Brevo's HTTP API goes
+    // over 443, which is never blocked — prefer it whenever a key is configured.
+    if (process.env.BREVO_API_KEY) {
+      const sender = process.env.EMAIL_USER;
+      if (!sender) {
+        return NextResponse.json(
+          { success: false, message: 'EMAIL_USER must be set to the verified Brevo sender address.' },
+          { status: 503 }
+        );
+      }
+
+      const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'api-key': process.env.BREVO_API_KEY,
+          'Content-Type': 'application/json',
+          accept: 'application/json',
+        },
+        body: JSON.stringify({
+          sender: { email: sender, name: 'NSPIRE Inspection' },
+          to: [{ email }],
+          subject,
+          textContent: body,
+          attachment: [{ content: pdfBase64, name: attachmentName }],
+        }),
+      });
+
+      if (!res.ok) {
+        const detail = await res.text();
+        throw new Error(`Email provider rejected the request (${res.status}): ${detail.slice(0, 300)}`);
+      }
+
+      return NextResponse.json({ success: true, message: 'Report emailed successfully.' });
+    }
+
     const transporter = await getTransporter();
     if (!transporter) {
       return NextResponse.json(
@@ -62,13 +102,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const attachmentName = (filename || `NSPIRE_Report_${inspectionNo || 'report'}.pdf`).replace(/[^a-zA-Z0-9_.-]/g, '_');
-
     await transporter.sendMail({
       from: `"NSPIRE Inspection" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: `NSPIRE Inspection Report${propertyName ? ` — ${propertyName}` : ''}`,
-      text: `Attached is the full NSPIRE inspection report${propertyName ? ` for ${propertyName}` : ''}${propertyAddress ? ` (${propertyAddress})` : ''}.${inspectionNo ? `\n\nInspection #${inspectionNo}` : ''}`,
+      subject,
+      text: body,
       attachments: [
         {
           filename: attachmentName,

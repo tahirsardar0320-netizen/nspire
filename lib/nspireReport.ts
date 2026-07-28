@@ -575,7 +575,10 @@ export async function fetchNSPIREReportForProperty(propertyId: string): Promise<
         // MUST include area — building/unit are often identical across Outside and Inside
         // items (unit defaults to "-" for both), so without area, items from different
         // inspection areas with the same name collide and one silently overwrites the other.
-        const key = [normName, normBuilding, normUnit, normArea].filter(Boolean).join('|')
+        // Keep every slot: filtering empties out shifted the remaining parts left, so a
+        // finding with no building but unit "B1" produced the same key as one with
+        // building "B1" and no unit, and one silently overwrote the other.
+        const key = [normName, normBuilding, normUnit, normArea].join('|')
 
         const existing = deduped.get(key)
         const isNewerOrBetter = !existing || (f.isFinalized && !existing.isFinalized) || (!existing.imageUri && f.imageUri)
