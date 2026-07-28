@@ -62,7 +62,10 @@ export async function POST(req: NextRequest) {
     // IPv4 address), so Gmail SMTP can never deliver from here. Brevo's HTTP API goes
     // over 443, which is never blocked — prefer it whenever a key is configured.
     if (process.env.BREVO_API_KEY) {
-      const sender = process.env.EMAIL_USER;
+      // Brevo matches the sender against its verified list as an exact string, so a
+      // capitalised EMAIL_USER ("Nspire...@gmail.com") was rejected against the sender
+      // verified in lowercase. Addresses are case-insensitive in practice — normalise.
+      const sender = process.env.EMAIL_USER?.trim().toLowerCase();
       if (!sender) {
         return NextResponse.json(
           { success: false, message: 'EMAIL_USER must be set to the verified Brevo sender address.' },
