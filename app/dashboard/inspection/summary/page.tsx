@@ -689,6 +689,11 @@ function NSPIREInspectionSummaryContent() {
         throw new Error(data.message || 'Failed to send report email.')
       }
 
+      const emailedPropertyId = searchParams.get('propertyId') || searchParams.get('id')
+      if (emailedPropertyId) {
+        localStorage.setItem(`report_emailed_${emailedPropertyId}`, 'true')
+      }
+
       toast.success(`Full report sent to ${fullReportEmail.trim()}`, { position: 'top-right' })
       setShowUnlockSummaryModal(false)
       setFullReportEmail('')

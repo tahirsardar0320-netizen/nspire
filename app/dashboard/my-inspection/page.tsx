@@ -25,6 +25,7 @@ export default function MyInspection() {
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [summaryModalOpen, setSummaryModalOpen] = useState(false)
   const [lockedProperties, setLockedProperties] = useState<Record<string, boolean>>({})
+  const [reportEmailed, setReportEmailed] = useState<Record<string, boolean>>({})
   const [propertyProgress, setPropertyProgress] = useState<Record<string, number>>({})
   const [activeInspectionId, setActiveInspectionId] = useState<string | null>(null)
 
@@ -101,6 +102,13 @@ export default function MyInspection() {
         lockMap[pid] = !!isOtherActive
       })
       setLockedProperties(lockMap)
+
+      const emailedMap: Record<string, boolean> = {}
+      properties.forEach(p => {
+        const pid = p._id || p.propertyId
+        if (pid) emailedMap[pid] = localStorage.getItem(`report_emailed_${pid}`) === 'true'
+      })
+      setReportEmailed(emailedMap)
     }
   }, [properties, loading])
 
@@ -395,15 +403,27 @@ export default function MyInspection() {
                         <td className="py-4 px-4 text-center font-semibold text-slate-700">{property.units || 1}</td>
                         <td className="py-4 px-4 text-center">
                           {propertyProgress[pid] === 100 ? (
-                            <button
-                              onClick={() => handleViewCompleted(property)}
-                              className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center justify-center gap-1.5 mx-auto border-0 shadow-sm transition-colors"
-                            >
-                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                              </svg>
-                              View Report
-                            </button>
+                            reportEmailed[pid] ? (
+                              <button
+                                onClick={() => handleViewCompleted(property)}
+                                className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center justify-center gap-1.5 mx-auto border-0 shadow-sm transition-colors"
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                                View Report
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 rounded-lg flex items-center justify-center gap-1.5 cursor-not-allowed mx-auto border-0 shadow-sm"
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                                Completed
+                              </button>
+                            )
                           ) : activeInspectionId === pid ? (
                             <button
                               onClick={() => handleInitiate(property)}
