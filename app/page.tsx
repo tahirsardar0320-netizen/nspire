@@ -23,13 +23,10 @@ export default function Home() {
     return () => { document.body.style.overflow = 'unset'; };
   }, [mobileNavOpen]);
 
-  const handleGetStarted = () => {
-    router.push('/profile-selection');
-  };
-
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     alert("Thank you! Your message has been sent.");
+    (e.target as HTMLFormElement).reset();
   };
 
   return (
@@ -58,21 +55,15 @@ export default function Home() {
                         </span>
                         <span className="nav-subtitle">Professional Solutions</span>
                         <div className="dropdown-menu">
-                            <a href="#services" className="dropdown-item"><span className="dot text-primary"></span> All Services</a>
-                            <a href="#services" className="dropdown-item"><span className="dot text-cyan-600"></span> Buyers Inspections</a>
-                            <a href="#services" className="dropdown-item"><span className="dot text-rose-500"></span> Owners Inspections</a>
-                            <a href="#services" className="dropdown-item"><span className="dot text-orange-500"></span> Sellers Inspections</a>
-                            <a href="#services" className="dropdown-item"><span className="dot text-emerald-500"></span> Rental Inspections</a>
-                            <a href="#services" className="dropdown-item"><span className="dot text-green-500"></span> Specialized Services</a>
-                            <a href="#services" className="dropdown-item"><span className="dot text-amber-500"></span> Commercial Inspections</a>
-                            <a href="#services" className="dropdown-item"><span className="dot text-purple-500"></span> Public Housing</a>
-                            <a href="#services" className="dropdown-item"><span className="dot text-red-600"></span> Insurance Risk</a>
+                            <a href="/inspection-services/public-housing" className="dropdown-item"><span className="dot text-purple-500"></span> Public Housing inspection</a>
+                            <a href="/inspection-services/affordable-housing" className="dropdown-item"><span className="dot text-emerald-500"></span> Affordable Housing inspection</a>
+                            <a href="/inspection-services/owners" className="dropdown-item"><span className="dot text-rose-500"></span> Owner Inspection</a>
+                            <a href="/inspection-services/insurance-risk" className="dropdown-item"><span className="dot text-red-600"></span> Risk Management inspection</a>
                         </div>
                     </div>
-                    <a href="/data-retention" className="nav-item-container"><span className="nav-title">DATA RETENTION</span><span className="nav-subtitle">Privacy &amp; Security</span></a>
-                    <a href="#contact" className="nav-item-container"><span className="nav-title">CONTACT</span><span className="nav-subtitle">Get in Touch</span></a>
+                    <a href="/data-retention" className="nav-item-container"><span className="nav-title">ABOUT</span><span className="nav-subtitle">Our Story</span></a>
                     <a href="#education" className="nav-item-container"><span className="nav-title">EDUCATION & TRAINING</span><span className="nav-subtitle">NSPIRE Videos</span></a>
-                    <a href="#blogs" className="nav-item-container"><span className="nav-title">BLOGS</span><span className="nav-subtitle">AI-Driven Inspection</span></a>
+                    <a href="https://www.hud.gov/reac/nspire-webinars" target="_blank" rel="noopener noreferrer" className="nav-item-container"><span className="nav-title">HUD EXCHANGE</span><span className="nav-subtitle">NSPIRE Webinars</span></a>
                 </div>
 
                 {/* Right side: Login btn (desktop) + Hamburger (mobile) */}
@@ -124,16 +115,20 @@ export default function Home() {
                         </button>
                         {mobileServicesOpen && (
                             <div className="pl-6 pb-2 space-y-1">
-                                {['All Services','Buyers Inspections','Owners Inspections','Sellers Inspections','Rental Inspections','Specialized Services','Commercial Inspections','Public Housing','Insurance Risk'].map(s => (
-                                    <a key={s} href="#services" onClick={() => setMobileNavOpen(false)} className="block px-3 py-2 text-sm text-white/60 hover:text-cyan-400 rounded-lg hover:bg-white/10">{s}</a>
+                                {[
+                                    { label: 'Public Housing inspection', href: '/inspection-services/public-housing' },
+                                    { label: 'Affordable Housing inspection', href: '/inspection-services/affordable-housing' },
+                                    { label: 'Owner Inspection', href: '/inspection-services/owners' },
+                                    { label: 'Risk Management inspection', href: '/inspection-services/insurance-risk' },
+                                ].map(s => (
+                                    <a key={s.label} href={s.href} onClick={() => setMobileNavOpen(false)} className="block px-3 py-2 text-sm text-white/60 hover:text-cyan-400 rounded-lg hover:bg-white/10">{s.label}</a>
                                 ))}
                             </div>
                         )}
                     </div>
-                    <a href="/data-retention" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">DATA RETENTION</span><span className="text-[11px] text-cyan-400">Privacy &amp; Security</span></a>
-                    <a href="#contact" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">CONTACT</span><span className="text-[11px] text-cyan-400">Get in Touch</span></a>
+                    <a href="/data-retention" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">ABOUT</span><span className="text-[11px] text-cyan-400">Our Story</span></a>
                     <a href="#education" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">EDUCATION &amp; TRAINING</span><span className="text-[11px] text-cyan-400">NSPIRE Videos</span></a>
-                    <a href="#blogs" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">BLOGS</span><span className="text-[11px] text-cyan-400">AI-Driven Inspection</span></a>
+                    <a href="https://www.hud.gov/reac/nspire-webinars" target="_blank" rel="noopener noreferrer" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">HUD EXCHANGE</span><span className="text-[11px] text-cyan-400">NSPIRE Webinars</span></a>
                 </div>
                 <div className="p-4 mt-auto border-t border-white/10">
                     <button onClick={() => { setMobileNavOpen(false); router.push('/profile-selection'); }} className="w-full btn-primary rounded-xl py-4 text-sm font-bold flex items-center justify-center gap-2">
@@ -160,20 +155,15 @@ export default function Home() {
 
                 {/* Hero Content */}
                 <div className="flex-1 w-full lg:max-w-[650px] text-left relative z-20">
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[4rem] xl:text-[4.5rem] font-bold mb-4 leading-[1.15] serif tracking-tight">
-                        <span className="text-gradient">
-                            Trusted and Certified
-                            <span className="block">Multi-Unit Inspections</span>
-                        </span>
-                        <span className="text-[#F84B5F] italic font-bold block">Across the NATION</span>
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[4rem] xl:text-[4.5rem] font-bold mb-6 leading-[1.15] serif tracking-tight">
+                        <span className="text-gradient block">NSPIRE inspection (Public)</span>
+                        <span className="block">Public &amp; Affordable Housing</span>
+                        <span className="text-[#F84B5F] italic font-bold block">Across the U.S.A</span>
                     </h1>
-                    <p className="text-gray-600 mb-6 leading-relaxed text-sm md:text-base max-w-xl font-medium">
-                        NSPIREinspection.AI stands at the forefront of the multi-unit inspection industry, offering multi-unit property inspections and advanced risk-mitigation solutions.
-                    </p>
                     <div className="flex flex-col sm:flex-row justify-start gap-3 mb-8">
-                        <button onClick={handleGetStarted} className="btn-primary px-7 py-3.5 rounded-full text-sm md:text-base font-semibold">
+                        <a href="https://nspireinspection.ai/" className="btn-primary px-7 py-3.5 rounded-full text-sm md:text-base font-semibold inline-block text-center">
                             Get Started
-                        </button>
+                        </a>
                         <button onClick={() => router.push('/find-inspectors')} className="btn-outline px-7 py-3.5 rounded-full text-sm md:text-base font-semibold">
                             View Inspectors
                         </button>
@@ -218,410 +208,19 @@ export default function Home() {
         </div>
     </section>
 
-    {/* THE PROCESS */}
-    <section className="px-4 md:px-6 py-16 md:py-20 bg-[#F0F4FA] relative z-20">
-        <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-10">
-            <div className="text-center mb-12">
-                <p className="text-xs font-bold text-[#00C6D7] uppercase tracking-[0.2em] mb-3">THE PROCESS</p>
-                <h2 className="text-4xl md:text-5xl font-bold text-[#0C1F3F] mt-2 serif">What to Expect</h2>
-            </div>
-            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                <div className="process-step">
-                    <span className="step-number">1</span>
-                    <div className="w-12 h-12 bg-gradient-to-br from-[#00C6D7] to-[#006795] rounded-2xl flex items-center justify-center text-white font-black text-xl mb-5 shadow-lg">1</div>
-                    <h3 className="font-bold text-xl mb-2 text-[#0C1F3F] serif">Schedule</h3>
-                    <p className="text-gray-500 font-medium text-sm">Start inspection</p>
-                </div>
-                <div className="process-step">
-                    <span className="step-number">2</span>
-                    <div className="w-12 h-12 bg-gradient-to-br from-[#00C6D7] to-[#006795] rounded-2xl flex items-center justify-center text-white font-black text-xl mb-5 shadow-lg">2</div>
-                    <h3 className="font-bold text-xl mb-2 text-[#0C1F3F] serif">Evaluate</h3>
-                    <p className="text-gray-500 font-medium text-sm">System by System check of the entire property.</p>
-                </div>
-                <div className="process-step">
-                    <span className="step-number">3</span>
-                    <div className="w-12 h-12 bg-gradient-to-br from-[#00C6D7] to-[#006795] rounded-2xl flex items-center justify-center text-white font-black text-xl mb-5 shadow-lg">3</div>
-                    <h3 className="font-bold text-xl mb-2 text-[#0C1F3F] serif">Report</h3>
-                    <p className="text-gray-500 font-medium text-sm">Receive digital report (PDF) and clear repair recommendation (Excel format)</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {/* Public Housing Section */}
-    <section className="bg-[#0F172A] text-white py-20 relative z-20">
-        <div className="max-w-[1400px] mx-auto px-6 text-center">
-            <h2 className="text-4xl md:text-5xl font-bold mb-8 serif">Government Housing Compliance</h2>
-            <p className="text-lg text-gray-300 max-w-4xl mx-auto leading-relaxed">
-                NSPIREinspection.AI provides professional, Public, and affordable Housing Inspections nationwide, helping housing authorities, property managers, and multifamily communities maintain federal compliance and safe living conditions. Qualified NSPIRE inspectors specialize in Real Estate Assessment inspection, ensuring every property meets federal housing standards.
-            </p>
-        </div>
-    </section>
-
-    
-    {/* About Section */}
-    <section id="about" className="relative bg-[#006795] py-20 md:py-32 overflow-hidden z-20">
-        <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#F84B5F] rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
-        </div>
-
-        <div className="max-w-[1400px] mx-auto px-4 md:px-6 relative z-10 text-center">
-            <p className="text-[#A8D8EA] font-bold uppercase tracking-[0.2em] mb-6">Empowering Property Decisions</p>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8 leading-[1.1] serif">
-                About <span className="text-[#F84B5F] italic font-medium">Nspire</span>
-            </h2>
-            <p className="max-w-4xl mx-auto text-lg md:text-xl text-white/90 leading-relaxed font-light">
-                Our Qualified NSPIRE inspectors focus on identifying risks, structural issues, and safety hazards to ensure that every inspection provides clear insights that help you make informed decisions about your property.
-            </p>
-        </div>
-    </section>
-
-    <section id="services" className="py-20 px-4 md:px-8 bg-white z-20 relative">
-        <div className="max-w-[1400px] mx-auto">
-            <div className="text-center mb-16">
-                <p className="text-[#00C6D7] font-bold uppercase tracking-[0.2em] mb-4 text-xs">Nationwide Solutions</p>
-                <h2 className="text-3xl md:text-4xl font-bold text-[#0C1F3F] mb-4 serif">Our Professional Inspection Solutions</h2>
-                <p className="text-gray-500 max-w-2xl mx-auto text-sm">Comprehensive, transparent, and accurate evaluations tailored for every stage of property ownership and investment.</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="service-card flex flex-col">
-                    <div className="relative h-48 overflow-hidden">
-                        <img src="/candid_house_people.png" alt="Buyer Inspection" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0C1F3F]/80 via-black/20 to-transparent"></div>
-                    </div>
-                    <div className="p-7 flex-1 flex flex-col justify-between">
-                        <div>
-                            <h3 className="text-xl font-bold text-[#0C1F3F] mb-1 serif">Buyer Inspection Services</h3>
-                            <p className="text-[#00C6D7] font-bold text-xs mb-3 uppercase tracking-wider">Informed Property Decisions</p>
-                            <p className="text-gray-600 leading-relaxed text-sm">Nspire's Buyer Inspection Services support confident purchasing decisions for residential, multi-family, commercial, and public housing properties across the USA.</p>
-                        </div>
-                        <button className="text-[#006795] font-bold text-sm hover:text-[#00C6D7] text-left mt-5 self-start transition-colors">Learn More →</button>
-                    </div>
-                </div>
-                <div className="service-card flex flex-col">
-                    <div className="relative h-48 overflow-hidden">
-                        <img src="/multiunit_residence.png" alt="Owner Inspection" className="w-full h-full object-cover transition-transform duration-500" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0C1F3F]/80 via-black/20 to-transparent"></div>
-                    </div>
-                    <div className="p-7 flex-1 flex flex-col justify-between">
-                        <div>
-                            <h3 className="text-xl font-bold text-[#0C1F3F] mb-1 serif">Owner Inspection Services</h3>
-                            <p className="text-[#F59E0B] font-bold text-xs mb-3 uppercase tracking-wider">Asset Protection and Longevity</p>
-                            <p className="text-gray-600 leading-relaxed text-sm">Nspire's Owner Inspection Services help property owners maintain asset value, ensure compliance, and plan preventive maintenance.</p>
-                        </div>
-                        <button className="text-[#006795] font-bold text-sm hover:text-[#00C6D7] text-left mt-5 self-start transition-colors">Learn More →</button>
-                    </div>
-                </div>
-                <div className="service-card flex flex-col">
-                    <div className="relative h-48 overflow-hidden">
-                        <img src="/multi_unit_housing.png" alt="Seller Inspection" className="w-full h-full object-cover transition-transform duration-500" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0C1F3F]/80 via-black/20 to-transparent"></div>
-                    </div>
-                    <div className="p-7 flex-1 flex flex-col justify-between">
-                        <div>
-                            <h3 className="text-xl font-bold text-[#0C1F3F] mb-1 serif">Seller Inspection Services</h3>
-                            <p className="text-orange-500 font-bold text-xs mb-3 uppercase tracking-wider">Maximize Marketability</p>
-                            <p className="text-gray-600 leading-relaxed text-sm">Nspire's Seller Inspection Services prepare properties for listing with transparency and confidence. Identify major and minor defects before marketing.</p>
-                        </div>
-                        <button className="text-[#006795] font-bold text-sm hover:text-[#00C6D7] text-left mt-5 self-start transition-colors">Learn More →</button>
-                    </div>
-                </div>
-                <div className="service-card flex flex-col">
-                    <div className="relative h-48 overflow-hidden">
-                        <img src="/plaza_shops.png" alt="Rental Inspection" className="w-full h-full object-cover transition-transform duration-500" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0C1F3F]/80 via-black/20 to-transparent"></div>
-                    </div>
-                    <div className="p-7 flex-1 flex flex-col justify-between">
-                        <div>
-                            <h3 className="text-xl font-bold text-[#0C1F3F] mb-1 serif">Rental Property Inspection</h3>
-                            <p className="text-emerald-600 font-bold text-xs mb-3 uppercase tracking-wider">Compliance and Safety</p>
-                            <p className="text-gray-600 leading-relaxed text-sm">Comprehensive rental property inspection services, including move-in, move-out, annual safety inspection, and habitability standards review.</p>
-                        </div>
-                        <button className="text-[#006795] font-bold text-sm hover:text-[#00C6D7] text-left mt-5 self-start transition-colors">Learn More →</button>
-                    </div>
-                </div>
-                <div className="service-card flex flex-col">
-                    <div className="relative h-48 overflow-hidden">
-                        <img src="/candid_commercial_building.png" alt="Commercial Inspection" className="w-full h-full object-cover transition-transform duration-500" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0C1F3F]/80 via-black/20 to-transparent"></div>
-                    </div>
-                    <div className="p-7 flex-1 flex flex-col justify-between">
-                        <div>
-                            <h3 className="text-xl font-bold text-[#0C1F3F] mb-1 serif">Commercial Building Inspection</h3>
-                            <p className="text-amber-500 font-bold text-xs mb-3 uppercase tracking-wider">Nationwide Services</p>
-                            <p className="text-gray-600 leading-relaxed text-sm">Commercial building inspection services for multi-unit facilities, industrial properties, office buildings, retail spaces, warehouses, and shopping centers.</p>
-                        </div>
-                        <button className="text-[#006795] font-bold text-sm hover:text-[#00C6D7] text-left mt-5 self-start transition-colors">Learn More →</button>
-                    </div>
-                </div>
-                <div className="service-card flex flex-col">
-                    <div className="relative h-48 overflow-hidden">
-                        <img src="/candid_public_housing.png" alt="Public Housing Inspection" className="w-full h-full object-cover transition-transform duration-500" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0C1F3F]/80 via-black/20 to-transparent"></div>
-                    </div>
-                    <div className="p-7 flex-1 flex flex-col justify-between">
-                        <div>
-                            <h3 className="text-xl font-bold text-[#0C1F3F] mb-1 serif">Public Housing Inspection</h3>
-                            <p className="text-purple-600 font-bold text-xs mb-3 uppercase tracking-wider">HUD/REAC Support</p>
-                            <p className="text-gray-600 leading-relaxed text-sm">Specializing in public housing inspection services aligned with Nspire standards. HUD/REAC inspection preparation and multi-family housing inspection.</p>
-                        </div>
-                        <button className="text-[#006795] font-bold text-sm hover:text-[#00C6D7] text-left mt-5 self-start transition-colors">Learn More →</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {/* Education Section */}
-    <section id="education" className="bg-[#F8F9FA] px-4 md:px-6 py-20 md:py-28 z-20 relative">
-        <div className="max-w-[1400px] mx-auto text-center">
-            <p className="text-xs font-bold text-[#006795] uppercase tracking-[0.2em] mb-3">Video Library</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0C1F3F] mb-4 serif">NSPIRE Inspection <span className="text-[#F84B5F] italic">Video Library</span></h2>
-            <div className="w-16 h-1 bg-[#F84B5F] mx-auto rounded-full mb-12"></div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 text-left">
-
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Carbon Monoxide Alarms</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Clothes Dryer Exhaust Ventilation</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Doors – Entry</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Doors – Fire-Labeled</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Doors – General</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Egress</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Electrical – Conductors, Outlets, and Switches</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Electrical GFCI or AFCI</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Fire Extinguishers</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Guardrails</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Handrails</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">HVAC</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Infestation</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Lighting Auxiliary</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Lighting Exterior</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Lighting Interior</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Mold-Like Substances</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Sinks</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Smoke Alarms</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Sprinkler Assembly</p>
-                </div>
-                <div className="group flex items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-xl flex items-center justify-center text-white text-sm shadow-md shadow-red-500/20">
-                        ▶
-                    </div>
-                    <p className="font-bold text-gray-900 text-sm group-hover:text-[#EF4444] transition-colors">Structural Systems</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="blogs" className="bg-[#F0F4FA] px-4 md:px-6 py-20 md:py-28 z-20 relative">
-        <div className="max-w-[1400px] mx-auto text-center">
-            <p className="text-xs font-bold text-[#00C6D7] uppercase tracking-widest mb-4">Latest Insights</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0C1F3F] mb-4 serif">AI-Driven Property <span className="text-[#F59E0B] italic">Inspection Blogs</span></h2>
-            <div className="w-16 h-1 bg-[#F59E0B] mx-auto rounded-full mb-12"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
-
-                <article className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1">
-                    <div className="p-8">
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2 serif">Sewer Scope Inspection</h3>
-                        <p className="text-[#006795] font-bold text-sm mb-4">What It Is and Why It Matters for Homeowners Across the U.S.</p>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 mb-4 font-medium uppercase tracking-wider">
-                            <span>March 13, 2026</span>
-                            <span>|</span>
-                            <span className="text-[#F84B5F]">Inspection Services</span>
-                        </div>
-                        <p className="text-gray-500 leading-relaxed text-sm mb-5">Buying or owning a home comes with responsibilities that go far beyond what you can see during a casual walkthrough.</p>
-                        <button className="text-[#006795] font-bold text-sm hover:text-[#00C6D7] transition-colors">Read Article →</button>
-                    </div>
-                </article>
-                <article className="blog-card">
-                    <div className="blog-card-accent"></div>
-                    <div className="p-7">
-                        <h3 className="text-xl font-bold text-[#0C1F3F] mb-1 serif">Professional Roof Inspections</h3>
-                        <p className="text-[#00C6D7] font-bold text-xs mb-3 uppercase tracking-wider">Across the U.S. to Prevent Leaks, Moisture Damage, and Costly Repairs</p>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 mb-4 font-medium uppercase tracking-wider">
-                            <span>March 13, 2026</span>
-                            <span>|</span>
-                            <span className="text-[#F84B5F]">Inspection Services</span>
-                        </div>
-                        <p className="text-gray-500 leading-relaxed text-sm mb-5">One of the most critical yet overlooked aspects of property maintenance is the roof. Even small leaks can lead to significant damage.</p>
-                        <button className="text-[#006795] font-bold text-sm hover:text-[#00C6D7] transition-colors">Read Article →</button>
-                    </div>
-                </article>
-                <article className="blog-card">
-                    <div className="blog-card-accent"></div>
-                    <div className="p-7">
-                        <h3 className="text-xl font-bold text-[#0C1F3F] mb-1 serif">Professional Home Inspection</h3>
-                        <p className="text-[#00C6D7] font-bold text-xs mb-3 uppercase tracking-wider">What to Expect and Why They Matter</p>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 mb-4 font-medium uppercase tracking-wider">
-                            <span>March 13, 2026</span>
-                            <span>|</span>
-                            <span className="text-[#F84B5F]">Inspection Services</span>
-                        </div>
-                        <p className="text-gray-500 leading-relaxed text-sm mb-5">A home inspection provides a detailed understanding of a property’s condition before the deal is finalized. It helps buyers make informed decisions.</p>
-                        <button className="text-[#006795] font-bold text-sm hover:text-[#00C6D7] transition-colors">Read Article →</button>
-                    </div>
-                </article>
-                <article className="blog-card">
-                    <div className="blog-card-accent"></div>
-                    <div className="p-7">
-                        <h3 className="text-xl font-bold text-[#0C1F3F] mb-1 serif">Real Estate Professional Services</h3>
-                        <p className="text-[#00C6D7] font-bold text-xs mb-3 uppercase tracking-wider">Building Trust and Smoother Transactions</p>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 mb-4 font-medium uppercase tracking-wider">
-                            <span>March 13, 2026</span>
-                            <span>|</span>
-                            <span className="text-[#F84B5F]">For Professionals</span>
-                        </div>
-                        <p className="text-gray-500 leading-relaxed text-sm mb-5">Partnering with a reliable inspection service can significantly improve the transaction experience. Deliver peace of mind and transparency.</p>
-                        <button className="text-[#006795] font-bold text-sm hover:text-[#00C6D7] transition-colors">Read Article →</button>
-                    </div>
-                </article>
-                <article className="blog-card">
-                    <div className="blog-card-accent"></div>
-                    <div className="p-7">
-                        <h3 className="text-xl font-bold text-[#0C1F3F] mb-1 serif">10 Common Problems</h3>
-                        <p className="text-[#00C6D7] font-bold text-xs mb-3 uppercase tracking-wider">Issues Found During Home Inspections</p>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 mb-4 font-medium uppercase tracking-wider">
-                            <span>March 13, 2026</span>
-                            <span>|</span>
-                            <span className="text-[#F84B5F]">Expert Advice</span>
-                        </div>
-                        <p className="text-gray-500 leading-relaxed text-sm mb-5">Even homes that appear well-maintained can have hidden problems. Understanding these common issues helps buyers make informed decisions.</p>
-                        <button className="text-[#006795] font-bold text-sm hover:text-[#00C6D7] transition-colors">Read Article →</button>
-                    </div>
-                </article>
-                <article className="blog-card">
-                    <div className="blog-card-accent"></div>
-                    <div className="p-7">
-                        <h3 className="text-xl font-bold text-[#0C1F3F] mb-1 serif">Home Inspection Checklist</h3>
-                        <p className="text-[#00C6D7] font-bold text-xs mb-3 uppercase tracking-wider">What to Look for Before Buying a Home</p>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 mb-4 font-medium uppercase tracking-wider">
-                            <span>March 13, 2026</span>
-                            <span>|</span>
-                            <span className="text-[#F84B5F]">Buyer Guide</span>
-                        </div>
-                        <p className="text-gray-500 leading-relaxed text-sm mb-5">A home inspection checklist gives buyers a clear idea of the important areas that should be evaluated before making a final decision.</p>
-                        <button className="text-[#006795] font-bold text-sm hover:text-[#00C6D7] transition-colors">Read Article →</button>
-                    </div>
-                </article>
-            </div>
-            
-            <button className="mt-10 bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white px-10 py-4 rounded-2xl text-sm font-bold shadow-lg hover:shadow-cyan-500/25 transition-all hover:-translate-y-1">
-                View All Articles
-            </button>
-        </div>
-    </section>
-
     {/* Contact Section */}
     <section id="contact" className="bg-[#0C1F3F] py-20 px-4 md:px-6 z-20 relative">
         <div className="max-w-[1000px] mx-auto text-center">
             <p className="text-xs font-bold text-[#00C6D7] uppercase tracking-widest mb-4">Connect With Us</p>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-8 serif">How Can We <span className="text-[#F59E0B] italic">Help?</span></h2>
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 md:p-12 rounded-3xl text-left mt-12">
-                <form className="space-y-5">
+                <form onSubmit={handleContactSubmit} className="space-y-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <input type="text" placeholder="Full Name" className="form-input" />
-                        <input type="email" placeholder="Email Address" className="form-input" />
+                        <input required type="text" name="fullName" placeholder="Full Name" className="form-input" />
+                        <input required type="email" name="email" placeholder="Email Address" className="form-input" />
                     </div>
-                    <textarea rows={4} placeholder="How can we help you?" className="form-input"></textarea>
-                    <button className="w-full bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold py-4 rounded-2xl hover:shadow-lg hover:shadow-cyan-500/20 transition-all hover:-translate-y-0.5">Send Message</button>
+                    <textarea required name="message" rows={4} placeholder="How can we help you?" className="form-input"></textarea>
+                    <button type="submit" className="w-full bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold py-4 rounded-2xl hover:shadow-lg hover:shadow-cyan-500/20 transition-all hover:-translate-y-0.5">Send Message</button>
                 </form>
             </div>
         </div>
@@ -636,7 +235,7 @@ export default function Home() {
                     <h3 className="font-bold mb-4 serif text-xl">Quick Links</h3>
                     <ul className="space-y-2 text-gray-400 font-medium">
                         <li><a href="#" className="hover:text-white transition-colors">Home</a></li>
-                        <li><a href="/data-retention" className="hover:text-white transition-colors">Data Retention</a></li>
+                        <li><a href="/data-retention" className="hover:text-white transition-colors">About</a></li>
                         <li><a href="#services" className="hover:text-white transition-colors">Services</a></li>
                         <li><a href="#contact" className="hover:text-white transition-colors">Contact</a></li>
                         <li><a href="#education" className="hover:text-white transition-colors">Education &amp; Training</a></li>
@@ -702,7 +301,6 @@ export default function Home() {
             </div>
         </div>
     </footer>
-
 
 
     </div>

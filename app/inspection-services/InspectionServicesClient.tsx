@@ -8,52 +8,7 @@ import MainLayout from "@/components/MainLayout";
 
 const serviceCategories = [
   {
-    title: "Buyers Inspection Services",
-    subtitle: "Pre-Purchase Protection",
-    description: "Comprehensive inspections for single-family homes, multi-unit properties, condominiums, and commercial pre-purchase evaluations.",
-    href: "/inspection-services/buyers",
-    items: ["Single-Family Inspections", "Multi-Unit Inspections", "Condominium/Townhouse", "Commercial Pre-Purchase", "Structural & Mechanical Reviews", "NSPIRE/REAC Compliance"],
-    color: "#006795",
-    accent: "#E8F4F8"
-  },
-  {
-    title: "Owners Inspection Services",
-    subtitle: "Maintain & Protect Your Investment",
-    description: "Annual property inspections, pre-listing evaluations, property condition assessments, and maintenance surveys for current owners.",
-    href: "/inspection-services/owners",
-    items: ["Annual Owner Property Inspection", "Pre-Listing Home Inspection", "Property Condition Evaluation", "Homeowner Maintenance Survey", "Tenant Safety Review"],
-    color: "#F84B5F",
-    accent: "#FEF2F2"
-  },
-  {
-    title: "Sellers Inspection Services",
-    subtitle: "Maximize Marketability",
-    description: "Pre-listing inspections, HUD/REAC pre-sale support, property readiness evaluations, seller transparency reports, and pricing advantage strategies.",
-    href: "/inspection-services/sellers",
-    items: ["Pre-Listing Inspection", "HUD/REAC Pre-Sale Support", "Defect Detection", "Pricing Advantage Report", "Marketability Enhancement", "Seller Transparency Report"],
-    color: "#F97316",
-    accent: "#FFF7ED"
-  },
-  {
-    title: "Specialized & Add-On Services",
-    subtitle: "Deep-Dive Assessments",
-    description: "Targeted inspections including sewer scope, thermal imaging, mold and air quality testing, radon, pool, lead paint, and asbestos surveys.",
-    href: "/inspection-services/specialized",
-    items: ["Sewer Scope Inspection", "Thermal Imaging/Infrared", "Mold & Air Quality Testing", "Radon Testing", "Pool & Spa Evaluation", "Lead-Based Paint Assessment", "Asbestos Survey"],
-    color: "#22C55E",
-    accent: "#F0FDF4"
-  },
-  {
-    title: "Commercial Inspection Services",
-    subtitle: "For Business Properties",
-    description: "Professional evaluations for multifamily buildings, warehouses, industrial, retail, office, healthcare, and hospitality properties.",
-    href: "/inspection-services/commercial",
-    items: ["Multifamily/Apartment Buildings", "Warehouse & Industrial", "Retail & Office Spaces", "Healthcare Facilities", "Hospitality Properties"],
-    color: "#F59E0B",
-    accent: "#FFFBEB"
-  },
-  {
-    title: "Public Housing & Multi-Family",
+    title: "Public Housing Inspection",
     subtitle: "Compliance & Standards",
     description: "REAC/NSPIRE standard compliance inspections, physical needs assessments, ADA accessibility, and quality assurance program reviews.",
     href: "/inspection-services/public-housing",
@@ -62,16 +17,25 @@ const serviceCategories = [
     accent: "#F5F3FF"
   },
   {
-    title: "Rental Property Inspections",
-    subtitle: "Landlord & Tenant Solutions",
-    description: "Move-in, move-out, and annual safety inspections for rental properties. Tenant damage assessment, habitability reviews, and compliance documentation packages.",
-    href: "/inspection-services/rental",
-    items: ["Move-In Inspection", "Move-Out Inspection", "Annual Safety Inspection", "Tenant Damage Assessment", "Habitability Review", "Compliance Documentation"],
-    color: "#10B981",
+    title: "Affordable Housing Inspection",
+    subtitle: "LIHTC, Section 8 & Multi-Family",
+    description: "NSPIRE-aligned inspections for LIHTC and Section 8 properties, physical condition assessments, and HUD/REAC-ready compliance documentation.",
+    href: "/inspection-services/affordable-housing",
+    items: ["LIHTC Compliance", "Section 8 Unit Inspections", "Physical Condition Assessments", "Capital Needs Planning"],
+    color: "#0F9D58",
     accent: "#ECFDF5"
   },
   {
-    title: "Insurance Risk Management",
+    title: "Owner Inspection",
+    subtitle: "Maintain & Protect Your Investment",
+    description: "Annual property inspections, pre-listing evaluations, property condition assessments, and maintenance surveys for current owners.",
+    href: "/inspection-services/owners",
+    items: ["Annual Owner Property Inspection", "Pre-Listing Home Inspection", "Property Condition Evaluation", "Homeowner Maintenance Survey", "Tenant Safety Review"],
+    color: "#F84B5F",
+    accent: "#FEF2F2"
+  },
+  {
+    title: "Risk Management Inspection",
     subtitle: "Protect Your Assets",
     description: "Property risk assessment, hazard and liability review, fire and safety risk reporting, environmental risk analysis, and insurance claim prevention.",
     href: "/inspection-services/insurance-risk",
@@ -99,7 +63,7 @@ export default function InspectionServicesClient() {
               Inspection <span className="text-[#F84B5F] italic font-medium">Services</span>
             </h1>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
-              NSPIREinspectiom.AI provides professional Inspection Services nationwide, delivering end-to-end solutions for buyers, owners, sellers, landlords, investors, and public housing authorities.
+              NSPIREinspectiom.AI provides professional Inspection Services nationwide, delivering end-to-end solutions for public housing authorities, affordable housing communities, property owners, and risk management teams.
             </p>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed mt-4">
               From single-family homes to multi-unit commercial buildings, Nspire combines structural, mechanical, electrical, and safety evaluations into a single trusted framework. We support purchase decisions, risk management, compliance verification, and long-term asset planning through data-driven inspections.

@@ -10,13 +10,22 @@ import MainLayout from "@/components/MainLayout";
 
 const services = [
   {
-    title: "Buyer Inspection Services",
-    subtitle: "Informed Property Decisions",
-    description: "Nspire's Buyer Inspection Services support confident purchasing decisions for residential, multi-family, commercial, and public housing properties across the USA. Our inspections include multi-unit buyer inspection, single-family home buyer inspection, condominium and townhome buyer inspection, and commercial property pre-purchase evaluation. We conduct comprehensive property condition assessments for buyers, covering structural, mechanical, and electrical review while identifying hazards and compliance risks. Each buyer inspection includes Nspire buyer safety compliance checks, repair and maintenance cost estimation, and buyer decision support reports.",
-    moreText: "Buyer Risk Analysis, Compliance, and Negotiation Support: Our buyer-focused inspections emphasize hazard and risk identification, safety compliance, and financial clarity. Nspire delivers buyer decision support reports that highlight structural deficiencies, system failures, and safety concerns affecting value and insurability.",
-    image: "/family_housing_complex.png",
-    color: "bg-blue-50",
-    href: "/inspection-services/buyers"
+    title: "Public Housing Inspection",
+    subtitle: "HUD/REAC Support",
+    description: "Nspire specializes in public housing inspection services aligned with Nspire standards. We provide HUD/REAC inspection preparation, multi-family housing inspection, apartment community compliance, and federal housing standards review. Our habitability and safety evaluations, energy and environmental standards checks, and occupancy health inspections support REAC scoring improvement and regulatory readiness for public housing authorities (PHAs).",
+    moreText: "Public Housing Risk, Compliance, and Documentation: Our public housing inspections deliver risk and deficiency reporting with clear remediation guidance. Nspire supports PHAs with documentation, compliance verification, and audit preparation.",
+    image: "/candid_public_housing.png",
+    color: "bg-purple-50",
+    href: "/inspection-services/public-housing"
+  },
+  {
+    title: "Affordable Housing Inspection",
+    subtitle: "LIHTC & Section 8 Compliance",
+    description: "Nspire's Affordable Housing Inspection services support LIHTC and Section 8 Housing Choice Voucher properties with NSPIRE-aligned physical condition assessments. We evaluate units, buildings, and site conditions using the same Outside, Inside, and Unit categories applied in official HUD REAC/NSPIRE reviews, helping owners and housing authorities stay compliant and plan capital improvements.",
+    moreText: "Compliance-Ready Reporting for Multi-Family Portfolios: Our affordable housing inspections deliver a realistic preview of REAC scoring outcomes, with prioritized punch lists that help property teams close compliance gaps before the real review.",
+    image: "/candid_public_housing.png",
+    color: "bg-emerald-50",
+    href: "/inspection-services/affordable-housing"
   },
   {
     title: "Owner Inspection Services",
@@ -28,45 +37,9 @@ const services = [
     href: "/inspection-services/owners"
   },
   {
-    title: "Seller Inspection Services",
-    subtitle: "Maximize Marketability",
-    description: "Nspire's Seller Inspection Services prepare properties for listing with transparency and confidence. Our pre-listing inspection, multi-unit seller inspection, and property readiness evaluation identify major and minor defects before marketing. We provide HUD/REAC pre-sale support, repair and upgrade recommendations, and pricing advantage inspection reports. Marketability enhancement reviews focus on safety, compliance, and presentation factors that influence buyer perception.",
-    moreText: "Seller Transparency and Pricing Advantage Reports: Seller inspections include detailed seller transparency reports designed to minimize post-offer disputes. Nspire documents defects, compliance gaps, and improvement opportunities with clear prioritization.",
-    image: "/candid_street.png",
-    color: "bg-orange-50",
-    href: "/inspection-services/sellers"
-  },
-  {
-    title: "Rental Property Inspection",
-    subtitle: "Compliance and Safety",
-    description: "Nspire delivers comprehensive rental property inspection services, including move-in inspection, move-out inspection, annual rental safety inspection, and habitability standards review. We assess tenant damage, occupancy health and safety, and multi-unit rental inspection requirements. Nspire rental compliance and HUD/REAC pre-audit support ensure landlords meet federal and local housing standards.",
-    moreText: "Rental Risk Management and Documentation Support: Our rental inspections focus on risk mitigation and regulatory readiness. Nspire evaluates life-safety systems, habitability conditions, and compliance gaps that impact leasing and audits.",
-    image: "/plaza_shops.png",
-    color: "bg-green-50",
-    href: "/inspection-services/rental"
-  },
-  {
-    title: "Commercial Building Inspection",
-    subtitle: "Nationwide Services",
-    description: "Nspire provides commercial building inspection services for multi-unit commercial facilities, industrial properties, office buildings, retail spaces, warehouses, and shopping centers. Our inspections include construction quality assessment, safety and code compliance, fire and life safety checks, and roof, HVAC, electrical, and plumbing analysis.",
-    moreText: "Commercial Compliance, Systems, and Structural Evaluation: Commercial inspections emphasize operational continuity and regulatory alignment. Nspire identifies deficiencies affecting safety, insurability, and asset performance. Our reporting supports capital planning, compliance remediation, and insurance coordination.",
-    image: "/candid_commercial_building.png",
-    color: "bg-yellow-50",
-    href: "/inspection-services/commercial"
-  },
-  {
-    title: "Public Housing Inspection",
-    subtitle: "HUD/REAC Support",
-    description: "Nspire specializes in public housing inspection services aligned with Nspire standards. We provide HUD/REAC inspection preparation, multi-family housing inspection, apartment community compliance, and federal housing standards review. Our habitability and safety evaluations, energy and environmental standards checks, and occupancy health inspections support REAC scoring improvement and regulatory readiness for public housing authorities (PHAs).",
-    moreText: "Public Housing Risk, Compliance, and Documentation: Our public housing inspections deliver risk and deficiency reporting with clear remediation guidance. Nspire supports PHAs with documentation, compliance verification, and audit preparation.",
-    image: "/candid_public_housing.png",
-    color: "bg-purple-50",
-    href: "/inspection-services/public-housing"
-  },
-  {
-    title: "Insurance Risk Management",
+    title: "Risk Management Inspection",
     subtitle: "Property Risk Assessment",
-    description: "Nspire's insurance risk management inspections address property risk assessment, hazard and liability review, and multi-unit insurance inspection requirements. We conduct commercial insurance inspections, fire and safety risk reporting, and environmental risk analysis. Our foundation, electrical, and structural risk reviews support insurance claim prevention and pre-coverage inspection needs.",
+    description: "Nspire's risk management inspections address property risk assessment, hazard and liability review, and multi-unit insurance inspection requirements. We conduct commercial insurance inspections, fire and safety risk reporting, and environmental risk analysis. Our foundation, electrical, and structural risk reviews support insurance claim prevention and pre-coverage inspection needs.",
     moreText: "Insurance Compliance and Claim Prevention Reporting: Insurance-focused inspections emphasize loss prevention and underwriting readiness. Nspire provides annual insurance compliance checks and actionable recommendations to reduce exposure.",
     image: "/insurance_risk_mgmt.png",
     color: "bg-teal-50",

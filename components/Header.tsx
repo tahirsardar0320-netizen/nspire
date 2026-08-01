@@ -103,23 +103,23 @@ export default function Header() {
                 <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 z-50">
                   <div className="bg-white rounded-xl shadow-xl border border-gray-200 py-2 min-w-[220px]">
                     <Link
-                      href="/service"
+                      href="/inspection-services/public-housing"
                       className="flex items-center gap-3 px-4 py-2.5 hover:bg-[#E8F4F8] transition-colors"
                       onClick={() => setServicesDropdownOpen(false)}
                     >
-                      <span className="w-2 h-2 rounded-full bg-primary"></span>
+                      <span className="w-2 h-2 rounded-full bg-[#8B5CF6]"></span>
                       <span className="text-sm text-gray-700 hover:text-primary">
-                        All Services
+                        Public Housing inspection
                       </span>
                     </Link>
                     <Link
-                      href="/inspection-services/buyers"
+                      href="/inspection-services/affordable-housing"
                       className="flex items-center gap-3 px-4 py-2.5 hover:bg-[#E8F4F8] transition-colors"
                       onClick={() => setServicesDropdownOpen(false)}
                     >
-                      <span className="w-2 h-2 rounded-full bg-[#0E7490]"></span>
+                      <span className="w-2 h-2 rounded-full bg-[#0F9D58]"></span>
                       <span className="text-sm text-gray-700 hover:text-primary">
-                        Buyers Inspections
+                        Affordable Housing inspection
                       </span>
                     </Link>
                     <Link
@@ -129,57 +129,7 @@ export default function Header() {
                     >
                       <span className="w-2 h-2 rounded-full bg-[#F84B5F]"></span>
                       <span className="text-sm text-gray-700 hover:text-primary">
-                        Owners Inspections
-                      </span>
-                    </Link>
-                    <Link
-                      href="/inspection-services/sellers"
-                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-[#E8F4F8] transition-colors"
-                      onClick={() => setServicesDropdownOpen(false)}
-                    >
-                      <span className="w-2 h-2 rounded-full bg-[#F97316]"></span>
-                      <span className="text-sm text-gray-700 hover:text-primary">
-                        Sellers Inspections
-                      </span>
-                    </Link>
-                    <Link
-                      href="/inspection-services/rental"
-                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-[#E8F4F8] transition-colors"
-                      onClick={() => setServicesDropdownOpen(false)}
-                    >
-                      <span className="w-2 h-2 rounded-full bg-[#10B981]"></span>
-                      <span className="text-sm text-gray-700 hover:text-primary">
-                        Rental Inspections
-                      </span>
-                    </Link>
-                    <Link
-                      href="/inspection-services/specialized"
-                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-[#E8F4F8] transition-colors"
-                      onClick={() => setServicesDropdownOpen(false)}
-                    >
-                      <span className="w-2 h-2 rounded-full bg-[#22C55E]"></span>
-                      <span className="text-sm text-gray-700 hover:text-primary">
-                        Specialized Services
-                      </span>
-                    </Link>
-                    <Link
-                      href="/inspection-services/commercial"
-                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-[#E8F4F8] transition-colors"
-                      onClick={() => setServicesDropdownOpen(false)}
-                    >
-                      <span className="w-2 h-2 rounded-full bg-[#F59E0B]"></span>
-                      <span className="text-sm text-gray-700 hover:text-primary">
-                        Commercial Inspections
-                      </span>
-                    </Link>
-                    <Link
-                      href="/inspection-services/public-housing"
-                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-[#E8F4F8] transition-colors"
-                      onClick={() => setServicesDropdownOpen(false)}
-                    >
-                      <span className="w-2 h-2 rounded-full bg-[#8B5CF6]"></span>
-                      <span className="text-sm text-gray-700 hover:text-primary">
-                        Public Housing
+                        Owner Inspection
                       </span>
                     </Link>
                     <Link
@@ -189,7 +139,7 @@ export default function Header() {
                     >
                       <span className="w-2 h-2 rounded-full bg-[#DC2626]"></span>
                       <span className="text-sm text-gray-700 hover:text-primary">
-                        Insurance Risk
+                        Risk Management inspection
                       </span>
                     </Link>
                   </div>
@@ -308,67 +258,32 @@ export default function Header() {
               {mobileServicesOpen && (
                 <div className="pl-4 pt-3 space-y-3">
                   <Link
-                    href="/service"
+                    href="/inspection-services/public-housing"
                     className="block text-sm font-medium text-gray-600 hover:text-primary"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Service Details
+                    Public Housing inspection
                   </Link>
                   <Link
-                    href="/inspection-services/buyers"
+                    href="/inspection-services/affordable-housing"
                     className="block text-sm font-medium text-gray-600 hover:text-primary"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Buyers Inspections
+                    Affordable Housing inspection
                   </Link>
                   <Link
                     href="/inspection-services/owners"
                     className="block text-sm font-medium text-gray-600 hover:text-primary"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Owners Inspections
-                  </Link>
-                  <Link
-                    href="/inspection-services/sellers"
-                    className="block text-sm font-medium text-gray-600 hover:text-primary"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Sellers Inspections
-                  </Link>
-                  <Link
-                    href="/inspection-services/specialized"
-                    className="block text-sm font-medium text-gray-600 hover:text-primary"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Specialized Services
-                  </Link>
-                  <Link
-                    href="/inspection-services/commercial"
-                    className="block text-sm font-medium text-gray-600 hover:text-primary"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Commercial Inspections
-                  </Link>
-                  <Link
-                    href="/inspection-services/public-housing"
-                    className="block text-sm font-medium text-gray-600 hover:text-primary"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Public Housing
-                  </Link>
-                  <Link
-                    href="/inspection-services/rental"
-                    className="block text-sm font-medium text-gray-600 hover:text-primary"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Rental Inspections
+                    Owner Inspection
                   </Link>
                   <Link
                     href="/inspection-services/insurance-risk"
                     className="block text-sm font-medium text-gray-600 hover:text-primary"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Insurance Risk
+                    Risk Management inspection
                   </Link>
                 </div>
               )}
