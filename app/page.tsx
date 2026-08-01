@@ -69,14 +69,23 @@ export default function Home() {
                             <a href="#services" className="dropdown-item"><span className="dot text-red-600"></span> Insurance Risk</a>
                         </div>
                     </div>
-                    <a href="#about" className="nav-item-container"><span className="nav-title">ABOUT</span><span className="nav-subtitle">Our Story</span></a>
+                    <a href="#about" className="nav-item-container"><span className="nav-title">DATA RETENTION</span><span className="nav-subtitle">Privacy &amp; Security</span></a>
                     <a href="#contact" className="nav-item-container"><span className="nav-title">CONTACT</span><span className="nav-subtitle">Get in Touch</span></a>
                     <a href="#education" className="nav-item-container"><span className="nav-title">EDUCATION & TRAINING</span><span className="nav-subtitle">NSPIRE Videos</span></a>
                     <a href="#blogs" className="nav-item-container"><span className="nav-title">BLOGS</span><span className="nav-subtitle">AI-Driven Inspection</span></a>
                 </div>
 
-                {/* Right side: Login btn (desktop) + Hamburger (mobile) */}
+                {/* Right side: Toolkit link + Login btn (desktop) + Hamburger (mobile) */}
                 <div className="flex items-center gap-3">
+                    <a
+                        href="https://www.hud.gov/sites/dfiles/PIH/documents/NSPIRE_Toolkit-Property_Owner_1YearIn.pdf"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hidden md:flex btn-outline px-5 lg:px-6 py-2.5 lg:py-3 rounded-full text-sm font-bold tracking-wide items-center gap-2"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        Toolkit Cheat Sheet
+                    </a>
                     <button onClick={() => router.push('/profile-selection')} className="hidden md:flex btn-primary px-5 lg:px-7 py-2.5 lg:py-3 rounded-full text-sm font-bold tracking-wide items-center gap-2">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                         Login / Register
@@ -130,12 +139,22 @@ export default function Home() {
                             </div>
                         )}
                     </div>
-                    <a href="#about" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">ABOUT</span><span className="text-[11px] text-cyan-400">Our Story</span></a>
+                    <a href="#about" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">DATA RETENTION</span><span className="text-[11px] text-cyan-400">Privacy &amp; Security</span></a>
                     <a href="#contact" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">CONTACT</span><span className="text-[11px] text-cyan-400">Get in Touch</span></a>
                     <a href="#education" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">EDUCATION &amp; TRAINING</span><span className="text-[11px] text-cyan-400">NSPIRE Videos</span></a>
                     <a href="#blogs" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">BLOGS</span><span className="text-[11px] text-cyan-400">AI-Driven Inspection</span></a>
                 </div>
-                <div className="p-4 mt-auto border-t border-white/10">
+                <div className="p-4 mt-auto border-t border-white/10 space-y-3">
+                    <a
+                        href="https://www.hud.gov/sites/dfiles/PIH/documents/NSPIRE_Toolkit-Property_Owner_1YearIn.pdf"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setMobileNavOpen(false)}
+                        className="w-full border-2 border-white/30 text-white rounded-xl py-3.5 text-sm font-bold flex items-center justify-center gap-2 hover:bg-white/10 transition-colors"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        Toolkit Cheat Sheet
+                    </a>
                     <button onClick={() => { setMobileNavOpen(false); router.push('/profile-selection'); }} className="w-full btn-primary rounded-xl py-4 text-sm font-bold flex items-center justify-center gap-2">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                         Login / Register
@@ -261,18 +280,29 @@ export default function Home() {
     
     {/* About Section */}
     <section id="about" className="relative bg-[#006795] py-20 md:py-32 overflow-hidden z-20">
+        {/* Blurred house/property photo backdrop */}
+        <img
+            src="/candid_house_people.png"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover opacity-[0.18] blur-md scale-105 pointer-events-none select-none"
+        />
+        <div className="absolute inset-0 bg-[#006795]/70 pointer-events-none"></div>
         <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
             <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#F84B5F] rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
         </div>
-        
+
         <div className="max-w-[1400px] mx-auto px-4 md:px-6 relative z-10 text-center">
             <p className="text-[#A8D8EA] font-bold uppercase tracking-[0.2em] mb-6">Empowering Property Decisions</p>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8 leading-[1.1] serif">
-                About <span className="text-[#F84B5F] italic font-medium">Nspire</span>
+            <h2
+                className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-[1.1] serif text-white"
+                style={{ textShadow: '0 0 8px rgba(0,198,215,0.9), 0 0 22px rgba(0,198,215,0.65), 0 0 48px rgba(248,75,95,0.5)' }}
+            >
+                Data <span className="text-[#F84B5F] italic font-medium" style={{ textShadow: '0 0 8px rgba(248,75,95,0.9), 0 0 22px rgba(248,75,95,0.65), 0 0 48px rgba(0,198,215,0.5)' }}>Retention</span>
             </h2>
             <p className="max-w-4xl mx-auto text-lg md:text-xl text-white/90 leading-relaxed font-light">
-                Our Qualified NSPIRE inspectors focus on identifying risks, structural issues, and safety hazards to ensure that every inspection provides clear insights that help you make informed decisions about your property.
+                We use encrypted administrative, technical, and physical safeguards designed to protect all information. Despite our efforts, no method of transmitting or storing data is completely secure.
             </p>
         </div>
     </section>
@@ -636,7 +666,7 @@ export default function Home() {
                     <h3 className="font-bold mb-4 serif text-xl">Quick Links</h3>
                     <ul className="space-y-2 text-gray-400 font-medium">
                         <li><a href="#" className="hover:text-white transition-colors">Home</a></li>
-                        <li><a href="#about" className="hover:text-white transition-colors">About</a></li>
+                        <li><a href="#about" className="hover:text-white transition-colors">Data Retention</a></li>
                         <li><a href="#services" className="hover:text-white transition-colors">Services</a></li>
                         <li><a href="#contact" className="hover:text-white transition-colors">Contact</a></li>
                         <li><a href="#education" className="hover:text-white transition-colors">Education &amp; Training</a></li>
