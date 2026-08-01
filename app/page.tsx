@@ -23,12 +23,6 @@ export default function Home() {
     return () => { document.body.style.overflow = 'unset'; };
   }, [mobileNavOpen]);
 
-  const handleContactSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert("Thank you! Your message has been sent.");
-    (e.target as HTMLFormElement).reset();
-  };
-
   return (
     <div className="w-full relative bg-white">
       
@@ -162,31 +156,11 @@ export default function Home() {
                     </h1>
                     <div className="flex flex-col sm:flex-row justify-start gap-3 mb-8">
                         <a href="https://nspireinspection.ai/" className="btn-primary px-7 py-3.5 rounded-full text-sm md:text-base font-semibold inline-block text-center">
-                            Get Started
+                            Get NSPIREinspection.AI
                         </a>
                         <button onClick={() => router.push('/find-inspectors')} className="btn-outline px-7 py-3.5 rounded-full text-sm md:text-base font-semibold">
                             View Inspectors
                         </button>
-                    </div>
-                    {/* App Download */}
-                    <div className="pt-5 border-t border-gray-200">
-                        <h3 className="text-base font-bold text-[#0C1F3F] mb-4">Download your app</h3>
-                        <div className="flex flex-wrap gap-5 items-start">
-                            <div className="flex flex-col items-center gap-2">
-                                <a href="#" className="hover:opacity-80 transition-opacity"><img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" alt="App Store" className="h-9" /></a>
-                                <div className="bg-white p-1.5 rounded-lg shadow-sm border border-gray-200">
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://apps.apple.com/app/nspire" alt="iOS QR" className="w-16 h-16 sm:w-20 sm:h-20" />
-                                </div>
-                                <span className="text-[10px] text-gray-500 font-medium">Scan (iOS)</span>
-                            </div>
-                            <div className="flex flex-col items-center gap-2">
-                                <a href="#" className="hover:opacity-80 transition-opacity"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" className="h-9" /></a>
-                                <div className="bg-white p-1.5 rounded-lg shadow-sm border border-gray-200">
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://play.google.com/store/apps/details?id=nspire" alt="Android QR" className="w-16 h-16 sm:w-20 sm:h-20" />
-                                </div>
-                                <span className="text-[10px] text-gray-500 font-medium">Scan (Android)</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -208,20 +182,28 @@ export default function Home() {
         </div>
     </section>
 
-    {/* Contact Section */}
-    <section id="contact" className="bg-[#0C1F3F] py-20 px-4 md:px-6 z-20 relative">
-        <div className="max-w-[1000px] mx-auto text-center">
-            <p className="text-xs font-bold text-[#00C6D7] uppercase tracking-widest mb-4">Connect With Us</p>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-8 serif">How Can We <span className="text-[#F59E0B] italic">Help?</span></h2>
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 md:p-12 rounded-3xl text-left mt-12">
-                <form onSubmit={handleContactSubmit} className="space-y-5">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <input required type="text" name="fullName" placeholder="Full Name" className="form-input" />
-                        <input required type="email" name="email" placeholder="Email Address" className="form-input" />
+    {/* Download App Section */}
+    <section className="bg-[#0C1F3F] py-20 px-4 md:px-6 z-20 relative">
+        <div className="max-w-[1200px] mx-auto">
+            <div className="text-center mb-12">
+                <p className="text-xs font-bold text-[#00C6D7] uppercase tracking-widest mb-4">Take It With You</p>
+                <h2 className="text-4xl md:text-5xl font-bold text-white serif">Download Our <span className="text-[#F59E0B] italic">App</span></h2>
+            </div>
+            <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+                <div className="flex flex-col items-center gap-4">
+                    <a href="#" className="hover:opacity-80 transition-opacity"><img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" alt="App Store" className="h-12" /></a>
+                    <div className="bg-white p-4 rounded-2xl shadow-xl">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://apps.apple.com/app/nspire" alt="iOS QR" className="w-40 h-40 sm:w-48 sm:h-48" />
                     </div>
-                    <textarea required name="message" rows={4} placeholder="How can we help you?" className="form-input"></textarea>
-                    <button type="submit" className="w-full bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold py-4 rounded-2xl hover:shadow-lg hover:shadow-cyan-500/20 transition-all hover:-translate-y-0.5">Send Message</button>
-                </form>
+                    <span className="text-sm text-white/70 font-medium">Scan (iOS)</span>
+                </div>
+                <div className="flex flex-col items-center gap-4">
+                    <a href="#" className="hover:opacity-80 transition-opacity"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" className="h-12" /></a>
+                    <div className="bg-white p-4 rounded-2xl shadow-xl">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://play.google.com/store/apps/details?id=nspire" alt="Android QR" className="w-40 h-40 sm:w-48 sm:h-48" />
+                    </div>
+                    <span className="text-sm text-white/70 font-medium">Scan (Android)</span>
+                </div>
             </div>
         </div>
     </section>
@@ -237,7 +219,7 @@ export default function Home() {
                         <li><a href="#" className="hover:text-white transition-colors">Home</a></li>
                         <li><a href="/data-retention" className="hover:text-white transition-colors">About</a></li>
                         <li><a href="#services" className="hover:text-white transition-colors">Services</a></li>
-                        <li><a href="#contact" className="hover:text-white transition-colors">Contact</a></li>
+                        <li><a href="/contact" className="hover:text-white transition-colors">Contact</a></li>
                         <li><a href="/education-training" className="hover:text-white transition-colors">Education &amp; Training</a></li>
                     </ul>
                 </div>

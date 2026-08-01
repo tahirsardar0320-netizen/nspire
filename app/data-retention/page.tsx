@@ -46,7 +46,7 @@ export default function DataRetentionPage() {
                         className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-[1.1] serif text-white"
                         style={{ textShadow: '0 0 8px rgba(0,198,215,0.9), 0 0 22px rgba(0,198,215,0.65), 0 0 48px rgba(248,75,95,0.5)' }}
                     >
-                        Data{' '}
+                        Data In{' '}
                         <span
                             className="text-[#F84B5F] italic font-medium"
                             style={{ textShadow: '0 0 8px rgba(248,75,95,0.9), 0 0 22px rgba(248,75,95,0.65), 0 0 48px rgba(0,198,215,0.5)' }}
