@@ -2330,12 +2330,12 @@ export default function InspectionCategoryPage() {
                                 <div className="relative py-10 px-6 flex flex-col items-center justify-center text-center overflow-hidden rounded-2xl bg-gradient-to-b from-[#E8F4F8] via-[#F1F7FE] to-white">
                                     {/* Colorful accent strip */}
                                     <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F]" />
-                                    {/* Building photo, hero-style */}
+                                    {/* Trust shield watermark */}
                                     <img
-                                        src="/multiunit_residence.png"
+                                        src="/nationalstandard.png"
                                         alt=""
                                         aria-hidden="true"
-                                        className="absolute inset-0 w-full h-full object-cover opacity-[0.22] scale-105 pointer-events-none select-none"
+                                        className="absolute inset-0 w-full h-full object-contain opacity-[0.22] scale-105 pointer-events-none select-none"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-b from-[#E8F4F8]/60 via-white/50 to-white/80 pointer-events-none" />
                                     {/* Decorative color blooms, matching the marketing site's About section */}
