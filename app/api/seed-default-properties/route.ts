@@ -1,37 +1,36 @@
 import { NextResponse } from 'next/server';
-import { connectDB, Property } from '@/lib/db';
+import { connectDB, Property, User } from '@/lib/db';
+import { DEFAULT_PROPERTIES } from '@/lib/defaultProperties';
 
-// One-time (idempotent) seed of the shared default properties that should appear
-// on every inspector's dashboard, in addition to whatever they add themselves.
-// Safe to re-run: upserts on propertyId, never duplicates or deletes.
-const DEFAULT_PROPERTIES = [
-  { propertyId: 'B98to101', name: 'Whispering Oaks', buildings: 1, units: 5, address: '999 E. Ojai Ave', city: 'Ojai', state: 'California', zipCode: '93023' },
-  { propertyId: '800001934', name: 'MAYFLOWER GARDENS II', buildings: 19, units: 76, address: '6570 W AVENUE L-12', city: 'Lancaster', state: 'California', zipCode: '93536' },
-  { propertyId: '800002437', name: 'SIERRA VILLA EAST', buildings: 33, units: 150, address: '621 E AVENUE I', city: 'Lancaster', state: 'California', zipCode: '93535' },
-  { propertyId: '800001664', name: 'HOLIDAY 101 B', buildings: 5, units: 115, address: '250 S. Coronado', city: 'Los Angeles', state: 'California', zipCode: '90057' },
-  { propertyId: '800002840', name: 'PRESERVATION V', buildings: 14, units: 118, address: '833 S CARONDELET ST', city: 'Los Angeles', state: 'California', zipCode: '90057' },
-  { propertyId: '800001892', name: 'MAC ARTHUR PARK TOWERS', buildings: 1, units: 182, address: '450 GRAND VIEW ST', city: 'Los Angeles', state: 'California', zipCode: '90057' },
-  { propertyId: '800001663', name: 'HOLIDAY 101 A', buildings: 4, units: 117, address: '1102 West 41st Place', city: 'Los Angeles', state: 'California', zipCode: '90037' },
-  { propertyId: '800112258', name: 'VERMONT SENIORS', buildings: 2, units: 140, address: '3901-3925 S. Vermont Ave', city: 'Los Angeles', state: 'California', zipCode: '90037' },
-  { propertyId: '800001431', name: 'Lincoln Heights Apartments', buildings: 13, units: 64, address: '2317 Johnston St.', city: 'Los Angeles', state: 'California', zipCode: '90031' },
-  { propertyId: '800001679', name: 'Hollywood East Apts.', buildings: 11, units: 90, address: '4829 LEXINGTON AVE', city: 'Los Angeles', state: 'California', zipCode: '90029' },
-];
-
+// One-time (idempotent) seed that gives every existing inspector their own real
+// copy of the baseline properties — created the same way a manually-added
+// property is (tied to that user's own userId), not a shared/global record.
+// Safe to re-run: upserts on (propertyId, userId), never duplicates.
 export async function POST() {
   try {
     await connectDB();
 
-    const results = await Promise.all(
-      DEFAULT_PROPERTIES.map((p) =>
-        Property.findOneAndUpdate(
-          { propertyId: p.propertyId },
-          { $set: { ...p, userId: null, status: 'active' } },
-          { upsert: true, new: true }
-        )
-      )
-    );
+    // Clean up the earlier shared (userId: null) copies from a prior attempt —
+    // those were replaced by real per-user copies below.
+    const defaultIds = DEFAULT_PROPERTIES.map((p) => p.propertyId);
+    await Property.deleteMany({ propertyId: { $in: defaultIds }, userId: null });
 
-    return NextResponse.json({ success: true, seeded: results.length });
+    const users = await User.find({}, { _id: 1 }).lean();
+
+    let upserted = 0;
+    for (const user of users) {
+      const userId = String((user as any)._id);
+      for (const p of DEFAULT_PROPERTIES) {
+        await Property.findOneAndUpdate(
+          { propertyId: p.propertyId, userId },
+          { $set: { ...p, userId, status: 'active' } },
+          { upsert: true, new: true }
+        );
+        upserted++;
+      }
+    }
+
+    return NextResponse.json({ success: true, users: users.length, propertiesPerUser: DEFAULT_PROPERTIES.length, upserted });
   } catch (error: any) {
     console.error('POST /api/seed-default-properties error:', error);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });

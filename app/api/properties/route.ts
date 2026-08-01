@@ -32,13 +32,11 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '100');
 
-    // Match userId stored as either a string or as an ObjectId, plus the shared
-    // default properties (userId: null) that are pre-seeded into every dashboard.
+    // Match userId stored as either a string or as an ObjectId
     const userId = String(user.id);
-    const ownerConditions = mongoose.isValidObjectId(userId)
-      ? [{ userId: userId }, { userId: new mongoose.Types.ObjectId(userId) }]
-      : [{ userId: userId }];
-    const filter: any = { $or: [...ownerConditions, { userId: null }] };
+    const filter: any = mongoose.isValidObjectId(userId)
+      ? { $or: [{ userId: userId }, { userId: new mongoose.Types.ObjectId(userId) }] }
+      : { userId: userId };
     if (search) {
       const searchConditions = [
         { name: { $regex: search, $options: 'i' } },

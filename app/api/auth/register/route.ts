@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { Property } from '@/lib/db';
+import { DEFAULT_PROPERTIES } from '@/lib/defaultProperties';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://rminhal783_db_user:pi8fODTUIsdDiKF5@cluster0.ijtzyjr.mongodb.net/?appName=Cluster0';
 const JWT_SECRET = process.env.JWT_SECRET || 'inspire_jwt_secret_key_2024';
@@ -68,6 +70,13 @@ export async function POST(req: NextRequest) {
       { id: user._id, role: user.role },
       JWT_SECRET,
       { expiresIn: '7d' }
+    );
+
+    // Give every new inspector their own copy of the baseline properties,
+    // created the same way a manually-added property is.
+    const userId = String(user._id);
+    await Property.insertMany(
+      DEFAULT_PROPERTIES.map((p) => ({ ...p, userId, status: 'active' }))
     );
 
     console.log('✅ User registered via Next.js route (no verification):', user.email);
