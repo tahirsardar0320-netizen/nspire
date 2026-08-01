@@ -25,7 +25,7 @@ import {
 } from "@/lib/insideScoringCalculations"
 import { getSamplingRequirements } from "@/lib/unitSamplingService"
 import { toast } from "react-toastify"
-import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, MoreHorizontal, Camera, X, ChevronLeft, CheckCircle2, FileText, User, Grid, Clock, Video, Monitor, Image as ImageIcon, Laptop, Tablet, Pencil, Check, Lock, DoorOpen, AppWindow, Bath, Zap, Flame, Layers, Thermometer, UtensilsCrossed, Lightbulb, Paintbrush, Footprints, BrickWall, Fan, Droplets, Droplet, AlertTriangle, Siren, LifeBuoy, Building, Building2, LayoutGrid, Sprout, ShieldCheck, PanelTop, type LucideIcon } from "lucide-react";
+import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, MoreHorizontal, Camera, X, ChevronLeft, CheckCircle2, FileText, User, Grid, Clock, Video, Monitor, Image as ImageIcon, Laptop, Tablet, Pencil, Check, Lock } from "lucide-react";
 
 import { OUTSIDE_ITEMS, INSIDE_ITEMS, UNIT_ITEMS } from "@/lib/inspectionData";
 import { ReportPreviewModal } from "@/components/ReportPreviewModal";
@@ -86,77 +86,6 @@ const mapToBackendCategory = (category: string): string => {
 };
 
 type ItemStatus = 'No OD' | 'OD' | 'N/A' | null;
-
-// Category name -> icon, so the empty-deficiency state shows a door icon for
-// "Doors", a window icon for "Windows", etc. instead of a generic plus.
-const CATEGORY_ICON_MAP: { keyword: string; icon: LucideIcon }[] = [
-    { keyword: 'bathroom', icon: Bath },
-    { keyword: 'bath', icon: Bath },
-    { keyword: 'cabinet', icon: LayoutGrid },
-    { keyword: 'call-for-aid', icon: LifeBuoy },
-    { keyword: 'call for aid', icon: LifeBuoy },
-    { keyword: 'emergency pull cord', icon: LifeBuoy },
-    { keyword: 'co alarm', icon: Siren },
-    { keyword: 'carbon monoxide', icon: Siren },
-    { keyword: 'ceiling', icon: PanelTop },
-    { keyword: 'chimney', icon: Flame },
-    { keyword: 'fireplace', icon: Flame },
-    { keyword: 'dryer', icon: Fan },
-    { keyword: 'door', icon: DoorOpen },
-    { keyword: 'drainage', icon: Droplets },
-    { keyword: 'drain', icon: Droplets },
-    { keyword: 'egress', icon: DoorOpen },
-    { keyword: 'exit', icon: DoorOpen },
-    { keyword: 'electrical', icon: Zap },
-    { keyword: 'outlet', icon: Zap },
-    { keyword: 'receptacle', icon: Zap },
-    { keyword: 'fire', icon: Flame },
-    { keyword: 'smoke', icon: Siren },
-    { keyword: 'floor', icon: Layers },
-    { keyword: 'foundation', icon: Building2 },
-    { keyword: 'hazard', icon: AlertTriangle },
-    { keyword: 'sharp edge', icon: AlertTriangle },
-    { keyword: 'hvac', icon: Thermometer },
-    { keyword: 'heating', icon: Thermometer },
-    { keyword: 'cooling', icon: Thermometer },
-    { keyword: 'air condition', icon: Thermometer },
-    { keyword: 'furnace', icon: Thermometer },
-    { keyword: 'kitchen', icon: UtensilsCrossed },
-    { keyword: 'range', icon: UtensilsCrossed },
-    { keyword: 'stove', icon: UtensilsCrossed },
-    { keyword: 'oven', icon: UtensilsCrossed },
-    { keyword: 'refrigerator', icon: UtensilsCrossed },
-    { keyword: 'gas leak', icon: AlertTriangle },
-    { keyword: 'sewage', icon: Droplets },
-    { keyword: 'water leak', icon: Droplet },
-    { keyword: 'leak', icon: Droplet },
-    { keyword: 'lighting', icon: Lightbulb },
-    { keyword: 'light', icon: Lightbulb },
-    { keyword: 'mold', icon: Sprout },
-    { keyword: 'paint', icon: Paintbrush },
-    { keyword: 'rail', icon: ShieldCheck },
-    { keyword: 'guardrail', icon: ShieldCheck },
-    { keyword: 'handrail', icon: ShieldCheck },
-    { keyword: 'sink', icon: Droplet },
-    { keyword: 'step', icon: Footprints },
-    { keyword: 'stair', icon: Footprints },
-    { keyword: 'structural', icon: Building },
-    { keyword: 'ventilation', icon: Fan },
-    { keyword: 'vent', icon: Fan },
-    { keyword: 'wall', icon: BrickWall },
-    { keyword: 'water heater', icon: Thermometer },
-    { keyword: 'window', icon: AppWindow },
-    { keyword: 'signage', icon: FileText },
-    { keyword: 'address', icon: FileText },
-    { keyword: 'comment', icon: FileText },
-];
-
-function getCategoryIcon(itemName: string | null): LucideIcon {
-    if (!itemName) return Plus;
-    const name = itemName.toLowerCase();
-    const match = CATEGORY_ICON_MAP.find(({ keyword }) => name.includes(keyword));
-    return match?.icon || Plus;
-}
 
 export default function InspectionCategoryPage() {
     const params = useParams()
@@ -2324,9 +2253,7 @@ export default function InspectionCategoryPage() {
 
                         {(modalStep === 1 || modalStep === 2 || modalStep === 3) && (
                         <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 custom-scrollbar overscroll-contain">
-                            {modalStep === 1 && (() => {
-                                const CategoryIcon = getCategoryIcon(currentModalItem);
-                                return (
+                            {modalStep === 1 && (
                                 <div className="relative py-10 px-6 flex flex-col items-center justify-center text-center overflow-hidden rounded-2xl bg-gradient-to-b from-[#E8F4F8] via-[#F1F7FE] to-white">
                                     {/* Colorful accent strip */}
                                     <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F]" />
@@ -2335,31 +2262,19 @@ export default function InspectionCategoryPage() {
                                         src="/nationalstandard.png"
                                         alt=""
                                         aria-hidden="true"
-                                        className="absolute inset-0 w-full h-full object-contain opacity-[0.22] scale-105 pointer-events-none select-none"
+                                        className="absolute inset-0 w-full h-full object-contain opacity-[0.32] scale-125 pointer-events-none select-none"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-b from-[#E8F4F8]/60 via-white/50 to-white/80 pointer-events-none" />
+                                    <div className="absolute inset-0 bg-gradient-to-b from-[#E8F4F8]/40 via-white/30 to-white/70 pointer-events-none" />
                                     {/* Decorative color blooms, matching the marketing site's About section */}
                                     <div className="absolute -top-10 -left-10 w-48 h-48 bg-[#006795]/10 rounded-full blur-3xl pointer-events-none" />
                                     <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-[#F84B5F]/10 rounded-full blur-3xl pointer-events-none" />
-                                    {/* Colorful glow directly behind the icon, so it's the focal point */}
-                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 bg-gradient-to-br from-[#00C6D7]/25 to-[#006795]/25 rounded-full blur-2xl pointer-events-none" />
 
                                     <div className="relative z-10 flex flex-col items-center">
-                                        <button
-                                            type="button"
-                                            onClick={() => setModalStep(2)}
-                                            className="p-1 bg-gradient-to-br from-[#00C6D7] to-[#006795] rounded-full shadow-lg shadow-[#006795]/25 mb-6 transition-all hover:scale-110 hover:shadow-xl cursor-pointer"
-                                        >
-                                            <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center">
-                                                <CategoryIcon className="w-14 h-14 text-[#006795]" strokeWidth={1.5} />
-                                            </div>
-                                        </button>
                                         <p className="text-sm font-semibold text-slate-500 mb-8 max-w-xs">{`No existing deficiency record for this item.`}</p>
                                         <Button onClick={() => setModalStep(2)} className="bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white font-extrabold px-12 h-14 rounded-2xl shadow-lg shadow-[#006795]/20 uppercase tracking-widest text-xs font-lexend border-0">Add New</Button>
                                     </div>
                                 </div>
-                                );
-                            })()}
+                            )}
 
                             {modalStep === 2 && (
                                 <div className="space-y-6 animate-in fade-in duration-300 pb-6">
