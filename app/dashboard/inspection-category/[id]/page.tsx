@@ -2254,7 +2254,7 @@ export default function InspectionCategoryPage() {
                         {(modalStep === 1 || modalStep === 2 || modalStep === 3) && (
                         <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 custom-scrollbar overscroll-contain">
                             {modalStep === 1 && (
-                                <div className="relative py-10 px-6 flex flex-col items-center justify-center text-center overflow-hidden rounded-2xl bg-gradient-to-b from-[#E8F4F8] via-[#F1F7FE] to-white">
+                                <div className="relative min-h-[300px] py-8 px-6 flex flex-col items-center justify-between text-center overflow-hidden rounded-2xl bg-gradient-to-b from-[#E8F4F8] via-[#F1F7FE] to-white">
                                     {/* Colorful accent strip */}
                                     <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F]" />
                                     {/* Trust shield watermark */}
@@ -2262,17 +2262,15 @@ export default function InspectionCategoryPage() {
                                         src="/nationalstandard.png"
                                         alt=""
                                         aria-hidden="true"
-                                        className="absolute inset-0 w-full h-full object-contain opacity-[0.32] scale-125 pointer-events-none select-none"
+                                        className="absolute inset-0 w-full h-full object-contain opacity-[0.32] scale-125 -translate-y-6 pointer-events-none select-none"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-b from-[#E8F4F8]/40 via-white/30 to-white/70 pointer-events-none" />
                                     {/* Decorative color blooms, matching the marketing site's About section */}
                                     <div className="absolute -top-10 -left-10 w-48 h-48 bg-[#006795]/10 rounded-full blur-3xl pointer-events-none" />
                                     <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-[#F84B5F]/10 rounded-full blur-3xl pointer-events-none" />
 
-                                    <div className="relative z-10 flex flex-col items-center">
-                                        <p className="text-sm font-semibold text-slate-500 mb-8 max-w-xs">{`No existing deficiency record for this item.`}</p>
-                                        <Button onClick={() => setModalStep(2)} className="bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white font-extrabold px-12 h-14 rounded-2xl shadow-lg shadow-[#006795]/20 uppercase tracking-widest text-xs font-lexend border-0">Add New</Button>
-                                    </div>
+                                    <p className="relative z-10 text-sm font-semibold text-slate-500 max-w-xs">{`No existing deficiency record for this item.`}</p>
+                                    <Button onClick={() => setModalStep(2)} className="relative z-10 bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white font-extrabold px-12 h-14 rounded-2xl shadow-lg shadow-[#006795]/20 uppercase tracking-widest text-xs font-lexend border-0">Add New</Button>
                                 </div>
                             )}
 
