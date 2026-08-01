@@ -62,7 +62,7 @@ export default function Home() {
                         </div>
                     </div>
                     <a href="/data-retention" className="nav-item-container"><span className="nav-title">ABOUT</span><span className="nav-subtitle">Our Story</span></a>
-                    <a href="#education" className="nav-item-container"><span className="nav-title">EDUCATION & TRAINING</span><span className="nav-subtitle">NSPIRE Videos</span></a>
+                    <a href="/education-training" className="nav-item-container"><span className="nav-title">EDUCATION & TRAINING</span><span className="nav-subtitle">NSPIRE Videos</span></a>
                     <a href="https://www.hud.gov/reac/nspire-webinars" target="_blank" rel="noopener noreferrer" className="nav-item-container"><span className="nav-title">HUD EXCHANGE</span><span className="nav-subtitle">NSPIRE Webinars</span></a>
                 </div>
 
@@ -127,7 +127,7 @@ export default function Home() {
                         )}
                     </div>
                     <a href="/data-retention" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">ABOUT</span><span className="text-[11px] text-cyan-400">Our Story</span></a>
-                    <a href="#education" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">EDUCATION &amp; TRAINING</span><span className="text-[11px] text-cyan-400">NSPIRE Videos</span></a>
+                    <a href="/education-training" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">EDUCATION &amp; TRAINING</span><span className="text-[11px] text-cyan-400">NSPIRE Videos</span></a>
                     <a href="https://www.hud.gov/reac/nspire-webinars" target="_blank" rel="noopener noreferrer" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">HUD EXCHANGE</span><span className="text-[11px] text-cyan-400">NSPIRE Webinars</span></a>
                 </div>
                 <div className="p-4 mt-auto border-t border-white/10">
@@ -238,7 +238,7 @@ export default function Home() {
                         <li><a href="/data-retention" className="hover:text-white transition-colors">About</a></li>
                         <li><a href="#services" className="hover:text-white transition-colors">Services</a></li>
                         <li><a href="#contact" className="hover:text-white transition-colors">Contact</a></li>
-                        <li><a href="#education" className="hover:text-white transition-colors">Education &amp; Training</a></li>
+                        <li><a href="/education-training" className="hover:text-white transition-colors">Education &amp; Training</a></li>
                     </ul>
                 </div>
 
