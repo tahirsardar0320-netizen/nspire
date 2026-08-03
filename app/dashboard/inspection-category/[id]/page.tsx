@@ -25,7 +25,7 @@ import {
 } from "@/lib/insideScoringCalculations"
 import { getSamplingRequirements } from "@/lib/unitSamplingService"
 import { toast } from "react-toastify"
-import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, MoreHorizontal, Camera, X, ChevronLeft, CheckCircle2, FileText, User, Grid, Clock, Video, Monitor, Image as ImageIcon, Laptop, Tablet, Pencil, Check, Lock } from "lucide-react";
+import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, MoreHorizontal, Camera, X, ChevronLeft, CheckCircle2, FileText, User, Grid, Clock, Video, Monitor, Image as ImageIcon, Laptop, Tablet, Pencil, Check, Mail } from "lucide-react";
 
 import { OUTSIDE_ITEMS, INSIDE_ITEMS, UNIT_ITEMS } from "@/lib/inspectionData";
 import { ReportPreviewModal } from "@/components/ReportPreviewModal";
@@ -1821,8 +1821,8 @@ export default function InspectionCategoryPage() {
                             onClick={() => router.push(`/dashboard/inspection/summary?propertyId=${property?._id || id}`)}
                             className="bg-[#F84B5F] hover:bg-[#e03a4e] text-white font-black px-6 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center gap-2"
                         >
-                            <Lock className="w-4 h-4" />
-                            Pay to Unlock
+                            <Mail className="w-4 h-4" />
+                            View Report on Email
                         </Button>
                         <Button
                             onClick={handleOpenReportPreview}
@@ -2484,13 +2484,13 @@ export default function InspectionCategoryPage() {
                                             </button>
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] font-extrabold text-slate-400 uppercase mb-2 tracking-wider font-lexend">Inspection Protocol (International)</label>
+                                            <label className="block text-[10px] font-extrabold text-slate-400 uppercase mb-2 tracking-wider font-lexend">Protocols</label>
                                             <button
                                                 type="button"
                                                 onClick={() => setIsInspectionProtocolModalOpen(true)}
                                                 className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-4 rounded-2xl uppercase text-xs tracking-widest transition-colors shadow-md font-lexend"
                                             >
-                                                Inspection Protocol (International)
+                                                Protocols
                                             </button>
                                         </div>
                                     </div>

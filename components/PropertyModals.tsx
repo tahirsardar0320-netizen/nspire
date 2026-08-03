@@ -347,7 +347,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
             setProperties(parsedProperties)
             toast.success(`Successfully imported ${parsedProperties.length} properties from Excel!`, { position: "top-right" })
           } else {
-            toast.info("Could not match column headers. Expected: Property ID, Address, Property Name, Country, State, City, Postal Code, Buildings, Units", { position: "top-right" })
+            toast.info("Could not match column headers. Expected: Property ID, Address, Property Name, State, City, Postal Code, Buildings, Units", { position: "top-right" })
           }
         }
       } else if (fileExtension === '.pdf') {
@@ -785,7 +785,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
             <div className="mt-4 p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm">
               <p className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">Expected Column Headers:</p>
               <div className="flex flex-wrap gap-1.5">
-                {['Property ID', 'Address', 'Property Name', 'Country', 'State', 'City', 'Postal Code', 'Buildings', 'Units'].map((col) => (
+                {['Property ID', 'Address', 'Property Name', 'State', 'City', 'Postal Code', 'Buildings', 'Units'].map((col) => (
                   <span key={col} className="text-[10px] bg-slate-50 border border-slate-100 text-slate-600 px-2 py-1 rounded-lg font-bold">
                     {col}
                   </span>

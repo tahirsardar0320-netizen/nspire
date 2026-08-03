@@ -187,7 +187,7 @@ export default function Home() {
         <div className="max-w-[1200px] mx-auto">
             <div className="text-center mb-12">
                 <p className="text-xs font-bold text-[#00C6D7] uppercase tracking-widest mb-4">Take It With You</p>
-                <h2 className="text-4xl md:text-5xl font-bold text-white serif">Download Our <span className="text-[#F59E0B] italic">App</span></h2>
+                <h2 className="text-4xl md:text-5xl font-bold text-white serif">Download <span className="text-[#F59E0B] italic">NSPIRE Inspection App (Public)</span></h2>
             </div>
             <div className="flex flex-col md:flex-row items-center justify-between gap-12">
                 <div className="flex flex-col items-center gap-4">
