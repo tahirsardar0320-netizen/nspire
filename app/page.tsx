@@ -158,11 +158,6 @@ export default function Home() {
                         <span className="block">Public &amp; Affordable Housing</span>
                         <span className="text-[#F84B5F] italic font-bold block">Across the U.S.A</span>
                     </h1>
-                    <div className="flex flex-col sm:flex-row justify-start gap-3 mb-8">
-                        <a href="https://nspireinspectionapp.com/" className="btn-primary px-7 py-3.5 rounded-full text-sm md:text-base font-semibold inline-block text-center">
-                            Download NSPIREinspectionApp.com
-                        </a>
-                    </div>
                 </div>
 
                 {/* Hero Flip Card — hidden on small phones, visible sm+ */}
@@ -260,10 +255,15 @@ export default function Home() {
 
             {/* Bottom Bar */}
             <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
-                <a href="#" className="flex flex-col items-start">
-                    <img src="logo.png" alt="Nspire App Logo" className="object-contain h-16 md:h-20 w-auto rounded mix-blend-lighten filter brightness-110" />
-                    <span className="text-xs font-bold text-[#00C6D7] tracking-wide">InspectionApp.com</span>
-                </a>
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                    <a href="#" className="flex flex-col items-start">
+                        <img src="logo.png" alt="Nspire App Logo" className="object-contain h-16 md:h-20 w-auto rounded mix-blend-lighten filter brightness-110" />
+                        <span className="text-xs font-bold text-[#00C6D7] tracking-wide">InspectionApp.com</span>
+                    </a>
+                    <a href="https://nspireinspection.ai/" className="btn-primary px-6 py-3 rounded-full text-sm font-semibold inline-block text-center">
+                        Download NSPIREinspectionApp.com
+                    </a>
+                </div>
 
                 <div className="flex gap-6 text-gray-400 font-medium">
                     <a href="#terms" className="hover:text-white transition-colors">Terms</a>
