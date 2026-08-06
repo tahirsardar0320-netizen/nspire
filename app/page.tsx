@@ -186,16 +186,16 @@ export default function Home() {
             </div>
             <div className="flex flex-col md:flex-row items-center justify-between gap-12">
                 <div className="flex flex-col items-center gap-4">
-                    <a href="#" className="hover:opacity-80 transition-opacity"><img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" alt="App Store" className="h-12" /></a>
+                    <a href="https://apps.apple.com/pk/app/nspire-inspection/id6744891415" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity"><img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" alt="App Store" className="h-12" /></a>
                     <div className="bg-white p-4 rounded-2xl shadow-xl">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://apps.apple.com/app/nspire" alt="iOS QR" className="w-40 h-40 sm:w-48 sm:h-48" />
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://apps.apple.com/pk/app/nspire-inspection/id6744891415" alt="iOS QR" className="w-40 h-40 sm:w-48 sm:h-48" />
                     </div>
                     <span className="text-sm text-white/70 font-medium">Scan (iOS)</span>
                 </div>
                 <div className="flex flex-col items-center gap-4">
-                    <a href="#" className="hover:opacity-80 transition-opacity"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" className="h-12" /></a>
+                    <a href="https://play.google.com/store/apps/details?id=com.nspireapp" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" className="h-12" /></a>
                     <div className="bg-white p-4 rounded-2xl shadow-xl">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://play.google.com/store/apps/details?id=nspire" alt="Android QR" className="w-40 h-40 sm:w-48 sm:h-48" />
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://play.google.com/store/apps/details?id=com.nspireapp" alt="Android QR" className="w-40 h-40 sm:w-48 sm:h-48" />
                     </div>
                     <span className="text-sm text-white/70 font-medium">Scan (Android)</span>
                 </div>
