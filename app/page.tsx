@@ -156,7 +156,7 @@ export default function Home() {
                     </h1>
                     <div className="flex flex-col sm:flex-row justify-start gap-3 mb-8">
                         <a href="https://nspireinspection.ai/" className="btn-primary px-7 py-3.5 rounded-full text-sm md:text-base font-semibold inline-block text-center">
-                            Get NSPIREinspection.AI
+                            Download NSPIREinspection.AI
                         </a>
                         <button onClick={() => router.push('/find-inspectors')} className="btn-outline px-7 py-3.5 rounded-full text-sm md:text-base font-semibold">
                             View Inspectors

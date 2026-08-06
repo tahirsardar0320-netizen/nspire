@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import DashboardLayout from "@/components/DashboardLayout"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Search } from "lucide-react"
 import { toast } from "react-toastify"
 import {
   RequestInspectionModal,
@@ -429,6 +431,16 @@ export default function Dashboard() {
             >
               Add New Property
             </Button>
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleSearch() }}
+                placeholder="Search properties..."
+                className="pl-9 h-10 bg-white rounded-lg text-sm"
+              />
+            </div>
             {selectedIds.size > 0 && (
               <Button
                 onClick={handleDeleteSelected}

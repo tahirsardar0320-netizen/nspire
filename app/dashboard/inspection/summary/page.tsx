@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import DashboardLayout from "@/components/DashboardLayout"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { CheckCircle2, FileText } from "lucide-react"
+import { CheckCircle2, FileText, Mail } from "lucide-react"
 import { toast } from "react-toastify"
 import { propertiesAPI, inspectionsAPI, paymentsAPI } from "@/lib/api"
 import { SummaryModal } from "@/components/PropertyModals"
@@ -903,10 +903,10 @@ function NSPIREInspectionSummaryContent() {
                 </span>
                 <Button
                   onClick={() => setShowUnlockSummaryModal(true)}
-                  variant="outline"
-                  className="h-9 gap-1.5 border-2 border-teal-500 hover:bg-teal-50 text-teal-700 font-bold px-4 rounded-xl text-xs flex items-center justify-center shrink-0 bg-white"
+                  className="h-9 gap-1.5 bg-[#F84B5F] hover:bg-[#e03a4e] text-white font-black px-4 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center justify-center shrink-0"
                 >
-                  Email Report
+                  <Mail className="w-3.5 h-3.5" />
+                  View Report on Email
                 </Button>
                 <Button
                   onClick={() => setShowReportPreview(true)}
