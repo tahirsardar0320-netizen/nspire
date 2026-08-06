@@ -38,7 +38,6 @@ export default function Header() {
                 priority
                 className="h-12 md:h-16 w-auto"
               />
-              <span className="w-full text-center text-[11px] md:text-sm font-black text-black tracking-tight -mt-1">InspectionApp.com</span>
             </Link>
           </div>
 

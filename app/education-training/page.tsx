@@ -39,7 +39,6 @@ export default function EducationTrainingPage() {
                         alt="NSPIRE"
                         className="h-14 sm:h-16 md:h-20 w-auto object-contain"
                     />
-                    <span className="w-full text-center text-[11px] sm:text-sm font-black text-black tracking-tight -mt-1">InspectionApp.com</span>
                 </div>
                 <button
                     onClick={() => router.push('/')}
