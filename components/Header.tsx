@@ -29,7 +29,7 @@ export default function Header() {
         <div className="max-w-[1280px] mx-auto w-full flex items-center justify-between gap-3 md:gap-6">
           {/* Logo - Left Aligned */}
           <div className="flex-shrink-0 ml-2 md:ml-6">
-            <Link href="/">
+            <Link href="/" className="flex flex-col items-start">
               <Image
                 src="/logo.png"
                 alt="NSPIRE"
@@ -38,6 +38,7 @@ export default function Header() {
                 priority
                 className="h-12 md:h-16 w-auto"
               />
+              <span className="text-[10px] md:text-xs font-bold text-[#006795] tracking-wide -mt-1">InspectionApp.com</span>
             </Link>
           </div>
 

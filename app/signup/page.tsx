@@ -391,10 +391,10 @@ export default function Signup() {
                     className="w-full px-4 py-3 rounded-lg bg-[#E8F4F8] border-0 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#006795] appearance-none cursor-pointer"
                   >
                     <option value="" disabled>Select Inspector Type</option>
-                    <option value="hud-certified-nspire">I&apos;m a HUD certified NSPIRE inspector</option>
-                    <option value="nspire-certified">I&apos;m a Nspire certified inspector</option>
                     <option value="home-inspector">I&apos;m a Home Inspector</option>
-                    <option value="multi-unit-inspector">I&apos;m a Multi Unit Inspector</option>
+                    <option value="multi-unit-inspector">I&apos;m a Multi-Unit Inspector</option>
+                    <option value="commercial-inspector">I&apos;m a Commercial Inspector</option>
+                    <option value="certified-inspector">I&apos;m a Certified Inspector</option>
                   </select>
                   <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

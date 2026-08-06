@@ -23,12 +23,14 @@ export default function DataRetentionPage() {
 
             {/* Top bar */}
             <div className="relative z-10 px-4 md:px-6 py-5 flex items-center justify-between max-w-[1400px] mx-auto">
-                <img
-                    src="/logo.png"
-                    alt="NSPIRE"
-                    className="h-14 sm:h-16 md:h-20 w-auto cursor-pointer object-contain"
-                    onClick={() => router.push('/')}
-                />
+                <div className="flex flex-col items-start cursor-pointer" onClick={() => router.push('/')}>
+                    <img
+                        src="/logo.png"
+                        alt="NSPIRE"
+                        className="h-14 sm:h-16 md:h-20 w-auto object-contain"
+                    />
+                    <span className="text-[10px] sm:text-xs font-bold text-[#A8D8EA] tracking-wide -mt-1">InspectionApp.com</span>
+                </div>
                 <button
                     onClick={() => router.push('/')}
                     className="text-white/80 hover:text-white text-sm font-semibold flex items-center gap-1.5 transition-colors"

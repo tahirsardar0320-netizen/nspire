@@ -49,7 +49,7 @@ export default function AffordableHousingClient() {
               Affordable Housing Inspection <span className="italic font-medium">Services</span>
             </h1>
             <p className="text-white/80 text-xl max-w-4xl mx-auto leading-relaxed">
-              NSPIREinspection.AI delivers NSPIRE-aligned inspections for affordable housing communities across the USA — including LIHTC, Section 8 Housing Choice Voucher, and other HUD-assisted properties. Our inspectors evaluate units, buildings, and site conditions against the same standards used in official REAC/NSPIRE reviews, giving owners, management companies, and housing authorities the documentation they need to maintain compliance and protect resident safety.
+              NSPIREinspectionApp.com delivers NSPIRE-aligned inspections for affordable housing communities across the USA — including LIHTC, Section 8 Housing Choice Voucher, and other HUD-assisted properties. Our inspectors evaluate units, buildings, and site conditions against the same standards used in official REAC/NSPIRE reviews, giving owners, management companies, and housing authorities the documentation they need to maintain compliance and protect resident safety.
             </p>
           </div>
         </section>

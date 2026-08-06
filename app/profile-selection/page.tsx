@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 const INSPECTOR_TYPES = [
-  { id: "hud-certified-nspire", label: "I'm a HUD certified NSPIRE inspector", emoji: "🏛️" },
-  { id: "nspire-certified",     label: "I'm a Nspire certified inspector",      emoji: "✅" },
-  { id: "home-inspector",       label: "I'm a Home Inspector",                  emoji: "🏠" },
-  { id: "multi-unit-inspector", label: "I'm a Multi Unit Inspector",            emoji: "🏢" },
+  { id: "home-inspector",       label: "I'm a Home Inspector",       emoji: "🏠" },
+  { id: "multi-unit-inspector", label: "I'm a Multi-Unit Inspector", emoji: "🏢" },
+  { id: "commercial-inspector", label: "I'm a Commercial Inspector", emoji: "🏙️" },
+  { id: "certified-inspector",  label: "I'm a Certified Inspector",  emoji: "✅" },
 ]
 
 export default function ProfileSelection() {
@@ -92,8 +92,8 @@ export default function ProfileSelection() {
                 <line x1="36.5" y1="26.5" x2="36.5" y2="33.5" stroke="white" strokeWidth="2" strokeLinecap="round"/>
               </svg>
             </div>
-            <h2 className="ps-bubble-title">Inspector Types</h2>
-            <p className="ps-bubble-desc">Select your certification type to access the right inspector portal</p>
+            <h2 className="ps-bubble-title">Inspector Other</h2>
+            <p className="ps-bubble-desc">Select your inspector type to access the right inspector portal</p>
             <div className="ps-bubble-btn" style={{ background: "linear-gradient(135deg,#fb923c,#e11d48)" }}>
               {typeOpen ? "Close ✕" : "Select Type"}
               {!typeOpen && <span className="ps-arrow group-hover:translate-x-1">→</span>}
