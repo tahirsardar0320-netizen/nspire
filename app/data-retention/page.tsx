@@ -23,13 +23,13 @@ export default function DataRetentionPage() {
 
             {/* Top bar */}
             <div className="relative z-10 px-4 md:px-6 py-5 flex items-center justify-between max-w-[1400px] mx-auto">
-                <div className="flex flex-col items-start cursor-pointer" onClick={() => router.push('/')}>
+                <div className="flex flex-col cursor-pointer" onClick={() => router.push('/')}>
                     <img
                         src="/logo.png"
                         alt="NSPIRE"
                         className="h-14 sm:h-16 md:h-20 w-auto object-contain"
                     />
-                    <span className="text-[10px] sm:text-xs font-bold text-[#A8D8EA] tracking-wide -mt-1">InspectionApp.com</span>
+                    <span className="w-full text-center text-[11px] sm:text-sm font-black text-white tracking-tight -mt-1">InspectionApp.com</span>
                 </div>
                 <button
                     onClick={() => router.push('/')}

@@ -32,9 +32,9 @@ export default function Home() {
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-2 lg:py-3">
                 {/* Logo */}
-                <div className="flex-shrink-0 flex flex-col items-start relative z-20">
+                <div className="flex-shrink-0 flex flex-col relative z-20">
                     <img src="logo.png" alt="Nspire App Logo" className="h-14 sm:h-16 md:h-20 w-auto rounded object-contain mix-blend-multiply" />
-                    <span className="text-[10px] sm:text-xs font-bold text-[#006795] tracking-wide -mt-1">InspectionApp.com</span>
+                    <span className="w-full text-center text-[11px] sm:text-sm font-black text-black tracking-tight -mt-1">InspectionApp.com</span>
                 </div>
 
                 {/* Desktop Menu */}
@@ -90,9 +90,9 @@ export default function Home() {
         <div className={`lg:hidden fixed top-0 left-0 h-full w-72 bg-[#0C1F3F] z-40 transform transition-transform duration-300 ease-in-out shadow-2xl ${ mobileNavOpen ? 'translate-x-0' : '-translate-x-full' }`}>
             <div className="flex flex-col h-full overflow-y-auto">
                 <div className="p-5 border-b border-white/10 flex items-center justify-between">
-                    <div className="flex flex-col items-start">
+                    <div className="flex flex-col">
                         <img src="logo.png" alt="Nspire" className="h-12 w-auto rounded object-contain" />
-                        <span className="text-[10px] font-bold text-[#00C6D7] tracking-wide -mt-1">InspectionApp.com</span>
+                        <span className="w-full text-center text-[10px] font-black text-white tracking-tight -mt-1">InspectionApp.com</span>
                     </div>
                     <button onClick={() => setMobileNavOpen(false)} className="p-2 rounded-lg hover:bg-white/10">
                         <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -153,6 +153,7 @@ export default function Home() {
 
                 {/* Hero Content */}
                 <div className="flex-1 w-full lg:max-w-[650px] text-left relative z-20">
+                    <p className="text-xs sm:text-sm font-bold text-[#006795] uppercase tracking-[0.2em] mb-4">Developed and Updated by State Licensees</p>
                     <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[4rem] xl:text-[4.5rem] font-bold mb-6 leading-[1.15] serif tracking-tight">
                         <span className="text-gradient block">NSPIRE inspection (Public)</span>
                         <span className="block">Public &amp; Affordable Housing</span>
@@ -256,9 +257,9 @@ export default function Home() {
             {/* Bottom Bar */}
             <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <a href="#" className="flex flex-col items-start">
+                    <a href="#" className="flex flex-col">
                         <img src="logo.png" alt="Nspire App Logo" className="object-contain h-16 md:h-20 w-auto rounded mix-blend-lighten filter brightness-110" />
-                        <span className="text-xs font-bold text-[#00C6D7] tracking-wide">InspectionApp.com</span>
+                        <span className="w-full text-center text-sm font-black text-white tracking-tight">InspectionApp.com</span>
                     </a>
                     <a href="https://nspireinspection.ai/" className="btn-primary px-6 py-3 rounded-full text-sm font-semibold inline-block text-center">
                         Download NSPIREinspectionApp.com
