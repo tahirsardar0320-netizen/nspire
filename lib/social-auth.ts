@@ -29,7 +29,7 @@ export interface OAuthResult {
  */
 export const initGoogleLogin = (portal: string): Promise<OAuthResult> => {
     return new Promise((resolve, reject) => {
-        const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '164266308190-dp79tjoggk3qch05qjjcooc5d9rn2s5s.apps.googleusercontent.com'
+        const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '710442251981-li0tlcqed9b61jrn8k6744a0ta8br1r7.apps.googleusercontent.com'
         const redirectUri = getRedirectUri()
         // Encode opener origin in state so callback knows where to postMessage
         const openerOrigin = window.location.origin
