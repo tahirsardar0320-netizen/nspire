@@ -44,25 +44,10 @@ export default function Signup() {
     setExpectedFallbackCode(fallbackText)
   };
 
-  const loadCaptcha = async () => {
+  const loadCaptcha = () => {
     setCaptchaLoading(true)
-    try {
-      const response = await authAPI.getCaptcha()
-      if (response.success && response.captchaImage) {
-        setCaptchaId(response.captchaId)
-        setCaptchaImage(response.captchaImage)
-        setCaptchaCode("")
-      }
-    } catch (error) {
-      console.error("Failed to load captcha:", error)
-      generateFallbackCaptcha()
-      toast.info("Using backup security check.", {
-        position: "top-right",
-        autoClose: 2000,
-      })
-    } finally {
-      setCaptchaLoading(false)
-    }
+    generateFallbackCaptcha()
+    setCaptchaLoading(false)
   }
 
   const validateFullName = (name: string) => {
