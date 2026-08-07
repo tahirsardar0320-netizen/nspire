@@ -3,15 +3,34 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { toast } from "react-toastify";
 import MainLayout from "@/components/MainLayout";
 
 export default function ContactClient() {
   const [submitted, setSubmitted] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "General Inquiry", message: "" });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    // Add real form submission logic here if needed
+    setIsSending(true);
+    try {
+      const res = await fetch("/api/contact/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to send message.");
+      }
+      setSubmitted(true);
+      setFormData({ name: "", email: "", subject: "General Inquiry", message: "" });
+    } catch (error: any) {
+      toast.error(error.message || "Failed to send message. Please try again.", { position: "top-right" });
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -52,7 +71,7 @@ export default function ContactClient() {
             {/* Contact Form */}
             <div className="lg:col-span-2 bg-white p-8 md:p-12 rounded-[50px] shadow-2xl border border-gray-100">
               <h2 className="text-3xl font-bold text-black mb-8">Send us a <span className="text-[#F84B5F]">Message</span></h2>
-              
+
               {submitted ? (
                 <div className="py-20 text-center">
                   <div className="w-20 h-20 bg-[#006795]/20 text-[#006795] rounded-full flex items-center justify-center mx-auto mb-6">
@@ -69,16 +88,34 @@ export default function ContactClient() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-gray-700 ml-2">Full Name</label>
-                      <input required type="text" placeholder="John Doe" className="w-full bg-[#F8F9FA] border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-[#006795] transition-all" />
+                      <input
+                        required
+                        type="text"
+                        placeholder="John Doe"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="w-full bg-[#F8F9FA] border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-[#006795] transition-all"
+                      />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-gray-700 ml-2">Email Address</label>
-                      <input required type="email" placeholder="john@example.com" className="w-full bg-[#F8F9FA] border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-[#006795] transition-all" />
+                      <input
+                        required
+                        type="email"
+                        placeholder="john@example.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full bg-[#F8F9FA] border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-[#006795] transition-all"
+                      />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-gray-700 ml-2">Subject</label>
-                    <select className="w-full bg-[#F8F9FA] border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-[#006795] transition-all">
+                    <select
+                      value={formData.subject}
+                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      className="w-full bg-[#F8F9FA] border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-[#006795] transition-all"
+                    >
                       <option>General Inquiry</option>
                       <option>Technical Support</option>
                       <option>Sales & Partnerships</option>
@@ -87,10 +124,17 @@ export default function ContactClient() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-gray-700 ml-2">Your Message</label>
-                    <textarea required rows={5} placeholder="How can we help you?" className="w-full bg-[#F8F9FA] border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-[#006795] transition-all resize-none"></textarea>
+                    <textarea
+                      required
+                      rows={5}
+                      placeholder="How can we help you?"
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      className="w-full bg-[#F8F9FA] border-none rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-[#006795] transition-all resize-none"
+                    ></textarea>
                   </div>
-                  <Button type="submit" variant="secondary" size="lg" className="w-full py-8 hover:scale-[1.01] transition-all">
-                    Send Message
+                  <Button type="submit" variant="secondary" size="lg" disabled={isSending} className="w-full py-8 hover:scale-[1.01] transition-all">
+                    {isSending ? "Sending..." : "Send Message"}
                   </Button>
                 </form>
               )}
