@@ -25,7 +25,7 @@ interface Property {
 
 interface Inspection {
   _id: string
-  property: {
+  propertyId: {
     _id: string
     name: string
     address: string
@@ -127,7 +127,7 @@ export default function InspectionStatusPage() {
       // Map properties with their inspection status
       const propertiesWithStatus: PropertyWithInspection[] = allProperties.map(property => {
         const inspection = completedInspections.find(
-          insp => insp.property?._id === property._id || insp.property?._id?.toString() === property._id?.toString()
+          insp => insp.propertyId?._id === property._id || insp.propertyId?._id?.toString() === property._id?.toString()
         )
         
         return {
