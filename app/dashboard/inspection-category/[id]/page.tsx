@@ -1455,15 +1455,18 @@ export default function InspectionCategoryPage() {
         // Remove "1. " prefix and any trailing extra text
         const baseName = currentModalItem.replace(/^\d+\.\s+/, '').trim();
 
-        // Mapping assignment:
+        // Mapping assignment — despite their names, insideDeficiencyMapping is built
+        // from unitAppData.ts (Unit-tab data) and unitDeficiencyMapping is built from
+        // insideAppData.ts (Inside-tab data), so the section→mapping wiring below is
+        // intentionally crossed to match what each variable actually contains.
         // outside → outsideDeficiencyMapping
-        // inside  → insideDeficiencyMapping
-        // unit    → unitDeficiencyMapping
+        // inside  → unitDeficiencyMapping (built from insideAppData.ts)
+        // unit    → insideDeficiencyMapping (built from unitAppData.ts)
         const mapping = currentSection === 'outside'
             ? outsideDeficiencyMapping
             : currentSection === 'inside'
-                ? insideDeficiencyMapping
-                : unitDeficiencyMapping;
+                ? unitDeficiencyMapping
+                : insideDeficiencyMapping;
 
         // Try exact match first (case-insensitive)
         const exactKey = Object.keys(mapping).find(k => k.toLowerCase() === baseName.toLowerCase());
