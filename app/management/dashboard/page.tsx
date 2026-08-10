@@ -194,10 +194,6 @@ export default function ManagementDashboard() {
     setShowEditModal(true)
   }
 
-  const handleHoldInspection = () => {
-    toast.info(`Inspection for ${newPropertyData?.name || 'property'} put on hold`, { position: 'top-right' })
-  }
-
   const handleRemoveProperty = async () => {
     if (!newPropertyData?._id) return
     if (!confirm(`Remove "${newPropertyData?.name}"? This cannot be undone.`)) return
@@ -425,7 +421,6 @@ export default function ManagementDashboard() {
         onClose={() => setShowActionModal(false)}
         onEdit={handleEditProperty}
         onStartInspection={() => { setShowActionModal(false); newPropertyData && handleInitiate(newPropertyData) }}
-        onHoldInspection={handleHoldInspection}
         onRemoveProperty={handleRemoveProperty}
         propertyData={newPropertyData}
       />

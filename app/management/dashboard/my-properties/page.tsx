@@ -148,11 +148,6 @@ export default function MyProperties() {
     setShowActionModal(true)
   }
 
-  const handleHoldInspection = () => {
-    toast.info(`Inspection for ${newPropertyData?.name || 'property'} put on hold`, { position: 'top-right' })
-    setShowActionModal(false)
-  }
-
   const handleStartInspection = () => {
     setShowActionModal(false)
     if (newPropertyData) {
@@ -358,7 +353,6 @@ export default function MyProperties() {
           onClose={() => setShowActionModal(false)}
           onEdit={handleEditProperty}
           onStartInspection={handleStartInspection}
-          onHoldInspection={handleHoldInspection}
           onRemoveProperty={handleRemoveProperty}
           propertyData={newPropertyData}
         />
