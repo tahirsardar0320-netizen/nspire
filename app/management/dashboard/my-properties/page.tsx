@@ -9,10 +9,11 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "react-toastify"
 import { propertiesAPI } from "@/lib/api"
-import { 
-  AddPropertyModal, 
-  ActionModal, 
-  EditPropertyModal 
+import { fetchPropertyProgressMap } from "@/lib/inspectionProgress"
+import {
+  AddPropertyModal,
+  ActionModal,
+  EditPropertyModal
 } from "@/components/PropertyModals"
 
 interface Property {
@@ -32,6 +33,7 @@ export default function MyProperties() {
   const router = useRouter()
   const [selectedRows, setSelectedRows] = useState<string[]>([])
   const [properties, setProperties] = useState<Property[]>([])
+  const [propertyProgress, setPropertyProgress] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
   const [showAddPropertyModal, setShowAddPropertyModal] = useState(false)
   const [showActionModal, setShowActionModal] = useState(false)
@@ -55,7 +57,12 @@ export default function MyProperties() {
       setLoading(true)
       const response = await propertiesAPI.getAll({ limit: 50 })
       if (response.success) {
-        setProperties(response.properties || [])
+        const props = response.properties || []
+        setProperties(props)
+        if (props.length > 0) {
+          const progressMap = await fetchPropertyProgressMap(props, process.env.NEXT_PUBLIC_API_URL || '')
+          setPropertyProgress(progressMap)
+        }
       }
     } catch (error) {
       console.error('Error fetching properties:', error)
@@ -65,11 +72,22 @@ export default function MyProperties() {
     }
   }
 
+  // Inspection-progress-based status — matches the same fetchPropertyProgressMap
+  // engine the inspector dashboard and inspection-status pages use, so a property
+  // reads the same way here as everywhere else (the raw Property.status DB field
+  // was never updated by inspection activity, so it always showed "Active").
+  const getInspectionStatus = (propertyId: string) => {
+    const pct = propertyProgress[propertyId] ?? 0
+    if (pct >= 100) return 'Completed'
+    if (pct > 0) return 'In Progress'
+    return 'Pending'
+  }
+
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
-      case 'active':
+      case 'completed':
         return 'text-green-600'
-      case 'hold':
+      case 'in progress':
         return 'text-blue-600'
       case 'pending':
         return 'text-red-500'
@@ -257,8 +275,8 @@ export default function MyProperties() {
                     <td className="py-4 px-4 text-gray-900">{property.state}</td>
                     <td className="py-4 px-4 text-gray-900">{property.zipCode}</td>
                     <td className="py-4 px-4">
-                      <span className={`font-semibold text-sm ${getStatusColor(property.status)}`}>
-                        {property.status || 'Pending'}
+                      <span className={`font-semibold text-sm ${getStatusColor(getInspectionStatus(property._id))}`}>
+                        {getInspectionStatus(property._id)}
                       </span>
                     </td>
                     <td className="py-4 px-4">
@@ -304,11 +322,11 @@ export default function MyProperties() {
                     >
                       #{property.propertyId}
                     </button>
-                    <span className={`font-semibold text-sm ${getStatusColor(property.status)}`}>
-                      {property.status || 'Pending'}
+                    <span className={`font-semibold text-sm ${getStatusColor(getInspectionStatus(property._id))}`}>
+                      {getInspectionStatus(property._id)}
                     </span>
                   </div>
-                  
+
                   <h3 className="text-base font-bold text-gray-900 mb-2">{property.name}</h3>
                   
                   <div className="grid grid-cols-2 gap-2 text-sm mb-3">
