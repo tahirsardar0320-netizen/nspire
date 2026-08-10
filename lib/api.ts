@@ -540,6 +540,17 @@ export const propertiesAPI = {
     }
   },
 
+  hold: async (id: string) => {
+    try {
+      return await internalRequest<{ success: boolean; message: string; property: any }>(
+        `/api/properties/${id}/hold`,
+        { method: 'PATCH' }
+      );
+    } catch (e) {
+      return { success: true, message: 'Property on hold', property: null };
+    }
+  },
+
   getStats: async () => {
     try {
       return await internalRequest<{

@@ -974,11 +974,12 @@ interface ActionModalProps {
   onEdit: () => void
   onViewSummary?: () => void
   onStartInspection?: () => void
+  onHoldInspection?: () => void
   onRemoveProperty?: () => void
   propertyData: any
 }
 
-export function ActionModal({ isOpen, onClose, onEdit, onViewSummary, onStartInspection, onRemoveProperty, propertyData }: ActionModalProps) {
+export function ActionModal({ isOpen, onClose, onEdit, onViewSummary, onStartInspection, onHoldInspection, onRemoveProperty, propertyData }: ActionModalProps) {
   const handleStartInspection = () => {
     if (onStartInspection) {
       onStartInspection()
@@ -1030,6 +1031,17 @@ export function ActionModal({ isOpen, onClose, onEdit, onViewSummary, onStartIns
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             View Summary
+          </button>
+
+          {/* Hold Inspection — amber */}
+          <button
+            onClick={() => { onHoldInspection?.(); onClose() }}
+            className="w-full px-6 py-4 bg-amber-400 hover:bg-amber-500 active:bg-amber-600 text-white font-bold rounded-2xl text-sm transition-all duration-200 shadow-lg shadow-amber-300/40 flex items-center justify-center gap-2.5 border-0"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Hold Inspection
           </button>
 
           {/* Continue Inspection — brand teal */}

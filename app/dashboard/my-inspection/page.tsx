@@ -192,6 +192,25 @@ export default function MyInspection() {
     router.push(`/dashboard/property-details/${propId}`)
   }
 
+  const handleHoldInspection = async () => {
+    if (!selectedProperty) return
+    const pid = selectedProperty._id || selectedProperty.propertyId
+    if (pid) {
+      clearActiveInspection(pid)
+    }
+    try {
+      const response = await propertiesAPI.hold(selectedProperty._id)
+      if (response.success) {
+        toast.success(response.message, { position: "top-right" })
+        fetchProperties()
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to hold inspection")
+    } finally {
+      setActionModalOpen(false)
+    }
+  }
+
   const handleRemoveProperty = async () => {
     if (!selectedProperty) return
     if (confirm(`Are you sure you want to remove ${selectedProperty.name}?`)) {
@@ -444,6 +463,7 @@ export default function MyInspection() {
           setSummaryModalOpen(true)
         }}
         onStartInspection={handleActionStartInspection}
+        onHoldInspection={handleHoldInspection}
         onRemoveProperty={handleRemoveProperty}
         propertyData={selectedProperty}
       />
