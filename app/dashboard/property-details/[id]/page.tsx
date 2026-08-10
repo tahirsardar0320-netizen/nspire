@@ -9,6 +9,7 @@ import { propertiesAPI, authAPI, inspectionsAPI } from "@/lib/api"
 import { toast } from "react-toastify"
 import { ChevronLeft, CheckCircle2, Clock, X, ChevronRight, Pencil, Check, RefreshCw } from "lucide-react"
 import { generateRandomUnitSample, getUnitsToInspect, getSamplingExplanation } from "@/lib/unitSamplingService"
+import { fetchPropertyProgressMap } from "@/lib/inspectionProgress"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -283,31 +284,20 @@ export default function PropertyDetailsPage() {
         }))
     }, [initialBuildings, editableInspectionUnits])
 
-    const overallProgress = useMemo(() => {
-        if (!buildings.length) return 0
-        
-        let totalPossible = 0
-        let totalCompleted = 0
-        
-        buildings.forEach(b => {
-            // Each building has:
-            // 1) Inside category
-            // 2) Outside category
-            // 3) N units
-            const possible = 2 + b.unitsForInspection
-            totalPossible += possible
-            
-            const completed = completedUnitsMap[b.buildingId] || []
-            const hasOutside = completed.includes('Outside')
-            const hasInside = completed.includes('Inside')
-            const unitsDone = completed.filter(u => u !== 'Outside' && u !== 'Inside').length
-            
-            totalCompleted += (hasOutside ? 1 : 0) + (hasInside ? 1 : 0) + Math.min(unitsDone, b.unitsForInspection)
-        })
-        
-        if (totalPossible === 0) return 0
-        return Math.round((totalCompleted / totalPossible) * 100)
-    }, [buildings, completedUnitsMap])
+    // Overall % comes from the same fetchPropertyProgressMap engine the dashboard
+    // and inspection-status pages use, so a property reads identically everywhere
+    // instead of this page's own (previously binary all-or-nothing) calculation.
+    const [overallProgress, setOverallProgress] = useState(0)
+
+    const refreshOverallProgress = useCallback(async () => {
+        if (!property) return
+        try {
+            const map = await fetchPropertyProgressMap([property], API_URL)
+            setOverallProgress(map[property._id] ?? 0)
+        } catch (e) {
+            console.error('Error refreshing overall progress:', e)
+        }
+    }, [property])
 
     // Handler: when user edits a building's unit-for-inspection value
     const handleInspectionUnitChange = (buildingId: string, newValue: number) => {
@@ -424,14 +414,15 @@ export default function PropertyDetailsPage() {
 
     useEffect(() => {
         refreshCompletedUnits()
-    }, [refreshCompletedUnits])
+        refreshOverallProgress()
+    }, [refreshCompletedUnits, refreshOverallProgress])
 
     // Also refresh when window regains focus (coming back from inspection)
     useEffect(() => {
-        const handleFocus = () => refreshCompletedUnits()
+        const handleFocus = () => { refreshCompletedUnits(); refreshOverallProgress() }
         window.addEventListener('focus', handleFocus)
         return () => window.removeEventListener('focus', handleFocus)
-    }, [refreshCompletedUnits])
+    }, [refreshCompletedUnits, refreshOverallProgress])
 
     // Check for returning from inspection (localStorage flag)
     useEffect(() => {
@@ -443,10 +434,11 @@ export default function PropertyDetailsPage() {
             if (data.propertyId && data.buildingId && data.unitName) {
                 markUnitCompleted(data.propertyId, data.buildingId, data.unitName)
                 refreshCompletedUnits()
+                refreshOverallProgress()
                 toast.success(`${data.unitName} inspection completed!`, { position: "top-right" })
             }
         }
-    }, [refreshCompletedUnits])
+    }, [refreshCompletedUnits, refreshOverallProgress])
 
     const getCoverageLabel = () => {
         if (coverage === '100') return '100% - All Units'
