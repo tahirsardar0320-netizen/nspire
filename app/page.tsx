@@ -137,7 +137,7 @@ export default function Home() {
     </nav>
 
     {/* Hero Section */}
-    <section className="relative pt-20 sm:pt-24 lg:pt-28 pb-16 lg:pb-32 z-10 min-h-0 lg:min-h-[80vh] flex items-center bg-[#E8F4F8] overflow-hidden">
+    <section className="relative pt-20 sm:pt-24 lg:pt-28 pb-16 lg:pb-32 z-10 min-h-0 lg:min-h-0 flex items-center bg-[#E8F4F8] overflow-hidden">
         {/* Background photo slideshow — light overlay so text stays readable */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
             <div className="bg-slide"></div>
