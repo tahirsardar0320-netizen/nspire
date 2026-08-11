@@ -28,7 +28,7 @@ export const OUTSIDE_LOCATION_OPTIONS = [
 const MODERATE_CATEGORIES = [1, 4, 5, 8, 10, 11, 17, 18, 20, 21, 22, 24];
 
 // Life-Threatening Set 1: Categories 6, 7, 9, 12, 13, 19, 23, 25
-// Formula: Pts Lost = 24.8 / n
+// Formula: Pts Lost = 49.60 / n
 const LIFE_THREATENING_SET1_CATEGORIES = [6, 7, 9, 12, 13, 19, 23, 25];
 
 // Life-Threatening Set 2: Categories 2, 3
@@ -118,7 +118,7 @@ export function getSeverityByCategoryNumber(categoryNumber: number): OutsideSeve
     return { severity: 'Moderate', pointsLostFormula: 4.5 };
   }
   if (LIFE_THREATENING_SET1_CATEGORIES.includes(categoryNumber)) {
-    return { severity: 'Life-Threatening', pointsLostFormula: 24.8 };
+    return { severity: 'Life-Threatening', pointsLostFormula: 49.60 };
   }
   if (LIFE_THREATENING_SET2_CATEGORIES.includes(categoryNumber)) {
     return { severity: 'Life-Threatening', pointsLostFormula: 49.60 };

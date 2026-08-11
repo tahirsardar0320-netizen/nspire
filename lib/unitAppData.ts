@@ -641,7 +641,7 @@ export const BATHROOM_TOILET: InsideSubcategory = {
             criteria: 'Only one toilet is present, and it\'s either damaged or inoperable—preventing proper use.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'BATH-TOILET-03',
             codeReference: `🧭 Step 1: Identify Toilet Type & Location
 • Location: Bathroom or restroom inside the unit
@@ -1296,7 +1296,7 @@ export const CHIMNEY_DEFICIENCIES: InsideItemDeficiencies = {
             criteria: 'Contains a fuel-burning appliance or fuel-burning fireplace.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'CHIM-01',
             codeReference: `🧭 Step 1: Identify Chimney Type & Location
 • Appliance Connection: Confirm chimney is connected to a fireplace, wood-burning stove, or gas appliance
@@ -1395,7 +1395,7 @@ NSPIRE flags restricted airflow or improper materials as high-risk due to fire a
             criteria: 'Dryer transition duct is not securely attached.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'DRYER-03',
             codeReference: `🧭 Step 1: Identify Dryer Type & Location
 - Electric or Gas Dryer: Inspection requirements differ slightly
@@ -1425,7 +1425,7 @@ NSPIRE flags restricted airflow or improper materials as high-risk due to fire a
             criteria: 'Airflow may be restricted.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'DRYER-04',
             codeReference: `🧭 Step 1: Identify Dryer Type & Location
 - Electric or Gas Dryer: Inspection requirements differ slightly
@@ -1455,7 +1455,7 @@ NSPIRE flags restricted airflow or improper materials as high-risk due to fire a
             criteria: 'The dryer transition duct is not securely attached.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'DRYER-05',
             codeReference: `🧭 Step 1: Identify Dryer Type & Location
 - Electric or Gas Dryer: Inspection requirements differ slightly
@@ -1494,7 +1494,7 @@ export const DOOR_ENTRY: InsideSubcategory = {
             criteria: 'Installed locks can not be engaged from both sides.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'DOOR-ENTRY-01',
             codeReference: `🧭 Step 1: Sanitation & Weather Protection
 • Inspect for gaps around door edges that allow moisture, drafts, or pests.
@@ -1587,7 +1587,7 @@ export const DOOR_ENTRY: InsideSubcategory = {
             criteria: 'Not present or is incomplete.',
             severity: 'Life-Threatening',
             repairBy: '24 Hrs.',
-            points: '30/n',
+            points: '60/n',
             code: 'DOOR-ENTRY-04',
             codeReference: `🧭 Step 1: Sanitation & Weather Protection
 • Inspect for gaps around door edges that allow moisture, drafts, or pests.
@@ -2234,7 +2234,7 @@ export const EGRESS_DEFICIENCIES: InsideItemDeficiencies = {
             criteria: 'Double-key cylinder deadbolts and any locks or security features requiring a key, tool, or special effort from the street side are prohibited on exit doors, exit access doors, and egress windows.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'EGRESS-01',
             codeReference: `🧭 Step 1: Identification & Applicability
 • Egress definition: A safe, continuous, and unobstructed path from any point in the unit to a public way
@@ -2265,7 +2265,7 @@ export const EGRESS_DEFICIENCIES: InsideItemDeficiencies = {
             criteria: 'Exit paths—including doors, stairways, and egress windows—must remain clear and operable without keys, tools, or special effort.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'EGRESS-02',
             codeReference: `🧭 Step 1: Identification & Applicability
 • Egress definition: A safe, continuous, and unobstructed path from any point in the unit to a public way
@@ -2296,7 +2296,7 @@ export const EGRESS_DEFICIENCIES: InsideItemDeficiencies = {
             criteria: 'If the egress door is the unit entry, see Deficiency 1; if near a fire escape, see Deficiency 3. Egress may be blocked by locks, bars, or obstructions.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'EGRESS-03',
             codeReference: `🧭 Step 1: Identification & Applicability
 • Egress definition: A safe, continuous, and unobstructed path from any point in the unit to a public way
@@ -2336,7 +2336,7 @@ export const ELECTRICAL_CONDUCTOR: InsideSubcategory = {
             criteria: 'Electrical conductors must be properly enclosed and insulated, with no exposed wiring, open ports, missing covers, or gaps over 1/2". Missing light bulbs should be assessed under interior or exterior lighting.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'ELEC-COND-01',
             codeReference: `🧭 Step 1: Identify Components to Inspect
 - Electrical Outlets: Standard, GFCI, AFCI, and specialty outlets
@@ -2367,7 +2367,7 @@ NSPIRE requires inspection of all accessible electrical components connected to 
             criteria: 'An outlet that is reasonably accessible does not have visible damage and testing indicates that it is not energized.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'ELEC-COND-02',
             codeReference: `🧭 Step 1: Identify Components to Inspect
 - Electrical Outlets: Standard, GFCI, AFCI, and specialty outlets
@@ -2398,7 +2398,7 @@ NSPIRE requires inspection of all accessible electrical components connected to 
             criteria: 'Any portion of a visually accessible outlet or switch is damaged such that it may not safely carry or control electrical current at the outlet or switch.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'ELEC-COND-03',
             codeReference: `🧭 Step 1: Identify Components to Inspect
 - Electrical Outlets: Standard, GFCI, AFCI, and specialty outlets
@@ -2460,7 +2460,7 @@ NSPIRE requires inspection of all accessible electrical components connected to 
             criteria: 'Water is currently in contact with an electrical conductor. Check for the source (water infiltration from the ceiling or inside of the wall).',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'ELEC-COND-05',
             codeReference: `🧭 Step 1: Identify Components to Inspect
 - Electrical Outlets: Standard, GFCI, AFCI, and specialty outlets
@@ -2497,7 +2497,7 @@ export const ELECTRICAL_GFCI_AFCI: InsideSubcategory = {
             criteria: 'AFCI outlet or AFCI breaker does not have visible damage and the test or reset button is inoperable.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'ELEC-GFCI-01',
             codeReference: `🧭 Step 1: Identify GFCI-Protected Locations
 • 	Labeling: GFCI/AFCI devices should be clearly marked
@@ -2526,7 +2526,7 @@ export const ELECTRICAL_GFCI_AFCI: InsideSubcategory = {
             criteria: 'An outlet, not GFCI-protected, is present within six feet of a water source located in the same room. An outlet deigned for major appliances, when in use, is not evaluated under this category.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'ELEC-GFCI-02',
             codeReference: `🧭 Step 1: Identify GFCI-Protected Locations
 • 	Labeling: GFCI/AFCI devices should be clearly marked
@@ -2555,7 +2555,7 @@ export const ELECTRICAL_GFCI_AFCI: InsideSubcategory = {
             criteria: 'GFCI outlet or GFCI breaker does not have visible damage and the test or reset button is inoperable (i.e., overall system or component thereof is not meeting function or purpose).',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'ELEC-GFCI-03',
             codeReference: `🧭 Step 1: Identify GFCI-Protected Locations
 • 	Labeling: GFCI/AFCI devices should be clearly marked
@@ -2765,7 +2765,7 @@ export const FIRE_EXTINGUISHER: InsideSubcategory = {
             criteria: 'Pressure gauge indicates that the fire extinguisher is over or under charged.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'FIRE-EXT-02',
             codeReference: `🧭 Step 1: Determine Applicability
 • 	IRC §R313.1–R313.2 – Fire protection systems (note: IRC does not mandate extinguishers in individual units)
@@ -2795,7 +2795,7 @@ export const FIRE_EXTINGUISHER: InsideSubcategory = {
             criteria: 'Fire extinguisher is noncompliant if the service tag is over a year old, missing, illegible, or if a disposable unit is over 12 years old.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'FIRE-EXT-03',
             codeReference: `🧭 Step 1: Determine Applicability
 • 	IRC §R313.1–R313.2 – Fire protection systems (note: IRC does not mandate extinguishers in individual units)
@@ -2831,7 +2831,7 @@ export const FLAMMABLE_COMBUSTIBLE: InsideSubcategory = {
             criteria: 'Excluding heating oil in a heating oil tank, propane, gasoline, kerosene should never be stored in the Unit. Combustible item in its original container and stored in a safe place is not a deficiency.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'FLAM-01',
             codeReference: `🧭 Step 1: Identify Inspection Zones
 Focus on areas where ignition sources and flammable materials may coexist
@@ -2990,7 +2990,7 @@ export const SPRINKLER_ASSEMBLY: InsideSubcategory = {
             criteria: 'The sprinkler assembly component is damaged, inoperable, or missing.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'SPRINK-01',
             codeReference: `🧭 Step 1: Identification & Applicability
 • 	Required only if installed: NSPIRE does not mandate sprinkler systems in all units, but if present, they must be fully functional and unobstructed
@@ -3018,7 +3018,7 @@ export const SPRINKLER_ASSEMBLY: InsideSubcategory = {
             criteria: 'Sprinkler head assembly has evidence of corrosion.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'SPRINK-02',
             codeReference: `🧭 Step 1: Identification & Applicability
 • 	Required only if installed: NSPIRE does not mandate sprinkler systems in all units, but if present, they must be fully functional and unobstructed
@@ -3046,7 +3046,7 @@ export const SPRINKLER_ASSEMBLY: InsideSubcategory = {
             criteria: 'Foreign material covers 50% or more of the sprinkler assembly or 50% or more of the glass bulb on the sprinkler assembly.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'SPRINK-03',
             codeReference: `🧭 Step 1: Identification & Applicability
 • 	Required only if installed: NSPIRE does not mandate sprinkler systems in all units, but if present, they must be fully functional and unobstructed
@@ -3074,7 +3074,7 @@ export const SPRINKLER_ASSEMBLY: InsideSubcategory = {
             criteria: '18 inches of clearance is not due to features within the built (e.g., closet, utility closet).',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'SPRINK-04',
             codeReference: `🧭 Step 1: Identification & Applicability
 • 	Required only if installed: NSPIRE does not mandate sprinkler systems in all units, but if present, they must be fully functional and unobstructed
@@ -3681,7 +3681,7 @@ export const HVAC_DEFICIENCIES: InsideItemDeficiencies = {
             criteria: 'Combustion chamber cover or gas shutoff valve was previously installed but is now either not present or incomplete.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'HVAC-02',
             codeReference: `🧭 Step 1: Identify HVAC Components
 • 	Scope: Includes heating units, cooling systems, exhaust fans, thermostats, and ductwork
@@ -3710,7 +3710,7 @@ export const HVAC_DEFICIENCIES: InsideItemDeficiencies = {
             criteria: 'Not properly connected through to the ceiling or wall. Metal tape of any kind is not a substitue for improperly connected flue vent.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'HVAC-03',
             codeReference: `🧭 Step 1: Identify HVAC Components
 • 	Scope: Includes heating units, cooling systems, exhaust fans, thermostats, and ductwork
@@ -3797,7 +3797,7 @@ export const HVAC_DEFICIENCIES: InsideItemDeficiencies = {
             criteria: 'A permanently installed heating source may include forced air heating, radiant heat, baseboard units heated by electric, or installed waii unit.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'HVAC-06',
             codeReference: `🧭 Step 1: Identify HVAC Components
 • 	Scope: Includes heating units, cooling systems, exhaust fans, thermostats, and ductwork
@@ -3855,7 +3855,7 @@ export const HVAC_DEFICIENCIES: InsideItemDeficiencies = {
             criteria: 'Inside, include any and all common areas.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'HVAC-08',
             codeReference: `🧭 Step 1: Identify HVAC Components
 • 	Scope: Includes heating units, cooling systems, exhaust fans, thermostats, and ductwork
@@ -4153,7 +4153,7 @@ export const KITCHEN_MOLD: InsideSubcategory = {
             criteria: 'Cumulative area of patches is more than 9 square feet in a room.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'KIT-MOLD-02',
             codeReference: `🧭 Step 1: Identification & Applicability
 • 	Applies to: All kitchen surfaces—walls, ceilings, cabinetry, countertops, flooring, and behind/under appliances
@@ -4651,7 +4651,7 @@ export const LEAK_GAS_OIL_DEFICIENCIES: InsideItemDeficiencies = {
             criteria: 'Natural gas, propane, or oil leak. strong odor.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'LEAK-GAS-01',
             codeReference: `🧭 Step 1: Identification & Applicability
 • 	Applies to: All fuel-fired appliances and associated piping inside the unit
@@ -5060,7 +5060,7 @@ export const MOLD_LIKE_SUBSTANCE: InsideSubcategory = {
             criteria: 'Cumulative area of patches is more than 9 square feet in a room.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'MOLD-02',
             codeReference: `🧭 Step 1: Identification & Applicability
 • 	Applies to: All interior surfaces—walls, ceilings, floors, cabinetry, HVAC registers, closets, and behind appliances
@@ -5215,7 +5215,7 @@ export const RAILINGS_GUARDRAIL: InsideSubcategory = {
             criteria: 'The guardrail is missing or not installed (i.e., never installed, but should have been) along a walking surface that is more than 30 inches above the floor or grade below.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'RAILING-GUARD-01',
             codeReference: `🧭 Step 1: Identify Guardrail Locations
 NSPIRE Scope: Evaluates the presence, structural adequacy, and safety of guardrails in all resident-accessible areas
@@ -5241,7 +5241,7 @@ NSPIRE Scope: Evaluates the presence, structural adequacy, and safety of guardra
             criteria: 'A guardrail is deficient if it\'s missing critical components, visibly damaged, under 30 inches in height, or not securely attached to reasonably prevent fall hazards.',
             severity: 'Life-Threatening',
             repairBy: '24Hrs',
-            points: '30/n',
+            points: '60/n',
             code: 'RAILING-GUARD-02',
             codeReference: `🧭 Step 1: Identify Guardrail Locations
 NSPIRE Scope: Evaluates the presence, structural adequacy, and safety of guardrails in all resident-accessible areas

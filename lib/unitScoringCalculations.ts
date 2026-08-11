@@ -36,7 +36,7 @@ export interface UnitScoringResult {
 // Base points for each severity level (the X in X/n formula)
 // These values are from the NSPIRE Unit Excel data
 const UNIT_SEVERITY_BASE_POINTS: { [key: string]: number } = {
-    'Life-Threatening': 30.00,  // Default, but can be 60 or 0 depending on deficiency
+    'Life-Threatening': 60.00,  // 0 for Smoke/CO alarm deficiencies (set directly on those entries)
     'Severe': 14.80,
     'Moderate': 5.50,
     'Low': 2.40,
@@ -51,10 +51,13 @@ const UNIT_SEVERITY_BASE_POINTS: { [key: string]: number } = {
  * @returns Base points value
  */
 export function getUnitBasePoints(severity: string, pointsFormula?: string): number {
-    // If a points formula is provided, parse it to get the exact base points
+    // If a points formula is provided, parse it to get the exact base points.
+    // >= 0, not > 0 — parsePointsFormula legitimately returns 0 for Smoke/CO
+    // alarm deficiencies ("0.000"), and that must NOT fall through to the
+    // Life-Threatening severity fallback below.
     if (pointsFormula) {
         const parsed = parsePointsFormula(pointsFormula);
-        if (parsed > 0) {
+        if (parsed >= 0) {
             return parsed;
         }
     }

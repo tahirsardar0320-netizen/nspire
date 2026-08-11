@@ -1354,9 +1354,9 @@ export function getInsideSeverityConfig(
       return { severity: 'Life-Threatening', pointsLostFormula: 54.50 };
     }
 
-    // Check for special formula patterns (Call-for-Aid annunciator) - Life-Threatening with 27.25/(50*n)
+    // Check for special formula patterns (Call-for-Aid annunciator) - Life-Threatening with 54.50/(50*n)
     if (matchesSpecialFormulaLifeThreatening50nPattern(deficiencyDescription)) {
-      return { severity: 'Life-Threatening', pointsLostFormula: 27.25, specialFormula: 'divide_50n' };
+      return { severity: 'Life-Threatening', pointsLostFormula: 54.50, specialFormula: 'divide_50n' };
     }
 
     // Check for special formula patterns (Call-for-Aid pull cord) - Severe with 13.40/(50*n)
@@ -1369,9 +1369,9 @@ export function getInsideSeverityConfig(
       return { severity: 'Severe', pointsLostFormula: 13.40 };
     }
 
-    // Check for Life-Threatening patterns - 27.25/n
+    // Check for Life-Threatening patterns - 54.50/n
     if (matchesLifeThreateningDeficiencyPattern(deficiencyDescription)) {
-      return { severity: 'Life-Threatening', pointsLostFormula: 27.25 };
+      return { severity: 'Life-Threatening', pointsLostFormula: 54.50 };
     }
 
     // Check for Moderate 13.40/n patterns (Door Entry cannot be secured)
@@ -1394,7 +1394,7 @@ export function getInsideSeverityConfig(
   if (selectedSeverity) {
     switch (selectedSeverity) {
       case 'Life-Threatening':
-        return { severity: 'Life-Threatening', pointsLostFormula: 27.25 };
+        return { severity: 'Life-Threatening', pointsLostFormula: 54.50 };
       case 'Severe':
         return { severity: 'Severe', pointsLostFormula: 13.40 };
       case 'Low':
