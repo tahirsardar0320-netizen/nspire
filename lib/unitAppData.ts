@@ -63,8 +63,8 @@ export const BATHROOM_BATHTUB_SHOWER: InsideSubcategory = {
         },
         {
             id: 'bath_tub_2',
-            name: 'Component does not limit hygiene',
-            detail: 'Bathtub or shower component is damaged, inoperable, or missing, and it may not limit the resident\'s ability to maintain personal hygiene.',
+            name: 'Component limits hygiene (minor)',
+            detail: 'Bathtub or shower component is damaged, inoperable, or missing, and it may limit the resident\'s ability to maintain personal hygiene.',
             criteria: 'component , inoperable or missing—whether due to system failure, incomplete installation, or absence of non-mechanical parts like a stopper or discoloration affecting less than 50% of the surface.',
             severity: 'Low',
             repairBy: '60 Day',
