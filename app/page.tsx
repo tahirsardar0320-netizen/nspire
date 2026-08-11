@@ -151,7 +151,7 @@ export default function Home() {
 
                 {/* Hero Content */}
                 <div className="flex-1 w-full lg:max-w-[650px] text-left relative z-20">
-                    <p className="text-sm sm:text-base font-semibold tracking-wide text-black mb-3 whitespace-nowrap">Developed and Updated by State Licensees</p>
+                    <p className="text-2xl sm:text-3xl md:text-4xl font-bold serif tracking-tight text-black mb-4 leading-[1.15]">Developed and Updated by State Licensees</p>
                     <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[3.25rem] xl:text-[3.75rem] font-bold mb-6 leading-[1.15] serif tracking-tight">
                         <span className="text-gradient block">NSPIRE inspection (Public)</span>
                         <span className="block">Public &amp; Affordable Housing</span>
