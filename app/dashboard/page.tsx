@@ -219,14 +219,6 @@ export default function Dashboard() {
     toast.info("Searching properties...", { position: "top-right" })
   }
 
-  const handleHoldInspection = (property: any) => {
-    const pid = property._id || property.propertyId
-    if (pid) {
-      clearActiveInspection(pid)
-    }
-    toast.info(`Inspection for ${property.name} put on hold`, { position: "top-right" })
-  }
-
   const handleRemoveProperty = async (property: any) => {
     if (confirm(`Are you sure you want to remove ${property.name}?`)) {
       try {
@@ -743,7 +735,6 @@ export default function Dashboard() {
           setShowSummaryModal(true)
         }}
         onStartInspection={handleActionStartInspection}
-        onHoldInspection={() => selectedProperty && handleHoldInspection(selectedProperty)}
         onRemoveProperty={() => selectedProperty && handleRemoveProperty(selectedProperty)}
         propertyData={newPropertyData}
       />
