@@ -41,9 +41,7 @@ export default function Dashboard() {
   const [properties, setProperties] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [propertyProgress, setPropertyProgress] = useState<Record<string, number>>({})
-  const [lockedProperties, setLockedProperties] = useState<Record<string, boolean>>({})
   const [reportEmailed, setReportEmailed] = useState<Record<string, boolean>>({})
-  // The one property that is currently being inspected (all others get locked)
   const [activeInspectionId, setActiveInspectionId] = useState<string | null>(null)
   // Multi-select state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -144,16 +142,6 @@ export default function Dashboard() {
         }
       }
       setActiveInspectionId(actualActive)
-
-      const lockMap: Record<string, boolean> = {}
-      properties.forEach(p => {
-        const pid = p._id || p.propertyId
-        if (!pid) return
-        // A property is locked if there is an active inspection on a DIFFERENT property
-        const isOtherActive = actualActive && actualActive !== pid
-        lockMap[pid] = !!isOtherActive
-      })
-      setLockedProperties(lockMap)
 
       const emailedMap: Record<string, boolean> = {}
       properties.forEach(p => {
@@ -335,36 +323,20 @@ export default function Dashboard() {
     setShowCoverageModal(true)
   }
 
-  // Set a property as the active inspection — locks all others
+  // Set a property as the active inspection
   const activateInspection = (propId: string) => {
     if (typeof window === 'undefined') return
     localStorage.setItem('active_inspection_property', propId)
     setActiveInspectionId(propId)
-    // Lock all other properties immediately
-    const lockMap: Record<string, boolean> = {}
-    properties.forEach(p => {
-      const pid = p._id || p.propertyId
-      if (pid) lockMap[pid] = pid !== propId
-    })
-    setLockedProperties(lockMap)
   }
 
-  // Clear the active inspection lock — called when inspection reaches 100%
+  // Clear the active inspection — called when inspection reaches 100%
   const clearActiveInspection = (propId: string) => {
     if (typeof window === 'undefined') return
     const current = localStorage.getItem('active_inspection_property')
     if (current === propId) {
       localStorage.removeItem('active_inspection_property')
       setActiveInspectionId(null)
-      // Unlock all properties
-      const lockMap: Record<string, boolean> = {}
-      properties.forEach(p => {
-        const pid = p._id || p.propertyId
-        if (pid) {
-          lockMap[pid] = false
-        }
-      })
-      setLockedProperties(lockMap)
     }
   }
 
@@ -565,18 +537,6 @@ export default function Dashboard() {
                             >
                               In Progress
                             </button>
-                          ) : lockedProperties[pid] ? (
-                            <button
-                              disabled
-                              className="px-3 py-1.5 text-xs font-bold text-white bg-rose-500 rounded-lg flex items-center justify-center gap-1.5 cursor-not-allowed border-0 shadow-sm"
-                              title={activeInspectionId && activeInspectionId !== pid ? 'Another property is currently being inspected' : 'Locked'}
-                            >
-                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                              </svg>
-                              Locked
-                            </button>
                           ) : (
                             <button
                               onClick={() => handleInitiate(property)}
@@ -652,17 +612,6 @@ export default function Dashboard() {
                         >
                           In Progress
                         </Button>
-                      ) : lockedProperties[pid] ? (
-                        <button
-                          disabled
-                          className="bg-rose-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-not-allowed whitespace-nowrap ml-2 border-0 shadow-sm"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                          </svg>
-                          Locked
-                        </button>
                       ) : (
                         <Button
                           onClick={() => handleInitiate(property)}
