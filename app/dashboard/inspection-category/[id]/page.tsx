@@ -254,6 +254,7 @@ export default function InspectionCategoryPage() {
     const [currentModalItem, setCurrentModalItem] = useState<string | null>(null);
     const [selectionType, setSelectionType] = useState<'selected' | 'detail' | 'criteria'>('selected');
     const [selectedDeficiency, setSelectedDeficiency] = useState<DeficiencyDetail | null>(null);
+    const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [photos, setPhotos] = useState<string[]>([]);
     const [odForm, setOdForm] = useState({
@@ -812,6 +813,7 @@ export default function InspectionCategoryPage() {
             if (previousData) {
                 setOdForm(previousData.odForm);
                 setSelectedDeficiency(previousData.selectedDeficiency);
+                setSelectedSubcategory(null);
                 setPhotos(previousData.photos);
                 // Jump to step 4 (saved deficiency review) since this item already has one recorded
                 setModalStep(4);
@@ -826,6 +828,7 @@ export default function InspectionCategoryPage() {
                     codeAndCompliance: ""
                 }));
                 setSelectedDeficiency(null);
+                setSelectedSubcategory(null);
                 setPhotos([]);
                 setModalStep(1);
             }
@@ -926,6 +929,7 @@ export default function InspectionCategoryPage() {
     const handleODModalClose = () => {
         setIsODModalOpen(false);
         setSelectedDeficiency(null);
+        setSelectedSubcategory(null);
         setPhotos([]);
         setOdForm({ category: "", note: "", location: "Building Site S", healthAndSafety: "", repairBy: "", codeAndCompliance: "" });
     };
@@ -1022,11 +1026,13 @@ export default function InspectionCategoryPage() {
 
     const handleOpenSelection = (type: 'selected' | 'detail' | 'criteria') => {
         setSelectionType(type);
+        if (type === 'selected') setSelectedSubcategory(null);
         setModalStep(3);
     };
 
     const handleDeficiencySelect = (def: DeficiencyDetail) => {
         setSelectedDeficiency(def);
+        setSelectedSubcategory(null);
         setOdForm(prev => ({
             ...prev,
             healthAndSafety: def.healthAndSafety,
@@ -1502,6 +1508,22 @@ export default function InspectionCategoryPage() {
             return allDefs.filter(def => def.selected === selectedDeficiency.selected);
         }
         return allDefs;
+    };
+
+    // Distinct subcategory names for the current item (e.g. Bathroom -> Bathtub and
+    // Shower, Cabinet and Storage, Grab Bar...). Only meaningful for the top-level
+    // "selected" picker — items with a single subcategory (or none) skip this step.
+    const getSubcategoryOptions = () => {
+        if (selectionType !== 'selected') return [];
+        const seen = new Set<string>();
+        const opts: string[] = [];
+        getDisplayDeficiencies().forEach(def => {
+            if (def.subcategory && !seen.has(def.subcategory)) {
+                seen.add(def.subcategory);
+                opts.push(def.subcategory);
+            }
+        });
+        return opts;
     };
 
     const renderTable = (section: 'outside' | 'inside' | 'unit', items: string[], statuses: Record<string, ItemStatus>) => (
@@ -2500,19 +2522,41 @@ export default function InspectionCategoryPage() {
                                 </div>
                             )}
 
-                            {modalStep === 3 && (
+                            {modalStep === 3 && (() => {
+                                const subcategoryOptions = getSubcategoryOptions();
+                                const showSubcategoryPicker = subcategoryOptions.length > 1 && !selectedSubcategory;
+                                const visibleDefs = showSubcategoryPicker
+                                    ? []
+                                    : getDisplayDeficiencies().filter(def => !selectedSubcategory || def.subcategory === selectedSubcategory);
+                                return (
                                 <div className="space-y-4 animate-in slide-in-from-right duration-300 pb-10">
                                     <div className="flex items-center gap-4 mb-8 sticky top-0 bg-white/95 backdrop-blur-sm p-1 z-10">
-                                        <button onClick={() => setModalStep(2)} className="w-10 h-10 border border-gray-100 bg-white rounded-xl flex items-center justify-center hover:bg-gray-50 transition-all text-blue-600 shadow-sm">
+                                        <button
+                                            onClick={() => selectedSubcategory ? setSelectedSubcategory(null) : setModalStep(2)}
+                                            className="w-10 h-10 border border-gray-100 bg-white rounded-xl flex items-center justify-center hover:bg-gray-50 transition-all text-blue-600 shadow-sm"
+                                        >
                                             <ChevronLeft className="w-5 h-5" />
                                         </button>
                                         <div>
                                             <label className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Step 3 of 3</label>
-                                            <h4 className="text-sm font-black text-gray-900 truncate">Select {selectionType === 'selected' ? 'Deficiency' : selectionType}</h4>
+                                            <h4 className="text-sm font-black text-gray-900 truncate">
+                                                {showSubcategoryPicker ? 'Select Deficiency' : selectedSubcategory ? selectedSubcategory : `Select ${selectionType === 'selected' ? 'Deficiency' : selectionType}`}
+                                            </h4>
                                         </div>
                                     </div>
                                     <div className="space-y-3">
-                                        {getDisplayDeficiencies().length > 0 ? getDisplayDeficiencies().map((def: DeficiencyDetail) => (
+                                        {showSubcategoryPicker ? (
+                                            subcategoryOptions.map((sub) => (
+                                                <button
+                                                    key={sub}
+                                                    onClick={() => setSelectedSubcategory(sub)}
+                                                    className="w-full p-5 text-left border rounded-2xl transition-all text-[11px] font-bold leading-relaxed flex items-center justify-between group shadow-sm border-gray-50 hover:border-blue-200 hover:bg-gray-50 text-gray-700"
+                                                >
+                                                    <span className="flex-1 pr-4">{sub}</span>
+                                                    <ChevronDown className="w-4 h-4 opacity-0 group-hover:opacity-100 -rotate-90 transition-all text-blue-500" />
+                                                </button>
+                                            ))
+                                        ) : visibleDefs.length > 0 ? visibleDefs.map((def: DeficiencyDetail) => (
                                             <button
                                                 key={def.id}
                                                 onClick={() => handleDeficiencySelect(def)}
@@ -2528,7 +2572,8 @@ export default function InspectionCategoryPage() {
                                         )}
                                     </div>
                                 </div>
-                            )}
+                                );
+                            })()}
                         </div>
                         )}
 

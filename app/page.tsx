@@ -151,8 +151,8 @@ export default function Home() {
 
                 {/* Hero Content */}
                 <div className="flex-1 w-full lg:max-w-[650px] text-left relative z-20">
-                    <p className="text-sm sm:text-base font-semibold tracking-wide text-gradient mb-3 whitespace-nowrap">Developed and Updated by State Licensees</p>
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[4rem] xl:text-[4.5rem] font-bold mb-6 leading-[1.15] serif tracking-tight">
+                    <p className="text-sm sm:text-base font-semibold tracking-wide text-black mb-3 whitespace-nowrap">Developed and Updated by State Licensees</p>
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[3.25rem] xl:text-[3.75rem] font-bold mb-6 leading-[1.15] serif tracking-tight">
                         <span className="text-gradient block">NSPIRE inspection (Public)</span>
                         <span className="block">Public &amp; Affordable Housing</span>
                         <span className="text-[#F84B5F] italic font-bold block">Across the U.S.A</span>
@@ -261,7 +261,7 @@ export default function Home() {
                     <a href="https://nspireinspection.ai/" className="btn-primary px-6 py-3 rounded-full text-sm font-semibold inline-block text-center">
                         Download NSPIREinspectionApp.com
                     </a>
-                    <a href="https://nspireinspection.ai/" className="flex flex-col bg-white rounded-lg px-3 py-1.5">
+                    <a href="https://nspireinspection.ai/" target="_blank" rel="noopener noreferrer" className="flex flex-col bg-white rounded-lg px-3 py-1.5">
                         <img src="/nspire-inspection-ai-badge.png" alt="NSPIRE Inspection.ai International Standard" className="object-contain h-16 md:h-20 w-auto" />
                     </a>
                 </div>

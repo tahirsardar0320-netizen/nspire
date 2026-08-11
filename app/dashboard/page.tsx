@@ -293,15 +293,6 @@ export default function Dashboard() {
     const prop = newPropertyData || selectedProperty
     const propId = prop?._id || prop?.id || 'new'
 
-    // Block if another property is already being inspected
-    if (typeof window !== 'undefined' && propId !== 'new') {
-      const currentActive = localStorage.getItem('active_inspection_property')
-      if (currentActive && currentActive !== propId) {
-        toast.error('Another property is currently being inspected. Please complete or hold it first.', { position: 'top-right' })
-        return
-      }
-    }
-
     // Check if there is already a saved coverage for this property
     if (typeof window !== 'undefined' && propId !== 'new') {
       const saved = localStorage.getItem(`property_coverage_${propId}`)

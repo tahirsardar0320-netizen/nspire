@@ -155,13 +155,7 @@ export default function MyInspection() {
 
     const propId = selectedProperty._id || selectedProperty.propertyId
 
-    // Block if another property is already being inspected
     if (typeof window !== 'undefined' && propId) {
-      const currentActive = localStorage.getItem('active_inspection_property')
-      if (currentActive && currentActive !== propId) {
-        toast.error('Another property is currently being inspected. Please complete or hold it first.', { position: 'top-right' })
-        return
-      }
       activateInspection(propId)
     }
 
@@ -225,14 +219,6 @@ export default function MyInspection() {
   }
 
   const handleInitiate = (property: any) => {
-    const pid = property._id || property.propertyId
-    if (typeof window !== 'undefined' && pid) {
-      const currentActive = localStorage.getItem('active_inspection_property')
-      if (currentActive && currentActive !== pid) {
-        toast.error('Another property is currently being inspected. Please complete or hold it first.', { position: 'top-right' })
-        return
-      }
-    }
     setSelectedProperty(property)
     setActionModalOpen(true)
   }
