@@ -33,7 +33,7 @@ export const BATHROOM_BATHTUB_SHOWER: InsideSubcategory = {
         {
             id: 'bath_tub_1',
             name: 'Bathtub/shower inoperable with backup',
-            detail: 'Bathtusb or howershowe r is inoperable or does not drain, and at least one bathtub or shower is present elsewhere that is operational.',
+            detail: 'Only 1 bathtub or shower is inoperable or does not drain, and at least one bathtub or shower is present elsewhere that is operational.',
             criteria: 'A bathtub or shower is inoperable, or standing water is present, such that the inspector believes water is unable to drain or drains very slowly.',
             severity: 'Moderate',
             repairBy: '30 Day',
