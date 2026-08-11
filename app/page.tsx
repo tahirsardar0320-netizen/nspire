@@ -137,7 +137,7 @@ export default function Home() {
     </nav>
 
     {/* Hero Section */}
-    <section className="relative pt-20 sm:pt-24 lg:pt-28 pb-16 lg:pb-32 z-10 min-h-screen flex items-center bg-[#E8F4F8] overflow-hidden">
+    <section className="relative pt-28 sm:pt-32 lg:pt-36 pb-16 lg:pb-32 z-10 min-h-0 lg:min-h-[80vh] flex items-center bg-[#E8F4F8] overflow-hidden">
         {/* Background photo slideshow — light overlay so text stays readable */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
             <div className="bg-slide"></div>
@@ -151,7 +151,7 @@ export default function Home() {
 
                 {/* Hero Content */}
                 <div className="flex-1 w-full lg:max-w-[650px] text-left relative z-20">
-                    <p className="text-3xl sm:text-4xl md:text-5xl lg:text-[4rem] xl:text-[4.5rem] font-bold leading-[1.15] serif tracking-tight text-gradient mb-4">Developed and Updated by State Licensees</p>
+                    <p className="text-sm sm:text-base font-semibold tracking-wide text-gradient mb-3 whitespace-nowrap">Developed and Updated by State Licensees</p>
                     <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[4rem] xl:text-[4.5rem] font-bold mb-6 leading-[1.15] serif tracking-tight">
                         <span className="text-gradient block">NSPIRE inspection (Public)</span>
                         <span className="block">Public &amp; Affordable Housing</span>
@@ -260,6 +260,9 @@ export default function Home() {
                     </a>
                     <a href="https://nspireinspection.ai/" className="btn-primary px-6 py-3 rounded-full text-sm font-semibold inline-block text-center">
                         Download NSPIREinspectionApp.com
+                    </a>
+                    <a href="https://nspireinspection.ai/" className="flex flex-col bg-white rounded-lg px-3 py-1.5">
+                        <img src="/nspire-inspection-ai-badge.png" alt="NSPIRE Inspection.ai International Standard" className="object-contain h-16 md:h-20 w-auto" />
                     </a>
                 </div>
 
