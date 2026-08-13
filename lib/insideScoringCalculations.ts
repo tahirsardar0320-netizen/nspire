@@ -10,6 +10,34 @@ export interface InsideSeverityConfig {
   specialFormula?: 'divide_50n' | 'zero'; // Special formula types
 }
 
+// NSPIRE_public source sheet — "Inside-Locations" tab
+export const INSIDE_LOCATION_OPTIONS = [
+  'Basement',
+  'Business Space',
+  'Classroom',
+  'Closet/Utility',
+  'Day Care',
+  'Halls/Corridors/Stairs',
+  'Kitchen',
+  'Laundry Room',
+  'Leased Commercial',
+  'Library',
+  'Lobby',
+  'Maintenance Shop',
+  'Mechanical Room',
+  'Office',
+  'Other Community Space',
+  'Parking Garage',
+  'Patio/Porch/Balcony',
+  'Reception Room',
+  'Recreation Room',
+  'Refuse/Compactor Room',
+  'Restrooms',
+  'Salon',
+  'Store',
+  'Workout Room'
+];
+
 // ============================================================================
 // CATEGORY-BASED DEFICIENCY PATTERNS - EXACT TABLE MAPPING
 // Each category maps deficiency criteria to severity and formula exactly

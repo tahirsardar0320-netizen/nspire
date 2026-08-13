@@ -21,8 +21,10 @@ import {
     calculateInsideScore,
     extractInsideCategoryNumber,
     InsideScoringResult,
-    INSIDE_POSSIBLE_SCORE
+    INSIDE_POSSIBLE_SCORE,
+    INSIDE_LOCATION_OPTIONS
 } from "@/lib/insideScoringCalculations"
+import { UNIT_LOCATION_OPTIONS } from "@/lib/unitScoringCalculations"
 import { getSamplingRequirements } from "@/lib/unitSamplingService"
 import { toast } from "react-toastify"
 import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, MoreHorizontal, Camera, X, ChevronLeft, CheckCircle2, FileText, User, Grid, Clock, Video, Monitor, Image as ImageIcon, Laptop, Tablet, Pencil, Check, Mail } from "lucide-react";
@@ -822,7 +824,7 @@ export default function InspectionCategoryPage() {
                     ...prev,
                     category: cleanCategory,
                     note: "",
-                    location: "Building Site S",
+                    location: getDefaultLocation(section),
                     healthAndSafety: "",
                     repairBy: "",
                     codeAndCompliance: ""
@@ -931,7 +933,7 @@ export default function InspectionCategoryPage() {
         setSelectedDeficiency(null);
         setSelectedSubcategory(null);
         setPhotos([]);
-        setOdForm({ category: "", note: "", location: "Building Site S", healthAndSafety: "", repairBy: "", codeAndCompliance: "" });
+        setOdForm({ category: "", note: "", location: getDefaultLocation(currentSection), healthAndSafety: "", repairBy: "", codeAndCompliance: "" });
     };
 
     const handleRemoveODDeficiency = () => {
@@ -1454,6 +1456,11 @@ export default function InspectionCategoryPage() {
         } finally {
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
+    };
+
+    const getDefaultLocation = (section: 'outside' | 'inside' | 'unit' | null) => {
+        const list = section === 'outside' ? OUTSIDE_LOCATION_OPTIONS : section === 'inside' ? INSIDE_LOCATION_OPTIONS : UNIT_LOCATION_OPTIONS;
+        return list[0];
     };
 
     const getFilteredDeficiencies = () => {
@@ -2328,7 +2335,7 @@ export default function InspectionCategoryPage() {
                                         </div>
                                       </div>
 
-                                    {/* 4. PIC - Photo section with Take Photo and Choose from Gallery */}
+                                    {/* 4. PIC - Photo section (camera capture only) */}
                                     <div>
                                         <label className="block text-[10px] font-extrabold text-slate-400 uppercase mb-2 tracking-wider font-lexend">Pic</label>
 
@@ -2349,26 +2356,14 @@ export default function InspectionCategoryPage() {
                                             </div>
                                         )}
 
-                                        {/* Two buttons side by side - Take Photo and Choose from Gallery */}
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div
-                                                onClick={() => fileInputRef.current?.click()}
-                                                className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-200 rounded-2xl hover:border-[#0E7490] hover:bg-cyan-50/30 transition-all cursor-pointer group"
-                                            >
-                                                <div className="w-16 h-16 rounded-full bg-cyan-50 flex items-center justify-center mb-3 group-hover:bg-[#0E7490] transition-colors">
-                                                    <Camera className="w-7 h-7 text-[#0E7490] group-hover:text-white transition-colors" />
-                                                </div>
-                                                <span className="text-[10px] font-bold text-gray-500 group-hover:text-[#0E7490]">Take Photo</span>
+                                        <div
+                                            onClick={() => fileInputRef.current?.click()}
+                                            className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-200 rounded-2xl hover:border-[#0E7490] hover:bg-cyan-50/30 transition-all cursor-pointer group"
+                                        >
+                                            <div className="w-16 h-16 rounded-full bg-cyan-50 flex items-center justify-center mb-3 group-hover:bg-[#0E7490] transition-colors">
+                                                <Camera className="w-7 h-7 text-[#0E7490] group-hover:text-white transition-colors" />
                                             </div>
-                                            <div
-                                                onClick={() => fileInputRef.current?.click()}
-                                                className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-200 rounded-2xl hover:border-[#0E7490] hover:bg-cyan-50/30 transition-all cursor-pointer group"
-                                            >
-                                                <div className="w-16 h-16 rounded-full bg-cyan-50 flex items-center justify-center mb-3 group-hover:bg-[#0E7490] transition-colors">
-                                                    <ImageIcon className="w-7 h-7 text-[#0E7490] group-hover:text-white transition-colors" />
-                                                </div>
-                                                <span className="text-[10px] font-bold text-gray-500 group-hover:text-[#0E7490]">Choose from Gallery</span>
-                                            </div>
+                                            <span className="text-[10px] font-bold text-gray-500 group-hover:text-[#0E7490]">Take Photo</span>
                                         </div>
                                         <input
                                             type="file"
@@ -2399,15 +2394,7 @@ export default function InspectionCategoryPage() {
                                                 value={odForm.location}
                                                 onChange={(e) => setOdForm({ ...odForm, location: e.target.value })}
                                             >
-                                                {[
-                                                    'Building Site S', 'Building Site N', 'Building Site E', 'Building Site W',
-                                                    'Parking Lot', 'Driveway', 'Sidewalk', 'Roof', 'Common Area', 'Main Lobby',
-                                                    'Basement', 'Attic/Loft', 'Bathroom 1', 'Bathroom 2', 'Bathroom 3',
-                                                    'Bedroom 1', 'Bedroom 2', 'Bedroom 3', 'Bedroom 4', 'Bedroom 5',
-                                                    'Closet', 'Dining Area', 'Entryway', 'Garage', 'Hallway/Stairs',
-                                                    'Home Office/Study', 'Kitchen', 'Laundry Room', 'Living Room',
-                                                    'Mechanical Room', 'Office', 'Patio/Porch/Balcony', 'Storage Room', 'Other'
-                                                ].map((loc: string) => (
+                                                {(currentSection === 'outside' ? OUTSIDE_LOCATION_OPTIONS : currentSection === 'inside' ? INSIDE_LOCATION_OPTIONS : UNIT_LOCATION_OPTIONS).map((loc: string) => (
                                                     <option key={loc} value={loc}>{loc}</option>
                                                 ))}
                                             </select>
@@ -2612,7 +2599,7 @@ export default function InspectionCategoryPage() {
 
                                 <Button
                                     onClick={() => {
-                                        setOdForm(prev => ({ ...prev, note: "", location: "Building Site S", healthAndSafety: "", repairBy: "", codeAndCompliance: "" }));
+                                        setOdForm(prev => ({ ...prev, note: "", location: getDefaultLocation(currentSection), healthAndSafety: "", repairBy: "", codeAndCompliance: "" }));
                                         setSelectedDeficiency(null);
                                         setPhotos([]);
                                         setModalStep(2);

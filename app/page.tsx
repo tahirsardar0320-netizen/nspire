@@ -57,7 +57,7 @@ export default function Home() {
                     </div>
                     <a href="/data-retention" className="nav-item-container"><span className="nav-title">ABOUT</span><span className="nav-subtitle">Our Story</span></a>
                     <a href="/education-training" className="nav-item-container"><span className="nav-title">EDUCATION & TRAINING</span><span className="nav-subtitle">NSPIRE Videos</span></a>
-                    <a href="https://www.hud.gov/reac/nspire-webinars" target="_blank" rel="noopener noreferrer" className="nav-item-container"><span className="nav-title">HUD EXCHANGE</span><span className="nav-subtitle">NSPIRE Webinars</span></a>
+                    <a href="/NSPIRE_Inspection_Protocol_Guide.pdf" target="_blank" rel="noopener noreferrer" className="nav-item-container"><span className="nav-title">PROTOCOL GUIDE</span></a>
                 </div>
 
                 {/* Right side: Login btn (desktop) + Hamburger (mobile) */}
@@ -124,7 +124,7 @@ export default function Home() {
                     </div>
                     <a href="/data-retention" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">ABOUT</span><span className="text-[11px] text-cyan-400">Our Story</span></a>
                     <a href="/education-training" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">EDUCATION &amp; TRAINING</span><span className="text-[11px] text-cyan-400">NSPIRE Videos</span></a>
-                    <a href="https://www.hud.gov/reac/nspire-webinars" target="_blank" rel="noopener noreferrer" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">HUD EXCHANGE</span><span className="text-[11px] text-cyan-400">NSPIRE Webinars</span></a>
+                    <a href="/NSPIRE_Inspection_Protocol_Guide.pdf" target="_blank" rel="noopener noreferrer" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">PROTOCOL GUIDE</span></a>
                 </div>
                 <div className="p-4 mt-auto border-t border-white/10">
                     <button onClick={() => { setMobileNavOpen(false); router.push('/profile-selection'); }} className="w-full btn-primary rounded-xl py-4 text-sm font-bold flex items-center justify-center gap-2">

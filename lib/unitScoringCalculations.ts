@@ -15,6 +15,34 @@ import {
 const POSSIBLE_SCORE = 50;
 export const UNIT_POSSIBLE_SCORE = POSSIBLE_SCORE;
 
+// NSPIRE_public source sheet — "Unit Locations" tab
+export const UNIT_LOCATION_OPTIONS = [
+    'Attic/Loft',
+    'Basement',
+    'Bathroom 1',
+    'Bathroom 2',
+    'Bathroom 3',
+    'Bedroom 1',
+    'Bedroom 2',
+    'Bedroom 3',
+    'Bedroom 4',
+    'Bedroom 5',
+    'Closet',
+    'Dining Area',
+    'Entryway (Front/Rear)',
+    'Garage',
+    'Hallway/Stairs',
+    'Home Office/Study',
+    'Kitchen',
+    'Laundry Room',
+    'Living Room',
+    'Mechanical Room',
+    'Office',
+    'Patio/Porch/Balcony',
+    'Storage Room',
+    'Other'
+];
+
 export interface UnitScoringInput {
     totalSamples: number;           // n - total number of inspected units/samples
     deficiencyCount: number;        // Number of deficiencies found

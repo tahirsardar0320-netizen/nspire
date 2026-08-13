@@ -7,16 +7,24 @@ export interface OutsideSeverityConfig {
   pointsLostFormula: number; // The numerator in the formula Pts Lost = X / n
 }
 
+// NSPIRE_public source sheet — "Location" tab (Outside)
 export const OUTSIDE_LOCATION_OPTIONS = [
-  'Building Site S',
   'Building Site N',
+  'Building Site S',
   'Building Site E',
   'Building Site W',
-  'Parking Lot',
-  'Driveway',
-  'Sidewalk',
-  'Roof',
-  'Common Area',
+  'Courtyard',
+  'Exterior E',
+  'Exterior N',
+  'Exterior S',
+  'Exterior W',
+  'Garage/Carport',
+  'Grounds',
+  'Parking Lot/Driveway/Roads',
+  'Patio/Porch/Balcony',
+  'Playground',
+  'Roof (Flat)',
+  'Sidewalks/Walkways/Stoops',
   'Other'
 ];
 

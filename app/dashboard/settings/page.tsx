@@ -541,6 +541,26 @@ export default function SettingsPage() {
                     </Button>
                   </div>
                 </div>
+
+                {/* Danger Zone */}
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-900">Danger Zone</h2>
+                    <p className="text-slate-500 text-xs mt-0.5 font-medium">Permanently delete your account and all associated data</p>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-rose-50/50 border border-rose-100 rounded-2xl">
+                    <div className="space-y-0.5">
+                      <p className="font-bold text-slate-800 text-sm">Delete Account</p>
+                      <p className="text-xs font-semibold text-slate-400">This action cannot be undone</p>
+                    </div>
+                    <Button
+                      onClick={() => router.push('/dashboard/delete-account')}
+                      className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs border-0 shadow-sm shadow-rose-600/10"
+                    >
+                      Delete Account
+                    </Button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
