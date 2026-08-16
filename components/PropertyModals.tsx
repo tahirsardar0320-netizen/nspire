@@ -819,7 +819,7 @@ interface BuildingData {
 interface BuildingDivisionModalProps {
   isOpen: boolean
   onClose: () => void
-  onUpdate: (data: any, buildings: BuildingData[]) => void
+  onUpdate: (data: any, buildings: BuildingData[]) => void | Promise<void>
   propertyData: any
 }
 
@@ -864,13 +864,46 @@ export function BuildingDivisionModal({ isOpen, onClose, onUpdate, propertyData 
     setBuildings(updated)
   }
 
-  const updateBuildingUnits = (index: number, units: number) => {
+  // Redistribute the delta across the other buildings so the property-wide
+  // unit total stays fixed instead of drifting every time one building is edited.
+  const updateBuildingUnits = (index: number, newValue: number) => {
+    const clampedValue = Math.max(0, newValue)
+    const oldValue = buildings[index].units
+    const delta = clampedValue - oldValue
+    if (delta === 0) return
+
     const updated = [...buildings]
-    updated[index] = { ...updated[index], units }
+    updated[index] = { ...updated[index], units: clampedValue }
+
+    let remaining = -delta // amount that still needs to be added to (or removed from) other buildings
+    const otherIndices = buildings.map((_, i) => i).filter(i => i !== index)
+
+    // Reducing others (this building grew): take from the buildings with the most units first.
+    // Adding to others (this building shrank): give to the buildings with the fewest units first.
+    otherIndices.sort((a, b) => remaining > 0 ? updated[a].units - updated[b].units : updated[b].units - updated[a].units)
+
+    for (const i of otherIndices) {
+      if (remaining === 0) break
+      const current = updated[i].units
+      if (remaining > 0) {
+        updated[i] = { ...updated[i], units: current + remaining }
+        remaining = 0
+      } else {
+        const toRemove = Math.min(-remaining, current)
+        updated[i] = { ...updated[i], units: current - toRemove }
+        remaining += toRemove
+      }
+    }
+
+    if (remaining !== 0) {
+      toast.error("Not enough units in other buildings to redistribute", { position: "top-right" })
+      return
+    }
+
     setBuildings(updated)
   }
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     // Validate building names
     for (let i = 0; i < buildings.length; i++) {
       if (!buildings[i].name.trim()) {
@@ -879,7 +912,11 @@ export function BuildingDivisionModal({ isOpen, onClose, onUpdate, propertyData 
       }
     }
     setIsLoading(true)
-    onUpdate(propertyData, buildings)
+    try {
+      await onUpdate(propertyData, buildings)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   if (!isOpen || !propertyData) return null
@@ -935,14 +972,6 @@ export function BuildingDivisionModal({ isOpen, onClose, onUpdate, propertyData 
                     className="w-full px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#006795]/20 focus:border-[#006795] text-sm font-medium text-slate-800 transition-all"
                   />
                 </div>
-                <button
-                  onClick={() => {
-                    toast.success(`Building ${building.name} updated`, { position: "top-right" })
-                  }}
-                  className="px-4 py-2.5 bg-[#006795] hover:bg-[#005580] text-white text-xs font-bold rounded-xl transition-colors shadow-sm shadow-[#006795]/10 border-0 whitespace-nowrap h-[42px] flex items-center justify-center font-lexend"
-                >
-                  Update
-                </button>
               </div>
             </div>
           ))}
