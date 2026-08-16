@@ -98,7 +98,7 @@ export default function ContactClient() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-gray-700 ml-2">Email Address</label>
+                      <label className="text-sm font-bold text-gray-700 ml-2">Email</label>
                       <input
                         required
                         type="email"
