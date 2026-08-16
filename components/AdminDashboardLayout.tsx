@@ -79,7 +79,7 @@ export default function AdminDashboardLayout({ children }: AdminDashboardLayoutP
             alt="NSPIRE"
             width={300}
             height={100}
-            className="h-28 w-auto cursor-pointer"
+            className="h-32 w-auto cursor-pointer"
             onClick={() => router.push('/')}
           />
         </div>
@@ -133,7 +133,7 @@ export default function AdminDashboardLayout({ children }: AdminDashboardLayoutP
             alt="NSPIRE"
             width={180}
             height={60}
-            className="w-auto h-14 cursor-pointer"
+            className="w-auto h-16 cursor-pointer"
             onClick={() => {
               router.push('/')
               setIsMobileMenuOpen(false)
@@ -206,7 +206,7 @@ export default function AdminDashboardLayout({ children }: AdminDashboardLayoutP
                 alt="NSPIRE"
                 width={120}
                 height={40}
-                className="w-auto h-10 cursor-pointer"
+                className="w-auto h-12 cursor-pointer"
                 onClick={() => router.push('/')}
               />
             </div>

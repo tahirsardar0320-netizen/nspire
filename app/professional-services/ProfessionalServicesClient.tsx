@@ -39,7 +39,7 @@ export default function ProfessionalServicesClient() {
       </section>
 
       <section className="bg-[#006795] py-20 px-4 text-center"><h2 className="text-4xl font-bold text-white mb-6">Ready to Partner With Nspire?</h2><p className="text-white/70 text-lg mb-10 max-w-2xl mx-auto">Join our network of professional partners and deliver best-in-class inspection services to your clients.</p><Button onClick={() => router.push("/contact")} className="bg-[#F84B5F] hover:bg-[#EE3646] text-white rounded-full px-12 py-7 text-lg font-bold shadow-2xl hover:scale-105 transition-all">Become a Partner</Button></section>
-      <footer className="bg-black text-white py-12 px-4"><div className="max-w-7xl mx-auto text-center"><Image src="/logo.png" alt="NSPIRE" width={120} height={40} className="mx-auto mb-6 h-8 w-auto" /><p className="text-gray-500 text-xs">© 2026 Nspire Home Inspections. All rights reserved.</p></div></footer>
+      <footer className="bg-black text-white py-12 px-4"><div className="max-w-7xl mx-auto text-center"><Image src="/logo.png" alt="NSPIRE" width={120} height={40} className="mx-auto mb-6 h-16 md:h-20 w-auto" /><p className="text-gray-500 text-xs">© 2026 Nspire Home Inspections. All rights reserved.</p></div></footer>
     </main>
   );
 }

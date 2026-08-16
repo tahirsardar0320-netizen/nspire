@@ -71,7 +71,7 @@ export function ReportPreviewModal({ report, onClose }: ReportPreviewModalProps)
 
         <div className="overflow-y-auto p-8 text-black text-sm">
           <div className="text-center mb-6">
-            <img src="/logo.png" alt="NSPIRE Inspection" className="h-14 mx-auto object-contain" />
+            <img src="/logo.png" alt="NSPIRE Inspection" className="h-20 mx-auto object-contain" />
           </div>
           <h1 className="text-center text-lg font-bold mb-6 uppercase">
             NSPIRE - National Standards for the Physical Inspection of Real Estate

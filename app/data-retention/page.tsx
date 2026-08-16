@@ -27,7 +27,7 @@ export default function DataRetentionPage() {
                     <img
                         src="/logo.png"
                         alt="NSPIRE"
-                        className="h-14 sm:h-16 md:h-20 w-auto object-contain"
+                        className="h-24 md:h-32 lg:h-36 w-auto object-contain"
                     />
                 </div>
                 <button

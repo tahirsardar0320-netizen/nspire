@@ -227,7 +227,7 @@ export default function WhatIsSewerScopeInspection() {
 
       <footer className="bg-black text-white py-12 px-4 md:px-6">
         <div className="max-w-7xl mx-auto text-center">
-          <Image src="/logo.png" alt="NSPIRE" width={120} height={40} className="mx-auto mb-6 h-8 w-auto" />
+          <Image src="/logo.png" alt="NSPIRE" width={120} height={40} className="mx-auto mb-6 h-16 md:h-20 w-auto" />
           <p className="text-gray-400 text-xs text-center">© 2026 Nspire Home Inspections. All rights reserved.</p>
         </div>
       </footer>

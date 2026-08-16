@@ -264,7 +264,7 @@ export default function Signup() {
             alt="NSPIRE Logo"
             width={480}
             height={560}
-            className="w-auto h-16 sm:h-24 md:h-32 cursor-pointer"
+            className="w-auto h-24 md:h-32 lg:h-36 cursor-pointer"
             onClick={() => router.push('/')}
           />
         </div>

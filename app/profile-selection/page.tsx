@@ -28,7 +28,7 @@ export default function ProfileSelection() {
 
       {/* Logo */}
       <div className="ps-logo" onClick={() => router.push("/")}>
-        <Image src="/logo.png" alt="NSPIRE Logo" width={180} height={65} className="h-14 w-auto" priority />
+        <Image src="/logo.png" alt="NSPIRE Logo" width={180} height={65} className="h-20 md:h-28 w-auto" priority />
       </div>
 
       {/* Heading */}
