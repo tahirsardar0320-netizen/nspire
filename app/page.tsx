@@ -33,7 +33,7 @@ export default function Home() {
             <div className="flex justify-between items-center py-2 lg:py-3">
                 {/* Logo */}
                 <div className="flex-shrink-0 flex flex-col relative z-20">
-                    <img src="logo.png" alt="Nspire App Logo" className="h-14 sm:h-16 md:h-20 w-auto rounded object-contain" />
+                    <img src="logo.png" alt="Nspire App Logo" className="h-20 sm:h-24 md:h-28 w-auto rounded object-contain" />
                 </div>
 
                 {/* Desktop Menu */}
@@ -224,7 +224,7 @@ export default function Home() {
                     <div className="space-y-3 text-gray-400 font-medium">
                         <p className="flex items-center gap-2 group cursor-pointer">
                             <svg className="w-5 h-5 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                            <a href="mailto:support@statelicensees.com" className="group-hover:text-white transition-colors">support@statelicensees.com</a>
+                            <a href="mailto:support@statelicensees.com" className="group-hover:text-white transition-colors">Contact: Support@StateLicensees.Com</a>
                         </p>
                         <p className="flex items-center gap-2 group cursor-pointer">
                             <svg className="w-5 h-5 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
@@ -235,7 +235,7 @@ export default function Home() {
 
                 {/* Subscribe */}
                 <div>
-                    <h3 className="font-bold mb-4 serif text-xl">Subscribe</h3>
+                    <h3 className="font-bold mb-4 serif text-xl">Nspire Update</h3>
                     <div className="flex mb-4">
                         <div className="relative flex-1">
                             <svg className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
