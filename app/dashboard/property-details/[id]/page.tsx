@@ -861,9 +861,9 @@ export default function PropertyDetailsPage() {
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => router.back()}
-                            className="p-2 hover:bg-slate-50 text-slate-500 hover:text-slate-900 rounded-xl border border-slate-200 transition-colors"
+                            className="p-2.5 hover:bg-red-50 text-red-600 hover:text-red-700 rounded-xl border border-slate-200 transition-colors"
                         >
-                            <ChevronLeft className="w-5 h-5" />
+                            <ChevronLeft className="w-7 h-7" />
                         </button>
                         <div>
                             <h1 className="text-xl sm:text-2xl font-extrabold text-gradient tracking-tight">Property Details</h1>
