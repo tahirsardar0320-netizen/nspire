@@ -1815,8 +1815,8 @@ export default function InspectionCategoryPage() {
         <DashboardLayout>
             <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto font-sans">
                 <div className="flex items-center justify-between mb-8">
-                    <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                        <ChevronLeft className="w-6 h-6 text-gray-600" />
+                    <button onClick={() => router.back()} className="p-2.5 hover:bg-red-50 rounded-full transition-colors">
+                        <ChevronLeft className="w-8 h-8 text-red-600" />
                     </button>
                     <div className="flex items-center gap-4">
                         {!isOnline ? (
