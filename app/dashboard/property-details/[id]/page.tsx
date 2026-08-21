@@ -260,16 +260,35 @@ export default function PropertyDetailsPage() {
         const baseTotalPerBuilding = Math.floor(totalUnits / totalBuildings)
         const remainderTotal = totalUnits % totalBuildings
 
-        // Distribute inspection units across buildings
-        const baseInspectionPerBuilding = Math.floor(unitsToInspect / totalBuildings)
-        const remainderInspection = unitsToInspect % totalBuildings
+        const buildingTotals = Array.from({ length: totalBuildings }, (_, i) =>
+            hasValidSavedSplit ? savedBuildingUnits[`B${i + 1}`] : baseTotalPerBuilding + (i < remainderTotal ? 1 : 0)
+        )
+
+        // Distribute inspection units proportionally to each building's actual total,
+        // so a building never gets asked to inspect more units than it has.
+        const grandTotal = buildingTotals.reduce((sum, t) => sum + t, 0) || 1
+        const rawShares = buildingTotals.map(t => (t * unitsToInspect) / grandTotal)
+        const inspectionUnits = rawShares.map(Math.floor)
+        let remaining = unitsToInspect - inspectionUnits.reduce((sum, v) => sum + v, 0)
+        const byFractionDesc = rawShares
+            .map((r, i) => ({ i, frac: r - inspectionUnits[i] }))
+            .sort((a, b) => b.frac - a.frac)
+        let guard = 0
+        while (remaining > 0 && guard < byFractionDesc.length * 3) {
+            const { i } = byFractionDesc[guard % byFractionDesc.length]
+            if (inspectionUnits[i] < buildingTotals[i]) {
+                inspectionUnits[i]++
+                remaining--
+            }
+            guard++
+        }
 
         const rows = []
         for (let i = 0; i < totalBuildings; i++) {
             rows.push({
                 buildingId: `B${i + 1}`,
-                totalUnits: hasValidSavedSplit ? savedBuildingUnits[`B${i + 1}`] : baseTotalPerBuilding + (i < remainderTotal ? 1 : 0),
-                unitsForInspection: baseInspectionPerBuilding + (i < remainderInspection ? 1 : 0),
+                totalUnits: buildingTotals[i],
+                unitsForInspection: inspectionUnits[i],
             })
         }
         return rows
