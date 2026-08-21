@@ -262,14 +262,19 @@ export default function Dashboard() {
       if (response.success) {
         toast.success("Data saved successfully", { position: "top-right" })
 
-        // Save custom building names to localStorage
+        // Save custom building names and per-building unit split to localStorage
+        // (the backend only stores the building count + total units, not the
+        // individual breakdown, so this mirrors that until the API supports it)
         const propId = response.property?._id || data.propertyId
         if (propId) {
           const namesMap: Record<string, string> = {}
+          const unitsMap: Record<string, number> = {}
           buildings.forEach((b, i) => {
             namesMap[`B${i + 1}`] = b.name
+            unitsMap[`B${i + 1}`] = b.units
           })
           localStorage.setItem(`buildingNames_${propId}`, JSON.stringify(namesMap))
+          localStorage.setItem(`buildingUnits_${propId}`, JSON.stringify(unitsMap))
         }
 
         fetchProperties()

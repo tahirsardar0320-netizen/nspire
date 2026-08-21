@@ -128,6 +128,9 @@ export default function PropertyDetailsPage() {
 
     // Editable building names (B1 → custom label)
     const [editableBuildingNames, setEditableBuildingNames] = useState<Record<string, string>>({})
+    // Custom per-building total-units split saved from the Property Details modal
+    // (backend only stores building count + total units, not the breakdown)
+    const [savedBuildingUnits, setSavedBuildingUnits] = useState<Record<string, number>>({})
     const [editingBuildingId, setEditingBuildingId] = useState<string | null>(null)
     const [tempBuildingName, setTempBuildingName] = useState('')
     const buildingNameInputRef = useRef<HTMLInputElement>(null)
@@ -170,6 +173,8 @@ export default function PropertyDetailsPage() {
         if (saved) setColumnHeaderName(saved)
         const savedNames = localStorage.getItem(`buildingNames_${id}`)
         if (savedNames) { try { setEditableBuildingNames(JSON.parse(savedNames)) } catch {} }
+        const savedUnits = localStorage.getItem(`buildingUnits_${id}`)
+        if (savedUnits) { try { setSavedBuildingUnits(JSON.parse(savedUnits)) } catch {} }
     }, [id])
 
     // Focus input when edit modal opens
@@ -246,6 +251,14 @@ export default function PropertyDetailsPage() {
         const totalUnits = property.units || 1
         const unitsToInspect = calculatedUnitsParam || totalUnits
 
+        // If a custom per-building split was saved (Property Details modal) and it
+        // still matches the current building count + total units, use it as-is
+        // instead of recomputing an even split that would discard the user's edit.
+        const savedIds = Array.from({ length: totalBuildings }, (_, i) => `B${i + 1}`)
+        const hasValidSavedSplit =
+            savedIds.every(bid => typeof savedBuildingUnits[bid] === 'number') &&
+            savedIds.reduce((sum, bid) => sum + savedBuildingUnits[bid], 0) === totalUnits
+
         // Distribute total units across buildings
         const baseTotalPerBuilding = Math.floor(totalUnits / totalBuildings)
         const remainderTotal = totalUnits % totalBuildings
@@ -258,12 +271,12 @@ export default function PropertyDetailsPage() {
         for (let i = 0; i < totalBuildings; i++) {
             rows.push({
                 buildingId: `B${i + 1}`,
-                totalUnits: baseTotalPerBuilding + (i < remainderTotal ? 1 : 0),
+                totalUnits: hasValidSavedSplit ? savedBuildingUnits[`B${i + 1}`] : baseTotalPerBuilding + (i < remainderTotal ? 1 : 0),
                 unitsForInspection: baseInspectionPerBuilding + (i < remainderInspection ? 1 : 0),
             })
         }
         return rows
-    }, [property, calculatedUnitsParam])
+    }, [property, calculatedUnitsParam, savedBuildingUnits])
 
     // Initialize editable inspection units from computed defaults
     useEffect(() => {
@@ -1067,7 +1080,7 @@ export default function PropertyDetailsPage() {
                                                     max={totalInspectionUnits}
                                                     value={building.unitsForInspection}
                                                     onChange={(e) => handleInspectionUnitChange(building.buildingId, parseInt(e.target.value) || 0)}
-                                                    className="w-20 text-center text-sm font-extrabold text-slate-800 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl py-1.5 px-2 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
+                                                    className="w-20 text-center text-sm font-extrabold text-slate-800 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl py-1.5 px-2 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                 />
                                             </td>
                                             <td className="py-5 px-6 text-center">
@@ -1172,7 +1185,7 @@ export default function PropertyDetailsPage() {
                                         max={totalInspectionUnits}
                                         value={building.unitsForInspection}
                                         onChange={(e) => handleInspectionUnitChange(building.buildingId, parseInt(e.target.value) || 0)}
-                                        className="w-16 text-center text-xs font-extrabold text-slate-800 border border-slate-200 bg-slate-50/50 rounded-lg py-1 px-1 focus:outline-none"
+                                        className="w-16 text-center text-xs font-extrabold text-slate-800 border border-slate-200 bg-slate-50/50 rounded-lg py-1 px-1 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     />
                                 </div>
                                 <div className="flex justify-between items-center pb-4 border-b border-slate-100 text-xs font-medium">
