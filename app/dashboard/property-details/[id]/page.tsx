@@ -96,9 +96,6 @@ export default function PropertyDetailsPage() {
     const [selectedBuilding, setSelectedBuilding] = useState<{ buildingId: string; totalUnits: number; unitsForInspection: number } | null>(null)
     const [completedUnitsMap, setCompletedUnitsMap] = useState<Record<string, string[]>>({})
 
-    // Editable inspection units per building
-    const [editableInspectionUnits, setEditableInspectionUnits] = useState<Record<string, number>>({})
-
 
     // CRITICAL: Clear stale inspection data if navigating to a different property
     useEffect(() => {
@@ -278,24 +275,7 @@ export default function PropertyDetailsPage() {
         return rows
     }, [property, calculatedUnitsParam, savedBuildingUnits])
 
-    // Initialize editable inspection units from computed defaults
-    useEffect(() => {
-        if (initialBuildings.length > 0 && Object.keys(editableInspectionUnits).length === 0) {
-            const map: Record<string, number> = {}
-            initialBuildings.forEach(b => {
-                map[b.buildingId] = b.unitsForInspection
-            })
-            setEditableInspectionUnits(map)
-        }
-    }, [initialBuildings])
-
-    // Final buildings array that uses editable inspection units
-    const buildings = useMemo(() => {
-        return initialBuildings.map(b => ({
-            ...b,
-            unitsForInspection: editableInspectionUnits[b.buildingId] ?? b.unitsForInspection,
-        }))
-    }, [initialBuildings, editableInspectionUnits])
+    const buildings = initialBuildings
 
     // Overall % comes from the same fetchPropertyProgressMap engine the dashboard
     // and inspection-status pages use, so a property reads identically everywhere
@@ -311,71 +291,6 @@ export default function PropertyDetailsPage() {
             console.error('Error refreshing overall progress:', e)
         }
     }, [property])
-
-    // Handler: when user edits a building's unit-for-inspection value
-    const handleInspectionUnitChange = (buildingId: string, newValue: number) => {
-        const totalBuildings = initialBuildings.length
-        if (totalBuildings === 0) return
-
-        const building = initialBuildings.find(b => b.buildingId === buildingId)
-        if (!building) return
-
-        // Clamp: min 0, max = total inspection units (user can assign all to one building)
-        const clampedValue = Math.max(0, Math.min(newValue, totalInspectionUnits))
-
-        // Current editable map
-        const currentMap = { ...editableInspectionUnits }
-        const oldValue = currentMap[buildingId] ?? building.unitsForInspection
-        const delta = clampedValue - oldValue
-
-        if (delta === 0) return
-
-        // Set new value for this building
-        currentMap[buildingId] = clampedValue
-
-        // Redistribute the delta across other buildings to maintain the total
-        let remaining = -delta // amount we need to distribute to others
-        const otherBuildingIds = initialBuildings
-            .filter(b => b.buildingId !== buildingId)
-            .map(b => b.buildingId)
-
-        // Sort buildings: when reducing others (delta > 0), take from those with the most first
-        // When adding to others (delta < 0), give to those with the least first
-        if (remaining > 0) {
-            // Need to add units to other buildings (current building was reduced)
-            otherBuildingIds.sort((a, b) => (currentMap[a] ?? 0) - (currentMap[b] ?? 0))
-        } else {
-            // Need to remove units from other buildings (current building was increased)
-            otherBuildingIds.sort((a, b) => (currentMap[b] ?? 0) - (currentMap[a] ?? 0))
-        }
-
-        for (const otherId of otherBuildingIds) {
-            if (remaining === 0) break
-            const otherBuilding = initialBuildings.find(b => b.buildingId === otherId)!
-            const otherCurrent = currentMap[otherId] ?? otherBuilding.unitsForInspection
-
-            if (remaining > 0) {
-                // Add units: no upper cap (inspection units can exceed building's default total)
-                const toAdd = remaining
-                currentMap[otherId] = otherCurrent + toAdd
-                remaining -= toAdd
-            } else {
-                // Remove units: cap at 0 (can't go negative)
-                const maxCanRemove = otherCurrent
-                const toRemove = Math.min(-remaining, maxCanRemove)
-                currentMap[otherId] = otherCurrent - toRemove
-                remaining += toRemove
-            }
-        }
-
-        // If we couldn't fully redistribute (edge case), revert the change
-        if (remaining !== 0) {
-            toast.error("Cannot redistribute units: some buildings would exceed their limits", { position: "top-right" })
-            return
-        }
-
-        setEditableInspectionUnits(currentMap)
-    }
 
     // Load completed units for all buildings — reads the same progress records
     // (API + local cache) that the inspection-category page actually writes to,
@@ -1073,16 +988,7 @@ export default function PropertyDetailsPage() {
                                                 )}
                                             </td>
                                             <td className="py-5 px-6 text-sm text-slate-600 text-center font-bold">{building.totalUnits}</td>
-                                            <td className="py-5 px-6 text-center">
-                                                <input
-                                                    type="number"
-                                                    min={0}
-                                                    max={totalInspectionUnits}
-                                                    value={building.unitsForInspection}
-                                                    onChange={(e) => handleInspectionUnitChange(building.buildingId, parseInt(e.target.value) || 0)}
-                                                    className="w-20 text-center text-sm font-extrabold text-slate-800 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl py-1.5 px-2 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                />
-                                            </td>
+                                            <td className="py-5 px-6 text-sm text-slate-600 text-center font-bold">{building.unitsForInspection}</td>
                                             <td className="py-5 px-6 text-center">
                                                 {completed > 0 ? (
                                                     <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border ${allDone ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
@@ -1179,14 +1085,7 @@ export default function PropertyDetailsPage() {
                                 </div>
                                 <div className="flex justify-between items-center pb-3 border-b border-slate-100 text-xs font-medium">
                                     <span className="text-slate-400 font-bold uppercase tracking-wider">Units for Inspection</span>
-                                    <input
-                                        type="number"
-                                        min={0}
-                                        max={totalInspectionUnits}
-                                        value={building.unitsForInspection}
-                                        onChange={(e) => handleInspectionUnitChange(building.buildingId, parseInt(e.target.value) || 0)}
-                                        className="w-16 text-center text-xs font-extrabold text-slate-800 border border-slate-200 bg-slate-50/50 rounded-lg py-1 px-1 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                    />
+                                    <span className="text-slate-800 font-extrabold">{building.unitsForInspection}</span>
                                 </div>
                                 <div className="flex justify-between items-center pb-4 border-b border-slate-100 text-xs font-medium">
                                     <span className="text-slate-400 font-bold uppercase tracking-wider">Progress</span>
