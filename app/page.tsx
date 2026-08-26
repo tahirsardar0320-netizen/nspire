@@ -254,8 +254,8 @@ export default function Home() {
             {/* Bottom Bar */}
             <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <a href="#" className="flex flex-col">
-                        <img src="logo.png" alt="Nspire App Logo" className="object-contain h-16 md:h-20 w-auto rounded" />
+                    <a href="#" className="flex flex-col bg-white rounded-lg px-3 py-1.5">
+                        <img src="logo.png" alt="Nspire App Logo" className="object-contain h-16 md:h-20 w-auto" />
                     </a>
                     <a href="https://nspireinspection.ai/" target="_blank" rel="noopener noreferrer" className="flex flex-col bg-white rounded-lg px-3 py-1.5">
                         <img src="/nspire-inspection-ai-badge.png" alt="NSPIRE Inspection.ai International Standard" className="object-contain h-16 md:h-20 w-auto" />
