@@ -9,3 +9,6 @@ ios/App/build/
 ios/App/DerivedData/
 ios/App/Podfile.lock
 .DS_Store
+
+# Intermediate captures, only the finalized store-assets/ios and store-assets/android sets are needed
+store-assets/screenshots-raw/
