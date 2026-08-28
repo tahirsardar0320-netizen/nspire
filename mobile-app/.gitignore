@@ -12,3 +12,4 @@ ios/App/Podfile.lock
 
 # Intermediate captures, only the finalized store-assets/ios and store-assets/android sets are needed
 store-assets/screenshots-raw/
+secrets/
