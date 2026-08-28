@@ -2176,7 +2176,7 @@ export default function InspectionCategoryPage() {
                         <div className="p-5 space-y-4">
                             {/* Note text area */}
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Note</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Work Order</label>
                                 <textarea
                                     value={generalNote}
                                     onChange={(e) => setGeneralNote(e.target.value)}
@@ -2376,7 +2376,7 @@ export default function InspectionCategoryPage() {
 
                                     {/* 5. NOTE - Text area */}
                                     <div>
-                                        <label className="block text-[10px] font-extrabold text-slate-400 uppercase mb-2 tracking-wider font-lexend">Note</label>
+                                        <label className="block text-[10px] font-extrabold text-slate-400 uppercase mb-2 tracking-wider font-lexend">Work Order</label>
                                         <textarea
                                             className="w-full border border-slate-100 bg-slate-50/50 rounded-2xl p-4 text-xs font-semibold text-slate-800 focus:bg-white focus:border-[#0E7490] outline-none transition-all h-24 resize-none font-lexend"
                                             value={odForm.note}
