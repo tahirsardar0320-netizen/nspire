@@ -1,0 +1,15 @@
+{
+  "appId": "com.nspireapp",
+  "appName": "NSPIRE INSPECTION (Public)",
+  "webDir": "www",
+  "server": {
+    "url": "https://nspireinspectionapp.com",
+    "cleartext": false
+  },
+  "ios": {
+    "contentInset": "automatic"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
