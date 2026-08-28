@@ -7,12 +7,18 @@ on:
 
 jobs:
   build-and-upload:
-    runs-on: macos-14
+    runs-on: macos-15
     defaults:
       run:
         working-directory: mobile-app
     steps:
       - uses: actions/checkout@v4
+
+      - name: Select latest available Xcode
+        run: |
+          ls /Applications | grep -i xcode
+          sudo xcode-select -s /Applications/Xcode_26.0.1.app/Contents/Developer || sudo xcode-select -s /Applications/Xcode_26.0.app/Contents/Developer || sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          xcodebuild -version
 
       - uses: actions/setup-node@v4
         with:
