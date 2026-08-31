@@ -205,7 +205,7 @@ export default function Home() {
     {/* Footer */}
     <footer className="bg-black text-white px-4 md:px-6 py-12 md:py-16 relative z-20">
         <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-8 md:mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-8 md:mb-12">
                 {/* Quick Links */}
                 <div>
                     <h3 className="font-bold mb-4 serif text-xl">Quick Links</h3>
@@ -216,26 +216,14 @@ export default function Home() {
                         <li><a href="/contact" className="hover:text-white transition-colors">Contact</a></li>
                         <li><a href="/education-training" className="hover:text-white transition-colors">Education &amp; Training</a></li>
                     </ul>
-                </div>
-
-                {/* Contact */}
-                <div>
-                    <h3 className="font-bold mb-4 serif text-xl">State Licensees</h3>
-                    <div className="space-y-3 text-gray-400 font-medium">
-                        <p className="flex items-center gap-2 group cursor-pointer">
-                            <svg className="w-5 h-5 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                            <a href="mailto:support@statelicensees.com" className="group-hover:text-white transition-colors">Contact: Support@StateLicensees.Com</a>
-                        </p>
-                        <p className="flex items-center gap-2 group cursor-pointer">
-                            <svg className="w-5 h-5 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                            <a href="tel:9202202220" className="group-hover:text-white transition-colors">9202202220</a>
-                        </p>
-                    </div>
+                    <p className="mt-4 text-gray-400 font-medium">
+                        Email us, <a href="mailto:info@nspireinspectionapp.com" className="hover:text-white transition-colors">Info@NspireInspectionApp.Com</a>
+                    </p>
                 </div>
 
                 {/* Subscribe */}
                 <div>
-                    <h3 className="font-bold mb-4 serif text-xl">Nspire Update</h3>
+                    <h3 className="font-bold mb-4 serif text-xl">Nspire Update by State Licensees</h3>
                     <div className="flex mb-4">
                         <div className="relative flex-1">
                             <svg className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
@@ -254,11 +242,11 @@ export default function Home() {
             {/* Bottom Bar */}
             <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <a href="#" className="flex flex-col bg-white rounded-lg px-3 py-1.5">
-                        <img src="logo.png" alt="Nspire App Logo" className="object-contain h-16 md:h-20 w-auto" />
+                    <a href="#" className="flex items-center justify-center bg-white rounded-lg px-3 py-1.5 w-32 h-16 md:w-40 md:h-20">
+                        <img src="logo.png" alt="Nspire App Logo" className="object-contain w-full h-full" />
                     </a>
-                    <a href="https://nspireinspection.ai/" target="_blank" rel="noopener noreferrer" className="flex flex-col bg-white rounded-lg px-3 py-1.5">
-                        <img src="/nspire-inspection-ai-badge.png" alt="NSPIRE Inspection.ai International Standard" className="object-contain h-16 md:h-20 w-auto" />
+                    <a href="https://nspireinspection.ai/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center bg-white rounded-lg px-3 py-1.5 w-32 h-16 md:w-40 md:h-20">
+                        <img src="/nspire-inspection-ai-badge.png" alt="NSPIRE Inspection.ai International Standard" className="object-contain w-full h-full" />
                     </a>
                 </div>
 
