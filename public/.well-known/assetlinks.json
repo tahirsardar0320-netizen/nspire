@@ -1,0 +1,11 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.nspireapp",
+      "sha256_cert_fingerprints":
+        ["9D:77:21:88:36:A0:85:45:CC:26:45:EA:19:C2:FE:2F:23:78:30:EF:0A:D9:58:5C:5D:90:DA:55:CB:FD:E6:03"]
+    }
+  }
+]
