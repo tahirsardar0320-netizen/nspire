@@ -158,17 +158,10 @@ export default function Home() {
                     </h1>
                 </div>
 
-                {/* Hero Flip Card — hidden on small phones, visible sm+ */}
+                {/* Hero image — hidden on small phones, visible sm+ */}
                 <div className="hidden sm:flex flex-1 w-full justify-center lg:justify-end relative z-20 self-center">
-                    <div className="flip-card animate-float">
-                        <div className="flip-card-inner">
-                            <div className="flip-card-front">
-                                <img src="ipad-mockup.png" alt="NSPIRE Inspection App on iPad" className="w-full h-auto object-contain drop-shadow-[0_25px_35px_rgba(0,0,0,0.25)]" />
-                            </div>
-                            <div className="flip-card-back">
-                                <img src="hero.png" alt="Mobile App" className="w-full h-auto object-contain drop-shadow-[0_25px_35px_rgba(0,0,0,0.25)]" />
-                            </div>
-                        </div>
+                    <div className="w-full max-w-[580px] animate-float">
+                        <img src="ipad-mockup.png" alt="NSPIRE Inspection App on iPad" className="w-full h-auto object-contain drop-shadow-[0_25px_35px_rgba(0,0,0,0.25)]" />
                     </div>
                 </div>
 
