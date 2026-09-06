@@ -3,7 +3,7 @@
   "appName": "NSPIRE INSPECTION (Public)",
   "webDir": "www",
   "server": {
-    "url": "https://nspireinspectionapp.com/profile-selection",
+    "url": "https://nspireinspectionapp.com/app-launch",
     "cleartext": false
   },
   "ios": {
@@ -11,5 +11,16 @@
   },
   "android": {
     "allowMixedContent": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2200,
+      "launchAutoHide": true,
+      "backgroundColor": "#7FBFE9",
+      "androidScaleType": "CENTER_CROP",
+      "splashFullScreen": true,
+      "splashImmersive": true,
+      "showSpinner": false
+    }
   }
 }
