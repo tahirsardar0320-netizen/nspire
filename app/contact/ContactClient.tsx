@@ -62,7 +62,7 @@ export default function ContactClient() {
                 </div>
                 <h3 className="text-xl font-bold text-black mb-2">Email Us</h3>
                 <p className="text-gray-500 text-sm mb-4">Our friendly team is here to help.</p>
-                <a href="mailto:support@inspire.com" className="text-[#006795] font-bold hover:underline text-lg">support@inspire.com</a>
+                <a href="mailto:info@nspireinspectionapp.com" className="text-[#006795] font-bold hover:underline text-lg">info@nspireinspectionapp.com</a>
               </div>
 
 

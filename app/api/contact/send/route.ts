@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 import dns from 'node:dns/promises';
 
 const SMTP_HOSTNAME = 'smtp.gmail.com';
-const CONTACT_RECIPIENT = 'support@inspire.com';
+const CONTACT_RECIPIENT = 'info@nspireinspectionapp.com';
 
 async function getTransporter() {
   const user = process.env.EMAIL_USER;

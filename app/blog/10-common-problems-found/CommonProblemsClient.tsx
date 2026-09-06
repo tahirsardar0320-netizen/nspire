@@ -3,13 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import MainLayout from "@/components/MainLayout";
 
 export default function CommonProblemsFound() {
-  const router = useRouter();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   const problems = [
     { title: "Roofing Problems", desc: "Missing or damaged shingles, poor ventilation, and improper flashing can lead to serious structural damage." },
     { title: "Foundation Cracks", desc: "While not all cracks are serious, large or expanding ones may indicate stability issues." },
@@ -24,102 +20,7 @@ export default function CommonProblemsFound() {
   ];
 
   return (
-    <main className="w-full min-h-screen bg-white overflow-x-hidden">
-      {/* Logo Section */}
-      <div className="bg-[#E8F4F8] pt-[-25] pb-4 flex justify-center">
-        <Image
-          src="/logo.png"
-          alt="NSPIRE"
-          width={500}
-          height={600}
-          priority
-          className="h-14 md:h-32 lg:h-40 w-auto"
-        />
-      </div>
-
-      {/* Navigation */}
-      <nav className="bg-[#E8F4F8] px-4 md:px-6 py-3 md:py-4">
-        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between">
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden z-50 flex flex-col gap-1.5 p-2"
-            aria-label="Toggle menu"
-          >
-            <span className={`w-6 h-0.5 bg-gray-800 transition-all ${mobileMenuOpen ? "rotate-45 translate-y-2" : ""}`}></span>
-            <span className={`w-6 h-0.5 bg-gray-800 transition-all ${mobileMenuOpen ? "opacity-0" : ""}`}></span>
-            <span className={`w-6 h-0.5 bg-gray-800 transition-all ${mobileMenuOpen ? "-rotate-45 -translate-y-2" : ""}`}></span>
-          </button>
-
-          {mobileMenuOpen && (
-            <div className="md:hidden fixed inset-0 bg-black/50 z-30" onClick={() => setMobileMenuOpen(false)}></div>
-          )}
-
-          <div className={`md:hidden fixed top-0 left-0 h-full w-64 bg-[#E8F4F8] z-40 transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
-            <div className="flex flex-col gap-6 p-8 pt-36">
-              <Link href="/#home" className="flex flex-col group" onClick={() => setMobileMenuOpen(false)}>
-                <span className="text-lg font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight">HOME</span>
-                <span className="text-[11px] text-gray-500 italic tracking-wider">Welcome</span>
-              </Link>
-              <Link href="/#services" className="flex flex-col group" onClick={() => setMobileMenuOpen(false)}>
-                <span className="text-lg font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight">SERVICES</span>
-                <span className="text-[11px] text-gray-500 italic tracking-wider">Professional Solutions</span>
-              </Link>
-              <Link href="/about" className="flex flex-col group">
-                <span className="text-lg font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight">ABOUT</span>
-                <span className="text-[11px] text-gray-500 italic tracking-wider">Discover Nspire</span>
-              </Link>
-              <Link href="/contact" className="flex flex-col group" onClick={() => setMobileMenuOpen(false)}>
-                <span className="text-lg font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight">CONTACT</span>
-                <span className="text-[11px] text-gray-500 italic tracking-wider">Get in Touch</span>
-              </Link>
-              <Link href="/faq" className="flex flex-col group" onClick={() => setMobileMenuOpen(false)}>
-                <span className="text-lg font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight">FAQ</span>
-                <span className="text-[11px] text-gray-500 italic tracking-wider">Answers to Questions</span>
-              </Link>
-              <Link href="/blog" className="flex flex-col group" onClick={() => setMobileMenuOpen(false)}>
-                <span className="text-lg font-medium text-[#006795] font-bold leading-tight">BLOG</span>
-                <span className="text-[11px] text-gray-500 italic tracking-wider">Articles & Insights</span>
-              </Link>
-            </div>
-          </div>
-
-          <div className="hidden md:flex items-center gap-6 lg:gap-8">
-            <Link href="/#home" className="flex flex-col group items-center">
-              <span className="text-sm font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight">HOME</span>
-              <span className="text-[10px] text-gray-500 italic tracking-wider">Welcome</span>
-            </Link>
-            <Link href="/#services" className="flex flex-col group items-center">
-              <span className="text-sm font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight">SERVICES</span>
-              <span className="text-[10px] text-gray-500 italic tracking-wider">Professional Solutions</span>
-            </Link>
-            <Link href="/about" className="flex flex-col group items-center">
-              <span className="text-sm font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight text-center">ABOUT</span>
-              <span className="text-[10px] text-gray-500 italic tracking-wider text-center">Discover Nspire</span>
-            </Link>
-            <Link href="/contact" className="flex flex-col group items-center">
-              <span className="text-sm font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight">CONTACT</span>
-              <span className="text-[10px] text-gray-500 italic tracking-wider">Get in Touch</span>
-            </Link>
-            <Link href="/faq" className="flex flex-col group items-center">
-              <span className="text-sm font-medium text-gray-800 group-hover:text-[#006795] transition-colors leading-tight">FAQ</span>
-              <span className="text-[10px] text-gray-500 italic tracking-wider">Answers to Questions</span>
-            </Link>
-            <Link href="/blog" className="flex flex-col group items-center">
-              <span className="text-sm font-bold text-[#006795] leading-tight">BLOG</span>
-              <span className="text-[10px] text-gray-500 italic tracking-wider">Articles & Insights</span>
-            </Link>
-          </div>
-
-          <Button onClick={() => router.push("/login")} className="bg-[#006795] hover:bg-[#00567a] text-white rounded-full px-4 md:px-6 lg:px-8 py-2 md:py-2.5 text-xs md:text-sm font-medium flex items-center gap-2 shadow-md transition-all cursor-pointer">
-            <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            <span className="hidden sm:inline">Login/Register</span>
-            <span className="sm:hidden">Login</span>
-          </Button>
-        </div>
-      </nav>
-
+    <MainLayout>
       <article className="max-w-[1000px] mx-auto px-4 md:px-6 pt-12 md:pt-20">
         <header className="mb-12">
           <div className="flex items-center gap-3 mb-6">
@@ -183,13 +84,6 @@ export default function CommonProblemsFound() {
           </Link>
         </div>
       </article>
-
-      <footer className="bg-black text-white py-12 px-4 md:px-6">
-        <div className="max-w-7xl mx-auto text-center">
-          <Image src="/logo.png" alt="NSPIRE" width={120} height={40} className="mx-auto mb-6 h-16 md:h-20 w-auto" />
-          <p className="text-gray-400 text-xs text-center">© 2026 Nspire Home Inspections. All rights reserved.</p>
-        </div>
-      </footer>
-    </main>
+    </MainLayout>
   );
 }
