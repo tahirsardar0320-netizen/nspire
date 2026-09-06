@@ -17,6 +17,7 @@ import jwt
 
 PACKAGE_NAME = "com.nspireapp"
 API_BASE = "https://androidpublisher.googleapis.com/androidpublisher/v3"
+UPLOAD_API_BASE = "https://androidpublisher.googleapis.com/upload/androidpublisher/v3"
 
 
 def get_access_token(service_account_path):
@@ -39,8 +40,9 @@ def get_access_token(service_account_path):
         return json.load(resp)["access_token"]
 
 
-def api_request(method, path, token, data=None, headers=None, raw_body=False):
-    url = f"{API_BASE}{path}"
+def api_request(method, path, token, data=None, headers=None, raw_body=False, upload=False):
+    base = UPLOAD_API_BASE if upload else API_BASE
+    url = f"{base}{path}"
     hdrs = {"Authorization": f"Bearer {token}"}
     body = None
     if data is not None:
@@ -81,6 +83,7 @@ def main():
         data=aab_bytes,
         headers={"Content-Type": "application/octet-stream", "Content-Length": str(aab_size)},
         raw_body=True,
+        upload=True,
     )
     print("Uploaded bundle:", bundle_resp)
     uploaded_version_code = bundle_resp["versionCode"]
