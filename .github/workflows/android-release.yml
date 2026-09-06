@@ -1,0 +1,74 @@
+name: Android Release (NSPIRE Inspection)
+
+# Manual trigger only -- this uploads a real build to Google Play, so it
+# should never fire automatically on a push.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile-app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compute versionCode
+        id: version
+        run: |
+          # Existing Play Console history already has versionCode 11 (an
+          # unpublished draft) and 7 (a completed release), so start well
+          # above that and keep climbing with each workflow run.
+          echo "code=$((100 + GITHUB_RUN_NUMBER))" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install JS dependencies
+        run: npm install
+
+      - name: Sync Capacitor Android project
+        run: npx cap sync android
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Decode signing keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/nspire-upload-key.jks"
+
+      - name: Build signed release bundle
+        working-directory: mobile-app/android
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/nspire-upload-key.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_VERSION_CODE: ${{ steps.version.outputs.code }}
+          ANDROID_VERSION_NAME: "2.4"
+        run: |
+          echo "Building versionCode=$ANDROID_VERSION_CODE"
+          ./gradlew bundleRelease --no-daemon
+
+      - name: Upload build artifact (for debugging)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release-bundle
+          path: mobile-app/android/app/build/outputs/bundle/release/*.aab
+          retention-days: 5
+
+      - name: Write Play service account key
+        run: echo "${{ secrets.PLAY_SERVICE_ACCOUNT_JSON_BASE64 }}" | base64 -d > "$RUNNER_TEMP/play-service-account.json"
+
+      - name: Install Python deps for Play upload
+        run: pip install pyjwt cryptography
+
+      - name: Upload to Google Play (production track)
+        env:
+          SERVICE_ACCOUNT_PATH: ${{ runner.temp }}/play-service-account.json
+          AAB_PATH: android/app/build/outputs/bundle/release/app-release.aab
+        run: python3 scripts/upload_to_play.py
