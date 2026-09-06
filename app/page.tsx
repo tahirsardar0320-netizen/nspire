@@ -12,6 +12,7 @@ export default function Home() {
   const router = useRouter();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
+  const [isNativeApp, setIsNativeApp] = useState(false);
 
   useEffect(() => {
     document.body.style.overflowX = 'hidden';
@@ -22,6 +23,10 @@ export default function Home() {
     }
     return () => { document.body.style.overflow = 'unset'; };
   }, [mobileNavOpen]);
+
+  useEffect(() => {
+    setIsNativeApp(Boolean((window as any).Capacitor?.isNativePlatform?.()));
+  }, []);
 
   return (
     <div className="w-full relative bg-white">
@@ -169,7 +174,8 @@ export default function Home() {
         </div>
     </section>
 
-    {/* Download App Section */}
+    {/* Download App Section — irrelevant when already inside the native app */}
+    {!isNativeApp && (
     <section className="bg-[#0C1F3F] py-20 px-4 md:px-6 z-20 relative">
         <div className="max-w-[1200px] mx-auto">
             <div className="text-center mb-12">
@@ -194,6 +200,7 @@ export default function Home() {
             </div>
         </div>
     </section>
+    )}
 
     {/* Footer */}
     <footer className="bg-black text-white px-4 md:px-6 py-12 md:py-16 relative z-20">

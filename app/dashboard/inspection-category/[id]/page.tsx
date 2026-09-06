@@ -1813,12 +1813,12 @@ export default function InspectionCategoryPage() {
 
     return (
         <DashboardLayout>
-            <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto font-sans">
-                <div className="flex items-center justify-between mb-8">
+            <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto font-sans overflow-x-hidden">
+                <div className="flex flex-wrap items-center justify-between gap-y-2 mb-8">
                     <button onClick={() => router.back()} className="p-2.5 hover:bg-red-50 rounded-full transition-colors">
                         <ChevronLeft className="w-8 h-8 text-red-600" />
                     </button>
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                         {!isOnline ? (
                             <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200 shadow-sm animate-pulse">
                                 <span className="w-2 h-2 rounded-full bg-amber-600"></span>
@@ -1836,7 +1836,7 @@ export default function InspectionCategoryPage() {
                         </div>
                     </div>
                 </div>
-                <div className="mb-8 flex items-center justify-between">
+                <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex items-center gap-3">
                         <p className="text-base font-bold text-gradient uppercase tracking-tight">{columnHeaderName}: {buildingName}</p>
                         <button
@@ -1847,11 +1847,11 @@ export default function InspectionCategoryPage() {
                             <Pencil className="w-4 h-4" />
                         </button>
                     </div>
-                    
-                    <div className="flex items-center gap-3">
+
+                    <div className="flex flex-wrap items-center gap-3">
                         <Button
                             onClick={() => router.push(`/dashboard/inspection/summary?propertyId=${property?._id || id}`)}
-                            className="bg-[#F84B5F] hover:bg-[#e03a4e] text-white font-black px-6 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center gap-2"
+                            className="bg-[#F84B5F] hover:bg-[#e03a4e] text-white font-black px-4 sm:px-6 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center gap-2"
                         >
                             <Mail className="w-4 h-4" />
                             View Report on Email
@@ -1859,7 +1859,7 @@ export default function InspectionCategoryPage() {
                         <Button
                             onClick={handleOpenReportPreview}
                             disabled={loadingReportPreview}
-                            className="bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white font-black px-6 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center gap-2"
+                            className="bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white font-black px-4 sm:px-6 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center gap-2"
                         >
                             <FileText className="w-4 h-4" />
                             {loadingReportPreview ? 'Loading...' : 'View Summary'}

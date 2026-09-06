@@ -3,7 +3,7 @@
   "appName": "NSPIRE INSPECTION (Public)",
   "webDir": "www",
   "server": {
-    "url": "https://nspireinspectionapp.com",
+    "url": "https://nspireinspectionapp.com/profile-selection",
     "cleartext": false
   },
   "ios": {
