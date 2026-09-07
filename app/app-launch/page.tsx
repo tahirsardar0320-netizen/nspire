@@ -15,7 +15,12 @@ export default function AppLaunch() {
   }, [router]);
 
   return (
-    <main className="fixed inset-0 flex items-center justify-center bg-white overflow-hidden">
+    <main className="fixed inset-0 flex items-center justify-center bg-[#7FBFE9] overflow-hidden">
+      <div
+        className="absolute inset-0 bg-cover bg-center animate-splash-zoom"
+        style={{ backgroundImage: "url('/family_housing_complex.png')" }}
+      />
+      <div className="absolute inset-0 bg-[#7FBFE9]/80" />
       <video
         ref={videoRef}
         src="/app-launch.mp4"
@@ -23,7 +28,7 @@ export default function AppLaunch() {
         muted
         playsInline
         onEnded={() => router.replace("/profile-selection")}
-        className="w-full h-full object-contain"
+        className="relative w-full h-full object-contain mix-blend-multiply"
       />
     </main>
   );
