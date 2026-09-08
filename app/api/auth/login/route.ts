@@ -28,6 +28,23 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 
+// Which stored roles may sign in through each portal. Accounts are provisioned
+// per-portal at signup, so an inspector must not be able to sign in through the
+// management or other portal just because their password is correct.
+const ROLES_BY_PORTAL: Record<string, string[]> = {
+  inspector: ['inspector'],
+  management: ['management', 'property-manager', 'supervisor'],
+  other: ['other'],
+  admin: ['admin'],
+};
+
+const PORTAL_LABELS: Record<string, string> = {
+  inspector: 'Inspector',
+  management: 'Management',
+  other: 'Other',
+  admin: 'Admin',
+};
+
 export async function POST(req: NextRequest) {
   try {
     const { email, password, role } = await req.json();
@@ -48,6 +65,17 @@ export async function POST(req: NextRequest) {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return NextResponse.json({ success: false, message: 'Invalid email or password.' }, { status: 401 });
+    }
+
+    // Enforce that the account belongs to the portal it is signing in through.
+    // Admins are superusers and may sign in anywhere.
+    const allowedRoles = role ? ROLES_BY_PORTAL[role] : undefined;
+    if (allowedRoles && user.role !== 'admin' && !allowedRoles.includes(user.role)) {
+      const portalLabel = PORTAL_LABELS[role] || role;
+      return NextResponse.json({
+        success: false,
+        message: `This account is not registered for the ${portalLabel} portal. Please sign in through the correct portal.`,
+      }, { status: 403 });
     }
 
     // Update last login

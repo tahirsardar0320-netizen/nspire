@@ -16,6 +16,9 @@ interface User {
   role: string
 }
 
+// Mirrors ROLES_BY_PORTAL.management in app/api/auth/login/route.ts
+const MANAGEMENT_ROLES = ['management', 'property-manager', 'supervisor', 'admin']
+
 export default function ManagementDashboardLayout({ children }: ManagementDashboardLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -33,7 +36,14 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
     const storedUser = localStorage.getItem('user')
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser))
+        const parsed = JSON.parse(storedUser)
+        // Role guard — a token alone is not enough, an inspector holding a valid
+        // token must not reach the management portal by navigating here directly.
+        if (!MANAGEMENT_ROLES.includes(parsed?.role)) {
+          router.replace('/management/login')
+          return
+        }
+        setUser(parsed)
       } catch (e) {
         console.error('Error parsing user data:', e)
       }

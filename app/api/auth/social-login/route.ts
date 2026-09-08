@@ -48,6 +48,16 @@ export async function POST(req: NextRequest) {
     let user = await User.findOne({ email: email.toLowerCase() });
 
     if (user) {
+      // An existing account may only sign in through the portal it belongs to,
+      // otherwise an inspector could reach the management portal via social login.
+      const expectedRole = ROLE_BY_PORTAL[portal];
+      if (expectedRole && user.role !== 'admin' && user.role !== expectedRole) {
+        return NextResponse.json({
+          success: false,
+          message: `This account is not registered for the ${portal} portal. Please sign in through the correct portal.`,
+        }, { status: 403 });
+      }
+
       user.lastLogin = new Date();
       await user.save();
     } else {

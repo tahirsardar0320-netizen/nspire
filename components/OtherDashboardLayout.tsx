@@ -9,6 +9,9 @@ interface OtherDashboardLayoutProps {
   children: ReactNode
 }
 
+// Mirrors ROLES_BY_PORTAL.other in app/api/auth/login/route.ts
+const OTHER_ROLES = ['other', 'admin']
+
 export default function OtherDashboardLayout({ children }: OtherDashboardLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -27,6 +30,12 @@ export default function OtherDashboardLayout({ children }: OtherDashboardLayoutP
     if (userStr) {
       try {
         const userData = JSON.parse(userStr)
+        // Role guard — a token alone is not enough, an inspector holding a valid
+        // token must not reach the other portal by navigating here directly.
+        if (!OTHER_ROLES.includes(userData?.role)) {
+          router.replace('/other/login')
+          return
+        }
         setUser(userData)
       } catch (e) {
         console.error('Error parsing user data:', e)
