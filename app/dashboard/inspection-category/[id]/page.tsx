@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
-import DashboardLayout from "@/components/DashboardLayout"
+import PortalLayout from "@/components/PortalLayout"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { propertiesAPI, authAPI, inspectionsAPI } from "@/lib/api"
@@ -1803,16 +1803,16 @@ export default function InspectionCategoryPage() {
 
     if (loading) {
         return (
-            <DashboardLayout>
+            <PortalLayout>
                 <div className="flex items-center justify-center min-h-[60vh]">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#006795]"></div>
                 </div>
-            </DashboardLayout>
+            </PortalLayout>
         )
     }
 
     return (
-        <DashboardLayout>
+        <PortalLayout>
             <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto font-sans overflow-x-hidden">
                 <div className="flex flex-wrap items-center justify-between gap-y-2 mb-8">
                     <button onClick={() => router.back()} className="p-2.5 hover:bg-red-50 rounded-full transition-colors">
@@ -2830,6 +2830,6 @@ export default function InspectionCategoryPage() {
                     overflow: hidden !important;
                 }
             `}</style>
-        </DashboardLayout >
+        </PortalLayout>
     )
 }

@@ -140,7 +140,7 @@ export default function ManagementDashboard() {
       position: "top-right",
       autoClose: 2000,
     })
-    router.push('/management/dashboard/unit-selection?property=' + property.propertyId)
+    router.push(`/dashboard/property-details/${property._id}`)
   }
 
   const handleAddPropertyNext = async (data: any) => {

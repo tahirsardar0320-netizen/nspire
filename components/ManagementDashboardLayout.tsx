@@ -114,8 +114,8 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
   return (
     <div className="min-h-screen bg-[#E8F4F8] flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col w-64 bg-white shadow-lg fixed h-full z-10">
-        <div className="p-6 border-b">
+      <aside className="hidden lg:flex lg:flex-col w-64 bg-gradient-to-b from-[#4A1526] to-[#2B0D18] shadow-xl border-r border-[#4A1526]/30 fixed h-full z-10">
+        <div className="p-6 border-b border-white/10">
           <Image
             src="/logo.png"
             alt="NSPIRE"
@@ -132,7 +132,7 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
               key={item.path}
               onClick={() => router.push(item.path)}
               className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg font-medium transition-colors ${
-                isActive(item.path) ? 'bg-[#F84B5F] text-white' : 'text-gray-700 hover:bg-gray-100'
+                isActive(item.path) ? 'bg-[#F84B5F] text-white font-bold shadow-md shadow-[#F84B5F]/30' : 'text-white/80 hover:text-white hover:bg-white/10'
               }`}
             >
               {item.icon}
@@ -141,11 +141,11 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
           ))}
         </nav>
         
-        <div className="p-4 border-t">
+        <div className="p-4 border-t border-white/10">
           <button
             onClick={() => router.push('/management/dashboard/settings')}
             className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg font-medium transition-colors ${
-              isActive('/management/dashboard/settings') ? 'bg-[#F84B5F] text-white' : 'text-gray-700 hover:bg-gray-100'
+              isActive('/management/dashboard/settings') ? 'bg-[#F84B5F] text-white font-bold shadow-md shadow-[#F84B5F]/30' : 'text-white/80 hover:text-white hover:bg-white/10'
             }`}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -156,7 +156,7 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
           
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium"
+            className="w-full flex items-center gap-3 px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg font-medium"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
@@ -175,10 +175,10 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
       )}
 
       {/* Mobile Sidebar */}
-      <aside className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform transition-transform duration-300 lg:hidden ${
+      <aside className={`fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-[#4A1526] to-[#2B0D18] shadow-lg z-50 transform transition-transform duration-300 lg:hidden ${
         isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
-        <div className="p-4 border-b flex items-center justify-between">
+        <div className="p-4 border-b border-white/10 flex items-center justify-between">
           <Image
             src="/logo.png"
             alt="NSPIRE"
@@ -192,7 +192,7 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
           />
           <button
             onClick={() => setIsMobileMenuOpen(false)}
-            className="p-2 hover:bg-gray-100 rounded-lg"
+            className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -209,7 +209,7 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
                 setIsMobileMenuOpen(false)
               }}
               className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg font-medium transition-colors ${
-                isActive(item.path) ? 'bg-[#F84B5F] text-white' : 'text-gray-700 hover:bg-gray-100'
+                isActive(item.path) ? 'bg-[#F84B5F] text-white font-bold shadow-md shadow-[#F84B5F]/30' : 'text-white/80 hover:text-white hover:bg-white/10'
               }`}
             >
               {item.icon}
@@ -218,14 +218,14 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
           ))}
         </nav>
         
-        <div className="p-4 border-t">
+        <div className="p-4 border-t border-white/10">
           <button
             onClick={() => {
               router.push('/management/dashboard/settings')
               setIsMobileMenuOpen(false)
             }}
             className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg font-medium transition-colors ${
-              isActive('/management/dashboard/settings') ? 'bg-[#F84B5F] text-white' : 'text-gray-700 hover:bg-gray-100'
+              isActive('/management/dashboard/settings') ? 'bg-[#F84B5F] text-white font-bold shadow-md shadow-[#F84B5F]/30' : 'text-white/80 hover:text-white hover:bg-white/10'
             }`}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -239,7 +239,7 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
               handleLogout()
               setIsMobileMenuOpen(false)
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium"
+            className="w-full flex items-center gap-3 px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg font-medium"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />

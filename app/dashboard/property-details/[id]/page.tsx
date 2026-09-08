@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
-import DashboardLayout from "@/components/DashboardLayout"
+import PortalLayout from "@/components/PortalLayout"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { propertiesAPI, authAPI, inspectionsAPI } from "@/lib/api"
@@ -784,24 +784,24 @@ export default function PropertyDetailsPage() {
 
     if (loading) {
         return (
-            <DashboardLayout>
+            <PortalLayout>
                 <div className="flex items-center justify-center min-h-[60vh] font-lexend">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
                 </div>
-            </DashboardLayout>
+            </PortalLayout>
         )
     }
 
     if (!property) {
         return (
-            <DashboardLayout>
+            <PortalLayout>
                 <div className="p-8 text-center text-slate-500 font-bold font-lexend">Property not found.</div>
-            </DashboardLayout>
+            </PortalLayout>
         )
     }
 
     return (
-        <DashboardLayout>
+        <PortalLayout>
             <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 lg:space-y-8 font-lexend">
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
@@ -1277,6 +1277,6 @@ export default function PropertyDetailsPage() {
                     </div>
                 </div>
             )}
-        </DashboardLayout>
+        </PortalLayout>
     )
 }

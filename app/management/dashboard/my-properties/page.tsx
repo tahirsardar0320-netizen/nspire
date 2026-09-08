@@ -169,7 +169,7 @@ export default function MyProperties() {
   const handleStartInspection = () => {
     setShowActionModal(false)
     if (newPropertyData) {
-      router.push(`/management/dashboard/unit-selection?property=${newPropertyData.propertyId}`)
+      router.push(`/dashboard/property-details/${newPropertyData._id}`)
     }
   }
 
@@ -257,7 +257,7 @@ export default function MyProperties() {
                     </td>
                     <td className="py-4 px-4">
                       <button
-                        onClick={() => router.push(`/management/dashboard/unit-selection?property=${property.propertyId}`)}
+                        onClick={() => router.push(`/dashboard/property-details/${property._id}`)}
                         className="text-blue-600 hover:underline font-medium"
                       >
                         {property.propertyId}
@@ -312,7 +312,7 @@ export default function MyProperties() {
                 <div className="flex-1">
                   <div className="flex justify-between items-start mb-2">
                     <button
-                      onClick={() => router.push(`/management/dashboard/unit-selection?property=${property.propertyId}`)}
+                      onClick={() => router.push(`/dashboard/property-details/${property._id}`)}
                       className="text-blue-600 hover:underline font-semibold text-sm"
                     >
                       #{property.propertyId}
@@ -348,7 +348,7 @@ export default function MyProperties() {
                   </div>
                   
                   <Button
-                    onClick={() => router.push(`/management/dashboard/unit-selection?property=${property.propertyId}`)}
+                    onClick={() => router.push(`/dashboard/property-details/${property._id}`)}
                     className="w-full bg-[#006795] hover:bg-[#0A5670] text-white font-medium py-2 rounded-lg text-sm"
                   >
                     View Details
