@@ -2370,6 +2370,7 @@ export default function InspectionCategoryPage() {
                                             ref={fileInputRef}
                                             className="hidden"
                                             accept="image/*"
+                                            capture="environment"
                                             onChange={handleFileUpload}
                                         />
                                     </div>
