@@ -65,6 +65,18 @@ export default function OtherInspectionsPage() {
     toast.info("Searching inspections...", { position: "top-right" })
   }
 
+  // Opens the shared NSPIRE property view; PortalLayout keeps the user in this
+  // portal's own chrome.
+  const handleViewInspection = (inspection: any) => {
+    const propertyId =
+      typeof inspection.property === 'object' ? inspection.property?._id : inspection.property
+    if (!propertyId) {
+      toast.error("This inspection has no property linked to it.", { position: "top-right" })
+      return
+    }
+    router.push(`/dashboard/property-details/${propertyId}`)
+  }
+
   const filteredInspections = inspections.filter(inspection => {
     const propertyName = typeof inspection.property === 'object' ? inspection.property?.name : ''
     return (
@@ -230,7 +242,7 @@ export default function OtherInspectionsPage() {
                     </td>
                     <td className="py-4 px-4">
                       <Button
-                        onClick={() => toast.info(`Viewing inspection ${inspection.inspectionId || inspection._id}`, { position: "top-right" })}
+                        onClick={() => handleViewInspection(inspection)}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm hover:shadow transition-all duration-200"
                       >
                         View
@@ -270,7 +282,7 @@ export default function OtherInspectionsPage() {
                     </p>
                   </div>
                   <Button
-                    onClick={() => toast.info(`Viewing inspection ${inspection.inspectionId || inspection._id}`, { position: "top-right" })}
+                    onClick={() => handleViewInspection(inspection)}
                     className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-2 rounded-lg text-xs shadow-sm hover:shadow transition-all duration-200 whitespace-nowrap ml-2"
                   >
                     View

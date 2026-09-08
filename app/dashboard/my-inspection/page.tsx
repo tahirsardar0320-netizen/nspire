@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import DashboardLayout from "@/components/DashboardLayout"
+import PortalLayout from "@/components/PortalLayout"
 import { Button } from "@/components/ui/button"
 import { toast } from "react-toastify"
 import { useState, useEffect } from "react"
@@ -224,7 +224,7 @@ export default function MyInspection() {
   }
 
   return (
-    <DashboardLayout>
+    <PortalLayout>
       <div className="min-h-screen bg-[#EBF5FB] p-4 sm:p-6 lg:p-8 font-lexend">
         {/* Header */}
         <div className="mb-5">
@@ -417,6 +417,6 @@ export default function MyInspection() {
         onClose={() => setSummaryModalOpen(false)}
         propertyData={selectedProperty}
       />
-    </DashboardLayout>
+    </PortalLayout>
   )
 }
