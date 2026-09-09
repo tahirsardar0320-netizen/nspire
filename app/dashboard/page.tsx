@@ -478,16 +478,16 @@ export default function Dashboard() {
                         className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                       />
                     </th>
-                    <th className="text-center py-3 px-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider w-[12%]">Property ID</th>
-                    <th className="text-center py-3 px-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider w-[16%]">Property Name</th>
-                    <th className="text-center py-3 px-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider w-[8%]">Buildings</th>
-                    <th className="text-center py-3 px-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider w-[7%]">Units</th>
-                    <th className="text-center py-3 px-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider w-[12%]">Address</th>
-                    <th className="text-center py-3 px-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider w-[9%]">City</th>
-                    <th className="text-center py-3 px-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider w-[7%]">State</th>
-                    <th className="text-center py-3 px-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider w-[7%]">Zip</th>
-                    <th className="text-center py-3 px-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider w-[10%]">Progress</th>
-                    <th className="text-center py-3 px-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider w-[16%]">Actions</th>
+                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[11%]">Property ID</th>
+                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[14%]">Property Name</th>
+                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[8%]">Buildings</th>
+                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[7%]">Units</th>
+                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[12%]">Address</th>
+                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[9%]">City</th>
+                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[10%]">State</th>
+                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[7%]">Zip</th>
+                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[9%]">Progress</th>
+                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[13%]">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -520,8 +520,12 @@ export default function Dashboard() {
                       <td className="py-4 px-3 text-slate-700 font-semibold text-sm text-center">{property.units}</td>
                       <td className="py-4 px-3 text-slate-500 text-xs truncate text-center font-medium">{property.address}</td>
                       <td className="py-4 px-3 text-slate-500 text-xs truncate text-center font-medium">{property.city}</td>
-                      <td className="py-4 px-3 text-center">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 truncate">
+                      <td className="py-4 px-3 text-center overflow-hidden">
+                        {/* max-w-full gives truncate an edge to cut against —
+                            without it the pill outgrows its fixed-width column
+                            and prints over the Zip cell. inline-block rather
+                            than inline-flex so the ellipsis actually renders. */}
+                        <span className="inline-block max-w-full align-middle px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 truncate">
                           {property.state}
                         </span>
                       </td>
