@@ -188,7 +188,7 @@ export default function OtherLogin() {
           </p>
 
           <p className="text-center text-sm text-slate-500 mt-3">
-            <button onClick={() => router.push('/login')} className="text-slate-500 hover:text-slate-800 hover:underline font-semibold bg-transparent border-0 cursor-pointer">Back to Portal Selection</button>
+            <button onClick={() => router.push('/profile-selection')} className="text-slate-500 hover:text-slate-800 hover:underline font-semibold bg-transparent border-0 cursor-pointer">Back to Portal Selection</button>
           </p>
 
           <p className="text-center text-xs text-slate-400 mt-6 leading-relaxed">

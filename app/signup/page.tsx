@@ -464,7 +464,7 @@ export default function Signup() {
           {/* Back to Portal Selection */}
           <p className="text-center text-sm text-gray-600 mt-4">
             <button
-              onClick={() => router.push('/login')}
+              onClick={() => router.push('/profile-selection')}
               className="text-[#006795] hover:underline font-semibold bg-transparent border-0 cursor-pointer"
             >
               ← Back to Portal Selection
