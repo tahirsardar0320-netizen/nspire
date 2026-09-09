@@ -261,11 +261,11 @@ export default function AssetManagerLogin() {
           {/* Terms */}
           <p className="text-center text-xs text-gray-500 mt-6">
             By signing up, you agree to our{" "}
-            <a href="/terms" className="text-gray-700 hover:underline font-medium">
+            <a href="/terms-of-service" className="text-gray-700 hover:underline font-medium">
               Terms of Service
             </a>
             {" "}and{" "}
-            <a href="/privacy" className="text-gray-700 hover:underline font-medium">
+            <a href="/privacy-policy" className="text-gray-700 hover:underline font-medium">
               Privacy Policy
             </a>
             .

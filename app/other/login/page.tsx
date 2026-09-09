@@ -199,7 +199,7 @@ function OtherLoginContent() {
           </p>
 
           <p className="text-center text-xs text-slate-400 mt-6 leading-relaxed">
-            By signing up, you agree to our <a href="/terms" className="text-slate-500 hover:text-slate-700 hover:underline font-medium">Terms of Service</a> and <a href="/privacy" className="text-slate-500 hover:text-slate-700 hover:underline font-medium">Privacy Policy</a>.
+            By signing up, you agree to our <a href="/terms-of-service" className="text-slate-500 hover:text-slate-700 hover:underline font-medium">Terms of Service</a> and <a href="/privacy-policy" className="text-slate-500 hover:text-slate-700 hover:underline font-medium">Privacy Policy</a>.
           </p>
         </div>
       </div>

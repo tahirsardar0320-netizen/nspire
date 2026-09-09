@@ -132,8 +132,9 @@ export default function AboutClient() {
               >
                 Contact Us Now
               </Button>
-              <Button 
-                  variant="outline" 
+              <Button
+                  onClick={() => router.push("/service")}
+                  variant="outline"
                   className="bg-transparent border-2 border-white/20 text-white hover:bg-white hover:text-black rounded-full px-12 py-8 text-lg font-bold transition-all hover:scale-105"
               >
                 Learn More

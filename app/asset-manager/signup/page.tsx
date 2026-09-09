@@ -196,9 +196,9 @@ export default function AssetManagerSignup() {
           {/* Terms */}
           <p className="text-center text-xs text-gray-500 mt-6">
             By signing up, you agree to our{" "}
-            <a href="/terms" className="text-gray-700 hover:underline font-medium">Terms of Service</a>
+            <a href="/terms-of-service" className="text-gray-700 hover:underline font-medium">Terms of Service</a>
             {" "}and{" "}
-            <a href="/privacy" className="text-gray-700 hover:underline font-medium">Privacy Policy</a>.
+            <a href="/privacy-policy" className="text-gray-700 hover:underline font-medium">Privacy Policy</a>.
           </p>
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,23 @@ const usStates = [
 
 export default function FindInspectorsClient() {
   const router = useRouter();
+  const [query, setQuery] = useState("");
+  const [notFoundFor, setNotFoundFor] = useState("");
+
+  const handleSearch = () => {
+    const term = query.trim().toLowerCase();
+    if (!term) return;
+    // The directory below is organised by state, so match on that rather than
+    // pretending to resolve a street address.
+    const match = usStates.find(
+      (s) => s.name.toLowerCase().includes(term) || term.includes(s.name.toLowerCase())
+    );
+    if (match) {
+      router.push(`/find-inspectors/${match.slug}`);
+    } else {
+      setNotFoundFor(query.trim());
+    }
+  };
 
   return (
     <MainLayout>
@@ -40,16 +58,29 @@ export default function FindInspectorsClient() {
           </div>
 
           {/* Search Bar */}
-          <div className="flex flex-col sm:flex-row mb-12 shadow-sm rounded-md overflow-hidden bg-white">
-            <Input 
-              type="text" 
-              placeholder="Enter the address that you need a home inspection at..." 
+          <div className="flex flex-col sm:flex-row shadow-sm rounded-md overflow-hidden bg-white">
+            <Input
+              type="text"
+              value={query}
+              onChange={(e) => { setQuery(e.target.value); setNotFoundFor("") }}
+              onKeyDown={(e) => { if (e.key === "Enter") handleSearch() }}
+              placeholder="Enter the state you need a home inspection in..."
               className="flex-1 border-0 rounded-none rounded-l-md focus-visible:ring-0 px-6 py-6 text-base"
             />
-            <Button className="bg-[#006795] hover:bg-[#00567a] text-white rounded-none sm:rounded-r-md px-8 py-6 font-semibold h-auto">
+            <Button
+              onClick={handleSearch}
+              className="bg-[#006795] hover:bg-[#00567a] text-white rounded-none sm:rounded-r-md px-8 py-6 font-semibold h-auto"
+            >
               Search Home Inspectors
             </Button>
           </div>
+          {/* Coverage is the five states listed below, so say so rather than
+              leaving a search that appears to have done nothing. */}
+          <p className="mt-3 mb-12 text-sm text-gray-600 min-h-[20px]">
+            {notFoundFor
+              ? `We don't have inspectors listed for "${notFoundFor}" yet. Currently covering ${usStates.map(s => s.name).join(", ")}.`
+              : " "}
+          </p>
 
           {/* Regions Container */}
           <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">

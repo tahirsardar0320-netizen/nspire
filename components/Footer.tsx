@@ -103,10 +103,10 @@ export default function Footer() {
           </div>
 
           <div className="flex gap-6 text-gray-400">
-            <NextLink href="/terms" className="hover:text-white">
+            <NextLink href="/terms-of-service" className="hover:text-white">
               Terms
             </NextLink>
-            <NextLink href="/privacy" className="hover:text-white">
+            <NextLink href="/privacy-policy" className="hover:text-white">
               Privacy
             </NextLink>
           </div>
