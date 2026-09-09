@@ -73,7 +73,9 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
 
   const navigationItems = [
     {
-      path: '/management/dashboard',
+      // Points at the shared property dashboard rather than the old management
+      // copy, so the item still highlights once the redirect has landed.
+      path: '/dashboard',
       label: 'Dashboard',
       icon: (
         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -82,7 +84,7 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
       )
     },
     {
-      path: '/management/dashboard/my-properties',
+      path: '/dashboard/my-inspection',
       label: 'My Properties',
       icon: (
         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">

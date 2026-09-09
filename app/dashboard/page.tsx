@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import DashboardLayout from "@/components/DashboardLayout"
+import PortalLayout from "@/components/PortalLayout"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -239,10 +239,39 @@ export default function Dashboard() {
     }
   }
 
-  const handleAddPropertyNext = (data: any) => {
+  const handleAddPropertyNext = async (data: any) => {
+    // A spreadsheet import arrives as an array. Splitting each one across the
+    // building-division modal would mean walking the user through it dozens of
+    // times, so save them in one go and skip straight to the result.
+    if (Array.isArray(data)) {
+      try {
+        const response = await propertiesAPI.createBulk(
+          data.map((p: any) => ({
+            propertyId: p.propertyId,
+            name: p.propertyName || p.name,
+            address: p.address,
+            city: p.city,
+            state: p.state,
+            zipCode: p.zipCode,
+            buildings: parseInt(p.buildings) || 0,
+            units: parseInt(p.units) || 0,
+          }))
+        )
+        if (response.success) {
+          toast.success(`${response.properties?.length || data.length} properties added successfully!`, { position: "top-right" })
+          fetchProperties()
+          setNewPropertyData(response.properties?.[0] || data[0])
+          setShowAddPropertyModal(false)
+          setShowActionModal(true)
+        }
+      } catch (error: any) {
+        toast.error(error.message || "Failed to add properties. Please try again.", { position: "top-right" })
+      }
+      return
+    }
+
     // Store the property data and show the building division modal
-    const propData = Array.isArray(data) ? data[0] : data
-    setNewPropertyData(propData)
+    setNewPropertyData(data)
     setShowAddPropertyModal(false)
     setShowBuildingDivisionModal(true)
   }
@@ -365,7 +394,7 @@ export default function Dashboard() {
   }
 
   return (
-    <DashboardLayout>
+    <PortalLayout>
       <div className="min-h-screen bg-[#EBF5FB] p-4 sm:p-6 lg:p-8 font-lexend">
         {/* Header + Action Buttons, with a soft blurred building photo behind */}
         <div className="relative overflow-hidden rounded-2xl mb-6 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 pb-6">
@@ -700,6 +729,6 @@ export default function Dashboard() {
         onClose={() => setShowSummaryModal(false)}
         propertyData={newPropertyData}
       />
-    </DashboardLayout>
+    </PortalLayout>
   )
 }
