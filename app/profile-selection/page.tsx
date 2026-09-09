@@ -3,13 +3,7 @@
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-
-const INSPECTOR_TYPES = [
-  { id: "home-inspector",       label: "I'm a Home Inspector",       emoji: "🏠" },
-  { id: "multi-unit-inspector", label: "I'm a Multi-Unit Inspector", emoji: "🏢" },
-  { id: "commercial-inspector", label: "I'm a Commercial Inspector", emoji: "🏙️" },
-  { id: "certified-inspector",  label: "I'm a Certified Inspector",  emoji: "✅" },
-]
+import { INSPECTOR_TYPES } from "@/lib/inspectorTypes"
 
 export default function ProfileSelection() {
   const router = useRouter()
@@ -107,11 +101,15 @@ export default function ProfileSelection() {
             {INSPECTOR_TYPES.map(t => (
               <button
                 key={t.id}
-                onClick={() => router.push(`/login?role=inspector&type=${t.id}`)}
+                // These four are the Other portal's categories, not the
+                // Inspector portal's — sending them to /login?role=inspector
+                // gave all four the same inspector account and left
+                // /other/login unreachable from this chooser.
+                onClick={() => router.push(`/other/login?type=${t.id}`)}
                 className="ps-type-row group"
               >
                 <span className="ps-type-emoji">{t.emoji}</span>
-                <span className="ps-type-text">{t.label}</span>
+                <span className="ps-type-text">I&apos;m a {t.label}</span>
                 <span className="ps-type-arrow group-hover:translate-x-1">→</span>
               </button>
             ))}

@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Property } from '@/lib/db';
 import { DEFAULT_PROPERTIES } from '@/lib/defaultProperties';
+import { isInspectorType } from '@/lib/inspectorTypes';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://rminhal783_db_user:pi8fODTUIsdDiKF5@cluster0.ijtzyjr.mongodb.net/?appName=Cluster0';
 const JWT_SECRET = process.env.JWT_SECRET || 'inspire_jwt_secret_key_2024';
@@ -22,6 +23,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, lowercase: true },
   password: String,
   role: { type: String, default: 'inspector' },
+  inspectorType: { type: String, default: null },
   isEmailVerified: { type: Boolean, default: true },
   isActive: { type: Boolean, default: true },
   lastLogin: Date,
@@ -32,7 +34,7 @@ const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 export async function POST(req: NextRequest) {
   try {
-    const { fullName, email, password, role } = await req.json();
+    const { fullName, email, password, role, inspectorType } = await req.json();
 
     // Basic validation
     if (!fullName || !email || !password) {
@@ -60,6 +62,9 @@ export async function POST(req: NextRequest) {
       email: email.toLowerCase(),
       password: hashed,
       role: role || 'inspector',
+      // Only accept one of the known ids, so a hand-crafted request can't
+      // invent a category that no sign-in lane will ever match.
+      inspectorType: isInspectorType(inspectorType) ? inspectorType : null,
       isEmailVerified: true,
       isActive: true,
       lastLogin: new Date(),
@@ -91,6 +96,7 @@ export async function POST(req: NextRequest) {
         fullName: user.fullName,
         email: user.email,
         role: user.role,
+        inspectorType: user.inspectorType,
       },
     }, { status: 201 });
 

@@ -1,21 +1,27 @@
 "use client"
 
-import { useState, FormEvent, useEffect } from "react"
+import { useState, FormEvent, useEffect, Suspense } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { toast } from "react-toastify"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import SocialLoginButtons from "@/components/SocialLoginButtons"
 import { initGoogleLogin, initFacebookLogin, initAppleLogin } from "@/lib/social-auth"
 import { authAPI } from "@/lib/api"
+import { inspectorTypeLabel } from "@/lib/inspectorTypes"
 
-export default function OtherSignup() {
+function OtherSignupContent() {
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [role, setRole] = useState("other")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  // Carried over from the portal chooser so the account records which
+  // category it was created under.
+  const inspectorType = searchParams.get("type")
+  const typeLabel = inspectorTypeLabel(inspectorType)
 
   // CAPTCHA state
   const [captchaId, setCaptchaId] = useState("")
@@ -114,6 +120,7 @@ export default function OtherSignup() {
           email: email.trim().toLowerCase(),
           password,
           role: 'other',
+          inspectorType,
         }),
       })
       const response = await res.json()
@@ -128,7 +135,9 @@ export default function OtherSignup() {
           autoClose: 1500,
         })
         setTimeout(() => {
-          router.push('/other/login')
+          // Keep the category on the way to sign-in, so the lane they just
+          // registered under is the one they land back on.
+          router.push(inspectorType ? `/other/login?type=${inspectorType}` : '/other/login')
         }, 1500)
       } else {
         toast.error(response.message || "Signup failed. Please try again.", { position: "top-right", autoClose: 3000 })
@@ -162,7 +171,8 @@ export default function OtherSignup() {
         result.email,
         result.fullName || result.email.split('@')[0],
         portal,
-        provider
+        provider,
+        inspectorType
       )
 
       if (response.success) {
@@ -220,7 +230,8 @@ export default function OtherSignup() {
 
       <div className="flex-1 flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-[640px] px-6 md:px-10 py-8 bg-white rounded-2xl border border-slate-200/80 shadow-xl">
-          <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-8 text-center tracking-tight font-sans">Let's Get You Started</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-2 text-center tracking-tight font-sans">Let's Get You Started</h2>
+          <p className="text-center text-sm text-slate-500 mb-8">{typeLabel ? `Signing up as a ${typeLabel}` : "\u00a0"}</p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -320,5 +331,13 @@ export default function OtherSignup() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function OtherSignup() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-50" />}>
+      <OtherSignupContent />
+    </Suspense>
   )
 }

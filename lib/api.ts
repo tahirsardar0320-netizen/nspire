@@ -71,7 +71,7 @@ async function apiRequest<T>(
 
 // Auth API
 export const authAPI = {
-  login: async (email: string, password: string, rememberMe: boolean, role: string) => {
+  login: async (email: string, password: string, rememberMe: boolean, role: string, inspectorType?: string | null) => {
     return apiRequest<{
       success: boolean;
       message: string;
@@ -81,10 +81,11 @@ export const authAPI = {
         fullName: string;
         email: string;
         role: string;
+        inspectorType?: string | null;
       };
     }>('/api/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password, rememberMe, role }),
+      body: JSON.stringify({ email, password, rememberMe, role, inspectorType }),
     });
   },
 
@@ -216,7 +217,7 @@ export const authAPI = {
     });
   },
 
-  socialLogin: async (email: string, fullName: string, portal: string, provider: string) => {
+  socialLogin: async (email: string, fullName: string, portal: string, provider: string, inspectorType?: string | null) => {
     return apiRequest<{
       success: boolean;
       message: string;
@@ -226,10 +227,11 @@ export const authAPI = {
         fullName: string;
         email: string;
         role: string;
+        inspectorType?: string | null;
       };
     }>('/api/auth/social-login', {
       method: 'POST',
-      body: JSON.stringify({ email, fullName, portal, provider }),
+      body: JSON.stringify({ email, fullName, portal, provider, inspectorType }),
     });
   },
 };

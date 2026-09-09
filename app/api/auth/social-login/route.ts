@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
+import { isInspectorType, inspectorTypeLabel } from '@/lib/inspectorTypes';
 import { Property } from '@/lib/db';
 import { DEFAULT_PROPERTIES } from '@/lib/defaultProperties';
 
@@ -20,6 +21,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, lowercase: true },
   password: String,
   role: { type: String, default: 'inspector' },
+  inspectorType: { type: String, default: null },
   isEmailVerified: { type: Boolean, default: true },
   isActive: { type: Boolean, default: true },
   lastLogin: Date,
@@ -37,7 +39,7 @@ const ROLE_BY_PORTAL: Record<string, string> = {
 // POST /api/auth/social-login — sign in (or provision) a user authenticated via Google/Facebook/Apple
 export async function POST(req: NextRequest) {
   try {
-    const { email, fullName, portal, provider } = await req.json();
+    const { email, fullName, portal, provider, inspectorType } = await req.json();
 
     if (!email) {
       return NextResponse.json({ success: false, message: 'Email is required.' }, { status: 400 });
@@ -58,6 +60,13 @@ export async function POST(req: NextRequest) {
         }, { status: 403 });
       }
 
+      if (user.inspectorType && isInspectorType(inspectorType) && user.inspectorType !== inspectorType) {
+        return NextResponse.json({
+          success: false,
+          message: `This account is registered as a ${inspectorTypeLabel(user.inspectorType)}. Please sign in under that inspector type.`,
+        }, { status: 403 });
+      }
+
       user.lastLogin = new Date();
       await user.save();
     } else {
@@ -67,6 +76,7 @@ export async function POST(req: NextRequest) {
         fullName: fullName || email.split('@')[0],
         email: email.toLowerCase(),
         role,
+        inspectorType: isInspectorType(inspectorType) ? inspectorType : null,
         isEmailVerified: true,
         isActive: true,
         lastLogin: new Date(),
@@ -95,6 +105,7 @@ export async function POST(req: NextRequest) {
         fullName: user.fullName,
         email: user.email,
         role: user.role,
+        inspectorType: user.inspectorType,
       },
     }, { status: 200 });
 

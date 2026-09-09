@@ -1,20 +1,25 @@
 "use client"
 
-import { useState, FormEvent } from "react"
+import { useState, FormEvent, Suspense } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { toast } from "react-toastify"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import SocialLoginButtons from "@/components/SocialLoginButtons"
 import { initGoogleLogin, initFacebookLogin, initAppleLogin } from "@/lib/social-auth"
 import { authAPI } from "@/lib/api"
+import { inspectorTypeLabel } from "@/lib/inspectorTypes"
 
-export default function OtherLogin() {
+function OtherLoginContent() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  // Which category the user picked on the portal chooser.
+  const inspectorType = searchParams.get("type")
+  const typeLabel = inspectorTypeLabel(inspectorType)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -37,7 +42,7 @@ export default function OtherLogin() {
     setIsLoading(true)
 
     try {
-      const response = await authAPI.login(email, password, rememberMe, 'other')
+      const response = await authAPI.login(email, password, rememberMe, 'other', inspectorType)
 
       if (response.success) {
         // Store token in localStorage
@@ -90,7 +95,8 @@ export default function OtherLogin() {
         result.email,
         result.fullName || result.email.split('@')[0],
         'Other',
-        provider
+        provider,
+        inspectorType
       )
 
       if (response.success) {
@@ -146,7 +152,8 @@ export default function OtherLogin() {
 
       <div className="flex-1 flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-[540px] px-6 md:px-10 py-8 bg-white rounded-2xl border border-slate-200/80 shadow-xl">
-          <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-8 text-center tracking-tight">Log In to Your Account</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-2 text-center tracking-tight">Log In to Your Account</h2>
+          <p className="text-center text-sm text-slate-500 mb-8">{typeLabel ? `Signing in as a ${typeLabel}` : "\u00a0"}</p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -184,7 +191,7 @@ export default function OtherLogin() {
 
           <p className="text-center text-sm text-slate-500 mt-6">
             Don't have an account?{" "}
-            <button onClick={() => router.push('/other/signup')} className="text-indigo-600 hover:text-indigo-800 hover:underline font-bold bg-transparent border-0 cursor-pointer">Sign Up</button>
+            <button onClick={() => router.push(inspectorType ? `/other/signup?type=${inspectorType}` : '/other/signup')} className="text-indigo-600 hover:text-indigo-800 hover:underline font-bold bg-transparent border-0 cursor-pointer">Sign Up</button>
           </p>
 
           <p className="text-center text-sm text-slate-500 mt-3">
@@ -200,3 +207,10 @@ export default function OtherLogin() {
   )
 }
 
+export default function OtherLogin() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-50" />}>
+      <OtherLoginContent />
+    </Suspense>
+  )
+}

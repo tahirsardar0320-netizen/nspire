@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { isInspectorType, inspectorTypeLabel } from '@/lib/inspectorTypes';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://rminhal783_db_user:pi8fODTUIsdDiKF5@cluster0.ijtzyjr.mongodb.net/?appName=Cluster0';
 const JWT_SECRET = process.env.JWT_SECRET || 'inspire_jwt_secret_key_2024';
@@ -20,6 +21,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, lowercase: true },
   password: String,
   role: { type: String, default: 'inspector' },
+  inspectorType: { type: String, default: null },
   isEmailVerified: { type: Boolean, default: true },
   isActive: { type: Boolean, default: true },
   lastLogin: Date,
@@ -47,7 +49,7 @@ const PORTAL_LABELS: Record<string, string> = {
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, role } = await req.json();
+    const { email, password, role, inspectorType } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json({ success: false, message: 'Email and password are required.' }, { status: 400 });
@@ -78,6 +80,17 @@ export async function POST(req: NextRequest) {
       }, { status: 403 });
     }
 
+    // The Other portal is split into inspector categories, and an account
+    // belongs to the one it signed up under. Accounts created before the
+    // portal recorded a category have none stored, so they stay usable through
+    // any lane rather than being locked out of all four.
+    if (user.inspectorType && isInspectorType(inspectorType) && user.inspectorType !== inspectorType) {
+      return NextResponse.json({
+        success: false,
+        message: `This account is registered as a ${inspectorTypeLabel(user.inspectorType)}. Please sign in under that inspector type.`,
+      }, { status: 403 });
+    }
+
     // Update last login
     user.lastLogin = new Date();
     await user.save();
@@ -100,6 +113,7 @@ export async function POST(req: NextRequest) {
         fullName: user.fullName,
         email: user.email,
         role: user.role,
+        inspectorType: user.inspectorType,
       },
     }, { status: 200 });
 

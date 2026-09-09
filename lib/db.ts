@@ -66,6 +66,10 @@ const userSchema = new mongoose.Schema({
   password: String,
   phone: String,
   role: { type: String, default: 'inspector' },
+  // Which category of the Other portal this account signed up under, e.g.
+  // 'home-inspector'. Absent on every account created before the portal
+  // started recording it — see the login route for how those are treated.
+  inspectorType: { type: String, default: null },
   language: { type: String, default: 'English' },
   timezone: { type: String, default: 'EST' },
   emailNotifications: {
