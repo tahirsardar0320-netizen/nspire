@@ -114,3 +114,22 @@ const inspectionSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 export const Inspection = mongoose.models.Inspection || mongoose.model('Inspection', inspectionSchema);
+
+// ── OAuth Handoff Schema ──
+// The popup/postMessage bridge only works when the browser keeps the opener
+// link. Capacitor hands external URLs (accounts.google.com) to the system
+// browser, so the callback page lands in a tab with no way to talk back to the
+// app. Instead it parks the result here and the waiting app polls for it.
+const oauthHandoffSchema = new mongoose.Schema({
+  sessionId: { type: String, required: true, unique: true },
+  provider: String,
+  portal: String,
+  email: String,
+  fullName: String,
+  error: String,
+  // TTL — Mongo drops these 5 minutes after creation so an unclaimed handoff
+  // can't sit around waiting to be replayed.
+  createdAt: { type: Date, default: Date.now, expires: 300 },
+});
+
+export const OAuthHandoff = mongoose.models.OAuthHandoff || mongoose.model('OAuthHandoff', oauthHandoffSchema);
