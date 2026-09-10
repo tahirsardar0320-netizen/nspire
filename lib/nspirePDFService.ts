@@ -25,7 +25,7 @@ function makeCodeRefLink(nspireCode: string, codeReference?: string): string {
   const shortCode = (nspireCode || '-').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   if (!codeReference) return shortCode;
   const url = `${process.env.NEXT_PUBLIC_API_URL || ''}/api/code-ref?code=${encodeURIComponent(nspireCode)}&ref=${encodeURIComponent(codeReference)}`;
-  return `<a href="${url}" style="color:#0E7490;font-weight:600;text-decoration:underline;">${shortCode}</a>`;
+  return `<a href="${url}" style="color:#0E7490;font-weight:600;border-bottom:1px solid #0E7490;">${shortCode}</a>`;
 }
 
 /**
@@ -251,7 +251,11 @@ function generateStyles(options: PDFGenerationOptions): string {
     /* Data Tables in Summary */
     .summary-table {
       width: 100%;
-      border-collapse: collapse;
+      /* html2canvas mis-positions collapsed borders (and, separately, text-decoration
+         underlines) on some fonts/platforms, drawing a line through the text instead
+         of below it. Separate borders render as plain rectangles, sidestepping that. */
+      border-collapse: separate;
+      border-spacing: 0;
       margin-bottom: 15px;
       font-size: 8pt;
     }
@@ -276,16 +280,21 @@ function generateStyles(options: PDFGenerationOptions): string {
     }
     
     .section-header {
+      display: inline-block;
       font-weight: bold;
       font-size: 10pt;
       margin-bottom: 5px;
-      text-decoration: underline;
+      /* See .summary-table comment above — border-bottom instead of text-decoration
+         so html2canvas draws a rectangle, not a font-metric-dependent underline. */
+      border-bottom: 1.5px solid #1F2937;
+      padding-bottom: 2px;
     }
 
     /* Deficiency Table Specifics */
     .deficiency-details-table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       font-size: 8pt;
     }
     
@@ -572,7 +581,7 @@ function generateDeficiencyRow(def: DeficiencyEntry): string {
 function generateDeficiencyAreaTable(label: string, subtitle: string, items: DeficiencyEntry[]): string {
   const headingLabel = label === 'Units' ? 'Unit' : label;
   return `
-    <p style="font-weight:bold; text-decoration:underline; font-size:10pt; margin-top:14px; margin-bottom:4px;">${headingLabel} Deficiencies</p>
+    <p style="font-weight:bold; font-size:10pt; margin-top:14px; margin-bottom:4px; display:inline-block; border-bottom:1.5px solid #1F2937; padding-bottom:2px;">${headingLabel} Deficiencies</p>
     ${items.length === 0 ? `
       <div style="padding:8px; border:1px solid #000; border-top:none; font-style:italic; color:#666; font-size:9pt;">No deficiencies found.</div>
     ` : `
