@@ -1062,6 +1062,8 @@ export default function InspectionCategoryPage() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    // Analysis costs money per call, so the route requires a session.
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 },
                 body: JSON.stringify({
                     imageUrl: photos[0],
