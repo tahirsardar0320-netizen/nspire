@@ -137,3 +137,31 @@ const oauthHandoffSchema = new mongoose.Schema({
 });
 
 export const OAuthHandoff = mongoose.models.OAuthHandoff || mongoose.model('OAuthHandoff', oauthHandoffSchema);
+
+// ── Password Reset Schema ──
+// Holds the one-time code emailed to someone resetting their password. The
+// code is stored hashed, so a read of this collection doesn't hand over the
+// ability to take over accounts.
+const passwordResetSchema = new mongoose.Schema({
+  email: { type: String, required: true, lowercase: true, index: true },
+  otpHash: { type: String, required: true },
+  attempts: { type: Number, default: 0 },
+  verified: { type: Boolean, default: false },
+  // TTL — Mongo drops the request 15 minutes after it was issued.
+  createdAt: { type: Date, default: Date.now, expires: 900 },
+});
+
+export const PasswordReset = mongoose.models.PasswordReset || mongoose.model('PasswordReset', passwordResetSchema);
+
+// ── Report Share Schema ──
+// A share link hands an inspection report to someone with no account, so the
+// token is the only credential — high entropy, and it expires on its own.
+const reportShareSchema = new mongoose.Schema({
+  token: { type: String, required: true, unique: true },
+  inspectionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Inspection', required: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  // TTL — Mongo drops the share 30 days after it was created.
+  createdAt: { type: Date, default: Date.now, expires: 60 * 60 * 24 * 30 },
+});
+
+export const ReportShare = mongoose.models.ReportShare || mongoose.model('ReportShare', reportShareSchema);
