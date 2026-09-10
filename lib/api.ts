@@ -259,9 +259,12 @@ function saveLocalCache(props: any[]) {
 async function internalRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
-  // Abort after 3s so we don't hang if MongoDB is unreachable
+  // Abort if the request hangs. connectDB() itself allows up to 8s for a cold
+  // MongoDB connection (e.g. right after a deploy), so this must stay above
+  // that or a slow-but-successful write gets aborted and silently downgraded
+  // to the local-only fallback below — the property never reaches the DB.
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 3000);
+  const timer = setTimeout(() => controller.abort(), 15000);
 
   const config: RequestInit = {
     headers: {
@@ -318,25 +321,13 @@ export const propertiesAPI = {
         return { success: true, message: 'Property created successfully', property: result.property };
       }
     } catch (e: any) {
-      // The server responded but rejected the request (validation error, etc.) —
-      // this is a real failure the user needs to see, not something to paper over
-      // with a fake local-only property that later breaks every downstream save.
-      if (e?.status) {
-        throw e;
-      }
-      console.warn('Backend unreachable, using local fallback:', e);
+      // A property that only "saves" to this browser's localStorage never
+      // reaches MongoDB — it looks successful here but is gone on the next
+      // refresh, a different device, or once localStorage is cleared. That's
+      // worse than telling the user it failed, so surface every failure
+      // (including a timeout) instead of faking success.
+      throw e;
     }
-
-    // 2. Fallback: save locally if backend unavailable
-    const newProp = {
-      _id: propertyData.propertyId || 'prop_' + Date.now(),
-      ...propertyData,
-      createdAt: new Date().toISOString(),
-    };
-    const cache = getLocalCache();
-    cache.unshift(newProp);
-    saveLocalCache(cache);
-    return { success: true, message: 'Property created successfully', property: newProp };
   },
 
   createBulk: async (properties: Array<{
@@ -351,18 +342,12 @@ export const propertiesAPI = {
   }>) => {
     const results: any[] = [];
     for (const p of properties) {
-      try {
-        const result = await internalRequest<any>('/api/properties', {
-          method: 'POST',
-          body: JSON.stringify(p),
-        });
-        if (result.success && result.property) {
-          results.push(result.property);
-        }
-      } catch (e) {
-        // fallback local
-        const newProp = { _id: p.propertyId || `prop_${Date.now()}`, ...p, createdAt: new Date().toISOString() };
-        results.push(newProp);
+      const result = await internalRequest<any>('/api/properties', {
+        method: 'POST',
+        body: JSON.stringify(p),
+      });
+      if (result.success && result.property) {
+        results.push(result.property);
       }
     }
     const cache = getLocalCache();
@@ -501,19 +486,11 @@ export const propertiesAPI = {
         return { success: true, message: 'Property updated successfully', property: result.property };
       }
     } catch (e) {
-      console.warn('MongoDB update failed, updating local only:', e);
+      // Same reasoning as create(): an edit that only lands in localStorage
+      // looks saved here but reverts to the old value everywhere else, so
+      // report the real failure instead of a fake success.
+      throw e;
     }
-
-    // 2. Fallback: update in localStorage
-    const cache = getLocalCache();
-    const idx = cache.findIndex(p => p._id === id || p.propertyId === id);
-    let updatedProp = propertyData;
-    if (idx !== -1) {
-      cache[idx] = { ...cache[idx], ...propertyData, updatedAt: new Date().toISOString() };
-      updatedProp = cache[idx];
-      saveLocalCache(cache);
-    }
-    return { success: true, message: 'Property updated successfully', property: updatedProp };
   },
 
   delete: async (id: string) => {
