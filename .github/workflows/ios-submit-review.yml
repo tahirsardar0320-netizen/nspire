@@ -63,7 +63,8 @@ jobs:
             console.log('app id:', appId);
 
             console.log('Looking up the most recent app store version...');
-            const versions = await api(`/apps/${appId}/appStoreVersions?sort=-createdDate&limit=3`);
+            const versionsRaw = await api(`/apps/${appId}/appStoreVersions?limit=10`);
+            const versions = { data: (versionsRaw.data || []).sort((a, b) => new Date(b.attributes.createdDate) - new Date(a.attributes.createdDate)) };
             for (const v of versions.data || []) {
               console.log(' version', v.attributes.versionString, '| state:', v.attributes.appStoreState);
             }
@@ -77,8 +78,9 @@ jobs:
             console.log('Waiting for the latest build to finish processing (Apple can take several minutes)...');
             let build = null;
             for (let attempt = 0; attempt < 40; attempt++) {
-              const builds = await api(`/apps/${appId}/builds?sort=-uploadedDate&limit=1`);
-              build = builds.data?.[0];
+              const buildsRaw = await api(`/apps/${appId}/builds?limit=10`);
+              const sortedBuilds = (buildsRaw.data || []).sort((a, b) => new Date(b.attributes.uploadedDate) - new Date(a.attributes.uploadedDate));
+              build = sortedBuilds[0];
               if (!build) throw new Error('No builds found for this app yet.');
               const state = build.attributes.processingState;
               console.log(`  attempt ${attempt + 1}: build ${build.attributes.version} processingState=${state}`);
