@@ -1,0 +1,121 @@
+name: iOS Submit for Review (NSPIRE Inspection)
+
+# Manual trigger only -- this submits the latest uploaded build to Apple for
+# review via the App Store Connect API. Run this *after* an ios-release.yml
+# upload has finished (Apple needs a few minutes to finish processing a new
+# build before it can be attached to a version and submitted).
+on:
+  workflow_dispatch: {}
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submit latest build for App Review
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_P8: ${{ secrets.APPSTORE_API_KEY_P8 }}
+        run: |
+          npm install jsonwebtoken@9
+          node <<'EOF'
+          const jwt = require('jsonwebtoken');
+
+          const KEY_ID = process.env.APPSTORE_KEY_ID;
+          const ISSUER_ID = process.env.APPSTORE_ISSUER_ID;
+          const PRIVATE_KEY = process.env.APPSTORE_API_KEY_P8;
+          const BUNDLE_ID = 'com.nspireapp';
+          const API = 'https://api.appstoreconnect.apple.com/v1';
+
+          function makeToken() {
+            return jwt.sign(
+              { iss: ISSUER_ID, aud: 'appstoreconnect-v1' },
+              PRIVATE_KEY,
+              { algorithm: 'ES256', expiresIn: '19m', header: { kid: KEY_ID, typ: 'JWT' } }
+            );
+          }
+
+          async function api(path, opts = {}) {
+            const res = await fetch(`${API}${path}`, {
+              ...opts,
+              headers: {
+                Authorization: `Bearer ${makeToken()}`,
+                'Content-Type': 'application/json',
+                ...(opts.headers || {}),
+              },
+            });
+            const text = await res.text();
+            let body;
+            try { body = JSON.parse(text); } catch { body = text; }
+            if (!res.ok) {
+              throw new Error(`${opts.method || 'GET'} ${path} -> ${res.status}: ${JSON.stringify(body)}`);
+            }
+            return body;
+          }
+
+          function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+          async function main() {
+            console.log('Looking up app by bundle id...');
+            const apps = await api(`/apps?filter[bundleId]=${BUNDLE_ID}`);
+            const appId = apps.data?.[0]?.id;
+            if (!appId) throw new Error('App not found for bundle id ' + BUNDLE_ID);
+            console.log('app id:', appId);
+
+            console.log('Looking up the most recent app store version...');
+            const versions = await api(`/apps/${appId}/appStoreVersions?sort=-createdDate&limit=3`);
+            for (const v of versions.data || []) {
+              console.log(' version', v.attributes.versionString, '| state:', v.attributes.appStoreState);
+            }
+            const SUBMITTABLE_STATES = ['REJECTED', 'DEVELOPER_REJECTED', 'PREPARE_FOR_SUBMISSION', 'METADATA_REJECTED', 'INVALID_BINARY'];
+            const version = (versions.data || []).find((v) => SUBMITTABLE_STATES.includes(v.attributes.appStoreState));
+            if (!version) {
+              throw new Error('No version in a submittable state found. States seen: ' + (versions.data || []).map((v) => v.attributes.appStoreState).join(', '));
+            }
+            console.log('using version:', version.attributes.versionString, version.id);
+
+            console.log('Waiting for the latest build to finish processing (Apple can take several minutes)...');
+            let build = null;
+            for (let attempt = 0; attempt < 40; attempt++) {
+              const builds = await api(`/apps/${appId}/builds?sort=-uploadedDate&limit=1`);
+              build = builds.data?.[0];
+              if (!build) throw new Error('No builds found for this app yet.');
+              const state = build.attributes.processingState;
+              console.log(`  attempt ${attempt + 1}: build ${build.attributes.version} processingState=${state}`);
+              if (state === 'VALID') break;
+              if (state === 'FAILED' || state === 'INVALID') throw new Error(`Build processing ${state} — cannot submit.`);
+              await sleep(30000);
+            }
+            if (build.attributes.processingState !== 'VALID') {
+              throw new Error('Build did not finish processing in time. Re-run this workflow in a few minutes.');
+            }
+            console.log('build ready:', build.id, build.attributes.version);
+
+            console.log('Attaching build to the app store version...');
+            await api(`/appStoreVersions/${version.id}`, {
+              method: 'PATCH',
+              body: JSON.stringify({
+                data: {
+                  type: 'appStoreVersions',
+                  id: version.id,
+                  relationships: { build: { data: { type: 'builds', id: build.id } } },
+                },
+              }),
+            });
+
+            console.log('Submitting for review...');
+            await api('/appStoreVersionSubmissions', {
+              method: 'POST',
+              body: JSON.stringify({
+                data: {
+                  type: 'appStoreVersionSubmissions',
+                  relationships: { appStoreVersion: { data: { type: 'appStoreVersions', id: version.id } } },
+                },
+              }),
+            });
+
+            console.log('✅ Submitted for review successfully.');
+          }
+
+          main().catch((e) => { console.error('❌', e.message); process.exit(1); });
+          EOF
