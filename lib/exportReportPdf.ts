@@ -120,15 +120,9 @@ export async function generateNSPIREReportPDFBlob(report: NSPIREInspectionReport
 }
 
 export async function downloadNSPIREReportPDF(report: NSPIREInspectionReport, filename: string): Promise<void> {
+  const { saveAndShareBlob } = await import('./nativeDownload')
   const blob = await generateNSPIREReportPDFBlob(report)
-  const url = window.URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = filename.endsWith('.pdf') ? filename : `${filename}.pdf`
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  window.URL.revokeObjectURL(url)
+  await saveAndShareBlob(blob, filename.endsWith('.pdf') ? filename : `${filename}.pdf`)
 }
 
 export async function blobToBase64(blob: Blob): Promise<string> {

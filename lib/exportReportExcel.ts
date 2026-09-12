@@ -109,13 +109,7 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
 }
 
 export async function downloadNSPIREReportExcel(report: NSPIREInspectionReport, filename: string): Promise<void> {
+  const { saveAndShareBlob } = await import('./nativeDownload')
   const blob = await generateNSPIREReportExcelBlob(report)
-  const url = window.URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = filename.endsWith('.xlsx') ? filename : `${filename}.xlsx`
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  window.URL.revokeObjectURL(url)
+  await saveAndShareBlob(blob, filename.endsWith('.xlsx') ? filename : `${filename}.xlsx`)
 }
