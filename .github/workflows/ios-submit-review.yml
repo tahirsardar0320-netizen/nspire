@@ -110,6 +110,20 @@ jobs:
               }),
             });
 
+            console.log('Checking for a stale submission on this version...');
+            try {
+              const existing = await api(`/appStoreVersions/${version.id}/appStoreVersionSubmission`);
+              const existingId = existing.data?.id;
+              if (existingId) {
+                console.log('  found stale submission', existingId, '— deleting it first');
+                await api(`/appStoreVersionSubmissions/${existingId}`, { method: 'DELETE' });
+              } else {
+                console.log('  none found');
+              }
+            } catch (e) {
+              console.log('  none found (', e.message, ')');
+            }
+
             console.log('Submitting for review...');
             await api('/appStoreVersionSubmissions', {
               method: 'POST',
