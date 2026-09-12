@@ -280,14 +280,9 @@ function generateStyles(options: PDFGenerationOptions): string {
     }
     
     .section-header {
-      display: inline-block;
       font-weight: bold;
       font-size: 10pt;
       margin-bottom: 5px;
-      /* See .summary-table comment above — border-bottom instead of text-decoration
-         so html2canvas draws a rectangle, not a font-metric-dependent underline. */
-      border-bottom: 1.5px solid #1F2937;
-      padding-bottom: 2px;
     }
 
     /* Deficiency Table Specifics */
@@ -581,7 +576,7 @@ function generateDeficiencyRow(def: DeficiencyEntry): string {
 function generateDeficiencyAreaTable(label: string, subtitle: string, items: DeficiencyEntry[]): string {
   const headingLabel = label === 'Units' ? 'Unit' : label;
   return `
-    <p style="font-weight:bold; font-size:10pt; margin-top:14px; margin-bottom:4px; display:inline-block; border-bottom:1.5px solid #1F2937; padding-bottom:2px;">${headingLabel} Deficiencies</p>
+    <p style="font-weight:bold; font-size:10pt; margin-top:14px; margin-bottom:4px;">${headingLabel} Deficiencies</p>
     ${items.length === 0 ? `
       <div style="padding:8px; border:1px solid #000; border-top:none; font-style:italic; color:#666; font-size:9pt;">No deficiencies found.</div>
     ` : `
