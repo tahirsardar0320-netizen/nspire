@@ -78,8 +78,13 @@ jobs:
             console.log('Waiting for the latest build to finish processing (Apple can take several minutes)...');
             let build = null;
             for (let attempt = 0; attempt < 40; attempt++) {
-              const buildsRaw = await api(`/apps/${appId}/builds?limit=10`);
-              const sortedBuilds = (buildsRaw.data || []).sort((a, b) => new Date(b.attributes.uploadedDate) - new Date(a.attributes.uploadedDate));
+              const buildsRaw = await api(`/apps/${appId}/builds?limit=200`);
+              for (const b of buildsRaw.data || []) {
+                console.log('   seen build', b.attributes.version, 'uploaded', b.attributes.uploadedDate, 'state', b.attributes.processingState);
+              }
+              // uploadedDate has been unreliable for sorting; our build numbers are
+              // a strictly increasing GitHub run number, so the highest one wins.
+              const sortedBuilds = (buildsRaw.data || []).sort((a, b) => parseInt(b.attributes.version, 10) - parseInt(a.attributes.version, 10));
               build = sortedBuilds[0];
               if (!build) throw new Error('No builds found for this app yet.');
               const state = build.attributes.processingState;
