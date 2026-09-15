@@ -118,10 +118,23 @@ jobs:
                 console.log('  found stale submission', existingId, '— deleting it first');
                 await api(`/appStoreVersionSubmissions/${existingId}`, { method: 'DELETE' });
               } else {
-                console.log('  none found');
+                console.log('  relationship lookup returned no id');
               }
             } catch (e) {
-              console.log('  none found (', e.message, ')');
+              console.log('  relationship lookup failed (', e.message, ')');
+            }
+
+            // The relationship lookup 404s even though Apple's API refuses new
+            // submissions with "Allowed operation is: DELETE" — the rejection
+            // email itself names the stale submission's id, so delete that
+            // directly as a fallback.
+            const KNOWN_STALE_SUBMISSION_ID = '3bbdabcb-6605-41dc-b83f-65c48dd40115';
+            try {
+              console.log('  trying known stale submission id from the rejection email...');
+              await api(`/appStoreVersionSubmissions/${KNOWN_STALE_SUBMISSION_ID}`, { method: 'DELETE' });
+              console.log('  deleted', KNOWN_STALE_SUBMISSION_ID);
+            } catch (e) {
+              console.log('  could not delete known id (', e.message, ')');
             }
 
             console.log('Submitting for review...');
