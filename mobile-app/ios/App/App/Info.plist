@@ -24,6 +24,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSCameraUsageDescription</key>
 	<string>NSPIRE Inspection needs camera access to capture photos of inspection deficiencies.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
