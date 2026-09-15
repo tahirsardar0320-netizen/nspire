@@ -1,0 +1,137 @@
+name: iOS Upload Screenshots (NSPIRE Inspection)
+
+# Manual trigger only -- replaces the live App Store screenshots for the
+# iPhone and iPad display types with the locally fixed set in
+# mobile-app/store-assets/ios/ (Google Play badge removed from 01-home.png).
+on:
+  workflow_dispatch: {}
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upload fixed screenshots to App Store Connect
+        working-directory: mobile-app/store-assets/ios
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_P8: ${{ secrets.APPSTORE_API_KEY_P8 }}
+        run: |
+          npm install jsonwebtoken@9
+          node <<'EOF'
+          const jwt = require('jsonwebtoken');
+          const fs = require('fs');
+          const crypto = require('crypto');
+
+          const KEY_ID = process.env.APPSTORE_KEY_ID;
+          const ISSUER_ID = process.env.APPSTORE_ISSUER_ID;
+          const PRIVATE_KEY = process.env.APPSTORE_API_KEY_P8;
+          const BUNDLE_ID = 'com.nspireapp';
+          const API = 'https://api.appstoreconnect.apple.com/v1';
+
+          function makeToken() {
+            return jwt.sign(
+              { iss: ISSUER_ID, aud: 'appstoreconnect-v1' },
+              PRIVATE_KEY,
+              { algorithm: 'ES256', expiresIn: '19m', header: { kid: KEY_ID, typ: 'JWT' } }
+            );
+          }
+
+          async function api(path, opts = {}) {
+            const res = await fetch(`${API}${path}`, {
+              ...opts,
+              headers: {
+                Authorization: `Bearer ${makeToken()}`,
+                'Content-Type': 'application/json',
+                ...(opts.headers || {}),
+              },
+            });
+            const text = await res.text();
+            let body;
+            try { body = JSON.parse(text); } catch { body = text; }
+            if (!res.ok) throw new Error(`${opts.method || 'GET'} ${path} -> ${res.status}: ${JSON.stringify(body)}`);
+            return body;
+          }
+
+          const FOLDER_TO_FILES = {
+            'screenshots-6.7in': ['01-home.png', '02-login.png', '03-dashboard.png', '04-add-property.png'],
+            'screenshots-12.9in-ipad': ['01-home.png', '02-login.png', '03-dashboard.png', '04-add-property.png'],
+          };
+
+          async function uploadOneScreenshot(setId, localPath) {
+            const buf = fs.readFileSync(localPath);
+            const fileName = localPath.split('/').pop();
+            console.log(`  reserving upload for ${fileName} (${buf.length} bytes) in set ${setId}`);
+            const reserved = await api('/appScreenshots', {
+              method: 'POST',
+              body: JSON.stringify({
+                data: {
+                  type: 'appScreenshots',
+                  attributes: { fileName, fileSize: buf.length },
+                  relationships: { appScreenshotSet: { data: { type: 'appScreenshotSets', id: setId } } },
+                },
+              }),
+            });
+            const screenshotId = reserved.data.id;
+            const ops = reserved.data.attributes.uploadOperations || [];
+            for (const op of ops) {
+              const slice = buf.subarray(op.offset, op.offset + op.length);
+              const headers = {};
+              for (const h of op.requestHeaders || []) headers[h.name] = h.value;
+              const putRes = await fetch(op.url, { method: op.method || 'PUT', headers, body: slice });
+              if (!putRes.ok) throw new Error(`upload chunk failed: ${putRes.status} ${await putRes.text()}`);
+            }
+            const checksum = crypto.createHash('md5').update(buf).digest('hex');
+            await api(`/appScreenshots/${screenshotId}`, {
+              method: 'PATCH',
+              body: JSON.stringify({ data: { type: 'appScreenshots', id: screenshotId, attributes: { uploaded: true, sourceFileChecksum: checksum } } }),
+            });
+            console.log(`  ✅ uploaded ${fileName} as ${screenshotId}`);
+          }
+
+          async function main() {
+            const apps = await api(`/apps?filter[bundleId]=${BUNDLE_ID}`);
+            const appId = apps.data?.[0]?.id;
+            if (!appId) throw new Error('App not found');
+
+            const versionsRaw = await api(`/apps/${appId}/appStoreVersions?limit=10`);
+            const versions = (versionsRaw.data || []).sort((a, b) => new Date(b.attributes.createdDate) - new Date(a.attributes.createdDate));
+            const version = versions.find((v) => ['PREPARE_FOR_SUBMISSION', 'REJECTED', 'DEVELOPER_REJECTED', 'METADATA_REJECTED', 'INVALID_BINARY'].includes(v.attributes.appStoreState)) || versions[0];
+            console.log('using version', version.attributes.versionString, version.id, version.attributes.appStoreState);
+
+            const locs = await api(`/appStoreVersions/${version.id}/appStoreVersionLocalizations`);
+            const loc = (locs.data || []).find((l) => l.attributes.locale === 'en-US') || locs.data?.[0];
+            if (!loc) throw new Error('No localization found');
+            console.log('localization', loc.attributes.locale, loc.id);
+
+            const sets = await api(`/appStoreVersionLocalizations/${loc.id}/appScreenshotSets`);
+            console.log('existing sets:', (sets.data || []).map((s) => s.attributes.screenshotDisplayType).join(', '));
+
+            const iphoneSet = (sets.data || []).find((s) => s.attributes.screenshotDisplayType.startsWith('APP_IPHONE'));
+            const ipadSet = (sets.data || []).find((s) => s.attributes.screenshotDisplayType.startsWith('APP_IPAD'));
+
+            const targets = [
+              { set: iphoneSet, folder: 'screenshots-6.7in' },
+              { set: ipadSet, folder: 'screenshots-12.9in-ipad' },
+            ];
+
+            for (const { set, folder } of targets) {
+              if (!set) { console.log(`no existing screenshot set found matching ${folder}, skipping`); continue; }
+              console.log(`\n=== ${set.attributes.screenshotDisplayType} (set ${set.id}) <- ${folder} ===`);
+              const existing = await api(`/appScreenshotSets/${set.id}/appScreenshots`);
+              for (const shot of existing.data || []) {
+                console.log('  deleting existing screenshot', shot.id);
+                await api(`/appScreenshots/${shot.id}`, { method: 'DELETE' });
+              }
+              for (const fileName of FOLDER_TO_FILES[folder]) {
+                await uploadOneScreenshot(set.id, `${folder}/${fileName}`);
+              }
+            }
+
+            console.log('\n✅ Done.');
+          }
+
+          main().catch((e) => { console.error('❌', e.message); process.exit(1); });
+          EOF
