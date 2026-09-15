@@ -113,19 +113,17 @@ jobs:
             console.log('Checking for a stale submission on this version...');
             let deleted = false;
             try {
-              const rel = await api(`/appStoreVersions/${version.id}/relationships/appStoreVersionSubmission`);
-              const existingId = rel.data?.id;
-              console.log('  relationship linkage:', JSON.stringify(rel.data));
-              if (existingId) {
-                console.log('  found stale submission', existingId, '— deleting it first');
-                await api(`/appStoreVersionSubmissions/${existingId}`, { method: 'DELETE' });
+              const list = await api(`/appStoreVersionSubmissions?filter[appStoreVersion]=${version.id}`);
+              console.log('  submissions for this version:', JSON.stringify(list.data));
+              for (const sub of list.data || []) {
+                console.log('  deleting stale submission', sub.id);
+                await api(`/appStoreVersionSubmissions/${sub.id}`, { method: 'DELETE' });
                 deleted = true;
-                console.log('  deleted', existingId);
-              } else {
-                console.log('  relationship has no linked submission');
+                console.log('  deleted', sub.id);
               }
+              if (!list.data?.length) console.log('  none found via filter query');
             } catch (e) {
-              console.log('  relationship lookup failed (', e.message, ')');
+              console.log('  filter query failed (', e.message, ')');
             }
 
             if (!deleted) {
