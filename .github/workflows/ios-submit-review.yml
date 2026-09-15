@@ -111,30 +111,32 @@ jobs:
             });
 
             console.log('Checking for a stale submission on this version...');
+            let deleted = false;
             try {
-              const existing = await api(`/appStoreVersions/${version.id}/appStoreVersionSubmission`);
-              const existingId = existing.data?.id;
+              const rel = await api(`/appStoreVersions/${version.id}/relationships/appStoreVersionSubmission`);
+              const existingId = rel.data?.id;
+              console.log('  relationship linkage:', JSON.stringify(rel.data));
               if (existingId) {
                 console.log('  found stale submission', existingId, '— deleting it first');
                 await api(`/appStoreVersionSubmissions/${existingId}`, { method: 'DELETE' });
+                deleted = true;
+                console.log('  deleted', existingId);
               } else {
-                console.log('  relationship lookup returned no id');
+                console.log('  relationship has no linked submission');
               }
             } catch (e) {
               console.log('  relationship lookup failed (', e.message, ')');
             }
 
-            // The relationship lookup 404s even though Apple's API refuses new
-            // submissions with "Allowed operation is: DELETE" — the rejection
-            // email itself names the stale submission's id, so delete that
-            // directly as a fallback.
-            const KNOWN_STALE_SUBMISSION_ID = '3bbdabcb-6605-41dc-b83f-65c48dd40115';
-            try {
-              console.log('  trying known stale submission id from the rejection email...');
-              await api(`/appStoreVersionSubmissions/${KNOWN_STALE_SUBMISSION_ID}`, { method: 'DELETE' });
-              console.log('  deleted', KNOWN_STALE_SUBMISSION_ID);
-            } catch (e) {
-              console.log('  could not delete known id (', e.message, ')');
+            if (!deleted) {
+              const KNOWN_STALE_SUBMISSION_ID = '3bbdabcb-6605-41dc-b83f-65c48dd40115';
+              try {
+                console.log('  trying known stale submission id from the rejection email...');
+                await api(`/appStoreVersionSubmissions/${KNOWN_STALE_SUBMISSION_ID}`, { method: 'DELETE' });
+                console.log('  deleted', KNOWN_STALE_SUBMISSION_ID);
+              } catch (e) {
+                console.log('  could not delete known id (', e.message, ')');
+              }
             }
 
             console.log('Submitting for review...');
