@@ -13,6 +13,12 @@ interface SocialLoginButtonsProps {
 // set NEXT_PUBLIC_ENABLE_FACEBOOK_LOGIN=true to bring it back.
 const FACEBOOK_ENABLED = process.env.NEXT_PUBLIC_ENABLE_FACEBOOK_LOGIN === 'true'
 
+// Apple never had a real Services ID configured — tapping the button always
+// threw "Apple Sign In is not available yet", which Apple's own reviewer
+// flagged as a bug (Guideline 2.1(a)) on the 2.8 submission. Hidden until
+// NEXT_PUBLIC_APPLE_CLIENT_ID is actually set.
+const APPLE_ENABLED = !!process.env.NEXT_PUBLIC_APPLE_CLIENT_ID
+
 export default function SocialLoginButtons({
     onGoogleClick,
     onFacebookClick,
@@ -32,7 +38,9 @@ export default function SocialLoginButtons({
             </div>
 
             {/* Social Login Buttons */}
-            <div className={`grid gap-4 ${FACEBOOK_ENABLED ? 'grid-cols-3' : 'grid-cols-2'}`}>
+            {/* Tailwind's scanner needs the literal class names to appear in the source,
+                so this can't be built from a computed number like `grid-cols-${n}`. */}
+            <div className={`grid gap-4 ${{ 1: 'grid-cols-1', 2: 'grid-cols-2', 3: 'grid-cols-3' }[1 + (FACEBOOK_ENABLED ? 1 : 0) + (APPLE_ENABLED ? 1 : 0)]}`}>
                 {/* Google */}
                 <button
                     type="button"
@@ -77,17 +85,19 @@ export default function SocialLoginButtons({
                 )}
 
                 {/* Apple */}
-                <button
-                    type="button"
-                    onClick={onAppleClick}
-                    disabled={disabled}
-                    className="flex items-center justify-center px-4 py-3 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    title="Sign in with Apple"
-                >
-                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="#000000">
-                        <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-                    </svg>
-                </button>
+                {APPLE_ENABLED && (
+                    <button
+                        type="button"
+                        onClick={onAppleClick}
+                        disabled={disabled}
+                        className="flex items-center justify-center px-4 py-3 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Sign in with Apple"
+                    >
+                        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="#000000">
+                            <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+                        </svg>
+                    </button>
+                )}
             </div>
         </div>
     )
