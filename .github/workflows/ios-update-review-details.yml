@@ -1,0 +1,106 @@
+name: iOS Update Review Details (NSPIRE Inspection)
+
+# Manual trigger only -- updates the demo account credentials + contact info
+# shown to Apple's reviewer in App Store Connect's "Sign-In Information".
+on:
+  workflow_dispatch: {}
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update demo account credentials
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_P8: ${{ secrets.APPSTORE_API_KEY_P8 }}
+        run: |
+          npm install jsonwebtoken@9
+          node <<'EOF'
+          const jwt = require('jsonwebtoken');
+
+          const KEY_ID = process.env.APPSTORE_KEY_ID;
+          const ISSUER_ID = process.env.APPSTORE_ISSUER_ID;
+          const PRIVATE_KEY = process.env.APPSTORE_API_KEY_P8;
+          const BUNDLE_ID = 'com.nspireapp';
+          const API = 'https://api.appstoreconnect.apple.com/v1';
+
+          function makeToken() {
+            return jwt.sign(
+              { iss: ISSUER_ID, aud: 'appstoreconnect-v1' },
+              PRIVATE_KEY,
+              { algorithm: 'ES256', expiresIn: '19m', header: { kid: KEY_ID, typ: 'JWT' } }
+            );
+          }
+
+          async function api(path, opts = {}) {
+            const res = await fetch(`${API}${path}`, {
+              ...opts,
+              headers: {
+                Authorization: `Bearer ${makeToken()}`,
+                'Content-Type': 'application/json',
+                ...(opts.headers || {}),
+              },
+            });
+            const text = await res.text();
+            let body;
+            try { body = JSON.parse(text); } catch { body = text; }
+            if (!res.ok) throw new Error(`${opts.method || 'GET'} ${path} -> ${res.status}: ${JSON.stringify(body)}`);
+            return body;
+          }
+
+          async function main() {
+            const apps = await api(`/apps?filter[bundleId]=${BUNDLE_ID}`);
+            const appId = apps.data?.[0]?.id;
+            if (!appId) throw new Error('App not found');
+
+            const versionsRaw = await api(`/apps/${appId}/appStoreVersions?limit=10`);
+            const versions = (versionsRaw.data || []).sort((a, b) => new Date(b.attributes.createdDate) - new Date(a.attributes.createdDate));
+            const version = versions[0];
+            console.log('using version', version.attributes.versionString, version.id, version.attributes.appStoreState);
+
+            const detail = await api(`/appStoreVersions/${version.id}/appStoreReviewDetail`);
+            const detailId = detail.data?.id;
+            console.log('review detail id:', detailId);
+            console.log('current demo account name:', detail.data?.attributes?.demoAccountName);
+
+            if (detailId) {
+              await api(`/appStoreReviewDetails/${detailId}`, {
+                method: 'PATCH',
+                body: JSON.stringify({
+                  data: {
+                    type: 'appStoreReviewDetails',
+                    id: detailId,
+                    attributes: {
+                      demoAccountName: 'applereview@nspireinspectionapp.com',
+                      demoAccountPassword: 'AppleReview2026!',
+                      demoAccountRequired: true,
+                      notes: '1. Log in with the demo account above.\n2. You will land on the Property Dashboard.\n3. Select the "Test Property" listed.\n4. Tap Initiate, then Inspect Building and Unit separately.',
+                    },
+                  },
+                }),
+              });
+              console.log('✅ Updated review detail with working demo account.');
+            } else {
+              // No review detail resource exists yet for this version — create one.
+              await api('/appStoreReviewDetails', {
+                method: 'POST',
+                body: JSON.stringify({
+                  data: {
+                    type: 'appStoreReviewDetails',
+                    attributes: {
+                      demoAccountName: 'applereview@nspireinspectionapp.com',
+                      demoAccountPassword: 'AppleReview2026!',
+                      demoAccountRequired: true,
+                      notes: '1. Log in with the demo account above.\n2. You will land on the Property Dashboard.\n3. Select the "Test Property" listed.\n4. Tap Initiate, then Inspect Building and Unit separately.',
+                    },
+                    relationships: { appStoreVersion: { data: { type: 'appStoreVersions', id: version.id } } },
+                  },
+                }),
+              });
+              console.log('✅ Created review detail with working demo account.');
+            }
+          }
+
+          main().catch((e) => { console.error('❌', e.message); process.exit(1); });
+          EOF
