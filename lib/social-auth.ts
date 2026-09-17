@@ -245,7 +245,9 @@ export const initAppleLogin = (portal: string): Promise<OAuthResult> => {
         return Promise.reject(new Error('Apple Sign In is not available yet. Please use email/password or Google login.'))
     }
 
-    const redirectUri = getRedirectUri()
+    // Apple posts the result straight to this server route (response_mode=form_post),
+    // not to the shared client-rendered /oauth-callback page Google/Facebook use.
+    const redirectUri = `${window.location.origin}/api/auth/apple-callback`
     const sessionId = createSessionId()
     const state = encodeState({ provider: 'apple', portal, origin: window.location.origin, sessionId })
 
