@@ -1,0 +1,38 @@
+name: Check Apple Identifiers Access
+on:
+  workflow_dispatch: {}
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: List bundle IDs and identifiers
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_P8: ${{ secrets.APPSTORE_API_KEY_P8 }}
+        run: |
+          npm install jsonwebtoken@9
+          node <<'EOF'
+          const jwt = require('jsonwebtoken');
+          const KEY_ID = process.env.APPSTORE_KEY_ID;
+          const ISSUER_ID = process.env.APPSTORE_ISSUER_ID;
+          const PRIVATE_KEY = process.env.APPSTORE_API_KEY_P8;
+          const API = 'https://api.appstoreconnect.apple.com/v1';
+          function makeToken() {
+            return jwt.sign({ iss: ISSUER_ID, aud: 'appstoreconnect-v1' }, PRIVATE_KEY, { algorithm: 'ES256', expiresIn: '19m', header: { kid: KEY_ID, typ: 'JWT' } });
+          }
+          async function api(path, opts = {}) {
+            const res = await fetch(`${API}${path}`, { ...opts, headers: { Authorization: `Bearer ${makeToken()}`, 'Content-Type': 'application/json', ...(opts.headers||{}) } });
+            const text = await res.text();
+            let body; try { body = JSON.parse(text); } catch { body = text; }
+            console.log(opts.method || 'GET', path, '->', res.status);
+            console.log(JSON.stringify(body, null, 2).slice(0, 2000));
+            return body;
+          }
+          async function main() {
+            await api('/bundleIds?limit=20');
+            console.log('---');
+            await api('/bundleIds?filter[identifier]=com.nspireapp');
+          }
+          main().catch(e => { console.error('ERR', e.message); process.exit(1); });
+          EOF
