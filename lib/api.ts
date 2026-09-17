@@ -295,7 +295,8 @@ async function internalRequest<T>(endpoint: string, options: RequestInit = {}): 
 }
 
 // Properties API — MongoDB (internal Next.js API) is the primary source of truth.
-// localStorage is used as a read-cache for speed and offline fallback.
+// localStorage is used as a read-cache for speed. Genuinely offline creates go
+// into offlineQueue instead — see the comment on propertiesAPI.create below.
 export const propertiesAPI = {
   create: async (propertyData: {
     propertyId: string;
@@ -321,12 +322,30 @@ export const propertiesAPI = {
         return { success: true, message: 'Property created successfully', property: result.property };
       }
     } catch (e: any) {
-      // A property that only "saves" to this browser's localStorage never
-      // reaches MongoDB — it looks successful here but is gone on the next
-      // refresh, a different device, or once localStorage is cleared. That's
-      // worse than telling the user it failed, so surface every failure
-      // (including a timeout) instead of faking success.
-      throw e;
+      // The server responded but rejected the request (validation error, a
+      // duplicate Property ID, etc.) — that's a real failure the user needs
+      // to see and fix, not something to queue and silently retry later.
+      if (e?.status) {
+        throw e;
+      }
+
+      // No status means the request never reached the server at all — a
+      // real network failure (offline, DNS, or our own 15s timeout). Unlike
+      // the old fallback this used to have, this is never reported as a
+      // finished save: it's queued, flagged pendingSync, and only counted as
+      // saved once the real POST above succeeds on a later sync.
+      const { enqueueProperty, queuedAsDisplayProperty } = await import('./offlineQueue');
+      const queued = enqueueProperty(propertyData);
+      const displayProp = queuedAsDisplayProperty(queued);
+      const cache = getLocalCache();
+      cache.unshift(displayProp);
+      saveLocalCache(cache);
+      return {
+        success: true,
+        offline: true,
+        message: "Saved offline — it'll sync automatically once you're back online.",
+        property: displayProp,
+      };
     }
   },
 
@@ -388,6 +407,32 @@ export const propertiesAPI = {
     limit?: number;
   }) => {
     let props: any[] = [];
+
+    // Opportunistically flush anything queued while offline. If we're still
+    // offline this is a fast no-op (the first POST fails and the loop stops);
+    // if we're back online, queued properties land in MongoDB before the
+    // fetch below runs, so they show up as real records, not pending ones.
+    try {
+      const { syncOfflineQueue, getQueuedProperties } = await import('./offlineQueue');
+      const before = getQueuedProperties().map((q) => q.tempId);
+      await syncOfflineQueue(async (data) => {
+        const result = await internalRequest<any>('/api/properties', {
+          method: 'POST',
+          body: JSON.stringify(data),
+        });
+        return result;
+      });
+      const afterIds = new Set(getQueuedProperties().map((q) => q.tempId));
+      const nowSynced = before.filter((id) => !afterIds.has(id));
+      if (nowSynced.length) {
+        const cache = getLocalCache().filter((p: any) => !nowSynced.includes(p._id));
+        saveLocalCache(cache);
+      }
+    } catch {
+      // Offline queue module unavailable or sync errored — fall through to
+      // the normal fetch, which will surface its own failure if we're
+      // genuinely offline.
+    }
 
     // 1. Primary: fetch from MongoDB via internal API
     try {

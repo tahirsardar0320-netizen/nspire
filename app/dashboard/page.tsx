@@ -289,7 +289,11 @@ export default function Dashboard() {
         units: buildings.reduce((sum, b) => sum + b.units, 0),
       })
       if (response.success) {
-        toast.success("Data saved successfully", { position: "top-right" })
+        if (response.offline) {
+          toast.info(response.message || "Saved offline — it'll sync once you're back online.", { position: "top-right", autoClose: 5000 })
+        } else {
+          toast.success("Data saved successfully", { position: "top-right" })
+        }
 
         // Save custom building names and per-building unit split to localStorage
         // (the backend only stores the building count + total units, not the
@@ -514,7 +518,14 @@ export default function Dashboard() {
                         </span>
                       </td>
                       <td className="py-4 px-3 text-center">
-                        <span className="font-bold text-slate-800 text-sm truncate block">{property.name}</span>
+                        <span className="font-bold text-slate-800 text-sm truncate block">
+                          {property.name}
+                          {property.pendingSync && (
+                            <span className="ml-1.5 inline-block align-middle px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200" title="Saved on this device only — will sync once you're back online">
+                              Pending Sync
+                            </span>
+                          )}
+                        </span>
                       </td>
                       <td className="py-4 px-3 text-slate-700 font-semibold text-sm text-center">{property.buildings}</td>
                       <td className="py-4 px-3 text-slate-700 font-semibold text-sm text-center">{property.units}</td>
@@ -615,7 +626,14 @@ export default function Dashboard() {
                             {property.state}
                           </span>
                         </div>
-                        <h3 className="font-bold text-slate-900 text-base mb-1">{property.name}</h3>
+                        <h3 className="font-bold text-slate-900 text-base mb-1">
+                          {property.name}
+                          {property.pendingSync && (
+                            <span className="ml-1.5 inline-block align-middle px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200" title="Saved on this device only — will sync once you're back online">
+                              Pending Sync
+                            </span>
+                          )}
+                        </h3>
                         <p className="text-slate-500 text-xs font-medium">{property.address}</p>
                       </div>
                       {propertyProgress[pid] === 100 ? (
