@@ -66,20 +66,35 @@ const HANDOFF_DETECT_MS = 3000
 /** After a real cancel, give a result already in flight a moment to land. */
 const CANCEL_GRACE_MS = 5000
 
+/** Apple's Guideline 4 (and the equivalent Play Store expectation) requires
+ * sign-in to stay inside the app — handing off to the system browser reads as
+ * leaving the app entirely, even though it comes back via the same handoff
+ * mechanism. @capacitor/browser presents an in-app SFSafariViewController /
+ * Chrome Custom Tab instead, which both platforms accept. */
+const closeNativeAuthBrowser = () => {
+    if (!isNativeApp()) return
+    const Browser = (window as any).Capacitor?.Plugins?.Browser
+    Browser?.close?.().catch(() => {})
+}
+
 const openAuthWindow = (authUrl: string, title: string): Window | null => {
+    if (isNativeApp()) {
+        const Browser = (window as any).Capacitor?.Plugins?.Browser
+        if (Browser) {
+            Browser.open({ url: authUrl }).catch(() => {})
+            return null
+        }
+        // Older installed app without the Browser plugin bundled yet — fall
+        // back to the previous system-browser handoff rather than failing.
+        window.location.href = authUrl
+        return null
+    }
+
     const width = 500
     const height = 600
     const left = window.screenX + (window.outerWidth - width) / 2
     const top = window.screenY + (window.outerHeight - height) / 2
-
-    const popup = window.open(authUrl, title, `width=${width},height=${height},left=${left},top=${top}`)
-    if (popup || !isNativeApp()) return popup
-
-    // Some WebViews refuse window.open outright. Assigning location instead
-    // still reaches the system browser, because Capacitor intercepts the
-    // navigation and fires an intent without unloading this page.
-    window.location.href = authUrl
-    return null
+    return window.open(authUrl, title, `width=${width},height=${height},left=${left},top=${top}`)
 }
 
 /**
@@ -97,6 +112,7 @@ const waitForOAuth = (provider: Provider, sessionId: string, popup: Window | nul
         const cleanup = () => {
             window.removeEventListener('message', handleMessage)
             clearInterval(poll)
+            closeNativeAuthBrowser()
         }
         const succeed = (result: OAuthResult) => {
             if (settled) return
