@@ -3,26 +3,53 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
+const STALL_TIMEOUT_MS = 2500;
+const MAX_PLAYBACK_MS = 9000;
+
 export default function AppLaunch() {
   const router = useRouter();
-  const videoRef = useRef<HTMLVideoElement>(null);
   const [videoFailed, setVideoFailed] = useState(false);
+  const stallTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wentRef = useRef(false);
 
   useEffect(() => {
-    const go = () => router.replace("/profile-selection");
+    const go = () => {
+      if (wentRef.current) return;
+      wentRef.current = true;
+      router.replace("/profile-selection");
+    };
 
-    // No point trying to fetch the video at all if we're already known offline —
+    // No point even attempting the video if we're already known offline —
     // avoids the browser's broken-video icon flashing over the splash screen.
     if (typeof navigator !== "undefined" && navigator.onLine === false) {
       setVideoFailed(true);
-      const fallback = setTimeout(go, 1200);
-      return () => clearTimeout(fallback);
+      const t = setTimeout(go, 300);
+      return () => clearTimeout(t);
     }
 
-    // Fallback in case the video's `ended` event doesn't fire in some WebViews.
-    const fallback = setTimeout(go, 7000);
-    return () => clearTimeout(fallback);
+    // If the video hasn't actually started playing within this window —
+    // a stalled/hung load never fires a formal `error` event, just sits
+    // there frozen — bail out instead of leaving a broken splash on screen.
+    stallTimerRef.current = setTimeout(() => {
+      setVideoFailed(true);
+      go();
+    }, STALL_TIMEOUT_MS);
+
+    // Absolute fallback in case `ended` never fires once playback starts.
+    const maxTimer = setTimeout(go, MAX_PLAYBACK_MS);
+
+    return () => {
+      if (stallTimerRef.current) clearTimeout(stallTimerRef.current);
+      clearTimeout(maxTimer);
+    };
   }, [router]);
+
+  const clearStallTimer = () => {
+    if (stallTimerRef.current) {
+      clearTimeout(stallTimerRef.current);
+      stallTimerRef.current = null;
+    }
+  };
 
   return (
     <main className="fixed inset-0 flex items-center justify-center bg-[#7FBFE9] overflow-hidden">
@@ -33,11 +60,11 @@ export default function AppLaunch() {
       <div className="absolute inset-0 bg-[#7FBFE9]/80" />
       {!videoFailed && (
         <video
-          ref={videoRef}
           src="/app-launch.mp4"
           autoPlay
           muted
           playsInline
+          onPlaying={clearStallTimer}
           onEnded={() => router.replace("/profile-selection")}
           onError={() => {
             setVideoFailed(true);
