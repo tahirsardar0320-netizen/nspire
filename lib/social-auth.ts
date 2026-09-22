@@ -265,7 +265,11 @@ export const initAppleLogin = (portal: string): Promise<OAuthResult> => {
     // not to the shared client-rendered /oauth-callback page Google/Facebook use.
     const redirectUri = `${window.location.origin}/api/auth/apple-callback`
     const sessionId = createSessionId()
-    const state = encodeState({ provider: 'apple', portal, origin: window.location.origin, sessionId })
+    // OpenID Connect requires `nonce` whenever response_type includes id_token —
+    // Apple's authorize endpoint refuses the request without one, which is what
+    // made the sign-in page itself unreachable.
+    const nonce = createSessionId()
+    const state = encodeState({ provider: 'apple', portal, origin: window.location.origin, sessionId, nonce })
 
     const authUrl = `https://appleid.apple.com/auth/authorize?` +
         `client_id=${clientId}&` +
@@ -273,6 +277,7 @@ export const initAppleLogin = (portal: string): Promise<OAuthResult> => {
         `response_type=code id_token&` +
         `scope=name email&` +
         `response_mode=form_post&` +
+        `nonce=${encodeURIComponent(nonce)}&` +
         `state=${encodeURIComponent(state)}`
 
     const popup = openAuthWindow(authUrl, 'Apple Sign In')

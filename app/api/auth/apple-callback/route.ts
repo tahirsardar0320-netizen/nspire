@@ -35,7 +35,7 @@ function verifyAppleIdToken(idToken: string, clientId: string) {
       algorithms: ['RS256'],
       issuer: 'https://appleid.apple.com',
       audience: clientId,
-    }) as { sub: string; email?: string; email_verified?: boolean | string }
+    }) as { sub: string; email?: string; email_verified?: boolean | string; nonce?: string }
   );
 }
 
@@ -89,6 +89,12 @@ export async function POST(request: NextRequest) {
     }
 
     const claims = await verifyAppleIdToken(idToken, clientId);
+
+    if (state?.nonce && claims.nonce !== state.nonce) {
+      await parkHandoffResult(sessionId, { provider: 'apple', error: 'Apple sign-in could not be verified. Please try again.' });
+      return htmlResponse(SUCCESS_HTML);
+    }
+
     const email = claims.email;
     if (!email) {
       await parkHandoffResult(sessionId, { provider: 'apple', error: 'Apple did not share an email address for this account.' });

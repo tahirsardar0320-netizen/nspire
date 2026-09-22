@@ -456,9 +456,12 @@ export default function Signup() {
           {/* Login Link */}
           <p className="text-center text-sm text-gray-600 mt-6">
             Already have an account?{" "}
-            <a href="/login" className="text-[#006795] hover:underline font-semibold">
+            <button
+              onClick={() => router.push('/login')}
+              className="text-[#006795] hover:underline font-semibold bg-transparent border-0 cursor-pointer"
+            >
               Log in here
-            </a>
+            </button>
           </p>
 
           {/* Back to Portal Selection */}

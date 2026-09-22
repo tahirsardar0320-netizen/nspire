@@ -196,9 +196,9 @@ export default function AssetManagerSignup() {
           {/* Terms */}
           <p className="text-center text-xs text-gray-500 mt-6">
             By signing up, you agree to our{" "}
-            <a href="/terms-of-service" className="text-gray-700 hover:underline font-medium">Terms of Service</a>
+            <button onClick={() => router.push('/terms-of-service')} className="text-gray-700 hover:underline font-medium bg-transparent border-0 cursor-pointer p-0 inline">Terms of Service</button>
             {" "}and{" "}
-            <a href="/privacy-policy" className="text-gray-700 hover:underline font-medium">Privacy Policy</a>.
+            <button onClick={() => router.push('/privacy-policy')} className="text-gray-700 hover:underline font-medium bg-transparent border-0 cursor-pointer p-0 inline">Privacy Policy</button>.
           </p>
         </div>
       </div>
