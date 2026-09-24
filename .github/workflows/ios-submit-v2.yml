@@ -1,10 +1,9 @@
 name: iOS Submit via reviewSubmissions API
 
 # The older appStoreVersionSubmissions resource our other workflow uses is
-# deprecated and our API key is only allowed to DELETE on it. This uses the
-# current reviewSubmissions API instead: find (or create) the open submission
-# for the app, make sure the version is an item on it, then flip it to
-# submitted.
+# deprecated and our API key is only allowed to DELETE on it. Version 2.8 is
+# already an item on the existing submission, so this just flips that
+# submission to submitted and clears away any stray empty submission.
 on:
   workflow_dispatch: {}
 
@@ -27,6 +26,7 @@ jobs:
           const PRIVATE_KEY = process.env.APPSTORE_API_KEY_P8;
           const BUNDLE_ID = 'com.nspireapp';
           const API = 'https://api.appstoreconnect.apple.com/v1';
+          const EXISTING_SUBMISSION = '3bbdabcb-6605-41dc-b83f-65c48dd40115';
 
           function makeToken() {
             return jwt.sign(
@@ -57,79 +57,42 @@ jobs:
           async function main() {
             const apps = await api(`/apps?filter[bundleId]=${BUNDLE_ID}`);
             const appId = apps.data?.[0]?.id;
-            if (!appId) throw new Error('App not found for bundle id ' + BUNDLE_ID);
             console.log('app id:', appId);
 
-            // Which version are we trying to get reviewed?
-            const versions = await api(`/apps/${appId}/appStoreVersions?limit=20`);
-            const target = (versions.data || []).find((v) =>
-              ['READY_FOR_REVIEW', 'PREPARE_FOR_SUBMISSION', 'REJECTED', 'DEVELOPER_REJECTED', 'METADATA_REJECTED'].includes(v.attributes.appStoreState)
-            );
-            if (!target) throw new Error('No version in a submittable state. States: ' + (versions.data || []).map((v) => v.attributes.appStoreState).join(', '));
-            console.log('target version:', target.attributes.versionString, target.attributes.appStoreState, target.id);
-
-            // Existing open submissions for this app.
-            let submissions;
+            // Clear away any empty submission left behind by an earlier run —
+            // an extra open submission confuses the App Store Connect UI.
+            let list = { data: [] };
             try {
-              submissions = await api(`/apps/${appId}/reviewSubmissions?filter[state]=READY_FOR_REVIEW,WAITING_FOR_REVIEW,IN_REVIEW,UNRESOLVED_ISSUES&limit=20`);
+              list = await api(`/apps/${appId}/reviewSubmissions?limit=50`);
             } catch (e) {
               console.log('  could not list submissions:', e.message);
-              submissions = { data: [] };
             }
-            for (const s of submissions.data || []) {
-              console.log('  submission', s.id, s.attributes.state, 'platform', s.attributes.platform);
+            for (const s of list.data || []) {
+              console.log('  submission', s.id, s.attributes.state);
             }
-
-            let submission = (submissions.data || []).find((s) => s.attributes.state === 'READY_FOR_REVIEW');
-
-            if (!submission) {
-              console.log('No open READY_FOR_REVIEW submission; creating one...');
-              const created = await api('/reviewSubmissions', {
-                method: 'POST',
-                body: JSON.stringify({
-                  data: {
-                    type: 'reviewSubmissions',
-                    attributes: { platform: 'IOS' },
-                    relationships: { app: { data: { type: 'apps', id: appId } } },
-                  },
-                }),
-              });
-              submission = created.data;
-              console.log('created submission', submission.id);
+            for (const s of list.data || []) {
+              if (s.id === EXISTING_SUBMISSION) continue;
+              if (s.attributes.state !== 'READY_FOR_REVIEW') continue;
+              let count = 0;
+              try {
+                const its = await api(`/reviewSubmissions/${s.id}/items?limit=5`);
+                count = (its.data || []).length;
+              } catch { /* assume empty */ }
+              if (count === 0) {
+                try {
+                  await api(`/reviewSubmissions/${s.id}`, { method: 'DELETE' });
+                  console.log('  deleted empty submission', s.id);
+                } catch (e) {
+                  console.log('  could not delete', s.id, e.message);
+                }
+              }
             }
 
-            // Make sure the version is actually an item on the submission.
-            let items = { data: [] };
-            try {
-              items = await api(`/reviewSubmissions/${submission.id}/items?limit=20`);
-            } catch (e) {
-              console.log('  could not list items:', e.message);
-            }
-            const hasVersion = (items.data || []).some((i) => i.relationships?.appStoreVersion?.data?.id === target.id);
-            console.log('items on submission:', (items.data || []).length, '| includes target version:', hasVersion);
-
-            if (!hasVersion) {
-              console.log('Adding version as a submission item...');
-              await api('/reviewSubmissionItems', {
-                method: 'POST',
-                body: JSON.stringify({
-                  data: {
-                    type: 'reviewSubmissionItems',
-                    relationships: {
-                      reviewSubmission: { data: { type: 'reviewSubmissions', id: submission.id } },
-                      appStoreVersion: { data: { type: 'appStoreVersions', id: target.id } },
-                    },
-                  },
-                }),
-              });
-              console.log('  added.');
-            }
-
-            console.log('Submitting...');
-            const done = await api(`/reviewSubmissions/${submission.id}`, {
+            console.log('Submitting existing submission', EXISTING_SUBMISSION, '...');
+            const done = await api(`/reviewSubmissions/${EXISTING_SUBMISSION}`, {
               method: 'PATCH',
               body: JSON.stringify({
-                data: { type: 'reviewSubmissions', id: submission.id, attributes: { submitted: true } },
+                data: { type: 'reviewSubmissions', id: EXISTING_SUBMISSION, attributes: { submitted: true } },
               }),
             });
             console.log('RESULT state:', done.data?.attributes?.state);
