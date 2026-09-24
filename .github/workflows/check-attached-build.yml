@@ -1,0 +1,49 @@
+name: TEMP - Check attached build
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report which build is attached to the in-flight version
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_P8: ${{ secrets.APPSTORE_API_KEY_P8 }}
+        run: |
+          npm install jsonwebtoken@9
+          node <<'EOF'
+          const jwt = require('jsonwebtoken');
+          const KEY_ID = process.env.APPSTORE_KEY_ID;
+          const ISSUER_ID = process.env.APPSTORE_ISSUER_ID;
+          const PRIVATE_KEY = process.env.APPSTORE_API_KEY_P8;
+          const API = 'https://api.appstoreconnect.apple.com/v1';
+
+          const token = () => jwt.sign(
+            { iss: ISSUER_ID, aud: 'appstoreconnect-v1' },
+            PRIVATE_KEY,
+            { algorithm: 'ES256', expiresIn: '19m', header: { kid: KEY_ID, typ: 'JWT' } }
+          );
+
+          async function api(path) {
+            const res = await fetch(`${API}${path}`, { headers: { Authorization: `Bearer ${token()}` } });
+            const body = await res.json();
+            if (!res.ok) throw new Error(`${path} -> ${res.status}: ${JSON.stringify(body)}`);
+            return body;
+          }
+
+          async function main() {
+            const apps = await api('/apps?filter[bundleId]=com.nspireapp');
+            const appId = apps.data[0].id;
+            const versions = await api(`/apps/${appId}/appStoreVersions?limit=5`);
+            const v = versions.data.find((x) => x.attributes.appStoreState !== 'READY_FOR_SALE') || versions.data[0];
+            console.log('VERSION:', v.attributes.versionString, '| state:', v.attributes.appStoreState);
+            const build = await api(`/appStoreVersions/${v.id}/build`);
+            console.log('ATTACHED BUILD NUMBER:', build.data?.attributes?.version);
+            console.log('uploaded:', build.data?.attributes?.uploadedDate);
+            console.log('processingState:', build.data?.attributes?.processingState);
+          }
+          main().catch((e) => { console.error('FAILED', e.message); process.exit(1); });
+          EOF
