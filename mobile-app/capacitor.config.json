@@ -4,7 +4,11 @@
   "webDir": "www",
   "server": {
     "url": "https://nspireinspectionapp.com/app-launch",
-    "cleartext": false
+    "cleartext": false,
+    "allowNavigation": [
+      "nspireinspectionapp.com",
+      "www.nspireinspectionapp.com"
+    ]
   },
   "ios": {
     "contentInset": "automatic"

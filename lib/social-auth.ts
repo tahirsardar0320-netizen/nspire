@@ -65,27 +65,53 @@ const HANDOFF_TIMEOUT_MS = 5 * 60 * 1000
 const HANDOFF_DETECT_MS = 3000
 /** After a real cancel, give a result already in flight a moment to land. */
 const CANCEL_GRACE_MS = 5000
+/** Once the in-app browser is dismissed and the app is on screen again, how
+ * long to keep polling before treating the sign-in as abandoned. Without this
+ * the caller stays "loading" — and every social button stays disabled — for the
+ * full handoff timeout, which reads as the buttons being dead. */
+const NATIVE_RETURN_GRACE_MS = 8000
+
+/**
+ * Capacitor.Plugins is only ever populated by a plugin's own JS package calling
+ * registerPlugin(). This web app is loaded remotely into the WebView and never
+ * bundles those packages, so `Capacitor.Plugins.Browser` is always undefined
+ * here no matter what is installed natively — which is why the in-app browser
+ * silently never opened. The native bridge does expose every registered native
+ * plugin through Capacitor.PluginHeaders + Capacitor.nativePromise, which is
+ * exactly what the JS proxies call under the hood, so go through that instead.
+ */
+const hasNativePlugin = (name: string): boolean => {
+    const cap = (window as any).Capacitor
+    if (typeof cap?.nativePromise !== 'function') return false
+    return Array.isArray(cap.PluginHeaders) && cap.PluginHeaders.some((h: any) => h?.name === name)
+}
+
+const callNativePlugin = (plugin: string, method: string, options?: unknown): Promise<any> =>
+    (window as any).Capacitor.nativePromise(plugin, method, options)
 
 /** Apple's Guideline 4 (and the equivalent Play Store expectation) requires
  * sign-in to stay inside the app — handing off to the system browser reads as
  * leaving the app entirely, even though it comes back via the same handoff
- * mechanism. @capacitor/browser presents an in-app SFSafariViewController /
+ * mechanism. The Browser plugin presents an in-app SFSafariViewController /
  * Chrome Custom Tab instead, which both platforms accept. */
 const closeNativeAuthBrowser = () => {
-    if (!isNativeApp()) return
-    const Browser = (window as any).Capacitor?.Plugins?.Browser
-    Browser?.close?.().catch(() => {})
+    if (!isNativeApp() || !hasNativePlugin('Browser')) return
+    callNativePlugin('Browser', 'close').catch(() => {})
 }
 
 const openAuthWindow = (authUrl: string, title: string): Window | null => {
     if (isNativeApp()) {
-        const Browser = (window as any).Capacitor?.Plugins?.Browser
-        if (Browser) {
-            Browser.open({ url: authUrl }).catch(() => {})
+        if (hasNativePlugin('Browser')) {
+            callNativePlugin('Browser', 'open', { url: authUrl }).catch(() => {
+                // The in-app browser refused to present. Falling back to a
+                // plain navigation is worse UX, but it beats leaving the user
+                // tapping a button that appears to do nothing at all.
+                window.location.href = authUrl
+            })
             return null
         }
-        // Older installed app without the Browser plugin bundled yet — fall
-        // back to the previous system-browser handoff rather than failing.
+        // Build without the Browser plugin available — fall back to the
+        // system-browser handoff rather than failing silently.
         window.location.href = authUrl
         return null
     }
@@ -108,12 +134,27 @@ const waitForOAuth = (provider: Provider, sessionId: string, popup: Window | nul
         const deadline = openedAt + HANDOFF_TIMEOUT_MS
         let settled = false
         let closedAt: number | null = null
+        // Native only: set once the app has been backgrounded (the in-app
+        // browser took over) and then brought back to the foreground.
+        let returnedAt: number | null = null
+        let wasHidden = false
 
         const cleanup = () => {
             window.removeEventListener('message', handleMessage)
+            document.removeEventListener('visibilitychange', handleVisibility)
             clearInterval(poll)
             closeNativeAuthBrowser()
         }
+
+        function handleVisibility() {
+            if (document.visibilityState === 'hidden') {
+                wasHidden = true
+                returnedAt = null
+            } else if (wasHidden && returnedAt === null) {
+                returnedAt = Date.now()
+            }
+        }
+        document.addEventListener('visibilitychange', handleVisibility)
         const succeed = (result: OAuthResult) => {
             if (settled) return
             settled = true
@@ -156,6 +197,17 @@ const waitForOAuth = (provider: Provider, sessionId: string, popup: Window | nul
                 return
             }
 
+            // In the app there is no popup handle to watch. Instead, the user
+            // coming back to a foregrounded app means they dismissed the in-app
+            // browser; if nothing lands shortly after that, stop waiting so the
+            // caller can re-enable its buttons instead of appearing frozen.
+            if (isNativeApp()) {
+                if (returnedAt !== null && now - returnedAt > NATIVE_RETURN_GRACE_MS) {
+                    fail('Authentication cancelled')
+                }
+                return
+            }
+
             let closed = false
             try {
                 closed = !!popup?.closed
@@ -168,7 +220,7 @@ const waitForOAuth = (provider: Provider, sessionId: string, popup: Window | nul
             // A popup that dies almost immediately was never really a popup: the
             // URL went to the system browser and the answer will arrive by
             // handoff, so keep polling rather than calling it a cancellation.
-            if (isNativeApp() || !popup || closedAt - openedAt < HANDOFF_DETECT_MS) return
+            if (!popup || closedAt - openedAt < HANDOFF_DETECT_MS) return
 
             if (now - closedAt > CANCEL_GRACE_MS) fail('Authentication cancelled')
         }, 1500)
