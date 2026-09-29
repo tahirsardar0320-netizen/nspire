@@ -35,6 +35,18 @@ const createSessionId = () => {
 const encodeState = (data: Record<string, string>) =>
     btoa(JSON.stringify(data)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 
+/**
+ * Builds a query string with every value percent-encoded. Hand-concatenating
+ * these left raw spaces in `scope` (and Apple's `response_type`); a browser
+ * silently cleaned those up when we navigated to the URL, but the in-app
+ * browser hands the string straight to the platform, which passes the spaces
+ * through and makes the provider reject the whole request as invalid_request.
+ * URLSearchParams encodes a space as "+", which is only correct for form
+ * bodies, so normalise it to %20 for use in a URL.
+ */
+const buildQuery = (params: Record<string, string>) =>
+    new URLSearchParams(params).toString().replace(/\+/g, '%20')
+
 export const decodeState = (raw: string): Record<string, string> | null => {
     if (!raw) return null
     try {
@@ -238,12 +250,13 @@ export const initGoogleLogin = (portal: string): Promise<OAuthResult> => {
     // sessionId to park the result when there's no opener to talk to.
     const state = encodeState({ provider: 'google', portal, origin: window.location.origin, sessionId })
 
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
-        `client_id=${clientId}&` +
-        `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-        `response_type=token&` +
-        `scope=openid email profile&` +
-        `state=${encodeURIComponent(state)}`
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` + buildQuery({
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        response_type: 'token',
+        scope: 'openid email profile',
+        state,
+    })
 
     const popup = openAuthWindow(authUrl, 'Google Sign In')
     if (!popup && !isNativeApp()) {
@@ -323,14 +336,15 @@ export const initAppleLogin = (portal: string): Promise<OAuthResult> => {
     const nonce = createSessionId()
     const state = encodeState({ provider: 'apple', portal, origin: window.location.origin, sessionId, nonce })
 
-    const authUrl = `https://appleid.apple.com/auth/authorize?` +
-        `client_id=${clientId}&` +
-        `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-        `response_type=code id_token&` +
-        `scope=name email&` +
-        `response_mode=form_post&` +
-        `nonce=${encodeURIComponent(nonce)}&` +
-        `state=${encodeURIComponent(state)}`
+    const authUrl = `https://appleid.apple.com/auth/authorize?` + buildQuery({
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        response_type: 'code id_token',
+        scope: 'name email',
+        response_mode: 'form_post',
+        nonce,
+        state,
+    })
 
     const popup = openAuthWindow(authUrl, 'Apple Sign In')
     if (!popup && !isNativeApp()) {
