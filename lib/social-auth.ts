@@ -72,6 +72,24 @@ export const decodeState = (raw: string): Record<string, string> | null => {
 const isNativeApp = () =>
     typeof window !== 'undefined' && !!(window as any).Capacitor?.isNativePlatform?.()
 
+/**
+ * While the in-app browser is in front, the host WebView is backgrounded and
+ * its timers stop, so the polling below never notices that sign-in finished —
+ * the user has to back out of the browser themselves before anything happens.
+ * Opening this scheme from the callback page hands control straight back to the
+ * app, which dismisses the browser. Registered in AndroidManifest.xml and
+ * Info.plist; a build without it simply falls back to the old manual return.
+ */
+const APP_RETURN_URL = 'com.nspireapp://auth-done'
+
+const returnToNativeApp = () => {
+    try {
+        window.location.href = APP_RETURN_URL
+    } catch {
+        // Scheme not registered on this build — the user comes back manually.
+    }
+}
+
 const HANDOFF_TIMEOUT_MS = 5 * 60 * 1000
 /** Below this, a closed popup means the URL was handed off, not that the user bailed. */
 const HANDOFF_DETECT_MS = 3000
@@ -248,7 +266,7 @@ export const initGoogleLogin = (portal: string): Promise<OAuthResult> => {
     const sessionId = createSessionId()
     // The callback needs the opener's origin to postMessage back, and the
     // sessionId to park the result when there's no opener to talk to.
-    const state = encodeState({ provider: 'google', portal, origin: window.location.origin, sessionId })
+    const state = encodeState({ provider: 'google', portal, origin: window.location.origin, sessionId, native: isNativeApp() ? '1' : '' })
 
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` + buildQuery({
         client_id: clientId,
@@ -286,7 +304,7 @@ export const initFacebookLogin = (portal: string): Promise<OAuthResult> => {
 
             const redirectUri = getRedirectUri()
             const sessionId = createSessionId()
-            const state = encodeState({ provider: 'facebook', portal, origin: window.location.origin, sessionId })
+            const state = encodeState({ provider: 'facebook', portal, origin: window.location.origin, sessionId, native: isNativeApp() ? '1' : '' })
             const signIn = await clerk.client.signIn.create({
                 strategy: 'oauth_facebook',
                 redirectUrl: `${redirectUri}?state=${encodeURIComponent(state)}`,
@@ -334,7 +352,7 @@ export const initAppleLogin = (portal: string): Promise<OAuthResult> => {
     // Apple's authorize endpoint refuses the request without one, which is what
     // made the sign-in page itself unreachable.
     const nonce = createSessionId()
-    const state = encodeState({ provider: 'apple', portal, origin: window.location.origin, sessionId, nonce })
+    const state = encodeState({ provider: 'apple', portal, origin: window.location.origin, sessionId, nonce, native: isNativeApp() ? '1' : '' })
 
     const authUrl = `https://appleid.apple.com/auth/authorize?` + buildQuery({
         client_id: clientId,
@@ -397,6 +415,9 @@ export const handleOAuthCallback = async (): Promise<CallbackOutcome> => {
 
     const { provider, portal = '', sessionId = '' } = parsed
     const targetOrigin = parsed.origin || window.location.origin
+    // Set by the app when it started this sign-in, so the callback knows to
+    // hand control back rather than leaving the browser sitting in front.
+    const startedInApp = parsed.native === '1'
 
     // When the sign-in ran in the system browser there is no opener to talk to,
     // so the result goes to the server and the app collects it from there.
@@ -492,7 +513,10 @@ export const handleOAuthCallback = async (): Promise<CallbackOutcome> => {
 
         if (!hasOpener) {
             const parked = await parkResult(sessionId, { provider, portal, email, fullName: resolvedName })
-            if (parked) return { status: 'handed-off', provider }
+            if (parked) {
+                if (startedInApp) returnToNativeApp()
+                return { status: 'handed-off', provider }
+            }
             return { status: 'error', message: 'Signed in, but the result could not be sent back to the app. Please try again.' }
         }
 

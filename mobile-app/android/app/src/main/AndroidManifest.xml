@@ -18,6 +18,18 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- The OAuth callback page opens this scheme so the Custom Tab
+                 closes and the app comes back by itself. Without it the user
+                 has to back out of the browser manually, and because a
+                 backgrounded WebView stops its timers nothing happens until
+                 they do. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="com.nspireapp" />
+            </intent-filter>
         </activity>
 
         <provider

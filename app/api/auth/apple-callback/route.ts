@@ -39,12 +39,21 @@ function verifyAppleIdToken(idToken: string, clientId: string) {
   );
 }
 
-function htmlResponse(body: string) {
+// Apple posts here inside the app's in-app browser, where the host WebView is
+// backgrounded and its polling is frozen. Opening the app's own scheme hands
+// control straight back, dismissing the browser; on a build that doesn't
+// register the scheme nothing happens and the user returns manually as before.
+const APP_RETURN_URL = 'com.nspireapp://auth-done';
+
+function htmlResponse(body: string, returnToApp = false) {
+  const returnScript = returnToApp
+    ? `<script>setTimeout(function(){try{location.href=${JSON.stringify(APP_RETURN_URL)}}catch(e){}},400)</script>`
+    : '';
   return new NextResponse(
     `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Signing in…</title>
     <style>body{font-family:system-ui,sans-serif;background:#E8F4F8;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;color:#1f2937}
     .card{max-width:340px;padding:24px}.icon{height:56px;width:56px;border-radius:9999px;color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
-    </style></head><body>${body}</body></html>`,
+    </style></head><body>${body}${returnScript}</body></html>`,
     { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
   );
 }
@@ -63,6 +72,7 @@ async function parkHandoffResult(sessionId: string, payload: Record<string, unkn
 export async function POST(request: NextRequest) {
   const clientId = process.env.NEXT_PUBLIC_APPLE_CLIENT_ID;
   let sessionId = '';
+  let startedInApp = false;
 
   try {
     const form = await request.formData();
@@ -73,6 +83,7 @@ export async function POST(request: NextRequest) {
 
     const state = stateRaw ? decodeState(stateRaw) : null;
     sessionId = state?.sessionId || '';
+    startedInApp = state?.native === '1';
 
     if (!SESSION_ID_PATTERN.test(sessionId)) {
       return htmlResponse(`<div class="card"><p>Missing session — please try signing in again from the app.</p></div>`);
@@ -80,25 +91,25 @@ export async function POST(request: NextRequest) {
 
     if (appleError) {
       await parkHandoffResult(sessionId, { provider: 'apple', error: `Apple sign-in failed: ${appleError}` });
-      return htmlResponse(SUCCESS_HTML);
+      return htmlResponse(SUCCESS_HTML, startedInApp);
     }
 
     if (!idToken || !clientId) {
       await parkHandoffResult(sessionId, { provider: 'apple', error: 'Apple did not return the expected sign-in data.' });
-      return htmlResponse(SUCCESS_HTML);
+      return htmlResponse(SUCCESS_HTML, startedInApp);
     }
 
     const claims = await verifyAppleIdToken(idToken, clientId);
 
     if (state?.nonce && claims.nonce !== state.nonce) {
       await parkHandoffResult(sessionId, { provider: 'apple', error: 'Apple sign-in could not be verified. Please try again.' });
-      return htmlResponse(SUCCESS_HTML);
+      return htmlResponse(SUCCESS_HTML, startedInApp);
     }
 
     const email = claims.email;
     if (!email) {
       await parkHandoffResult(sessionId, { provider: 'apple', error: 'Apple did not share an email address for this account.' });
-      return htmlResponse(SUCCESS_HTML);
+      return htmlResponse(SUCCESS_HTML, startedInApp);
     }
 
     let fullName = '';
@@ -118,7 +129,7 @@ export async function POST(request: NextRequest) {
       fullName,
     });
 
-    return htmlResponse(SUCCESS_HTML);
+    return htmlResponse(SUCCESS_HTML, startedInApp);
   } catch (error: any) {
     console.error('Apple OAuth callback error:', error);
     if (sessionId) {

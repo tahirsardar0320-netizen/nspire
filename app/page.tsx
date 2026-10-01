@@ -25,8 +25,14 @@ export default function Home() {
   }, [mobileNavOpen]);
 
   useEffect(() => {
-    setIsNativeApp(Boolean((window as any).Capacitor?.isNativePlatform?.()));
-  }, []);
+    const native = Boolean((window as any).Capacitor?.isNativePlatform?.());
+    setIsNativeApp(native);
+    // The marketing site is not part of the app. Logos, logout and the back
+    // button all bottom out on "/", which inside the app meant landing on the
+    // public website with no way back. Send that to the portal picker instead —
+    // replace, not push, so back doesn't bounce between the two.
+    if (native) router.replace('/profile-selection');
+  }, [router]);
 
   return (
     <div className="w-full relative bg-white">

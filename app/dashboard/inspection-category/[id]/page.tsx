@@ -10,6 +10,7 @@ import { outsideDeficiencyMapping, insideDeficiencyMapping, DeficiencyDetail } f
 import { unitDeficiencyMapping } from "@/lib/unitDeficiencyMapping"
 import { calculateUnitInspectionScore, calculateUnitScore, ScoringResult, POSSIBLE_SCORE, SEVERITY_LEVELS, UNIT_POSSIBLE_SCORE } from "@/lib/scoringCalculations"
 import { lookupCodeReference } from "@/lib/appDeficiencyLookup"
+import { fileToCompressedDataUrl } from "@/lib/imageCapture"
 import {
     calculateOutsideScore,
     extractCategoryNumber,
@@ -562,40 +563,6 @@ export default function InspectionCategoryPage() {
         }
     };
 
-    /** Photos captured offline are held as base64 data URLs, which makes a
-     *  queued payload many megabytes. Pushing those straight back up is what
-     *  made reconnecting feel like the app had frozen, so swap each one for a
-     *  hosted URL first and only send the small payload. A photo that can't be
-     *  uploaded keeps its data URL rather than being dropped. */
-    const uploadQueuedPhotos = async (payload: any) => {
-        const findings = payload?.inspectionData?.findings;
-        if (!Array.isArray(findings)) return payload;
-
-        const uploaded = await Promise.all(findings.map(async (finding: any) => {
-            const uri = finding?.imageUri;
-            if (typeof uri !== 'string' || !uri.startsWith('data:')) return finding;
-            try {
-                const blob = await (await fetch(uri)).blob();
-                const formData = new FormData();
-                formData.append('image', blob, 'offline-capture.jpg');
-                formData.append('folder', 'nspire-inspections/deficiencies');
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/ai/upload-image`, {
-                    method: 'POST',
-                    body: formData,
-                });
-                const data = await res.json();
-                if (data?.success && data?.data?.url) {
-                    return { ...finding, imageUri: data.data.url };
-                }
-            } catch (e) {
-                console.warn('Could not upload an offline photo, keeping it inline:', e);
-            }
-            return finding;
-        }));
-
-        return { ...payload, inspectionData: { ...payload.inspectionData, findings: uploaded } };
-    };
-
     const syncPendingChanges = async (showToastOnError = true) => {
         const syncKey = `pending_sync_${id}`;
         let queue: any[] = [];
@@ -618,7 +585,7 @@ export default function InspectionCategoryPage() {
         let synced = 0;
         for (const payload of queue) {
             try {
-                await inspectionsAPI.saveProgress(await uploadQueuedPhotos(payload));
+                await inspectionsAPI.saveProgress(payload);
                 synced++;
             } catch (error) {
                 console.error('Error syncing an offline change:', error);
@@ -1064,31 +1031,11 @@ export default function InspectionCategoryPage() {
         const file = e.target.files?.[0];
         if (!file) return;
         setIsUploadingGeneralImage(true);
-        const toastId = toast.loading("Uploading general image...", { autoClose: false });
         try {
-            const formData = new FormData();
-            formData.append('image', file);
-            formData.append('folder', 'nspire-inspections/general-comments');
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/ai/upload-image`, {
-                method: 'POST',
-                body: formData,
-            });
-            const data = await response.json();
-            if (data.success) {
-                setGeneralImage(data.data.url);
-                toast.update(toastId, { render: 'Image uploaded!', type: 'success', isLoading: false, autoClose: 3000 });
-            } else {
-                throw new Error(data.message || 'Upload failed');
-            }
+            setGeneralImage(await fileToCompressedDataUrl(file));
         } catch (error) {
-            console.warn("Upload API failed, falling back to local Base64 image reader:", error);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64Url = reader.result as string;
-                setGeneralImage(base64Url);
-                toast.update(toastId, { render: 'Image loaded locally (offline fallback)!', type: 'success', isLoading: false, autoClose: 3000 });
-            };
-            reader.readAsDataURL(file);
+            console.error('Could not attach the photo:', error);
+            toast.error('Could not attach that photo. Please try again.', { position: 'top-right' });
         } finally {
             setIsUploadingGeneralImage(false);
             if (generalFileInputRef.current) generalFileInputRef.current.value = '';
@@ -1123,413 +1070,167 @@ export default function InspectionCategoryPage() {
             return;
         }
 
-        setIsAnalyzing(true);
-        const toastId = toast.loading("AI is analyzing the photo...", { autoClose: false });
+        const analysisResult = {
+            defect: selectedDeficiency?.selected || odForm.category,
+            description: selectedDeficiency?.detail || selectedDeficiency?.selected || odForm.category,
+            severity: odForm.healthAndSafety || 'Moderate',
+            nspireCode: selectedDeficiency?.id || 'HS-12',
+            complianceScore: 85
+        };
 
-        // The photo can be a multi-megabyte base64 string, so this call is slow
-        // by nature — but it still has to finish. Without a ceiling a stalled
-        // request leaves "Analyzing..." on screen forever with no way forward.
-        const analysisAbort = new AbortController();
-        const analysisTimer = setTimeout(() => analysisAbort.abort(), 60000);
+        if (currentModalItem) {
+            if (currentSection === 'outside') {
+                setOutsideStatuses(prev => ({ ...prev, [currentModalItem]: 'No OD' }));
+            } else if (currentSection === 'inside') {
+                setInsideStatuses(prev => ({ ...prev, [currentModalItem]: 'No OD' }));
+            } else {
+                setUnitStatuses(prev => ({ ...prev, [currentModalItem]: 'No OD' }));
+            }
+        }
+
+        const inspectionDataForSummary = {
+            inspectionId: params.id,
+            propertyId: property?._id,
+            propertyName: property?.name,
+            address: property?.address,
+            inspectorId: user?.id || user?._id,
+            inspectorName: user?.fullName,
+            building: buildingName,
+            buildingColumnHeader: columnHeaderName,
+            currentUnit: currentSection === 'unit' ? activeInspectionUnit : '',
+            unitNames: Object.keys(unitNames).length > 0 ? unitNames : undefined,
+            findings: [{
+                id: `DEF-${Date.now()}`,
+                imageUri: photos[0],
+                title: selectedDeficiency?.selected || odForm.category,
+                description: selectedDeficiency?.detail || selectedDeficiency?.selected || odForm.category,
+                category: odForm.category,
+                building: buildingName,
+                unit: currentSection === 'unit' ? (activeInspectionUnit || unitsString) : '-',
+                location: odForm.location,
+                severity: odForm.healthAndSafety || 'Moderate',
+                healthAndSafety: odForm.healthAndSafety || 'Moderate',
+                repairBy: odForm.repairBy || '30 Days',
+                codeAndCompliance: odForm.codeAndCompliance,
+                notes: odForm.note,
+                nspireCode: selectedDeficiency?.id || 'HS-12',
+                status: 'Open',
+                timestamp: new Date().toISOString(),
+                area: currentSection,
+                item: currentModalItem
+            }],
+            reportUrl: null,
+            complianceScore: 85,
+            notes: odForm.note,
+            startDate: new Date().toLocaleDateString(),
+            startTime: new Date().toLocaleTimeString()
+        };
+
+        const type = currentSection === 'unit' ? `unit_${urlBuilding}_${activeInspectionUnit}` : (currentSection.charAt(0).toUpperCase() + currentSection.slice(1));
+        const currentStatuses = currentSection === 'outside' ? outsideStatuses 
+                             : currentSection === 'inside' ? insideStatuses 
+                             : unitStatuses;
+
+        const updatedStatuses: Record<string, any> = {
+            ...currentStatuses,
+            [(currentModalItem as string) || '']: 'OD'
+        };
+
+        if (currentSection === 'outside') setOutsideStatuses(updatedStatuses as Record<string, ItemStatus>);
+        else if (currentSection === 'inside') setInsideStatuses(updatedStatuses as Record<string, ItemStatus>);
+        else setUnitStatuses(updatedStatuses as Record<string, ItemStatus>);
+
+        const isComplete = currentSection === 'outside'
+            ? outsideItemsList.every(item => updatedStatuses[item] !== null && updatedStatuses[item] !== undefined)
+            : currentSection === 'inside'
+                ? insideItemsList.every(item => updatedStatuses[item] !== null && updatedStatuses[item] !== undefined)
+                : currentSection === 'unit'
+                    ? unitItemsList.every(item => updatedStatuses[item] !== null && updatedStatuses[item] !== undefined)
+                    : false;
+
+        const newFinding = inspectionDataForSummary.findings[0];
+        let mergedFindings = [newFinding];
+
+        if (propertyFindings.length > 0) {
+            try {
+                const existingIndex = propertyFindings.findIndex((f: any) => 
+                    f.item === newFinding.item && 
+                    f.area === newFinding.area && 
+                    f.unit === newFinding.unit &&
+                    (f.building === urlBuilding || f.building === buildingName)
+                );
+
+                if (existingIndex >= 0) {
+                    newFinding.id = propertyFindings[existingIndex].id || newFinding.id;
+                    const updatedFindings = [...propertyFindings];
+                    updatedFindings[existingIndex] = newFinding;
+                    mergedFindings = updatedFindings;
+                } else {
+                    mergedFindings = [...propertyFindings, newFinding];
+                }
+            } catch (e) {
+                console.error("Error merging findings:", e);
+                mergedFindings = [...propertyFindings, newFinding];
+            }
+        }
+
+        setPropertyFindings(mergedFindings);
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/ai/inspect`, {
-                method: 'POST',
-                signal: analysisAbort.signal,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    imageUrl: photos[0],
-                    propertyId: property?._id || params.id, // Use property._id or params.id as propertyId
-                    inspectorId: user?.id || user?._id,
-                    inspectionId: null, // Let backend create new inspection
-                    deficiencyData: {
-                        category: mapToBackendCategory(odForm.category),
-                        subCategory: odForm.category, // Keep original as subCategory
-                        note: odForm.note,
-                        location: odForm.location,
-                        healthAndSafety: odForm.healthAndSafety,
-                        repairBy: odForm.repairBy,
-                        codeAndCompliance: odForm.codeAndCompliance,
-                        selectedDeficiency: selectedDeficiency
-                    }
-                }),
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                toast.update(toastId, { render: "Analysis Complete! Item marked as inspected.", type: "success", isLoading: false, autoClose: 2000 });
-
-                // Result is nested in data.data or data.analysis depending on controller path
-                const resultData = data.data || data;
-                const analysisResult = resultData.deficiency || data.analysis;
-
-                // Update the outline item status to 'No OD' (green) to show it's been inspected and completed
-                // This marks the item as green to indicate inspection is done
-                if (currentModalItem) {
-                    if (currentSection === 'outside') {
-                        setOutsideStatuses(prev => ({
-                            ...prev,
-                            [currentModalItem]: 'No OD'
-                        }));
-                    } else if (currentSection === 'inside') {
-                        setInsideStatuses(prev => ({
-                            ...prev,
-                            [currentModalItem]: 'No OD'
-                        }));
-                    } else {
-                        setUnitStatuses(prev => ({
-                            ...prev,
-                            [currentModalItem]: 'No OD'
-                        }));
-                    }
-                }
-
-                // Save inspection data for summary page
-                const inspectionDataForSummary = {
-                    inspectionId: params.id,
-                    propertyId: property?._id,
-                    propertyName: property?.name,
-                    address: property?.address,
-                    inspectorId: user?.id || user?._id,
-                    inspectorName: user?.fullName,
-                    building: buildingName,
-                    buildingColumnHeader: columnHeaderName,
-                    currentUnit: currentSection === 'unit' ? activeInspectionUnit : '',
-                    unitNames: Object.keys(unitNames).length > 0 ? unitNames : undefined,
-                    findings: [{
-                        id: `DEF-${Date.now()}`,
-                        imageUri: photos[0],
-                        title: selectedDeficiency?.selected || analysisResult?.defect || odForm.category,
-                        description: analysisResult?.description || selectedDeficiency?.detail || 'Deficiency detected by AI inspection',
-                        category: odForm.category,
-                        building: buildingName,
-                        unit: currentSection === 'unit' ? (activeInspectionUnit || unitsString) : '-',
-                        location: odForm.location,
-                        severity: analysisResult?.severity || odForm.healthAndSafety || 'Moderate',
-                        healthAndSafety: odForm.healthAndSafety || analysisResult?.severity || 'Moderate',
-                        repairBy: odForm.repairBy || '30 Days',
-                        codeAndCompliance: odForm.codeAndCompliance,
-                        notes: odForm.note,
-                        nspireCode: analysisResult?.nspireCode || selectedDeficiency?.id || 'HS-12',
-                        status: 'Open',
-                        timestamp: new Date().toISOString(),
-                        area: currentSection,
-                        item: currentModalItem
-                    }],
-                    reportUrl: resultData.reportUrl,
-                    complianceScore: analysisResult?.complianceScore || 85,
-                    notes: odForm.note,
-                    startDate: new Date().toLocaleDateString(),
-                    startTime: new Date().toLocaleTimeString()
-                };
-                // Save finding to backend progress instead of just redirecting
-                const type = currentSection === 'unit' ? `unit_${urlBuilding}_${activeInspectionUnit}` : (currentSection.charAt(0).toUpperCase() + currentSection.slice(1));
-                const currentStatuses = currentSection === 'outside' ? outsideStatuses 
-                                     : currentSection === 'inside' ? insideStatuses 
-                                     : unitStatuses;
-                
-                // Ensure the item is marked as OD
-                const updatedStatuses: Record<string, any> = {
-                    ...currentStatuses,
-                    [(currentModalItem as string) || '']: 'OD'
-                };
-
-                if (currentSection === 'outside') setOutsideStatuses(updatedStatuses as Record<string, ItemStatus>);
-                else if (currentSection === 'inside') setInsideStatuses(updatedStatuses as Record<string, ItemStatus>);
-                else setUnitStatuses(updatedStatuses as Record<string, ItemStatus>);
-
-                const isComplete = currentSection === 'outside'
-                    ? outsideItemsList.every(item => updatedStatuses[item] !== null && updatedStatuses[item] !== undefined)
-                    : currentSection === 'inside'
-                        ? insideItemsList.every(item => updatedStatuses[item] !== null && updatedStatuses[item] !== undefined)
-                        : currentSection === 'unit'
-                            ? unitItemsList.every(item => updatedStatuses[item] !== null && updatedStatuses[item] !== undefined)
-                            : false;
-
-                const newFinding = inspectionDataForSummary.findings[0];
-                let mergedFindings = [newFinding];
-
-                if (propertyFindings.length > 0) {
-                    try {
-                        // Find if this exact item already has a finding to avoid duplicates
-                        const existingIndex = propertyFindings.findIndex((f: any) => 
-                            f.item === newFinding.item && 
-                            f.area === newFinding.area && 
-                            f.unit === newFinding.unit &&
-                            (f.building === urlBuilding || f.building === buildingName)
-                        );
-
-                        if (existingIndex >= 0) {
-                            // Preserve original ID for backend overwriting
-                            newFinding.id = propertyFindings[existingIndex].id || newFinding.id;
-                            const updatedFindings = [...propertyFindings];
-                            updatedFindings[existingIndex] = newFinding;
-                            mergedFindings = updatedFindings;
-                        } else {
-                            mergedFindings = [...propertyFindings, newFinding];
-                        }
-                    } catch (e) {
-                        console.error("Error merging findings:", e);
-                        mergedFindings = [...propertyFindings, newFinding];
-                    }
-                }
-
-                // Update local state immediately
-                setPropertyFindings(mergedFindings);
-
-                await inspectionsAPI.saveProgress({
-                    property_id: property?._id || params.id,
-                    unit_id: currentSection === 'unit' ? activeInspectionUnit : urlBuilding,
-                    building_id: urlBuilding,
-                    inspection_type: type,
-                    responses: updatedStatuses,
-                    inspectionData: {
-                        findings: mergedFindings,
-                        isComplete,
-                        // Persist OD form snapshots so pre-fill survives page refresh
-                        odFormSnapshots: {
-                            ...(savedODFormData),
-                            [`${urlBuilding}:${currentSection}:${currentModalItem}`]: {
-                                odForm: { ...odForm },
-                                selectedDeficiency: selectedDeficiency,
-                                photos: [...photos],
-                                modalStep: 2
-                            }
-                        }
-                    }
-                });
-                
-                // NO LONGER USING localStorage FOR FINDINGS
-                // The summary page and other views will fetch directly from the backend.
-
-                toast.info("Item saved. You can continue with other items or view summary.", { position: "top-right" });
-                
-                // Update state to show the Analysis Complete screen (modalStep 4)
-                setAnalysisResult(analysisResult);
-                if (resultData.reportUrl) {
-                    setReportUrl(resultData.reportUrl);
-                }
-                // Mark this item as having a saved OD finding so Select All can't overwrite it
-                if (currentSection && currentModalItem) {
-                    const savedKey = `${urlBuilding}:${currentSection}:${currentModalItem}`;
-                    setSavedODItems(prev => new Set(prev).add(savedKey));
-                    // Snapshot the current form data so it can be pre-filled on re-open
-                    setSavedODFormData(prev => ({
-                        ...prev,
-                        [savedKey]: {
+            await inspectionsAPI.saveProgress({
+                property_id: property?._id || params.id,
+                unit_id: currentSection === 'unit' ? activeInspectionUnit : urlBuilding,
+                building_id: urlBuilding,
+                inspection_type: type,
+                responses: updatedStatuses,
+                inspectionData: {
+                    findings: mergedFindings,
+                    isComplete,
+                    odFormSnapshots: {
+                        ...(savedODFormData),
+                        [`${urlBuilding}:${currentSection}:${currentModalItem}`]: {
                             odForm: { ...odForm },
                             selectedDeficiency: selectedDeficiency,
                             photos: [...photos],
                             modalStep: 2
                         }
-                    }));
-                }
-                setModalStep(4);
-
-            } else {
-                throw new Error(data.message || "Analysis failed");
-            }
-        } catch (error: any) {
-            console.warn("AI Analysis server error, using local fallback workflow...", error);
-            toast.update(toastId, { render: "Server offline. Recording manually...", type: "warning", isLoading: false, autoClose: 3000 });
-            
-            const analysisResult = {
-                defect: selectedDeficiency?.selected || odForm.category,
-                description: selectedDeficiency?.detail || 'Deficiency recorded manually (offline fallback)',
-                severity: odForm.healthAndSafety || 'Moderate',
-                nspireCode: selectedDeficiency?.id || 'HS-12',
-                complianceScore: 85
-            };
-
-            if (currentModalItem) {
-                if (currentSection === 'outside') {
-                    setOutsideStatuses(prev => ({ ...prev, [currentModalItem]: 'No OD' }));
-                } else if (currentSection === 'inside') {
-                    setInsideStatuses(prev => ({ ...prev, [currentModalItem]: 'No OD' }));
-                } else {
-                    setUnitStatuses(prev => ({ ...prev, [currentModalItem]: 'No OD' }));
-                }
-            }
-
-            const inspectionDataForSummary = {
-                inspectionId: params.id,
-                propertyId: property?._id,
-                propertyName: property?.name,
-                address: property?.address,
-                inspectorId: user?.id || user?._id,
-                inspectorName: user?.fullName,
-                building: buildingName,
-                buildingColumnHeader: columnHeaderName,
-                currentUnit: currentSection === 'unit' ? activeInspectionUnit : '',
-                unitNames: Object.keys(unitNames).length > 0 ? unitNames : undefined,
-                findings: [{
-                    id: `DEF-${Date.now()}`,
-                    imageUri: photos[0],
-                    title: selectedDeficiency?.selected || odForm.category,
-                    description: selectedDeficiency?.detail || 'Deficiency recorded manually (offline fallback)',
-                    category: odForm.category,
-                    building: buildingName,
-                    unit: currentSection === 'unit' ? (activeInspectionUnit || unitsString) : '-',
-                    location: odForm.location,
-                    severity: odForm.healthAndSafety || 'Moderate',
-                    healthAndSafety: odForm.healthAndSafety || 'Moderate',
-                    repairBy: odForm.repairBy || '30 Days',
-                    codeAndCompliance: odForm.codeAndCompliance,
-                    notes: odForm.note,
-                    nspireCode: selectedDeficiency?.id || 'HS-12',
-                    status: 'Open',
-                    timestamp: new Date().toISOString(),
-                    area: currentSection,
-                    item: currentModalItem
-                }],
-                reportUrl: null,
-                complianceScore: 85,
-                notes: odForm.note,
-                startDate: new Date().toLocaleDateString(),
-                startTime: new Date().toLocaleTimeString()
-            };
-
-            const type = currentSection === 'unit' ? `unit_${urlBuilding}_${activeInspectionUnit}` : (currentSection.charAt(0).toUpperCase() + currentSection.slice(1));
-            const currentStatuses = currentSection === 'outside' ? outsideStatuses 
-                                 : currentSection === 'inside' ? insideStatuses 
-                                 : unitStatuses;
-
-            const updatedStatuses: Record<string, any> = {
-                ...currentStatuses,
-                [(currentModalItem as string) || '']: 'OD'
-            };
-
-            if (currentSection === 'outside') setOutsideStatuses(updatedStatuses as Record<string, ItemStatus>);
-            else if (currentSection === 'inside') setInsideStatuses(updatedStatuses as Record<string, ItemStatus>);
-            else setUnitStatuses(updatedStatuses as Record<string, ItemStatus>);
-
-            const isComplete = currentSection === 'outside'
-                ? outsideItemsList.every(item => updatedStatuses[item] !== null && updatedStatuses[item] !== undefined)
-                : currentSection === 'inside'
-                    ? insideItemsList.every(item => updatedStatuses[item] !== null && updatedStatuses[item] !== undefined)
-                    : currentSection === 'unit'
-                        ? unitItemsList.every(item => updatedStatuses[item] !== null && updatedStatuses[item] !== undefined)
-                        : false;
-
-            const newFinding = inspectionDataForSummary.findings[0];
-            let mergedFindings = [newFinding];
-
-            if (propertyFindings.length > 0) {
-                try {
-                    const existingIndex = propertyFindings.findIndex((f: any) => 
-                        f.item === newFinding.item && 
-                        f.area === newFinding.area && 
-                        f.unit === newFinding.unit &&
-                        (f.building === urlBuilding || f.building === buildingName)
-                    );
-
-                    if (existingIndex >= 0) {
-                        newFinding.id = propertyFindings[existingIndex].id || newFinding.id;
-                        const updatedFindings = [...propertyFindings];
-                        updatedFindings[existingIndex] = newFinding;
-                        mergedFindings = updatedFindings;
-                    } else {
-                        mergedFindings = [...propertyFindings, newFinding];
                     }
-                } catch (e) {
-                    console.error("Error merging findings:", e);
-                    mergedFindings = [...propertyFindings, newFinding];
                 }
-            }
-
-            setPropertyFindings(mergedFindings);
-
-            try {
-                await inspectionsAPI.saveProgress({
-                    property_id: property?._id || params.id,
-                    unit_id: currentSection === 'unit' ? activeInspectionUnit : urlBuilding,
-                    building_id: urlBuilding,
-                    inspection_type: type,
-                    responses: updatedStatuses,
-                    inspectionData: {
-                        findings: mergedFindings,
-                        isComplete,
-                        odFormSnapshots: {
-                            ...(savedODFormData),
-                            [`${urlBuilding}:${currentSection}:${currentModalItem}`]: {
-                                odForm: { ...odForm },
-                                selectedDeficiency: selectedDeficiency,
-                                photos: [...photos],
-                                modalStep: 2
-                            }
-                        }
-                    }
-                });
-            } catch (saveError) {
-                console.warn("Failed to sync manual finding to server, cached locally:", saveError);
-            }
-
-            toast.info("Item saved. You can continue with other items or view summary.", { position: "top-right" });
-            
-            setAnalysisResult(analysisResult);
-            
-            if (currentSection && currentModalItem) {
-                const savedKey = `${urlBuilding}:${currentSection}:${currentModalItem}`;
-                setSavedODItems(prev => new Set(prev).add(savedKey));
-                setSavedODFormData(prev => ({
-                    ...prev,
-                    [savedKey]: {
-                        odForm: { ...odForm },
-                        selectedDeficiency: selectedDeficiency,
-                        photos: [...photos],
-                        modalStep: 2
-                    }
-                }));
-            }
-            setModalStep(4);
-        } finally {
-            clearTimeout(analysisTimer);
-            setIsAnalyzing(false);
+            });
+        } catch (saveError) {
+            console.warn("Failed to sync manual finding to server, cached locally:", saveError);
         }
+
+        toast.info("Item saved. You can continue with other items or view summary.", { position: "top-right" });
+        
+        setAnalysisResult(analysisResult);
+        
+        if (currentSection && currentModalItem) {
+            const savedKey = `${urlBuilding}:${currentSection}:${currentModalItem}`;
+            setSavedODItems(prev => new Set(prev).add(savedKey));
+            setSavedODFormData(prev => ({
+                ...prev,
+                [savedKey]: {
+                    odForm: { ...odForm },
+                    selectedDeficiency: selectedDeficiency,
+                    photos: [...photos],
+                    modalStep: 2
+                }
+            }));
+        }
+        setModalStep(4);
     };
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        const toastId = toast.loading("Uploading image...", { autoClose: false });
-
         try {
-            const formData = new FormData();
-            formData.append('image', file);
-            formData.append('folder', 'nspire-inspections/deficiencies');
-
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/ai/upload-image`, {
-                method: 'POST',
-                body: formData,
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                setPhotos([...photos, data.data.url]);
-                toast.update(toastId, { render: "Image uploaded! Damage detected.", type: "success", isLoading: false, autoClose: 3000 });
-                // Simulate analysis effect
-                setIsAnalyzing(true);
-                setTimeout(() => setIsAnalyzing(false), 2000);
-            } else {
-                throw new Error(data.message || "Upload failed");
-            }
+            const photo = await fileToCompressedDataUrl(file);
+            setPhotos([...photos, photo]);
         } catch (error) {
-            console.warn("Upload API failed, falling back to local Base64 image reader:", error);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64Url = reader.result as string;
-                setPhotos([...photos, base64Url]);
-                toast.update(toastId, { render: "Image loaded locally (offline fallback)!", type: "success", isLoading: false, autoClose: 3000 });
-                // Simulate analysis effect
-                setIsAnalyzing(true);
-                setTimeout(() => setIsAnalyzing(false), 2000);
-            };
-            reader.readAsDataURL(file);
+            console.error('Could not attach the photo:', error);
+            toast.error('Could not attach that photo. Please try again.', { position: 'top-right' });
         } finally {
             if (fileInputRef.current) fileInputRef.current.value = '';
         }

@@ -26,6 +26,20 @@
 	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<!-- The OAuth callback page opens this scheme so the in-app browser is
+	     dismissed and the app returns by itself, instead of the user having
+	     to close it manually. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.nspireapp.auth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.nspireapp</string>
+			</array>
+		</dict>
+	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>NSPIRE Inspection needs camera access to capture photos of inspection deficiencies.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
