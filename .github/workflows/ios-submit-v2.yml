@@ -22,6 +22,12 @@ jobs:
           const jwt = require('jsonwebtoken');
           const BUNDLE_ID = 'com.nspireapp';
           const SUBMITTABLE = ['PREPARE_FOR_SUBMISSION', 'REJECTED', 'DEVELOPER_REJECTED', 'METADATA_REJECTED', 'INVALID_BINARY'];
+          const WHATS_NEW = [
+            'Faster photo capture during inspections — photos now attach instantly.',
+            'Signing in with Google or Apple stays inside the app and returns automatically.',
+            'Fixed navigation that could take you out of the app unexpectedly.',
+            'General stability improvements.',
+          ].join('\n');
 
           const token = () => jwt.sign(
             { iss: process.env.APPSTORE_ISSUER_ID, aud: 'appstoreconnect-v1' },
@@ -75,6 +81,24 @@ jobs:
               });
               submission = created.data;
               console.log(`Opened submission ${submission.id}`);
+            }
+
+            // An update — unlike a first release — is rejected without release
+            // notes, and the API surfaces that only once you try to submit.
+            const locs = await api(`/appStoreVersions/${version.id}/appStoreVersionLocalizations?limit=20`);
+            for (const loc of locs.data || []) {
+              if ((loc.attributes.whatsNew || '').trim()) continue;
+              await api(`/appStoreVersionLocalizations/${loc.id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({
+                  data: {
+                    type: 'appStoreVersionLocalizations',
+                    id: loc.id,
+                    attributes: { whatsNew: WHATS_NEW },
+                  },
+                }),
+              });
+              console.log(`Set release notes for ${loc.attributes.locale}`);
             }
 
             const items = await api(`/reviewSubmissions/${submission.id}/items?limit=20`);
