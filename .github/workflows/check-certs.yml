@@ -1,0 +1,54 @@
+name: TEMP - List signing certificates
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    steps:
+      - name: List certificates on the Apple Developer account
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_P8: ${{ secrets.APPSTORE_API_KEY_P8 }}
+        run: |
+          npm install jsonwebtoken@9
+          node <<'EOF'
+          const jwt = require('jsonwebtoken');
+          const token = () => jwt.sign(
+            { iss: process.env.APPSTORE_ISSUER_ID, aud: 'appstoreconnect-v1' },
+            process.env.APPSTORE_API_KEY_P8,
+            { algorithm: 'ES256', expiresIn: '19m', header: { kid: process.env.APPSTORE_KEY_ID, typ: 'JWT' } }
+          );
+
+          async function api(path) {
+            const res = await fetch(`https://api.appstoreconnect.apple.com/v1${path}`, {
+              headers: { Authorization: `Bearer ${token()}` },
+            });
+            const body = await res.json();
+            if (!res.ok) throw new Error(`${path} -> ${res.status}: ${JSON.stringify(body)}`);
+            return body;
+          }
+
+          async function main() {
+            const certs = await api('/certificates?limit=200');
+            const rows = (certs.data || []).map((c) => ({
+              id: c.id,
+              type: c.attributes.certificateType,
+              name: c.attributes.name,
+              expires: c.attributes.expirationDate,
+            }));
+            const byType = {};
+            for (const r of rows) (byType[r.type] ||= []).push(r);
+
+            console.log(`TOTAL CERTIFICATES: ${rows.length}`);
+            for (const [type, list] of Object.entries(byType)) {
+              console.log(`\n=== ${type} (${list.length}) ===`);
+              list
+                .sort((a, b) => String(a.expires).localeCompare(String(b.expires)))
+                .forEach((r) => console.log(`  ${r.expires}  ${r.id}  ${r.name}`));
+            }
+          }
+          main().catch((e) => { console.error('FAILED', e.message); process.exit(1); });
+          EOF
