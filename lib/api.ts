@@ -1,6 +1,30 @@
 // API Configuration
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
+// Saving inspection progress can carry a lot of data, so it gets a generous
+// budget — but never an unlimited one. Without a ceiling a single stalled
+// request leaves the UI spinning forever with no way back.
+const REQUEST_TIMEOUT_MS = 45000;
+
+/** Runs a fetch that is guaranteed to settle, tagging the timeout case so
+ *  callers can tell "the network is gone" apart from "this one was slow". */
+async function fetchWithTimeout(input: string, config: RequestInit, timeoutMs = REQUEST_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(input, { ...config, signal: controller.signal });
+  } catch (err: any) {
+    if (err?.name === 'AbortError') {
+      const timeoutError = new Error('Request timed out') as any;
+      timeoutError.timedOut = true;
+      throw timeoutError;
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // Generic API request function with fallback
 async function apiRequest<T>(
   endpoint: string,
@@ -20,7 +44,7 @@ async function apiRequest<T>(
   // Try 1: External backend API if configured
   if (API_URL) {
     try {
-      const response = await fetch(`${API_URL}${endpoint}`, config);
+      const response = await fetchWithTimeout(`${API_URL}${endpoint}`, config);
 
       if (response.status === 401) {
         if (typeof window !== 'undefined') {
@@ -40,7 +64,7 @@ async function apiRequest<T>(
 
   // Try 2: Internal Next.js API route (same origin)
   try {
-    const response = await fetch(endpoint, config);
+    const response = await fetchWithTimeout(endpoint, config);
 
     if (response.status === 401) {
       if (typeof window !== 'undefined') {
@@ -64,6 +88,7 @@ async function apiRequest<T>(
   } catch (intError: any) {
     // If it's already a structured error, re-throw
     if (intError.status) throw intError;
+    if (intError.timedOut) throw intError;
     // Otherwise wrap
     throw new Error(intError.message || `API request failed: ${endpoint}`);
   }
@@ -288,7 +313,9 @@ async function internalRequest<T>(endpoint: string, options: RequestInit = {}): 
   } catch (err: any) {
     clearTimeout(timer);
     if (err.name === 'AbortError') {
-      throw new Error('Request timed out');
+      const timeoutError = new Error('Request timed out') as any;
+      timeoutError.timedOut = true;
+      throw timeoutError;
     }
     throw err;
   }
@@ -329,11 +356,20 @@ export const propertiesAPI = {
         throw e;
       }
 
-      // No status means the request never reached the server at all — a
-      // real network failure (offline, DNS, or our own 15s timeout). Unlike
-      // the old fallback this used to have, this is never reported as a
-      // finished save: it's queued, flagged pendingSync, and only counted as
-      // saved once the real POST above succeeds on a later sync.
+      // A timeout is not the same thing as being offline: the request may well
+      // have reached the server and been written. Queueing it would create a
+      // duplicate on the next sync and, worse, tell a user with a perfectly
+      // good connection that they are offline — so surface it as the failure
+      // it is and let them retry.
+      if (e?.timedOut) {
+        throw new Error('The server took too long to respond. Please try again.');
+      }
+
+      // No status and no timeout means the request never reached the server at
+      // all — a real network failure (offline, DNS). Unlike the old fallback
+      // this used to have, this is never reported as a finished save: it's
+      // queued, flagged pendingSync, and only counted as saved once the real
+      // POST above succeeds on a later sync.
       const { enqueueProperty, queuedAsDisplayProperty } = await import('./offlineQueue');
       const queued = enqueueProperty(propertyData);
       const displayProp = queuedAsDisplayProperty(queued);

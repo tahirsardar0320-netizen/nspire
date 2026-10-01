@@ -547,33 +547,102 @@ export default function InspectionCategoryPage() {
             filteredSync.push(payload);
             localStorage.setItem(syncKey, JSON.stringify(filteredSync));
             setOfflineChangesCount(filteredSync.length);
-        } catch (e) {
+        } catch (e: any) {
             console.error("Error queueing offline sync:", e);
+            // Offline photos are stored inline as base64, so the queue can
+            // outgrow the storage quota. Silently swallowing that loses the
+            // inspector's work without them ever knowing.
+            const quotaHit = e?.name === 'QuotaExceededError' || /quota/i.test(e?.message || '');
+            toast.error(
+                quotaHit
+                    ? "Device storage is full — this change could not be saved offline. Please reconnect to sync before continuing."
+                    : "This change could not be saved offline. Please reconnect to sync.",
+                { autoClose: 8000 }
+            );
         }
     };
 
+    /** Photos captured offline are held as base64 data URLs, which makes a
+     *  queued payload many megabytes. Pushing those straight back up is what
+     *  made reconnecting feel like the app had frozen, so swap each one for a
+     *  hosted URL first and only send the small payload. A photo that can't be
+     *  uploaded keeps its data URL rather than being dropped. */
+    const uploadQueuedPhotos = async (payload: any) => {
+        const findings = payload?.inspectionData?.findings;
+        if (!Array.isArray(findings)) return payload;
+
+        const uploaded = await Promise.all(findings.map(async (finding: any) => {
+            const uri = finding?.imageUri;
+            if (typeof uri !== 'string' || !uri.startsWith('data:')) return finding;
+            try {
+                const blob = await (await fetch(uri)).blob();
+                const formData = new FormData();
+                formData.append('image', blob, 'offline-capture.jpg');
+                formData.append('folder', 'nspire-inspections/deficiencies');
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/ai/upload-image`, {
+                    method: 'POST',
+                    body: formData,
+                });
+                const data = await res.json();
+                if (data?.success && data?.data?.url) {
+                    return { ...finding, imageUri: data.data.url };
+                }
+            } catch (e) {
+                console.warn('Could not upload an offline photo, keeping it inline:', e);
+            }
+            return finding;
+        }));
+
+        return { ...payload, inspectionData: { ...payload.inspectionData, findings: uploaded } };
+    };
+
     const syncPendingChanges = async (showToastOnError = true) => {
+        const syncKey = `pending_sync_${id}`;
+        let queue: any[] = [];
         try {
-            const syncKey = `pending_sync_${id}`;
             const existingSyncStr = localStorage.getItem(syncKey);
             if (!existingSyncStr) return;
-            const existingSync = JSON.parse(existingSyncStr);
-            if (existingSync.length === 0) return;
-
-            toast.info(`Syncing ${existingSync.length} offline changes...`);
-            const promises = existingSync.map((payload: any) => 
-                inspectionsAPI.saveProgress(payload)
-            );
-            await Promise.all(promises);
+            queue = JSON.parse(existingSyncStr);
+        } catch {
             localStorage.removeItem(syncKey);
             setOfflineChangesCount(0);
-            toast.success("All offline changes synced successfully!");
-            await refreshCompletedUnits();
-        } catch (error) {
-            console.error("Error syncing offline changes:", error);
-            if (showToastOnError) {
-                toast.error("Failed to sync some offline changes. Will retry later.");
+            return;
+        }
+        if (!Array.isArray(queue) || queue.length === 0) return;
+
+        toast.info(`Syncing ${queue.length} offline change${queue.length === 1 ? '' : 's'}...`);
+
+        // One at a time: firing every queued save at once saturated the
+        // connection and, with no timeout on any of them, hung the whole app.
+        const remaining: any[] = [];
+        let synced = 0;
+        for (const payload of queue) {
+            try {
+                await inspectionsAPI.saveProgress(await uploadQueuedPhotos(payload));
+                synced++;
+            } catch (error) {
+                console.error('Error syncing an offline change:', error);
+                remaining.push(payload);
             }
+        }
+
+        if (remaining.length === 0) {
+            localStorage.removeItem(syncKey);
+        } else {
+            localStorage.setItem(syncKey, JSON.stringify(remaining));
+        }
+        setOfflineChangesCount(remaining.length);
+
+        if (remaining.length === 0) {
+            toast.success('All offline changes synced successfully!');
+        } else if (showToastOnError) {
+            toast.error(`${synced} synced, ${remaining.length} still pending. Will retry later.`);
+        }
+
+        try {
+            await refreshCompletedUnits();
+        } catch (e) {
+            console.error('Could not refresh completed units after sync:', e);
         }
     };
 
@@ -1057,9 +1126,16 @@ export default function InspectionCategoryPage() {
         setIsAnalyzing(true);
         const toastId = toast.loading("AI is analyzing the photo...", { autoClose: false });
 
+        // The photo can be a multi-megabyte base64 string, so this call is slow
+        // by nature — but it still has to finish. Without a ceiling a stalled
+        // request leaves "Analyzing..." on screen forever with no way forward.
+        const analysisAbort = new AbortController();
+        const analysisTimer = setTimeout(() => analysisAbort.abort(), 60000);
+
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/ai/inspect`, {
                 method: 'POST',
+                signal: analysisAbort.signal,
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -1410,6 +1486,7 @@ export default function InspectionCategoryPage() {
             }
             setModalStep(4);
         } finally {
+            clearTimeout(analysisTimer);
             setIsAnalyzing(false);
         }
     };
