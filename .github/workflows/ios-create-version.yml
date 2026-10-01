@@ -1,0 +1,72 @@
+name: iOS - Create next App Store version
+
+# A released version's train is closed to new builds, so a follow-up fix needs
+# its own version created before anything can be uploaded against it.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Marketing version to create (e.g. 2.9)
+        required: true
+
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create the version if it does not already exist
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_P8: ${{ secrets.APPSTORE_API_KEY_P8 }}
+          TARGET_VERSION: ${{ inputs.version }}
+        run: |
+          npm install jsonwebtoken@9
+          node <<'EOF'
+          const jwt = require('jsonwebtoken');
+          const BUNDLE_ID = 'com.nspireapp';
+          const token = () => jwt.sign(
+            { iss: process.env.APPSTORE_ISSUER_ID, aud: 'appstoreconnect-v1' },
+            process.env.APPSTORE_API_KEY_P8,
+            { algorithm: 'ES256', expiresIn: '19m', header: { kid: process.env.APPSTORE_KEY_ID, typ: 'JWT' } }
+          );
+
+          async function api(path, opts = {}) {
+            const res = await fetch(`https://api.appstoreconnect.apple.com/v1${path}`, {
+              ...opts,
+              headers: {
+                Authorization: `Bearer ${token()}`,
+                'Content-Type': 'application/json',
+                ...(opts.headers || {}),
+              },
+            });
+            const body = res.status === 204 ? null : await res.json();
+            if (!res.ok) throw new Error(`${opts.method || 'GET'} ${path} -> ${res.status}: ${JSON.stringify(body)}`);
+            return body;
+          }
+
+          async function main() {
+            const target = process.env.TARGET_VERSION;
+            const apps = await api(`/apps?filter[bundleId]=${BUNDLE_ID}`);
+            const appId = apps.data[0].id;
+
+            const versions = await api(`/apps/${appId}/appStoreVersions?limit=20`);
+            const existing = (versions.data || []).find((v) => v.attributes.versionString === target);
+            if (existing) {
+              console.log(`Version ${target} already exists (${existing.attributes.appStoreState})`);
+              return;
+            }
+
+            const created = await api('/appStoreVersions', {
+              method: 'POST',
+              body: JSON.stringify({
+                data: {
+                  type: 'appStoreVersions',
+                  attributes: { platform: 'IOS', versionString: target },
+                  relationships: { app: { data: { type: 'apps', id: appId } } },
+                },
+              }),
+            });
+            console.log(`Created version ${target} -> ${created.data.id} (${created.data.attributes.appStoreState})`);
+          }
+          main().catch((e) => { console.error('FAILED', e.message); process.exit(1); });
+          EOF
