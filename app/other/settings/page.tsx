@@ -65,7 +65,6 @@ export default function OtherSettingsPage() {
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
 
   const handleSaveProfile = async () => {
     setIsLoading(true)
@@ -137,20 +136,6 @@ export default function OtherSettingsPage() {
     }
   }
 
-  const handleToggle2FA = async () => {
-    setIsLoading(true)
-    try {
-      const response = await usersAPI.toggleTwoFactor()
-      if (response.success) {
-        setTwoFactorEnabled(response.twoFactorEnabled)
-        toast.success(response.message, { position: "top-right" })
-      }
-    } catch (error: any) {
-      toast.error(error.message || "Failed to toggle 2FA", { position: "top-right" })
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const handleLogout = async () => {
     try {
@@ -439,28 +424,9 @@ export default function OtherSettingsPage() {
                   </div>
                 </div>
 
-                <div className="mb-8 pb-8 border-b border-slate-200">
-                  <h3 className="text-base font-bold text-slate-800 mb-4">Two-Factor Authentication</h3>
-                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-100 max-w-2xl">
-                    <div className="pr-4">
-                      <p className="font-semibold text-slate-800 text-sm mb-1">Enable Two-Factor Authentication</p>
-                      <p className="text-xs text-slate-500">
-                        Add an extra layer of security to your account by requiring a verification code
-                      </p>
-                    </div>
-                    <Button
-                      onClick={handleToggle2FA}
-                      disabled={isLoading}
-                      className={`${
-                        twoFactorEnabled
-                          ? "bg-rose-600 hover:bg-rose-700"
-                          : "bg-indigo-600 hover:bg-indigo-700"
-                      } text-white font-bold`}
-                    >
-                      {twoFactorEnabled ? "Disable" : "Enable"}
-                    </Button>
-                  </div>
-                </div>
+                {/* Two-factor authentication is not implemented — no field on the
+                    user, no endpoint behind the toggle. Hidden rather than left
+                    offering security the account does not actually have. */}
 
                 <div>
                   <h3 className="text-base font-bold text-slate-800 mb-4">Session Management</h3>

@@ -76,7 +76,6 @@ export default function SettingsPage() {
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
 
   const handleSaveProfile = async () => {
     setIsLoading(true)
@@ -149,20 +148,6 @@ export default function SettingsPage() {
     }
   }
 
-  const handleToggle2FA = async () => {
-    setIsLoading(true)
-    try {
-      const response = await usersAPI.toggleTwoFactor()
-      if (response.success) {
-        setTwoFactorEnabled(response.twoFactorEnabled)
-        toast.success(response.message, { position: "top-right" })
-      }
-    } catch (error: any) {
-      toast.error(error.message || "Failed to toggle 2FA", { position: "top-right" })
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const handleLogout = async () => {
     try {
@@ -475,33 +460,11 @@ export default function SettingsPage() {
                   </div>
                 </div>
  
-                {/* Two-Factor Authentication */}
-                <div className="space-y-4 pb-6 border-b border-slate-100">
-                  <div>
-                    <h2 className="text-lg font-bold text-slate-900">Two-Factor Authentication</h2>
-                    <p className="text-slate-500 text-xs mt-0.5 font-medium">Add an extra layer of security to your account logins</p>
-                  </div>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-slate-50/50 border border-slate-100 rounded-2xl gap-4">
-                    <div className="space-y-1">
-                      <p className="font-bold text-slate-800 text-sm">Require authentication code</p>
-                      <p className="text-xs font-semibold text-slate-500 max-w-lg">
-                        We will ask for a verification code via your registered communication channels whenever you log in from an untrusted device.
-                      </p>
-                    </div>
-                    <Button
-                      onClick={handleToggle2FA}
-                      disabled={isLoading}
-                      className={`w-full sm:w-auto font-bold px-5 py-2.5 rounded-xl text-xs border-0 shadow-sm transition-all duration-200 ${
-                        twoFactorEnabled
-                          ? "bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/10"
-                          : "bg-teal-600 hover:bg-teal-700 text-white shadow-teal-600/10"
-                      }`}
-                    >
-                      {twoFactorEnabled ? "Disable 2FA" : "Enable 2FA"}
-                    </Button>
-                  </div>
-                </div>
- 
+                {/* Two-factor authentication is not implemented — there is no
+                    twoFactorEnabled field on the user and no endpoint behind the
+                    toggle, so it only ever showed an error. Hidden rather than
+                    left offering security the account does not actually have. */}
+
                 {/* Session Management */}
                 <div className="space-y-4">
                   <div>
