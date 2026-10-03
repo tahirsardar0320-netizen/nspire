@@ -33,6 +33,7 @@ import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, MoreHorizon
 import { OUTSIDE_ITEMS, INSIDE_ITEMS, UNIT_ITEMS } from "@/lib/inspectionData";
 import { ReportPreviewModal } from "@/components/ReportPreviewModal";
 import { fetchNSPIREReportForProperty, NSPIREInspectionReport } from "@/lib/nspireReport";
+import { safeSetItem } from "@/lib/safeStorage"
 
 
 const outsideItemsList = OUTSIDE_ITEMS.map(item => `${item.id}. ${item.name}`);
@@ -534,7 +535,7 @@ export default function InspectionCategoryPage() {
             cachedList.push(newRecord);
         }
 
-        localStorage.setItem(localCacheKey, JSON.stringify(cachedList));
+        safeSetItem(localCacheKey, JSON.stringify(cachedList));
     };
 
     const queueForOfflineSync = (payload: any) => {
@@ -546,7 +547,7 @@ export default function InspectionCategoryPage() {
                 !(item.inspection_type === payload.inspection_type && item.unit_id === payload.unit_id)
             );
             filteredSync.push(payload);
-            localStorage.setItem(syncKey, JSON.stringify(filteredSync));
+            safeSetItem(syncKey, JSON.stringify(filteredSync));
             setOfflineChangesCount(filteredSync.length);
         } catch (e: any) {
             console.error("Error queueing offline sync:", e);
@@ -596,7 +597,7 @@ export default function InspectionCategoryPage() {
         if (remaining.length === 0) {
             localStorage.removeItem(syncKey);
         } else {
-            localStorage.setItem(syncKey, JSON.stringify(remaining));
+            safeSetItem(syncKey, JSON.stringify(remaining));
         }
         setOfflineChangesCount(remaining.length);
 
@@ -667,7 +668,7 @@ export default function InspectionCategoryPage() {
             // Never let an empty/partial server response wipe out richer local progress
             // (e.g. while the backend is unreachable or hasn't caught up yet).
             if (res.progress && res.progress.length >= cachedRecords.length) {
-                localStorage.setItem(localCacheKey, JSON.stringify(res.progress));
+                safeSetItem(localCacheKey, JSON.stringify(res.progress));
                 applyProgressData(res.progress);
             }
         } catch (error) {

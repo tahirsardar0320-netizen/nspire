@@ -8,6 +8,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import SocialLoginButtons from "@/components/SocialLoginButtons"
 import { initGoogleLogin, initFacebookLogin, initAppleLogin } from "@/lib/social-auth"
 import { authAPI } from "@/lib/api"
+import { safeSetItem } from "@/lib/safeStorage"
 
 export default function Login() {
   const [email, setEmail] = useState("")
@@ -126,23 +127,19 @@ export default function Login() {
         return
       }
 
-      // Try 3: Fallback ONLY when the backend was genuinely unreachable (e.g. static hosting / offline)
+      // The backend could not be reached at all. Minting a token here produces a
+      // session the server never issued: it looks fine until the first API call
+      // 401s and drops the user back to this screen, which is exactly how the
+      // "randomly logged out" reports came about. Fail honestly instead.
       if (!success && !reachedServer) {
-        const fallbackRole = role && role !== 'user' ? role : 'inspector'
-        data = {
-          token: 'token_' + Date.now(),
-          user: {
-            id: 'usr_' + Date.now(),
-            fullName: email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
-            email: email.trim().toLowerCase(),
-            role: fallbackRole,
-          }
-        }
+        toast.error("Can't reach the server. Check your connection and try again.", { position: "top-right", autoClose: 4000 })
+        setIsLoading(false)
+        return
       }
 
       // Store token in localStorage
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
+      safeSetItem('token', data.token)
+      safeSetItem('user', JSON.stringify(data.user))
 
       const userRole = data.user?.role || role
 
@@ -197,8 +194,8 @@ export default function Login() {
 
       if (response.success) {
         // Store token
-        localStorage.setItem('token', response.token)
-        localStorage.setItem('user', JSON.stringify(response.user))
+        safeSetItem('token', response.token)
+        safeSetItem('user', JSON.stringify(response.user))
 
         toast.success(`Logged in with ${provider}! Redirecting...`, {
           position: "top-right",

@@ -10,6 +10,7 @@ import { fetchPropertyProgressMap } from "@/lib/inspectionProgress"
 import { UnitSelectionModal } from "@/components/UnitSelectionModal"
 import { ActionModal, EditPropertyModal, SummaryModal } from "@/components/PropertyModals"
 import { Country, State, City } from 'country-state-city'
+import { safeSetItem } from "@/lib/safeStorage"
 
 export default function MyInspection() {
   const router = useRouter()
@@ -70,7 +71,7 @@ export default function MyInspection() {
 
   const handleUnitSelectionContinue = (selectedUnits: string[]) => {
     setUnitSelectionOpen(false)
-    localStorage.setItem('selectedUnits', JSON.stringify(selectedUnits))
+    safeSetItem('selectedUnits', JSON.stringify(selectedUnits))
     toast.success(`${selectedUnits.length} units selected for inspection`, { position: "top-right", autoClose: 2000 })
     router.push('/dashboard/inspection/summary')
   }
@@ -136,7 +137,7 @@ export default function MyInspection() {
 
   const activateInspection = (propId: string) => {
     if (typeof window === 'undefined') return
-    localStorage.setItem('active_inspection_property', propId)
+    safeSetItem('active_inspection_property', propId)
     setActiveInspectionId(propId)
   }
 

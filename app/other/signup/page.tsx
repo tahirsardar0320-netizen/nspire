@@ -9,6 +9,7 @@ import SocialLoginButtons from "@/components/SocialLoginButtons"
 import { initGoogleLogin, initFacebookLogin, initAppleLogin } from "@/lib/social-auth"
 import { authAPI } from "@/lib/api"
 import { inspectorTypeLabel } from "@/lib/inspectorTypes"
+import { safeSetItem } from "@/lib/safeStorage"
 
 function OtherSignupContent() {
   const [fullName, setFullName] = useState("")
@@ -127,8 +128,8 @@ function OtherSignupContent() {
 
       if (response.success) {
         if (response.token) {
-          localStorage.setItem('token', response.token)
-          localStorage.setItem('user', JSON.stringify(response.user))
+          safeSetItem('token', response.token)
+          safeSetItem('user', JSON.stringify(response.user))
         }
         toast.success("Account created! You can now log in.", {
           position: "top-right",
@@ -177,8 +178,8 @@ function OtherSignupContent() {
 
       if (response.success) {
         // Store token
-        localStorage.setItem('token', response.token)
-        localStorage.setItem('user', JSON.stringify(response.user))
+        safeSetItem('token', response.token)
+        safeSetItem('user', JSON.stringify(response.user))
 
         toast.success(`Logged in with ${provider}! Redirecting...`, {
           position: "top-right",

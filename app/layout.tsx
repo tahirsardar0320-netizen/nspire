@@ -4,6 +4,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import './globals.css'
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
+import ChatbotMount from '@/components/chatbot/ChatbotMount'
 import FetchTimeoutGuard from '@/components/FetchTimeoutGuard'
 
 // const inter = Inter({ subsets: ["latin"] });
@@ -37,6 +38,7 @@ export default function RootLayout({
         <FetchTimeoutGuard />
         <ServiceWorkerRegister />
         {children}
+        <ChatbotMount />
         <ToastContainer
           position="top-right"
           autoClose={3000}

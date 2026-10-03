@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "react-toastify"
 import Image from "next/image"
 import { usersAPI, authAPI } from "@/lib/api"
+import { safeSetItem } from "@/lib/safeStorage"
 
 type TabType = "profile" | "notifications" | "security"
 
@@ -84,7 +85,7 @@ export default function OtherSettingsPage() {
           const user = JSON.parse(userData)
           user.fullName = name
           user.email = email
-          localStorage.setItem('user', JSON.stringify(user))
+          safeSetItem('user', JSON.stringify(user))
         }
       }
     } catch (error: any) {

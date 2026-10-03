@@ -1,4 +1,6 @@
 // API Configuration
+import { safeSetItem } from './safeStorage';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 // Saving inspection progress can carry a lot of data, so it gets a generous
@@ -276,7 +278,7 @@ function getLocalCache(): any[] {
 function saveLocalCache(props: any[]) {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem('inspire_local_properties', JSON.stringify(props));
+    safeSetItem('inspire_local_properties', JSON.stringify(props));
   } catch (e) {}
 }
 

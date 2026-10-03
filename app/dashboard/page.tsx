@@ -20,6 +20,7 @@ import {
 import { propertiesAPI } from "@/lib/api"
 import { fetchPropertyProgressMap } from "@/lib/inspectionProgress"
 import { Country, State, City } from 'country-state-city'
+import { safeSetItem } from "@/lib/safeStorage"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -162,7 +163,7 @@ export default function Dashboard() {
       })
       if (response && response.success && response.properties) {
         setProperties(response.properties)
-        localStorage.setItem('cached_properties', JSON.stringify(response.properties))
+        safeSetItem('cached_properties', JSON.stringify(response.properties))
         // Fetch progress for these properties
         if (response.properties.length > 0) {
           fetchProgress(response.properties)
@@ -306,8 +307,8 @@ export default function Dashboard() {
             namesMap[`B${i + 1}`] = b.name
             unitsMap[`B${i + 1}`] = b.units
           })
-          localStorage.setItem(`buildingNames_${propId}`, JSON.stringify(namesMap))
-          localStorage.setItem(`buildingUnits_${propId}`, JSON.stringify(unitsMap))
+          safeSetItem(`buildingNames_${propId}`, JSON.stringify(namesMap))
+          safeSetItem(`buildingUnits_${propId}`, JSON.stringify(unitsMap))
         }
 
         fetchProperties()
@@ -355,7 +356,7 @@ export default function Dashboard() {
   // Set a property as the active inspection
   const activateInspection = (propId: string) => {
     if (typeof window === 'undefined') return
-    localStorage.setItem('active_inspection_property', propId)
+    safeSetItem('active_inspection_property', propId)
     setActiveInspectionId(propId)
   }
 
@@ -375,7 +376,7 @@ export default function Dashboard() {
     const propId = prop?._id || prop?.id || 'new'
 
     if (typeof window !== 'undefined' && propId !== 'new') {
-      localStorage.setItem(`property_coverage_${propId}`, JSON.stringify({ coverage, calculatedUnits }))
+      safeSetItem(`property_coverage_${propId}`, JSON.stringify({ coverage, calculatedUnits }))
       // Mark this property as the active inspection (lock all others)
       activateInspection(propId)
     }

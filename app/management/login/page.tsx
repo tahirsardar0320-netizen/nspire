@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import SocialLoginButtons from "@/components/SocialLoginButtons"
 import { initGoogleLogin, initFacebookLogin, initAppleLogin } from "@/lib/social-auth"
 import { authAPI } from "@/lib/api"
+import { safeSetItem } from "@/lib/safeStorage"
 
 export default function ManagementLogin() {
   const [email, setEmail] = useState("")
@@ -51,8 +52,8 @@ export default function ManagementLogin() {
 
       if (response.success) {
         // Store token in localStorage
-        localStorage.setItem('token', response.token)
-        localStorage.setItem('user', JSON.stringify(response.user))
+        safeSetItem('token', response.token)
+        safeSetItem('user', JSON.stringify(response.user))
 
         const userRole = response.user?.role || 'management'
 
@@ -114,8 +115,8 @@ export default function ManagementLogin() {
 
       if (response.success) {
         // Store token
-        localStorage.setItem('token', response.token)
-        localStorage.setItem('user', JSON.stringify(response.user))
+        safeSetItem('token', response.token)
+        safeSetItem('user', JSON.stringify(response.user))
 
         toast.success(`Logged in with ${provider}! Redirecting...`, {
           position: "top-right",

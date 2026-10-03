@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { toast } from "react-toastify"
 import { useRouter } from "next/navigation"
+import { safeSetItem } from "@/lib/safeStorage"
 
 export default function AssetManagerLogin() {
   const [email, setEmail] = useState("")
@@ -99,22 +100,19 @@ export default function AssetManagerLogin() {
         return
       }
 
-      // Try 3: Fallback ONLY when the backend was genuinely unreachable
+      // The backend could not be reached at all. Minting a token here produces a
+      // session the server never issued: it looks fine until the first API call
+      // 401s and drops the user back to this screen, which is exactly how the
+      // "randomly logged out" reports came about. Fail honestly instead.
       if (!success && !reachedServer) {
-        data = {
-          token: 'token_' + Date.now(),
-          user: {
-            id: 'usr_' + Date.now(),
-            fullName: email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
-            email: email.trim().toLowerCase(),
-            role: 'asset-manager',
-          }
-        }
+        toast.error("Can't reach the server. Check your connection and try again.", { position: "top-right", autoClose: 4000 })
+        setIsLoading(false)
+        return
       }
 
       // Store token in localStorage
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
+      safeSetItem('token', data.token)
+      safeSetItem('user', JSON.stringify(data.user))
 
       const userRole = data.user?.role || 'asset-manager'
 

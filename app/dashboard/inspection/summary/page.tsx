@@ -23,6 +23,7 @@ import {
   calculateDeductionPoints,
   mapCategoryToNSPIRECode,
 } from "@/lib/nspireReport"
+import { safeSetItem } from "@/lib/safeStorage"
 
 
 // Icons
@@ -691,7 +692,7 @@ function NSPIREInspectionSummaryContent() {
 
       const emailedPropertyId = searchParams.get('propertyId') || searchParams.get('id')
       if (emailedPropertyId) {
-        localStorage.setItem(`report_emailed_${emailedPropertyId}`, 'true')
+        safeSetItem(`report_emailed_${emailedPropertyId}`, 'true')
       }
 
       toast.success(`Full report sent to ${fullReportEmail.trim()}`, { position: 'top-right' })
@@ -769,7 +770,7 @@ function NSPIREInspectionSummaryContent() {
             unit.completed = true
             unit.completedAt = new Date().toISOString()
             state.lastUpdated = new Date().toISOString()
-            localStorage.setItem(storageKey, JSON.stringify(state))
+            safeSetItem(storageKey, JSON.stringify(state))
           }
         }
       }

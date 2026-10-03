@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { toast } from "react-toastify"
 import { useRouter } from "next/navigation"
+import { safeSetItem } from "@/lib/safeStorage"
 
 export default function AssetManagerSignup() {
   const [fullName, setFullName] = useState("")
@@ -65,23 +66,18 @@ export default function AssetManagerSignup() {
         toast.error(data?.message || "Error creating account. Please try again.", { position: "top-right", autoClose: 3000 })
         setIsLoading(false)
         return
-      }
-
+      }      // The backend could not be reached at all. Minting a token here produces a
+      // session the server never issued: it looks fine until the first API call
+      // 401s and drops the user back to this screen, which is exactly how the
+      // "randomly logged out" reports came about. Fail honestly instead.
       if (!success && !reachedServer) {
-        data = {
-          success: true,
-          token: 'token_' + Date.now(),
-          user: {
-            id: 'usr_' + Date.now(),
-            fullName: fullName.trim(),
-            email: email.trim().toLowerCase(),
-            role: role || 'asset-manager',
-          }
-        }
+        toast.error("Can't reach the server. Check your connection and try again.", { position: "top-right", autoClose: 4000 })
+        setIsLoading(false)
+        return
       }
 
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
+      safeSetItem('token', data.token)
+      safeSetItem('user', JSON.stringify(data.user))
 
       toast.success("Account created successfully! Redirecting...", { position: "top-right", autoClose: 1500 })
 

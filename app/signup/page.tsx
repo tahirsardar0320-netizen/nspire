@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import SocialLoginButtons from "@/components/SocialLoginButtons"
 import { initGoogleLogin, initFacebookLogin, initAppleLogin } from "@/lib/social-auth"
 import { authAPI } from "@/lib/api"
+import { safeSetItem } from "@/lib/safeStorage"
 
 export default function Signup() {
   const [fullName, setFullName] = useState("")
@@ -147,24 +148,19 @@ export default function Signup() {
         })
         setIsLoading(false)
         return
-      }
-
+      }      // The backend could not be reached at all. Minting a token here produces a
+      // session the server never issued: it looks fine until the first API call
+      // 401s and drops the user back to this screen, which is exactly how the
+      // "randomly logged out" reports came about. Fail honestly instead.
       if (!success && !reachedServer) {
-        data = {
-          success: true,
-          token: 'token_' + Date.now(),
-          user: {
-            id: 'usr_' + Date.now(),
-            fullName: fullName.trim(),
-            email: email.trim().toLowerCase(),
-            role: targetRole,
-          }
-        }
+        toast.error("Can't reach the server. Check your connection and try again.", { position: "top-right", autoClose: 4000 })
+        setIsLoading(false)
+        return
       }
 
       if (data.token) {
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
+        safeSetItem('token', data.token)
+        safeSetItem('user', JSON.stringify(data.user))
       }
 
       toast.success("Account created successfully! Redirecting to dashboard...", {
@@ -213,8 +209,8 @@ export default function Signup() {
 
       if (response.success) {
         // Store token
-        localStorage.setItem('token', response.token)
-        localStorage.setItem('user', JSON.stringify(response.user))
+        safeSetItem('token', response.token)
+        safeSetItem('user', JSON.stringify(response.user))
 
         toast.success(`Logged in with ${provider}! Redirecting...`, {
           position: "top-right",

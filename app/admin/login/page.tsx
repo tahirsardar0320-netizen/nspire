@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { toast } from "react-toastify"
 import { useRouter } from "next/navigation"
+import { safeSetItem } from "@/lib/safeStorage"
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("")
@@ -49,6 +50,7 @@ export default function AdminLogin() {
 
       let data: any = null
       let success = false
+      let serverErrorMessage = ''
 
       // Try 1: API URL
       try {
@@ -59,9 +61,11 @@ export default function AdminLogin() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody),
           })
-          if (res.ok) {
-            data = await res.json()
-            if (data && data.token) success = true
+          data = await res.json().catch(() => null)
+          if (res.ok && data?.token) {
+            success = true
+          } else {
+            serverErrorMessage = data?.message || 'Invalid email or password'
           }
         }
       } catch (e) {}
@@ -74,29 +78,27 @@ export default function AdminLogin() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody),
           })
-          if (res.ok) {
-            data = await res.json()
-            if (data && data.token) success = true
+          data = await res.json().catch(() => null)
+          if (res.ok && data?.token) {
+            success = true
+          } else {
+            serverErrorMessage = data?.message || 'Invalid email or password'
           }
         } catch (e) {}
       }
 
-      // Try 3: Fallback for Netlify / static
+      // This previously fabricated an admin session whenever the server did not
+      // hand one back — including when it had actively rejected the credentials,
+      // which let anyone sign in as admin. Only a token the server issued counts.
       if (!success || !data?.token) {
-        data = {
-          token: 'admin_token_' + Date.now(),
-          user: {
-            id: 'admin_' + Date.now(),
-            fullName: email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
-            email: email.trim().toLowerCase(),
-            role: 'admin',
-          }
-        }
+        toast.error(serverErrorMessage || "Can't reach the server. Check your connection and try again.", { position: "top-right", autoClose: 4000 })
+        setIsLoading(false)
+        return
       }
 
       // Store token in localStorage
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
+      safeSetItem('token', data.token)
+      safeSetItem('user', JSON.stringify(data.user))
 
       toast.success("Admin login successful! Redirecting to dashboard...", {
         position: "top-right",

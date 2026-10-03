@@ -10,6 +10,7 @@ import { toast } from "react-toastify"
 import { ChevronLeft, CheckCircle2, Clock, X, ChevronRight, Pencil, Check, RefreshCw } from "lucide-react"
 import { generateRandomUnitSample, getUnitsToInspect, getSamplingExplanation } from "@/lib/unitSamplingService"
 import { fetchPropertyProgressMap } from "@/lib/inspectionProgress"
+import { safeSetItem } from "@/lib/safeStorage"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -41,7 +42,7 @@ function loadBuildingState(propertyId: string, buildingId: string): BuildingInsp
 }
 
 function saveBuildingState(state: BuildingInspectionState) {
-    localStorage.setItem(getStorageKey(state.propertyId, state.buildingId), JSON.stringify(state))
+    safeSetItem(getStorageKey(state.propertyId, state.buildingId), JSON.stringify(state))
 }
 
 function initBuildingState(propertyId: string, buildingId: string, unitNames: string[]): BuildingInspectionState {
@@ -184,7 +185,7 @@ export default function PropertyDetailsPage() {
     const handleSaveColumnHeader = () => {
         const name = tempColumnHeaderName.trim() || 'Building Unique ID'
         setColumnHeaderName(name)
-        localStorage.setItem(`buildingColHeader_${id}`, name)
+        safeSetItem(`buildingColHeader_${id}`, name)
         setEditColumnHeaderOpen(false)
         toast.success('Column name updated!', { position: 'top-right', autoClose: 1500 })
     }
@@ -199,7 +200,7 @@ export default function PropertyDetailsPage() {
         const newName = tempBuildingName.trim() || buildingId
         const updated = { ...editableBuildingNames, [buildingId]: newName }
         setEditableBuildingNames(updated)
-        localStorage.setItem(`buildingNames_${id}`, JSON.stringify(updated))
+        safeSetItem(`buildingNames_${id}`, JSON.stringify(updated))
         setEditingBuildingId(null)
     }
 
@@ -397,10 +398,10 @@ export default function PropertyDetailsPage() {
     const handleBuildingClick = (building: typeof buildings[0]) => {
         const propId = property._id || id
         // Store column header name so inspection-category can read it
-        localStorage.setItem(`buildingColHeader_${propId}`, columnHeaderName)
+        safeSetItem(`buildingColHeader_${propId}`, columnHeaderName)
         // Store custom building display name
         const displayName = getBuildingDisplayName(building.buildingId)
-        localStorage.setItem(`buildingDisplayName_${propId}_${building.buildingId}`, displayName)
+        safeSetItem(`buildingDisplayName_${propId}_${building.buildingId}`, displayName)
         router.push(
             `/dashboard/inspection-category/${propId}?building=${building.buildingId}&totalUnits=${building.unitsForInspection}&coverage=${coverage}`
         )
@@ -418,7 +419,7 @@ export default function PropertyDetailsPage() {
         }
 
         // Store context for the inspection flow
-        localStorage.setItem('currentInspectionUnit', JSON.stringify({
+        safeSetItem('currentInspectionUnit', JSON.stringify({
             propertyId: propId,
             buildingId,
             unitName,
@@ -763,8 +764,8 @@ export default function PropertyDetailsPage() {
                 progressData,
             }
 
-            localStorage.setItem('currentInspectionData', JSON.stringify(inspectionDataForSummary))
-            localStorage.setItem('currentInspectionProperty', JSON.stringify(property))
+            safeSetItem('currentInspectionData', JSON.stringify(inspectionDataForSummary))
+            safeSetItem('currentInspectionProperty', JSON.stringify(property))
 
             toast.success('In-progress report prepared. Opening summary...', {
                 position: 'top-right',

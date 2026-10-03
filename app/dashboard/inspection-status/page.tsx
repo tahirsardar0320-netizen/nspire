@@ -11,6 +11,7 @@ import { fetchNSPIREReportForProperty, NSPIREInspectionReport } from "@/lib/nspi
 import { ReportPreviewModal } from "@/components/ReportPreviewModal"
 import { toast } from "react-toastify"
 import { Download, FileText, Calendar, MapPin, User, CheckCircle2, Loader2, Trash2, AlertCircle, Building2, RefreshCw, Lock } from "lucide-react"
+import { safeSetItem } from "@/lib/safeStorage"
 
 interface Property {
   _id: string
@@ -103,7 +104,7 @@ export default function InspectionStatusPage() {
       let allProperties: Property[] = []
       if (propertiesRes.success && propertiesRes.properties && propertiesRes.properties.length > 0) {
         allProperties = propertiesRes.properties
-        localStorage.setItem('cached_properties', JSON.stringify(propertiesRes.properties))
+        safeSetItem('cached_properties', JSON.stringify(propertiesRes.properties))
       } else {
         const cached = localStorage.getItem('cached_properties')
         if (cached) {
@@ -114,7 +115,7 @@ export default function InspectionStatusPage() {
       }
 
       if (completedInspections && completedInspections.length > 0) {
-        localStorage.setItem('cached_completed_inspections', JSON.stringify(completedInspections))
+        safeSetItem('cached_completed_inspections', JSON.stringify(completedInspections))
       } else {
         const cachedInspections = localStorage.getItem('cached_completed_inspections')
         if (cachedInspections) {
