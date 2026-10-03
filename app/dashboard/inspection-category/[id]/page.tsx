@@ -10,7 +10,7 @@ import { outsideDeficiencyMapping, insideDeficiencyMapping, DeficiencyDetail } f
 import { unitDeficiencyMapping } from "@/lib/unitDeficiencyMapping"
 import { calculateUnitInspectionScore, calculateUnitScore, ScoringResult, POSSIBLE_SCORE, SEVERITY_LEVELS, UNIT_POSSIBLE_SCORE } from "@/lib/scoringCalculations"
 import { lookupCodeReference } from "@/lib/appDeficiencyLookup"
-import { fileToCompressedDataUrl } from "@/lib/imageCapture"
+import { captureInspectionPhoto, uploadQueuedPhotos } from "@/lib/imageCapture"
 import {
     calculateOutsideScore,
     extractCategoryNumber,
@@ -585,7 +585,7 @@ export default function InspectionCategoryPage() {
         let synced = 0;
         for (const payload of queue) {
             try {
-                await inspectionsAPI.saveProgress(payload);
+                await inspectionsAPI.saveProgress(await uploadQueuedPhotos(payload));
                 synced++;
             } catch (error) {
                 console.error('Error syncing an offline change:', error);
@@ -1032,7 +1032,7 @@ export default function InspectionCategoryPage() {
         if (!file) return;
         setIsUploadingGeneralImage(true);
         try {
-            setGeneralImage(await fileToCompressedDataUrl(file));
+            setGeneralImage(await captureInspectionPhoto(file));
         } catch (error) {
             console.error('Could not attach the photo:', error);
             toast.error('Could not attach that photo. Please try again.', { position: 'top-right' });
@@ -1226,7 +1226,7 @@ export default function InspectionCategoryPage() {
         if (!file) return;
 
         try {
-            const photo = await fileToCompressedDataUrl(file);
+            const photo = await captureInspectionPhoto(file);
             setPhotos([...photos, photo]);
         } catch (error) {
             console.error('Could not attach the photo:', error);
