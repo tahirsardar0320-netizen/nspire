@@ -42,6 +42,10 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>NSPIRE Inspection needs camera access to capture photos of inspection deficiencies.</string>
+	<!-- Reading from the library is a separate permission from adding to it;
+	     without this the native gallery picker is denied at launch. -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>NSPIRE Inspection needs access to your photos so you can attach existing images to an inspection.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>NSPIRE Inspection saves inspection photos to your photo library.</string>
 	<key>UIApplicationSceneManifest</key>

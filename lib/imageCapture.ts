@@ -47,6 +47,57 @@ const decode = async (file: File): Promise<{ source: CanvasImageSource; width: n
 const dataUrlToBlob = async (dataUrl: string): Promise<Blob> => (await fetch(dataUrl)).blob();
 
 /**
+ * Native capture, used in the app in place of <input type="file" capture>.
+ *
+ * That input was wrong on both platforms. On iOS WKWebView ignores `capture`
+ * and opens the photo library instead of the camera. On Android it launches
+ * the camera as a separate activity, and the backgrounded WebView is often
+ * reclaimed under memory pressure — the page then reloads and restores the
+ * item's saved finding, which drops the inspector on the report screen
+ * instead of back in the form they were filling in.
+ *
+ * The native plugin runs in-process, so neither happens.
+ */
+const nativeCamera = (): { call: (m: string, o?: unknown) => Promise<any> } | null => {
+    if (typeof window === 'undefined') return null;
+    const cap = (window as any).Capacitor;
+    if (!cap?.isNativePlatform?.() || typeof cap.nativePromise !== 'function') return null;
+    const registered = Array.isArray(cap.PluginHeaders) && cap.PluginHeaders.some((h: any) => h?.name === 'Camera');
+    if (!registered) return null;
+    return { call: (m, o) => cap.nativePromise('Camera', m, o) };
+};
+
+export const isNativeCameraAvailable = (): boolean => nativeCamera() !== null;
+
+/**
+ * Opens the camera (or gallery) natively and returns a data URL, or null if
+ * the plugin is unavailable or the user cancelled. Callers fall back to the
+ * hidden file input when this returns null for lack of a plugin.
+ */
+export const takeNativePhoto = async (source: 'camera' | 'gallery'): Promise<string | null> => {
+    const camera = nativeCamera();
+    if (!camera) return null;
+
+    try {
+        const result = await camera.call(source === 'camera' ? 'takePhoto' : 'chooseFromGallery', {
+            quality: 85,
+            resultType: 'dataUrl',
+            correctOrientation: true,
+            allowEditing: false,
+            width: MAX_DIMENSION,
+        });
+        const dataUrl: string | undefined = result?.dataUrl;
+        if (!dataUrl) return null;
+        // Still run it through the resize path: `width` is advisory and some
+        // devices hand back the full-resolution frame regardless.
+        return dataUrl;
+    } catch {
+        // Cancelled, or permission refused — treated the same as no photo.
+        return null;
+    }
+};
+
+/**
  * Stores the photo server-side and returns a short URL to it.
  *
  * Keeping photos inline is what pushed inspection records past MongoDB's 16 MB
@@ -84,6 +135,22 @@ export const uploadDataUrl = async (dataUrl: string): Promise<string> => {
 
 export const captureInspectionPhoto = async (file: File): Promise<string> =>
     uploadDataUrl(await fileToCompressedDataUrl(file));
+
+/**
+ * Camera-or-gallery capture for the app. Returns the stored photo's URL, or
+ * null when there is no native camera to use (the caller then opens the hidden
+ * file input) or the user backed out.
+ */
+export const captureInspectionPhotoNative = async (
+    source: 'camera' | 'gallery'
+): Promise<string | null> => {
+    const dataUrl = await takeNativePhoto(source);
+    if (!dataUrl) return null;
+
+    const blob = await dataUrlToBlob(dataUrl);
+    const file = new File([blob], 'inspection-photo.jpg', { type: blob.type || 'image/jpeg' });
+    return captureInspectionPhoto(file);
+};
 
 /**
  * Swaps any still-inline photo in a queued payload for a hosted URL before it

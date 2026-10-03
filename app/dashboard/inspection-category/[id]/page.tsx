@@ -10,7 +10,7 @@ import { outsideDeficiencyMapping, insideDeficiencyMapping, DeficiencyDetail } f
 import { unitDeficiencyMapping } from "@/lib/unitDeficiencyMapping"
 import { calculateUnitInspectionScore, calculateUnitScore, ScoringResult, POSSIBLE_SCORE, SEVERITY_LEVELS, UNIT_POSSIBLE_SCORE } from "@/lib/scoringCalculations"
 import { lookupCodeReference } from "@/lib/appDeficiencyLookup"
-import { captureInspectionPhoto, uploadQueuedPhotos } from "@/lib/imageCapture"
+import { captureInspectionPhoto, captureInspectionPhotoNative, uploadQueuedPhotos } from "@/lib/imageCapture"
 import {
     calculateOutsideScore,
     extractCategoryNumber,
@@ -1222,6 +1222,28 @@ export default function InspectionCategoryPage() {
         setModalStep(4);
     };
 
+    // In the app the camera is opened natively: <input capture> opens the photo
+    // library on iOS, and on Android it backgrounds the WebView, which can be
+    // reclaimed and reload the page mid-capture. On the web these fall straight
+    // through to the hidden file input.
+    const pickDeficiencyPhoto = async (source: 'camera' | 'gallery') => {
+        try {
+            const url = await captureInspectionPhotoNative(source);
+            if (url) { setPhotos([...photos, url]); return; }
+        } catch (e) { console.error('Native capture failed:', e); }
+        // The deficiency modal only has the one (camera) input to fall back on.
+        fileInputRef.current?.click();
+    };
+
+    const pickGeneralPhoto = async (source: 'camera' | 'gallery') => {
+        try {
+            const url = await captureInspectionPhotoNative(source);
+            if (url) { setGeneralImage(url); return; }
+        } catch (e) { console.error('Native capture failed:', e); }
+        if (source === 'camera') generalFileInputRef.current?.click();
+        else generalGalleryInputRef.current?.click();
+    };
+
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -1982,7 +2004,7 @@ export default function InspectionCategoryPage() {
                                     <div className="grid grid-cols-2 gap-3">
                                         {/* Take Photo */}
                                         <button
-                                            onClick={() => generalFileInputRef.current?.click()}
+                                            onClick={() => pickGeneralPhoto('camera')}
                                             disabled={isUploadingGeneralImage}
                                             className="flex flex-col items-center justify-center gap-2 py-6 border-2 border-dashed border-[#006795]/40 rounded-xl text-[#006795] bg-[#F1F7FE] hover:bg-[#e1eef8] hover:border-[#006795] transition-all cursor-pointer"
                                         >
@@ -1995,7 +2017,7 @@ export default function InspectionCategoryPage() {
                                         </button>
                                         {/* Upload from Gallery */}
                                         <button
-                                            onClick={() => generalGalleryInputRef.current?.click()}
+                                            onClick={() => pickGeneralPhoto('gallery')}
                                             disabled={isUploadingGeneralImage}
                                             className="flex flex-col items-center justify-center gap-2 py-6 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 bg-gray-50 hover:bg-gray-100 hover:border-gray-400 transition-all cursor-pointer"
                                         >
@@ -2136,7 +2158,7 @@ export default function InspectionCategoryPage() {
                                         )}
 
                                         <div
-                                            onClick={() => fileInputRef.current?.click()}
+                                            onClick={() => pickDeficiencyPhoto('camera')}
                                             className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-200 rounded-2xl hover:border-[#0E7490] hover:bg-cyan-50/30 transition-all cursor-pointer group"
                                         >
                                             <div className="w-16 h-16 rounded-full bg-cyan-50 flex items-center justify-center mb-3 group-hover:bg-[#0E7490] transition-colors">
