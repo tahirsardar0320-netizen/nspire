@@ -741,7 +741,7 @@ export default function InspectionCategoryPage() {
             }
             
             if (navigator.onLine) {
-                const promises = payloads.map(p => inspectionsAPI.saveProgress(p.payload));
+                const promises = payloads.map(async p => inspectionsAPI.saveProgress(await uploadQueuedPhotos(p.payload)));
                 await Promise.all(promises);
                 await refreshCompletedUnits();
             } else {
@@ -1178,7 +1178,9 @@ export default function InspectionCategoryPage() {
         setPropertyFindings(mergedFindings);
 
         try {
-            await inspectionsAPI.saveProgress({
+            // Any photo whose upload did not land stays a data URL; host it now
+            // rather than carrying it inline in the inspection record.
+            await inspectionsAPI.saveProgress(await uploadQueuedPhotos({
                 property_id: property?._id || params.id,
                 unit_id: currentSection === 'unit' ? activeInspectionUnit : urlBuilding,
                 building_id: urlBuilding,
@@ -1197,7 +1199,7 @@ export default function InspectionCategoryPage() {
                         }
                     }
                 }
-            });
+            }));
         } catch (saveError) {
             console.warn("Failed to sync manual finding to server, cached locally:", saveError);
         }

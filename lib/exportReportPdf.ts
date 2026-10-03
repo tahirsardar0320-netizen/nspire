@@ -73,6 +73,23 @@ export async function generateNSPIREReportPDFBlob(report: NSPIREInspectionReport
     const MAX_CANVAS_PX = 16000
     const scale = fullHeight * 1.5 > MAX_CANVAS_PX ? Math.max(1, MAX_CANVAS_PX / fullHeight) : 1.5
 
+    // Photos used to be inline base64 and were therefore always ready the moment
+    // the markup existed. They are hosted now, so they load over the network and
+    // a capture taken too early would produce a report with blank photo cells.
+    // Wait for every image to settle (a failed one must not block the export).
+    await Promise.all(
+      Array.from(doc.images).map((img) =>
+        img.complete
+          ? Promise.resolve()
+          : new Promise<void>((resolve) => {
+              const done = () => resolve()
+              img.addEventListener('load', done, { once: true })
+              img.addEventListener('error', done, { once: true })
+              setTimeout(done, 15000)
+            })
+      )
+    )
+
     const canvas = await html2canvas(doc.body, {
       scale,
       useCORS: true,

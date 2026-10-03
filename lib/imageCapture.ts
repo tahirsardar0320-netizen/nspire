@@ -79,18 +79,23 @@ export const takeNativePhoto = async (source: 'camera' | 'gallery'): Promise<str
     if (!camera) return null;
 
     try {
-        const result = await camera.call(source === 'camera' ? 'takePhoto' : 'chooseFromGallery', {
+        // getPhoto, not takePhoto/chooseFromGallery: on Android the latter two
+        // route through the newer flow, which only ever resolves a file uri and
+        // webPath — and a webPath served by the local Capacitor host is not
+        // readable from this remotely-hosted page. getPhoto returns a data URL
+        // directly on both platforms, which is what we can actually use.
+        const result = await camera.call('getPhoto', {
+            source: source === 'camera' ? 'CAMERA' : 'PHOTOS',
             quality: 85,
             resultType: 'dataUrl',
             correctOrientation: true,
             allowEditing: false,
-            width: MAX_DIMENSION,
+            saveToGallery: false,
         });
         const dataUrl: string | undefined = result?.dataUrl;
-        if (!dataUrl) return null;
-        // Still run it through the resize path: `width` is advisory and some
-        // devices hand back the full-resolution frame regardless.
-        return dataUrl;
+        // The caller re-encodes this through the canvas path, so a device that
+        // hands back a full-resolution frame still gets resized.
+        return dataUrl || null;
     } catch {
         // Cancelled, or permission refused — treated the same as no photo.
         return null;
