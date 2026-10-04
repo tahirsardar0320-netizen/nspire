@@ -1,0 +1,44 @@
+name: TEMP - What is live on Play
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile-app
+    steps:
+      - uses: actions/checkout@v4
+      - name: Write Play service account key
+        run: echo "${{ secrets.PLAY_SERVICE_ACCOUNT_JSON_BASE64 }}" | base64 -d > "$RUNNER_TEMP/play.json"
+      - name: Install deps
+        run: pip install google-auth google-auth-httplib2 google-api-python-client
+      - name: Report the production track
+        env:
+          SERVICE_ACCOUNT_PATH: ${{ runner.temp }}/play.json
+        run: |
+          python3 <<'EOF'
+          import os
+          from google.oauth2 import service_account
+          from googleapiclient.discovery import build
+
+          creds = service_account.Credentials.from_service_account_file(
+              os.environ['SERVICE_ACCOUNT_PATH'],
+              scopes=['https://www.googleapis.com/auth/androidpublisher'],
+          )
+          svc = build('androidpublisher', 'v3', credentials=creds, cache_discovery=False)
+          pkg = 'com.nspireapp'
+          edit = svc.edits().insert(body={}, packageName=pkg).execute()
+          for track in ('production', 'internal', 'beta'):
+              try:
+                  t = svc.edits().tracks().get(editId=edit['id'], packageName=pkg, track=track).execute()
+              except Exception as e:
+                  print(f'{track}: (none)')
+                  continue
+              for r in t.get('releases', []):
+                  print(f"{track}: versionCodes={r.get('versionCodes')} status={r.get('status')} "
+                        f"rollout={r.get('userFraction')} name={r.get('name')}")
+          svc.edits().delete(editId=edit['id'], packageName=pkg).execute()
+          EOF
