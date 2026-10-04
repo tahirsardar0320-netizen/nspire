@@ -40,6 +40,7 @@ export default function Dashboard() {
   const [selectedProperty, setSelectedProperty] = useState<any>(null)
   const [newPropertyData, setNewPropertyData] = useState<any>(null)
   const [properties, setProperties] = useState<any[]>([])
+  const [loadFailed, setLoadFailed] = useState(false)
   const [loading, setLoading] = useState(true)
   const [propertyProgress, setPropertyProgress] = useState<Record<string, number>>({})
   const [reportEmailed, setReportEmailed] = useState<Record<string, boolean>>({})
@@ -156,12 +157,16 @@ export default function Dashboard() {
   const fetchProperties = async () => {
     try {
       setLoading(true)
+      setLoadFailed(false)
       const response = await propertiesAPI.getAll({
         search: searchQuery || undefined,
         state: selectedState || undefined,
         city: selectedCity || undefined,
       })
       if (response && response.success && response.properties) {
+        // A cached answer means the server was unreachable, not that the
+        // account is empty — the empty state below depends on the difference.
+        if ((response as any).fromCache) setLoadFailed(true)
         setProperties(response.properties)
         safeSetItem('cached_properties', JSON.stringify(response.properties))
         // Fetch progress for these properties
@@ -181,6 +186,9 @@ export default function Dashboard() {
       }
     } catch (error: any) {
       console.error('Error fetching properties:', error)
+      // The list below must not claim the account has no properties when all
+      // that happened is we could not reach the server.
+      setLoadFailed(true)
       const cached = localStorage.getItem('cached_properties')
       if (cached) {
         try {
@@ -486,7 +494,11 @@ export default function Dashboard() {
                 Loading properties...
               </div>
             ) : properties.length === 0 ? (
-              <div className="p-12 text-center text-slate-500 font-medium">No properties found. Add your first property!</div>
+              <div className="p-12 text-center text-slate-500 font-medium">
+                {loadFailed
+                  ? "Can't reach the server right now. Your properties will appear here once you're back online — nothing has been lost."
+                  : "No properties found. Add your first property!"}
+              </div>
             ) : (
               <table className="w-full table-fixed">
                 <thead className="bg-slate-50/75 border-b border-slate-200">

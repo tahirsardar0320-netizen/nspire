@@ -524,8 +524,12 @@ export const propertiesAPI = {
       props = props.filter(p => p.city && p.city.toLowerCase() === params.city?.toLowerCase());
     }
 
+    // Flagged so callers can tell "this account has no properties" apart from
+    // "we could not reach the server". Without it an offline dashboard with an
+    // empty cache told the inspector their properties did not exist.
     return {
       success: true,
+      fromCache: true,
       properties: props,
       pagination: {
         page: params?.page || 1,
