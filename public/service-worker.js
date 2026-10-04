@@ -18,13 +18,16 @@
  * gets the current build, with the last good copy kept for when they are not.
  */
 
-const VERSION = 'v4';
+const VERSION = 'v6';
 const SHELL_CACHE = `inspire-shell-${VERSION}`;
 const PAGE_CACHE = `inspire-pages-${VERSION}`;
 const ASSET_CACHE = `inspire-assets-${VERSION}`;
 const IMAGE_CACHE = `inspire-images-${VERSION}`;
+// Route payloads are kept apart from HTML: a navigation that fell back to a
+// cached payload rendered the raw serialized tree as text on screen.
+const RSC_CACHE = `inspire-routes-${VERSION}`;
 
-const CURRENT = [SHELL_CACHE, PAGE_CACHE, ASSET_CACHE, IMAGE_CACHE];
+const CURRENT = [SHELL_CACHE, PAGE_CACHE, ASSET_CACHE, IMAGE_CACHE, RSC_CACHE];
 
 /** Pages an inspector can land on with no connection. */
 const SHELL_PAGES = [
@@ -33,6 +36,10 @@ const SHELL_PAGES = [
   '/login',
   '/dashboard',
   '/logo.png',
+  // One rendered copy of each client-rendered family, so a property created in
+  // the field can be opened — and reloaded — with no connection at all.
+  '/dashboard/property-details/template',
+  '/dashboard/inspection-category/template',
 ];
 
 self.addEventListener('install', (event) => {
@@ -70,6 +77,31 @@ const isRscRequest = (request, url) =>
   request.headers.get('RSC') === '1' ||
   (request.headers.get('accept') || '').includes('text/x-component');
 
+/**
+ * Screens whose page component is "use client" and reads its id from
+ * useParams() — that is, from the URL rather than from the server payload.
+ * One cached copy therefore stands in for any id in the same family.
+ *
+ * This is what lets a property created in the field be inspected straight
+ * away: it exists only in the offline queue, so the server has never rendered
+ * its page and there is nothing specific to cache, yet the screen itself is
+ * identical for every property.
+ */
+const CLIENT_ROUTE_FAMILIES = ['/dashboard/property-details/', '/dashboard/inspection-category/'];
+
+const familyOf = (pathname) => CLIENT_ROUTE_FAMILIES.find((f) => pathname.startsWith(f));
+
+/** Any cached entry from the same route family, whatever its id. */
+async function matchSibling(cache, url) {
+  const family = familyOf(url.pathname);
+  if (!family) return null;
+  for (const key of await cache.keys()) {
+    const keyUrl = new URL(key.url);
+    if (keyUrl.pathname.startsWith(family)) return cache.match(key);
+  }
+  return null;
+}
+
 /** Hashed build assets and stored photos never change — serve them from cache. */
 async function cacheFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
@@ -88,7 +120,13 @@ async function networkFirstPage(request) {
     if (response && response.status === 200) cache.put(request, response.clone());
     return response;
   } catch (err) {
-    const hit = (await cache.match(request)) || (await caches.match(request, { ignoreSearch: true }));
+    const url = new URL(request.url);
+    const shellCache = await caches.open(SHELL_CACHE);
+    const hit =
+      (await cache.match(request)) ||
+      (await caches.match(request, { ignoreSearch: true })) ||
+      (await matchSibling(cache, url)) ||
+      (await matchSibling(shellCache, url));
     if (hit) return hit;
 
     // Fall back to a shell page the user can actually act from. Never /login:
@@ -142,7 +180,7 @@ self.addEventListener('fetch', (event) => {
   if (isRscRequest(request, url)) {
     event.respondWith(
       (async () => {
-        const cache = await caches.open(PAGE_CACHE);
+        const cache = await caches.open(RSC_CACHE);
         try {
           const response = await fetch(request);
           if (response && response.status === 200) cache.put(request, response.clone());
@@ -150,7 +188,8 @@ self.addEventListener('fetch', (event) => {
         } catch (err) {
           const hit =
             (await cache.match(request)) ||
-            (await cache.match(request, { ignoreSearch: true }));
+            (await cache.match(request, { ignoreSearch: true })) ||
+            (await matchSibling(cache, url));
           if (hit) return hit;
           // Nothing cached for this route. Returning an error response rather
           // than throwing lets the router surface a normal navigation failure

@@ -95,7 +95,14 @@ export default function InspectionCategoryPage() {
     const params = useParams()
     const router = useRouter()
     const searchParams = useSearchParams()
-    const id = params.id as string
+    // A screen restored from the offline cache may have been rendered by the
+    // server for a different id — there is no saved copy for a property created
+    // in the field, so a sibling stands in. The address bar is the authority.
+    const idFromUrl =
+        typeof window !== 'undefined'
+            ? decodeURIComponent(window.location.pathname.split('/').filter(Boolean).pop() || '')
+            : ''
+    const id = idFromUrl || (params.id as string)
     const [property, setProperty] = useState<any>(null)
     const [user, setUser] = useState<any>(null)
     const [units, setUnits] = useState<any[]>([])

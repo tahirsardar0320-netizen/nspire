@@ -399,15 +399,26 @@ export default function Dashboard() {
   // there is still a connection — the service worker keeps what we fetch.
   useEffect(() => {
     if (typeof navigator !== 'undefined' && navigator.onLine === false) return
-    if (!properties.length) return
-    properties.slice(0, 25).forEach((p: any) => {
-      const id = p?._id || p?.id
-      if (!id || String(id).startsWith('offline-')) return
+    // These screens are client-rendered and read their id from the URL, so one
+    // warmed copy serves any property — including one created in the field,
+    // which the server has never rendered a page for. Warm the templates even
+    // with an empty list: a brand-new inspector's first property is created on
+    // site, with no connection to fetch its page.
+    const warm = (path: string) => {
       try {
-        router.prefetch(`/dashboard/property-details/${id}`)
+        router.prefetch(path)
       } catch {
         // Prefetching is best effort; never let it break the dashboard.
       }
+    }
+
+    warm('/dashboard/property-details/template')
+    warm('/dashboard/inspection-category/template')
+
+    properties.slice(0, 25).forEach((p: any) => {
+      const id = p?._id || p?.id
+      if (!id) return
+      warm(`/dashboard/property-details/${id}`)
     })
   }, [properties, router])
 

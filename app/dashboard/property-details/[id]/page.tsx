@@ -84,9 +84,16 @@ function generateUnitNames(buildingId: string, count: number): string[] {
 
 export default function PropertyDetailsPage() {
     const params = useParams()
+    // A screen restored from the offline cache may have been rendered by the
+    // server for a different id — there is no saved copy for a property created
+    // in the field, so a sibling stands in. The address bar is the authority.
+    const idFromUrl =
+        typeof window !== 'undefined'
+            ? decodeURIComponent(window.location.pathname.split('/').filter(Boolean).pop() || '')
+            : ''
     const router = useRouter()
     const searchParams = useSearchParams()
-    const id = params.id as string
+    const id = idFromUrl || (params.id as string)
     const [property, setProperty] = useState<any>(null)
     const [user, setUser] = useState<any>(null)
     const [loading, setLoading] = useState(true)
@@ -213,23 +220,53 @@ export default function PropertyDetailsPage() {
         }
     }, [id])
 
+    /** A property created on site exists only in the local cache until it syncs,
+     *  so the server has no record to return. Without this the inspector was
+     *  told "Property not found" for work they had just entered. */
+    const propertyFromLocalCache = () => {
+        try {
+            const raw = localStorage.getItem('inspire_local_properties')
+            const list = raw ? JSON.parse(raw) : []
+            if (!Array.isArray(list)) return null
+            return list.find((p: any) => String(p?._id || p?.id) === String(id)) || null
+        } catch {
+            return null
+        }
+    }
+
     const fetchData = async () => {
         try {
             setLoading(true)
-            const [propRes, userRes] = await Promise.all([
+            const [propRes, userRes] = await Promise.allSettled([
                 propertiesAPI.getById(id),
                 authAPI.getMe()
             ])
 
-            if (propRes.success) {
-                setProperty(propRes.property)
+            const prop = propRes.status === 'fulfilled' && propRes.value?.success
+                ? propRes.value.property
+                : propertyFromLocalCache()
+
+            if (prop) {
+                setProperty(prop)
+            } else {
+                toast.error("Failed to load details")
             }
-            if (userRes.success) {
-                setUser(userRes.user)
+
+            if (userRes.status === 'fulfilled' && userRes.value?.success) {
+                setUser(userRes.value.user)
+            } else {
+                // Offline the profile call fails too; the stored user is enough
+                // to render the screen.
+                try {
+                    const cached = localStorage.getItem('user')
+                    if (cached) setUser(JSON.parse(cached))
+                } catch {}
             }
         } catch (error: any) {
             console.error('Error fetching data:', error)
-            toast.error("Failed to load details")
+            const prop = propertyFromLocalCache()
+            if (prop) setProperty(prop)
+            else toast.error("Failed to load details")
         } finally {
             setLoading(false)
         }
