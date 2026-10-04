@@ -41,12 +41,20 @@ const isQuotaError = (e: any) =>
         e.code === 22 ||
         e.code === 1014);
 
-/** Drops expendable caches, largest first, keeping `keep` untouched. */
-const evictExpendable = (keep: string): boolean => {
+/**
+ * Drops stored keys to make room, largest first, never touching `keep`.
+ *
+ * `aggressive` widens the net from the known-expendable caches to anything
+ * that is not protected. It is used only when the write itself is protected —
+ * failing to store the session token would leave the user apparently signed in
+ * with nothing to prove it, and the next request would bounce them to login.
+ */
+const evict = (keep: string, aggressive: boolean): boolean => {
     const candidates: Array<{ key: string; size: number }> = [];
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (!key || key === keep || !isExpendable(key)) continue;
+        if (!key || key === keep) continue;
+        if (aggressive ? isProtected(key) : !isExpendable(key)) continue;
         candidates.push({ key, size: (localStorage.getItem(key) || '').length });
     }
     if (!candidates.length) return false;
@@ -73,14 +81,19 @@ export const safeSetItem = (key: string, value: string): boolean => {
             console.warn(`Could not write "${key}" to storage:`, e);
             return false;
         }
-        if (evictExpendable(key)) {
+
+        // Expendable caches first; then, only to save something as important as
+        // the session, anything that is not itself protected.
+        for (const aggressive of isProtected(key) ? [false, true] : [false]) {
+            if (!evict(key, aggressive)) continue;
             try {
                 localStorage.setItem(key, value);
                 return true;
             } catch {
-                // Still does not fit.
+                // Try the next, wider sweep.
             }
         }
+
         console.warn(`Storage is full; "${key}" was not saved.`);
         return false;
     }

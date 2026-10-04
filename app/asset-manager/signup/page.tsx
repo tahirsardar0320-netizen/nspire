@@ -76,7 +76,13 @@ export default function AssetManagerSignup() {
         return
       }
 
-      safeSetItem('token', data.token)
+      // A failed write here would leave the user looking signed in with no
+      // token, and the next request would bounce them straight back here.
+      if (!safeSetItem('token', data.token)) {
+        toast.error("Couldn't save your session — free up some space on your device and try again.", { position: "top-right", autoClose: 5000 })
+        setIsLoading(false)
+        return
+      }
       safeSetItem('user', JSON.stringify(data.user))
 
       toast.success("Account created successfully! Redirecting...", { position: "top-right", autoClose: 1500 })

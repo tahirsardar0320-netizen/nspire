@@ -4,8 +4,21 @@ import { dirname } from 'path'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+// Stamped into the client bundle so a bug report can say exactly which build it
+// came from. Until now the Android version name was pinned to one string for
+// every release, so neither we nor the client could tell an updated app from a
+// stale one, and "it's still broken" could never be separated from "it hasn't
+// updated yet".
+const BUILD_ID =
+  process.env.SOURCE_COMMIT?.slice(0, 7) ||
+  process.env.GITHUB_SHA?.slice(0, 7) ||
+  new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '')
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: {
+    NEXT_PUBLIC_BUILD_ID: BUILD_ID,
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

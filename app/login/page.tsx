@@ -138,7 +138,13 @@ export default function Login() {
       }
 
       // Store token in localStorage
-      safeSetItem('token', data.token)
+      // A failed write here would leave the user looking signed in with no
+      // token, and the next request would bounce them straight back here.
+      if (!safeSetItem('token', data.token)) {
+        toast.error("Couldn't save your session — free up some space on your device and try again.", { position: "top-right", autoClose: 5000 })
+        setIsLoading(false)
+        return
+      }
       safeSetItem('user', JSON.stringify(data.user))
 
       const userRole = data.user?.role || role
@@ -194,7 +200,13 @@ export default function Login() {
 
       if (response.success) {
         // Store token
-        safeSetItem('token', response.token)
+        // A failed write here would leave the user looking signed in with no
+        // token, and the next request would bounce them straight back here.
+        if (!safeSetItem('token', response.token)) {
+          toast.error("Couldn't save your session — free up some space on your device and try again.", { position: "top-right", autoClose: 5000 })
+          setIsLoading(false)
+          return
+        }
         safeSetItem('user', JSON.stringify(response.user))
 
         toast.success(`Logged in with ${provider}! Redirecting...`, {

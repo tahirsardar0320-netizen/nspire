@@ -4,6 +4,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { INSPECTOR_TYPES } from "@/lib/inspectorTypes"
+import BuildStamp from "@/components/BuildStamp"
 
 export default function ProfileSelection() {
   const router = useRouter()
@@ -363,6 +364,7 @@ export default function ProfileSelection() {
         .ps-footer-link { color: #006795; font-weight: 700; background: none; border: none; cursor: pointer; text-decoration: underline; }
         .ps-footer-link:hover { color: #0284c7; }
       `}</style>
+      <BuildStamp />
     </div>
   )
 }
