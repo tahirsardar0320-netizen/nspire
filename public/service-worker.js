@@ -18,7 +18,7 @@
  * gets the current build, with the last good copy kept for when they are not.
  */
 
-const VERSION = 'v3';
+const VERSION = 'v4';
 const SHELL_CACHE = `inspire-shell-${VERSION}`;
 const PAGE_CACHE = `inspire-pages-${VERSION}`;
 const ASSET_CACHE = `inspire-assets-${VERSION}`;
@@ -57,6 +57,18 @@ self.addEventListener('activate', (event) => {
 const isBuildAsset = (url) => url.pathname.startsWith('/_next/static/');
 const isStoredImage = (url) => url.pathname.startsWith('/api/images/');
 const isApi = (url) => url.pathname.startsWith('/api/');
+
+/**
+ * Moving between screens in the App Router does not fetch HTML — it fetches a
+ * React Server Component payload for the target route. Those were falling
+ * through to a cache-first handler that simply threw when the network was
+ * gone, so offline the app stayed exactly where it was: tapping Initiate did
+ * nothing at all until a connection came back.
+ */
+const isRscRequest = (request, url) =>
+  url.searchParams.has('_rsc') ||
+  request.headers.get('RSC') === '1' ||
+  (request.headers.get('accept') || '').includes('text/x-component');
 
 /** Hashed build assets and stored photos never change — serve them from cache. */
 async function cacheFirst(request, cacheName) {
@@ -124,6 +136,31 @@ self.addEventListener('fetch', (event) => {
   // Everything else under /api is live data; let it fail honestly offline so
   // the app's own offline queue takes over rather than serving stale results.
   if (isApi(url)) return;
+
+  // Route payloads: keep the last good copy so a screen visited while online
+  // can still be opened in the field.
+  if (isRscRequest(request, url)) {
+    event.respondWith(
+      (async () => {
+        const cache = await caches.open(PAGE_CACHE);
+        try {
+          const response = await fetch(request);
+          if (response && response.status === 200) cache.put(request, response.clone());
+          return response;
+        } catch (err) {
+          const hit =
+            (await cache.match(request)) ||
+            (await cache.match(request, { ignoreSearch: true }));
+          if (hit) return hit;
+          // Nothing cached for this route. Returning an error response rather
+          // than throwing lets the router surface a normal navigation failure
+          // instead of leaving the tap looking like it did nothing.
+          return new Response('', { status: 504, statusText: 'Offline' });
+        }
+      })()
+    );
+    return;
+  }
 
   if (request.mode === 'navigate' || (request.headers.get('accept') || '').includes('text/html')) {
     event.respondWith(networkFirstPage(request));

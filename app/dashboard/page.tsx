@@ -386,6 +386,23 @@ export default function Dashboard() {
     )
   }
 
+  // Opening a property pulls the route's payload from the server. On site that
+  // request fails and the tap appears to do nothing, so warm those routes while
+  // there is still a connection — the service worker keeps what we fetch.
+  useEffect(() => {
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return
+    if (!properties.length) return
+    properties.slice(0, 25).forEach((p: any) => {
+      const id = p?._id || p?.id
+      if (!id || String(id).startsWith('offline-')) return
+      try {
+        router.prefetch(`/dashboard/property-details/${id}`)
+      } catch {
+        // Prefetching is best effort; never let it break the dashboard.
+      }
+    })
+  }, [properties, router])
+
   const handleInitiate = (property: any) => {
     setSelectedProperty(property)
     setNewPropertyData(property)
