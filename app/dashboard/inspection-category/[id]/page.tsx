@@ -815,23 +815,53 @@ export default function InspectionCategoryPage() {
         }
     }, [activeInspectionUnit]);
 
+    /** The property may exist only in the offline queue, with no server record. */
+    const propertyFromLocalCache = () => {
+        try {
+            const raw = localStorage.getItem('inspire_local_properties')
+            const list = raw ? JSON.parse(raw) : []
+            if (!Array.isArray(list)) return null
+            return list.find((p: any) => String(p?._id || p?.id) === String(id)) || null
+        } catch {
+            return null
+        }
+    }
+
     const fetchData = async () => {
         try {
             setLoading(true)
-            const [propRes, userRes] = await Promise.all([
+            // Settled, not all: offline the profile call always fails, and with
+            // Promise.all that rejection took the property down with it and put
+            // "Failed to load details" on screen even though the inspection had
+            // loaded perfectly well from the local cache.
+            const [propRes, userRes] = await Promise.allSettled([
                 propertiesAPI.getById(id),
                 authAPI.getMe()
             ])
 
-            if (propRes.success) {
-                setProperty(propRes.property)
+            const prop = propRes.status === 'fulfilled' && propRes.value?.success && propRes.value.property
+                ? propRes.value.property
+                : propertyFromLocalCache()
+
+            if (prop) {
+                setProperty(prop)
+            } else {
+                toast.error("Failed to load details")
             }
-            if (userRes.success) {
-                setUser(userRes.user)
+
+            if (userRes.status === 'fulfilled' && userRes.value?.success) {
+                setUser(userRes.value.user)
+            } else {
+                try {
+                    const cached = localStorage.getItem('user')
+                    if (cached) setUser(JSON.parse(cached))
+                } catch {}
             }
         } catch (error: any) {
             console.error('Error fetching data:', error)
-            toast.error("Failed to load details")
+            const prop = propertyFromLocalCache()
+            if (prop) setProperty(prop)
+            else toast.error("Failed to load details")
         } finally {
             setLoading(false)
         }
