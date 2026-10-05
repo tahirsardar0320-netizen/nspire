@@ -94,6 +94,12 @@ export default function PropertyDetailsPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const id = idFromUrl || (params.id as string)
+    // Same reason as the id above: a page restored from the offline cache
+    // hydrates with the cached copy's query string, so read the live one.
+    const liveQuery = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search)
+        : null
+    const qp = (key: string) => liveQuery?.get(key) ?? searchParams.get(key)
     const [property, setProperty] = useState<any>(null)
     const [user, setUser] = useState<any>(null)
     const [loading, setLoading] = useState(true)
@@ -143,7 +149,7 @@ export default function PropertyDetailsPage() {
     // Coverage params from query string or localStorage fallback
     const coverage = useMemo(() => {
         if (typeof window !== 'undefined') {
-            const queryCoverage = searchParams.get('coverage')
+            const queryCoverage = qp('coverage')
             if (queryCoverage) return queryCoverage
             const saved = localStorage.getItem(`property_coverage_${id}`)
             if (saved) {
@@ -153,12 +159,12 @@ export default function PropertyDetailsPage() {
                 } catch (e) {}
             }
         }
-        return searchParams.get('coverage') || '100'
+        return qp('coverage') || '100'
     }, [searchParams, id])
 
     const calculatedUnitsParam = useMemo(() => {
         if (typeof window !== 'undefined') {
-            const queryUnits = searchParams.get('calculatedUnits')
+            const queryUnits = qp('calculatedUnits')
             if (queryUnits) return parseInt(queryUnits)
             const saved = localStorage.getItem(`property_coverage_${id}`)
             if (saved) {
@@ -168,7 +174,7 @@ export default function PropertyDetailsPage() {
                 } catch (e) {}
             }
         }
-        const param = searchParams.get('calculatedUnits')
+        const param = qp('calculatedUnits')
         return param ? parseInt(param) : 0
     }, [searchParams, id])
 
@@ -242,7 +248,10 @@ export default function PropertyDetailsPage() {
                 authAPI.getMe()
             ])
 
-            const prop = propRes.status === 'fulfilled' && propRes.value?.success
+            // success with a null property counts as a miss — offline getById
+            // reports success even when it found nothing, so without checking
+            // the property itself the local cache was never consulted.
+            const prop = propRes.status === 'fulfilled' && propRes.value?.success && propRes.value.property
                 ? propRes.value.property
                 : propertyFromLocalCache()
 

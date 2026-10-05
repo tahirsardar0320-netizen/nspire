@@ -127,9 +127,19 @@ export default function InspectionCategoryPage() {
     const [offlineChangesCount, setOfflineChangesCount] = useState(0)
 
     // Read building & unit from URL query params (set by property-details page)
-    const urlBuilding = searchParams.get('building') || 'B1'
-    const urlUnit = searchParams.get('unit') || ''
-    const urlTotalUnits = parseInt(searchParams.get('totalUnits') || '0')
+    // Read the query from the address bar, not from the hydrated router state.
+    // A screen restored from the offline cache hydrates with the query of
+    // whichever copy was cached — which has no building — so every building
+    // fell back to 'B1'. Findings are keyed by building, so one building's
+    // photos then showed up under all of them.
+    const liveQuery = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search)
+        : null
+    const qp = (key: string) => liveQuery?.get(key) ?? searchParams.get(key)
+
+    const urlBuilding = qp('building') || 'B1'
+    const urlUnit = qp('unit') || ''
+    const urlTotalUnits = parseInt(qp('totalUnits') || '0')
     const currentUnitName = decodeURIComponent(urlUnit)
 
     // Unit selection popup (shown when user clicks Units section and no unit is pre-selected)
