@@ -123,6 +123,18 @@ export default function InspectionCategoryPage() {
     const [propertyFindings, setPropertyFindings] = useState<any[]>([])
     // A later empty attempt must not raise an error over a property already shown.
     const loadedPropertyRef = useRef<any>(null)
+    /** Raise the error only if the screen is still empty a moment later.
+     *  fetchData can run more than once for a screen — an early attempt that
+     *  finds nothing was reporting failure over a property that a later one
+     *  then loaded, so the inspector saw an error sitting on top of the data. */
+    const reportLoadFailure = () => {
+        setTimeout(() => {
+            if (!loadedPropertyRef.current) {
+                toast.error("Couldn't load this property. Check your connection and try again.")
+            }
+        }, 1800)
+    }
+
     const [currentSection, setCurrentSection] = useState<'outside' | 'inside' | 'unit'>('outside')
     const [completedUnits, setCompletedUnits] = useState<string[]>([])
     const [isOnline, setIsOnline] = useState(true)
@@ -858,8 +870,8 @@ export default function InspectionCategoryPage() {
             if (prop) {
                 loadedPropertyRef.current = prop
                 setProperty(prop)
-            } else if (!loadedPropertyRef.current) {
-                toast.error("Couldn't load this property. Check your connection and try again.")
+            } else {
+                reportLoadFailure()
             }
 
             if (userRes.status === 'fulfilled' && userRes.value?.success) {
@@ -876,8 +888,8 @@ export default function InspectionCategoryPage() {
             if (prop) {
                 loadedPropertyRef.current = prop
                 setProperty(prop)
-            } else if (!loadedPropertyRef.current) {
-                toast.error("Couldn't load this property. Check your connection and try again.")
+            } else {
+                reportLoadFailure()
             }
         } finally {
             setLoading(false)

@@ -105,6 +105,18 @@ export default function PropertyDetailsPage() {
     // pass once the id resolves). A later empty attempt must not raise an error
     // over a property the inspector is already looking at.
     const loadedPropertyRef = useRef<any>(null)
+    /** Raise the error only if the screen is still empty a moment later.
+     *  fetchData can run more than once for a screen — an early attempt that
+     *  finds nothing was reporting failure over a property that a later one
+     *  then loaded, so the inspector saw an error sitting on top of the data. */
+    const reportLoadFailure = () => {
+        setTimeout(() => {
+            if (!loadedPropertyRef.current) {
+                toast.error("Couldn't load this property. Check your connection and try again.")
+            }
+        }, 1800)
+    }
+
     const [user, setUser] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [isExporting, setIsExporting] = useState(false)
@@ -262,8 +274,8 @@ export default function PropertyDetailsPage() {
             if (prop) {
                 loadedPropertyRef.current = prop
                 setProperty(prop)
-            } else if (!loadedPropertyRef.current) {
-                toast.error("Couldn't load this property. Check your connection and try again.")
+            } else {
+                reportLoadFailure()
             }
 
             if (userRes.status === 'fulfilled' && userRes.value?.success) {
@@ -282,8 +294,8 @@ export default function PropertyDetailsPage() {
             if (prop) {
                 loadedPropertyRef.current = prop
                 setProperty(prop)
-            } else if (!loadedPropertyRef.current) {
-                toast.error("Couldn't load this property. Check your connection and try again.")
+            } else {
+                reportLoadFailure()
             }
         } finally {
             setLoading(false)
