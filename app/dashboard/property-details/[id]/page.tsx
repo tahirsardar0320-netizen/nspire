@@ -101,6 +101,10 @@ export default function PropertyDetailsPage() {
         : null
     const qp = (key: string) => liveQuery?.get(key) ?? searchParams.get(key)
     const [property, setProperty] = useState<any>(null)
+    // fetchData can run more than once for a screen (a re-mount, or a second
+    // pass once the id resolves). A later empty attempt must not raise an error
+    // over a property the inspector is already looking at.
+    const loadedPropertyRef = useRef<any>(null)
     const [user, setUser] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [isExporting, setIsExporting] = useState(false)
@@ -256,9 +260,10 @@ export default function PropertyDetailsPage() {
                 : propertyFromLocalCache()
 
             if (prop) {
+                loadedPropertyRef.current = prop
                 setProperty(prop)
-            } else {
-                toast.error("Failed to load details")
+            } else if (!loadedPropertyRef.current) {
+                toast.error("Couldn't load this property. Check your connection and try again.")
             }
 
             if (userRes.status === 'fulfilled' && userRes.value?.success) {
@@ -274,8 +279,12 @@ export default function PropertyDetailsPage() {
         } catch (error: any) {
             console.error('Error fetching data:', error)
             const prop = propertyFromLocalCache()
-            if (prop) setProperty(prop)
-            else toast.error("Failed to load details")
+            if (prop) {
+                loadedPropertyRef.current = prop
+                setProperty(prop)
+            } else if (!loadedPropertyRef.current) {
+                toast.error("Couldn't load this property. Check your connection and try again.")
+            }
         } finally {
             setLoading(false)
         }

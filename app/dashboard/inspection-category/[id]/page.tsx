@@ -121,6 +121,8 @@ export default function InspectionCategoryPage() {
     const activeInspectionUnitRef = useRef('')
     const unitStatusesRef = useRef<Record<string, ItemStatus>>({})
     const [propertyFindings, setPropertyFindings] = useState<any[]>([])
+    // A later empty attempt must not raise an error over a property already shown.
+    const loadedPropertyRef = useRef<any>(null)
     const [currentSection, setCurrentSection] = useState<'outside' | 'inside' | 'unit'>('outside')
     const [completedUnits, setCompletedUnits] = useState<string[]>([])
     const [isOnline, setIsOnline] = useState(true)
@@ -854,9 +856,10 @@ export default function InspectionCategoryPage() {
                 : propertyFromLocalCache()
 
             if (prop) {
+                loadedPropertyRef.current = prop
                 setProperty(prop)
-            } else {
-                toast.error("Failed to load details")
+            } else if (!loadedPropertyRef.current) {
+                toast.error("Couldn't load this property. Check your connection and try again.")
             }
 
             if (userRes.status === 'fulfilled' && userRes.value?.success) {
@@ -870,8 +873,12 @@ export default function InspectionCategoryPage() {
         } catch (error: any) {
             console.error('Error fetching data:', error)
             const prop = propertyFromLocalCache()
-            if (prop) setProperty(prop)
-            else toast.error("Failed to load details")
+            if (prop) {
+                loadedPropertyRef.current = prop
+                setProperty(prop)
+            } else if (!loadedPropertyRef.current) {
+                toast.error("Couldn't load this property. Check your connection and try again.")
+            }
         } finally {
             setLoading(false)
         }

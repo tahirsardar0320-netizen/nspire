@@ -541,9 +541,16 @@ export const propertiesAPI = {
   },
 
   getById: async (id: string) => {
-    // Try MongoDB first
+    const key = String(id ?? '').trim();
+
+    // An empty id makes the request land on /api/properties, which redirects to
+    // the collection and answers with success and a list. That reads as "found
+    // it, but it is empty", and the screen reported a load failure for a
+    // property that was never actually asked for.
+    if (!key) return { success: false, property: null };
+
     try {
-      const result = await internalRequest<{ success: boolean; property: any }>(`/api/properties/${id}`);
+      const result = await internalRequest<{ success: boolean; property: any }>(`/api/properties/${encodeURIComponent(key)}`);
       if (result.success && result.property) {
         return { success: true, property: result.property };
       }
@@ -551,8 +558,9 @@ export const propertiesAPI = {
 
     // Fallback: localStorage cache
     const cache = getLocalCache();
-    const prop = cache.find(p => p._id === id || p.propertyId === id);
-    return { success: true, property: prop || null };
+    const prop = cache.find(p => String(p._id) === key || String(p.propertyId) === key);
+    // Report the miss as a miss; callers decide what to tell the user.
+    return { success: !!prop, property: prop || null };
   },
 
   update: async (id: string, propertyData: any) => {
