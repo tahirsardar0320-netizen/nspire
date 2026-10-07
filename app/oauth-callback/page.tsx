@@ -29,10 +29,19 @@ export default function OAuthCallback() {
                     <>
                         <div className="h-14 w-14 rounded-full bg-[#006795] text-white text-3xl flex items-center justify-center mx-auto mb-4">✓</div>
                         <p className="text-gray-800 font-semibold text-lg">You&apos;re signed in</p>
-                        {/* The app is polling for this result — it can't be handed
-                            over in this tab, so point the user back to it. */}
-                        <p className="text-gray-600 text-sm mt-2">
-                            Return to the NSPIRE app to continue. You can close this tab.
+                        {/* iOS will not follow a custom scheme from the in-app
+                            browser unless the user taps something, so the
+                            automatic hand-back silently does nothing there and
+                            this screen just sits open. A button satisfies that
+                            requirement and works on both platforms. */}
+                        <a
+                            href="com.nspireapp://auth-done"
+                            className="inline-block mt-5 px-6 py-3 rounded-xl bg-[#006795] text-white font-semibold text-sm"
+                        >
+                            Return to the app
+                        </a>
+                        <p className="text-gray-600 text-sm mt-3">
+                            Or close this tab — the app will carry on from here.
                         </p>
                     </>
                 ) : (

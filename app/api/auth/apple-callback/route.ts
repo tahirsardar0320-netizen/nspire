@@ -58,7 +58,13 @@ function htmlResponse(body: string, returnToApp = false) {
   );
 }
 
-const SUCCESS_HTML = `<div class="card"><div class="icon" style="background:#006795">✓</div><p style="font-weight:600;font-size:18px">You're signed in</p><p style="color:#6b7280;font-size:14px;margin-top:8px">Return to the NSPIRE app to continue. You can close this tab.</p></div>`;
+// iOS will not follow a custom scheme from the in-app browser unless the user
+// taps something, so the automatic hand-back does nothing there and this page
+// simply sits open. The button satisfies that requirement on both platforms.
+const SUCCESS_HTML = `<div class="card"><div class="icon" style="background:#006795">✓</div>` +
+  `<p style="font-weight:600;font-size:18px">You're signed in</p>` +
+  `<p style="margin-top:20px"><a href="${APP_RETURN_URL}" style="display:inline-block;padding:12px 24px;border-radius:12px;background:#006795;color:#fff;font-weight:600;font-size:14px;text-decoration:none">Return to the app</a></p>` +
+  `<p style="color:#6b7280;font-size:14px;margin-top:12px">Or close this tab — the app will carry on from here.</p></div>`;
 
 async function parkHandoffResult(sessionId: string, payload: Record<string, unknown>) {
   await connectDB();
