@@ -256,6 +256,78 @@ const waitForOAuth = (provider: Provider, sessionId: string, popup: Window | nul
         }, 1500)
     })
 
+
+/**
+ * A sign-in in progress, remembered across a reload.
+ *
+ * waitForOAuth only lives in memory. On a phone the in-app browser routinely
+ * causes the host WebView to be reloaded or discarded, which destroys the
+ * promise — the provider then parks a perfectly good result on the server and
+ * nobody is left listening for it, so returning to the app did nothing at all
+ * and the user had to start again. Recording the session lets the app pick the
+ * result up whenever it next runs.
+ */
+const PENDING_KEY = 'inspire_pending_oauth'
+const PENDING_MAX_AGE_MS = 10 * 60 * 1000
+
+type PendingOAuth = { sessionId: string; provider: Provider; portal: string; startedAt: number }
+
+const rememberPendingOAuth = (sessionId: string, provider: Provider, portal: string) => {
+    try {
+        localStorage.setItem(PENDING_KEY, JSON.stringify({ sessionId, provider, portal, startedAt: Date.now() }))
+    } catch {
+        // Storage full or unavailable — the in-memory path still works.
+    }
+}
+
+export const clearPendingOAuth = () => {
+    try {
+        localStorage.removeItem(PENDING_KEY)
+    } catch {}
+}
+
+const readPendingOAuth = (): PendingOAuth | null => {
+    try {
+        const raw = localStorage.getItem(PENDING_KEY)
+        if (!raw) return null
+        const p = JSON.parse(raw) as PendingOAuth
+        if (!p?.sessionId || Date.now() - p.startedAt > PENDING_MAX_AGE_MS) {
+            clearPendingOAuth()
+            return null
+        }
+        return p
+    } catch {
+        return null
+    }
+}
+
+/**
+ * Collects a result left behind by a sign-in that was interrupted. Returns null
+ * when there is nothing waiting. Safe to call on every page load.
+ */
+export const resumePendingOAuth = async (): Promise<(OAuthResult & { portal: string }) | null> => {
+    const pending = readPendingOAuth()
+    if (!pending) return null
+
+    try {
+        const res = await fetch(`/api/auth/oauth-handoff?sessionId=${encodeURIComponent(pending.sessionId)}`)
+        const data = await res.json()
+        if (data?.pending !== false || !data.result) return null
+
+        clearPendingOAuth()
+        if (data.result.error) return null
+        return {
+            email: data.result.email,
+            fullName: data.result.fullName,
+            provider: pending.provider,
+            portal: data.result.portal || pending.portal,
+        }
+    } catch {
+        // Offline or a blip — leave it recorded and try again next time.
+        return null
+    }
+}
+
 /**
  * Initialize Google OAuth login
  * Opens a popup window for Google authentication
@@ -284,7 +356,8 @@ export const initGoogleLogin = (portal: string): Promise<OAuthResult> => {
     if (!popup && !isNativeApp()) {
         return Promise.reject(new Error('Popup blocked. Please allow popups for this site.'))
     }
-    return waitForOAuth('google', sessionId, popup)
+    rememberPendingOAuth(sessionId, 'google', portal)
+    return waitForOAuth('google', sessionId, popup).finally(clearPendingOAuth)
 }
 
 /**
@@ -323,7 +396,8 @@ export const initFacebookLogin = (portal: string): Promise<OAuthResult> => {
                 return
             }
 
-            waitForOAuth('facebook', sessionId, popup).then(resolve, reject)
+            rememberPendingOAuth(sessionId, 'facebook', portal)
+            waitForOAuth('facebook', sessionId, popup).finally(clearPendingOAuth).then(resolve, reject)
         } catch (error: any) {
             if (error.message?.toLowerCase().includes('already signed in')) {
                 const clerk = await getClerk()
@@ -372,7 +446,8 @@ export const initAppleLogin = (portal: string): Promise<OAuthResult> => {
     if (!popup && !isNativeApp()) {
         return Promise.reject(new Error('Popup blocked. Please allow popups for this site.'))
     }
-    return waitForOAuth('apple', sessionId, popup)
+    rememberPendingOAuth(sessionId, 'apple', portal)
+    return waitForOAuth('apple', sessionId, popup).finally(clearPendingOAuth)
 }
 
 /** What the callback page should show once it has done its job. */

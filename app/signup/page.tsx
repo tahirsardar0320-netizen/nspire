@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button"
 import { toast } from "react-toastify"
 import { useRouter } from "next/navigation"
 import SocialLoginButtons from "@/components/SocialLoginButtons"
-import { initGoogleLogin, initFacebookLogin, initAppleLogin } from "@/lib/social-auth"
+import { initGoogleLogin, initFacebookLogin, initAppleLogin , resumePendingOAuth } from "@/lib/social-auth"
 import { authAPI } from "@/lib/api"
+import { completeSocialSignIn, dashboardForRole } from "@/lib/completeSocialSignIn"
 import { safeSetItem } from "@/lib/safeStorage"
 
 export default function Signup() {
@@ -190,6 +191,26 @@ export default function Signup() {
       setIsLoading(false)
     }
   }
+
+  // A sign-in interrupted by the in-app browser leaves its result waiting on
+  // the server. Collect it on the way back in, so the user does not have to
+  // start again having already authorised the app.
+  useEffect(() => {
+    let active = true
+    resumePendingOAuth()
+      .then((result) => {
+        if (!active || !result) return
+        completeSocialSignIn(result.provider, result.email, result.fullName, result.portal)
+          .then((done) => {
+            if (!active || !done.ok) return
+            toast.success('Signed in. Redirecting...', { position: 'top-right', autoClose: 1500 })
+            router.push(dashboardForRole(done.role))
+          })
+          .catch(() => {})
+      })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
 
   const handleSocialLogin = async (provider: 'google' | 'facebook' | 'apple') => {
     setIsLoading(true)

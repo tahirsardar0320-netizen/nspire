@@ -58,6 +58,14 @@ self.addEventListener('activate', (event) => {
       .keys()
       .then((names) => Promise.all(names.filter((n) => !CURRENT.includes(n)).map((n) => caches.delete(n))))
       .then(() => self.clients.claim())
+      .then(async () => {
+        // Taking control is not enough: the open page carries on running the
+        // JavaScript it already loaded, so a fix stays invisible until the app
+        // happens to be restarted. Tell the page a new version is live and let
+        // it reload itself once.
+        const clients = await self.clients.matchAll({ type: 'window' });
+        clients.forEach((client) => client.postMessage({ type: 'SW_UPDATED', version: VERSION }));
+      })
   );
 });
 
