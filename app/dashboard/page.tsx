@@ -307,7 +307,7 @@ export default function Dashboard() {
         // Save custom building names and per-building unit split to localStorage
         // (the backend only stores the building count + total units, not the
         // individual breakdown, so this mirrors that until the API supports it)
-        const propId = response.property?._id || data.propertyId
+        const propId = response.property?._id || response.property?.propertyId || data.propertyId
         if (propId) {
           const namesMap: Record<string, string> = {}
           const unitsMap: Record<string, number> = {}
@@ -338,7 +338,11 @@ export default function Dashboard() {
     setShowActionModal(false)
 
     const prop = newPropertyData || selectedProperty
-    const propId = prop?._id || prop?.id || 'new'
+    // propertyId is a real handle, not a placeholder: /api/properties/[id] falls
+    // back to looking a property up by it. Reaching for 'new' instead sent the
+    // inspector to /property-details/new straight after creating a property,
+    // which can only ever answer "Property not found".
+    const propId = prop?._id || prop?.id || prop?.propertyId || 'new'
 
     // Check if there is already a saved coverage for this property
     if (typeof window !== 'undefined' && propId !== 'new') {
@@ -381,7 +385,11 @@ export default function Dashboard() {
   const handleCoverageStart = (coverage: string, calculatedUnits: number) => {
     setShowCoverageModal(false)
     const prop = newPropertyData || selectedProperty
-    const propId = prop?._id || prop?.id || 'new'
+    // propertyId is a real handle, not a placeholder: /api/properties/[id] falls
+    // back to looking a property up by it. Reaching for 'new' instead sent the
+    // inspector to /property-details/new straight after creating a property,
+    // which can only ever answer "Property not found".
+    const propId = prop?._id || prop?.id || prop?.propertyId || 'new'
 
     if (typeof window !== 'undefined' && propId !== 'new') {
       safeSetItem(`property_coverage_${propId}`, JSON.stringify({ coverage, calculatedUnits }))
