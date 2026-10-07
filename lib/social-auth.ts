@@ -273,6 +273,10 @@ export const initGoogleLogin = (portal: string): Promise<OAuthResult> => {
         redirect_uri: redirectUri,
         response_type: 'token',
         scope: 'openid email profile',
+        // Without this Google silently reuses whichever account is already
+        // signed in on the device and never offers the chooser, so there is no
+        // way to sign in as anyone else — or to tell which account was used.
+        prompt: 'select_account',
         state,
     })
 
