@@ -1610,17 +1610,31 @@ export default function InspectionCategoryPage() {
 
     // Build the raw unit identifiers list
     const rawUnitIds = useMemo(() => {
-        if (urlTotalUnits > 0) {
-            return Array.from({ length: urlTotalUnits }, (_, i) => `Unit ${String(i + 1).padStart(3, '0')}`);
+        // How many units this building should hold according to the property
+        // itself. The totalUnits query parameter is only a hint: it is lost when
+        // a screen is restored from the offline cache, and it is written as 1
+        // when an inspection is started before the property has finished
+        // loading. Either way the unit picker then offered a single unit for a
+        // building that has several. The property is the authority.
+        const buildingCount = Number(property?.buildings) || 0;
+        const totalUnits = Number(property?.units) || 0;
+        let expectedForThisBuilding = 0;
+        if (buildingCount > 0 && totalUnits > 0) {
+            const index = Math.max(0, parseInt(String(urlBuilding).replace(/\D/g, ''), 10) - 1) || 0;
+            const base = Math.floor(totalUnits / buildingCount);
+            const remainder = totalUnits % buildingCount;
+            expectedForThisBuilding = base + (index < remainder ? 1 : 0);
+        }
+
+        const count = Math.max(urlTotalUnits, expectedForThisBuilding);
+        if (count > 0) {
+            return Array.from({ length: count }, (_, i) => `Unit ${String(i + 1).padStart(3, '0')}`);
         }
         if (units && units.length > 0) {
             return units.map(u => u.unitNumber || u.unitId || String(u));
         }
-        if (property && property.units > 0) {
-            return Array.from({ length: property.units }, (_, i) => `${i + 1}`);
-        }
         return [];
-    }, [urlTotalUnits, units, property]);
+    }, [urlTotalUnits, units, property, urlBuilding]);
 
     const unitProgress = useMemo(() => {
         // The active unit's completion is derived from live local state so this updates
