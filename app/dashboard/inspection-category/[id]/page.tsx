@@ -1633,7 +1633,21 @@ export default function InspectionCategoryPage() {
 
         const completed = completedSet.size;
         const total = rawUnitIds.length > 0 ? rawUnitIds.length : 1;
-        return { completed, percentage: Math.round((completed / total) * 100), total };
+
+        // Outside and Inside move with every item answered; units counted only
+        // whole units, so working through a unit showed 0% until the last item
+        // and then jumped straight to 100%. Count the unit in progress as the
+        // fraction of its items that have been answered.
+        let partial = 0;
+        if (activeInspectionUnit && !completedSet.has(activeInspectionUnit) && unitItemsList.length > 0) {
+            const answered = unitItemsList.filter(
+                item => unitStatuses[item] !== null && unitStatuses[item] !== undefined
+            ).length;
+            partial = answered / unitItemsList.length;
+        }
+
+        const percentage = Math.min(100, Math.round(((completed + partial) / total) * 100));
+        return { completed, percentage, total };
     }, [completedUnits, rawUnitIds, unitStatuses, activeInspectionUnit, unitItemsList]);
 
     // Display unit names (edited names take priority)
