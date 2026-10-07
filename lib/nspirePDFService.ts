@@ -658,6 +658,27 @@ function generateRecommendationsSection(recommendations: string[]): string {
 }
 
 /**
+ * Units that were inspected and had nothing wrong. Listed apart from the
+ * deficiency table on purpose: they carry no deducted points and must not
+ * affect the counts or the score.
+ */
+function generateClearAreasSection(clearAreas: Array<{ building: string; unit: string; label: string }>): string {
+  if (!clearAreas.length) return '';
+  return `
+    <div class="certification-section">
+      <h3 class="certification-title">UNITS INSPECTED — NO DEFICIENCIES OBSERVED</h3>
+      <p style="font-size: 9pt; line-height: 1.6; margin-bottom: 10px;">
+        The following units were inspected and no deficiency was recorded. They carry no
+        deducted points and are not included in the deficiency totals above.
+      </p>
+      <ul style="font-size: 9pt; columns: 2; margin: 0; padding-left: 18px;">
+        ${clearAreas.map(a => `<li>${a.label} — No OD</li>`).join('')}
+      </ul>
+    </div>
+  `;
+}
+
+/**
  * Generate Certification Section HTML
  */
 function generateCertificationSection(certification: { certifiedBy: string; certificationDate: string; certificationStatement: string }): string {
@@ -733,6 +754,7 @@ export function generateNSPIREReportHTML(
     
     ${report.recommendations?.length ? generateRecommendationsSection(report.recommendations) : ''}
     
+    ${generateClearAreasSection(report.clearAreas || [])}
     ${options.includeCertification && report.certification ? generateCertificationSection(report.certification) : ''}
     
     ${generateFooter(options)}

@@ -182,12 +182,24 @@ export interface NSPIREInspectionReport {
     // Main Deficiency Table
     deficiencies: DeficiencyEntry[];
 
+    /** Areas that were inspected and had nothing wrong. Deliberately separate
+     *  from `deficiencies` — folding them in there would inflate the counts and
+     *  the deducted points, which decide the score. */
+    clearAreas?: ClearArea[];
+
     // Additional Information
     generalComments?: string;
     recommendations?: string[];
 
     // Certification
     certification?: ReportCertification;
+}
+
+/** An inspected building or unit with no deficiencies recorded against it. */
+export interface ClearArea {
+    building: string;
+    unit: string;
+    label: string;
 }
 
 /**
@@ -589,6 +601,47 @@ export async function fetchNSPIREReportForProperty(propertyId: string): Promise<
 
     const finalFindings = Array.from(deduped.values())
 
+    // Areas the inspector worked through that produced no deficiency. Without
+    // these the report is silent about them, so a unit that was inspected and
+    // found sound is indistinguishable from one that was never visited.
+    const areaKey = (building: any, unit: any) =>
+        `${String(building || '').toUpperCase().trim()}|${String(unit || '').toUpperCase().trim()}`
+
+    const areasWithFindings = new Set(
+        finalFindings.map((f: any) =>
+            areaKey(String(f.building || '').replace(/^Building\s+/i, 'B'), String(f.unit || '').replace(/^Unit\s+/i, ''))
+        )
+    )
+
+    const clearAreas: ClearArea[] = []
+    const seenClear = new Set<string>()
+
+    if (progData && progData.progress) {
+        progData.progress.forEach((record: any) => {
+            const responses = record.responses || record.inspectionData?.responses
+            // Nothing was answered here, so it was not inspected.
+            if (!responses || Object.values(responses).every(v => v === null || v === undefined)) return
+
+            const building = String(
+                record.buildingId || record.building_id || record.inspectionData?.buildingId || record.inspectionData?.building_id || ''
+            ).replace(/^Building\s+/i, 'B').trim()
+            const rawUnit = String(record.unitId || record.inspectionData?.currentUnit || '').replace(/^Unit\s+/i, '').trim()
+
+            // Outside and Inside are building-level, not units.
+            if (!rawUnit || ['OUTSIDE', 'INSIDE', '-'].includes(rawUnit.toUpperCase())) return
+
+            const key = areaKey(building, rawUnit)
+            if (areasWithFindings.has(key) || seenClear.has(key)) return
+            seenClear.add(key)
+
+            clearAreas.push({
+                building,
+                unit: rawUnit,
+                label: building ? `${building} — Unit ${rawUnit}` : `Unit ${rawUnit}`,
+            })
+        })
+    }
+
     const inspectionData = {
         propertyId,
         propertyName: propertyData?.name || 'Property',
@@ -597,5 +650,7 @@ export async function fetchNSPIREReportForProperty(propertyId: string): Promise<
         deficiencies: finalFindings,
     }
 
-    return buildNSPIREReport(inspectionData, propertyData)
+    const report = buildNSPIREReport(inspectionData, propertyData)
+    report.clearAreas = clearAreas
+    return report
 }

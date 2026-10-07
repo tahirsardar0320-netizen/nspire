@@ -220,6 +220,21 @@ export function ReportPreviewModal({ report, onClose }: ReportPreviewModalProps)
             </div>
           )}
 
+          {!!report.clearAreas?.length && (
+            <div className="border border-black p-4 mt-6">
+              <p className="font-bold underline mb-2">Units Inspected — No Deficiencies Observed</p>
+              <p className="text-xs mb-3">
+                These units were inspected and no deficiency was recorded. They carry no deducted
+                points and are not counted in the deficiency totals above.
+              </p>
+              <ul className="text-xs grid grid-cols-2 gap-x-6 gap-y-1">
+                {report.clearAreas.map((a) => (
+                  <li key={`${a.building}-${a.unit}`}>{a.label} — No OD</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {report.certification && (
             <div className="border border-black p-4 mt-6">
               <p className="font-bold underline mb-2">Inspector Certification</p>
