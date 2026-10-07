@@ -573,8 +573,56 @@ function generateDeficiencyRow(def: DeficiencyEntry): string {
   `;
 }
 
+function generateDeficiencyRowsTable(items: DeficiencyEntry[]): string {
+  return `
+      <table class="deficiency-details-table">
+        <thead>
+          <tr style="background-color: #D1D5DB;">
+            <th style="width: 18%; background-color:#D1D5DB;">Deficiency Details</th>
+            <th style="width: 18%; background-color:#D1D5DB;">Deficiency Name/Location</th>
+            <th style="width: 14%; background-color:#D1D5DB;">Comments</th>
+            <th style="width: 16%; background-color:#D1D5DB;">Deficiency Picture</th>
+            <th style="width: 10%; background-color:#D1D5DB;">Deduction Pts.</th>
+            <th style="width: 12%; background-color:#D1D5DB;">Repeat Indicator</th>
+            <th style="width: 12%; background-color:#D1D5DB;">Severity</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map(generateDeficiencyRow).join('')}
+        </tbody>
+      </table>
+  `;
+}
+
 function generateDeficiencyAreaTable(label: string, subtitle: string, items: DeficiencyEntry[]): string {
   const headingLabel = label === 'Units' ? 'Unit' : label;
+
+  // Units from several flats were listed in one table, with the unit number
+  // tucked under the deficiency name. Give each unit its own heading so the
+  // reader can see at a glance which flat a finding belongs to.
+  if (label === 'Units' && items.length > 0) {
+    const byUnit = new Map<string, DeficiencyEntry[]>();
+    items.forEach(item => {
+      const unit = String(item.unit || '').trim() || 'Unassigned';
+      if (!byUnit.has(unit)) byUnit.set(unit, []);
+      byUnit.get(unit)!.push(item);
+    });
+
+    const sorted = Array.from(byUnit.keys()).sort((a, b) =>
+      a.localeCompare(b, undefined, { numeric: true })
+    );
+
+    return `
+      <p style="font-weight:bold; font-size:10pt; margin-top:14px; margin-bottom:4px;">Unit Deficiencies</p>
+      ${sorted.map(unit => `
+        <p style="font-weight:bold; font-size:9.5pt; margin-top:10px; margin-bottom:3px; color:#1f2937;">
+          ${unit.toUpperCase().startsWith('UNIT') ? unit : `Unit ${unit}`}
+        </p>
+        ${generateDeficiencyRowsTable(byUnit.get(unit)!)}
+      `).join('')}
+    `;
+  }
+
   return `
     <p style="font-weight:bold; font-size:10pt; margin-top:14px; margin-bottom:4px;">${headingLabel} Deficiencies</p>
     ${items.length === 0 ? `

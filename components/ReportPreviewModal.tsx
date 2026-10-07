@@ -8,6 +8,51 @@ interface ReportPreviewModalProps {
   onClose: () => void
 }
 
+
+/** The deficiency table, reused so each unit can be given its own heading. */
+function UnitDeficiencyTable({ items }: { items: any[] }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[600px] border-collapse border border-gray-400 text-xs">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="border border-gray-400 p-2 text-left">Deficiency Details</th>
+            <th className="border border-gray-400 p-2 text-left">Deficiency Name/Location</th>
+            <th className="border border-gray-400 p-2 text-left">Comments</th>
+            <th className="border border-gray-400 p-2">Deficiency Picture</th>
+            <th className="border border-gray-400 p-2">Deduction Pts</th>
+            <th className="border border-gray-400 p-2">Repeat Indicator</th>
+            <th className="border border-gray-400 p-2">Severity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((d) => (
+            <tr key={d.id}>
+              <td className="border border-gray-400 p-2">{d.deficiencyDetails || 'No details provided'}</td>
+              <td className="border border-gray-400 p-2">
+                <p className="font-bold">{d.deficiencyName}</p>
+                <p className="italic text-gray-500">{d.nspireCode}</p>
+                <p className="text-gray-500">{d.building || '-'} | {d.unit || d.room || '-'}</p>
+              </td>
+              <td className="border border-gray-400 p-2">{d.comments || 'Wait for Input'}</td>
+              <td className="border border-gray-400 p-2 text-center">
+                {d.imageUri ? (
+                  <img src={d.imageUri} alt="Proof" className="w-16 h-16 object-cover mx-auto" />
+                ) : (
+                  <span className="text-gray-400">No Image</span>
+                )}
+              </td>
+              <td className="border border-gray-400 p-2 text-center">{d.deductionPts}</td>
+              <td className="border border-gray-400 p-2 text-center">{d.repeatIndicator ? 'Repeat' : 'Not Repeat'}</td>
+              <td className="border border-gray-400 p-2 text-center">{d.severity}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 export function ReportPreviewModal({ report, onClose }: ReportPreviewModalProps) {
   const AREA_SECTIONS = [
     { label: 'Outside', subtitle: 'Areas affected by Rain, Snow, Wind', match: (a: string) => a.includes('outside') },
@@ -170,7 +215,27 @@ export function ReportPreviewModal({ report, onClose }: ReportPreviewModalProps)
                     {areas.map(({ label, items }) => (
                       <div key={label}>
                         <p className="font-bold underline mb-1">{label === 'Units' ? 'Unit' : label} Deficiencies</p>
-                        {items.length === 0 ? (
+                        {label === 'Units' && items.length > 0 ? (
+                          // Findings from several flats shared one table, with the
+                          // unit number tucked under the deficiency name. Give each
+                          // unit a heading so it is obvious which flat is which.
+                          Object.entries(
+                            items.reduce((acc: Record<string, typeof items>, d) => {
+                              const unit = String(d.unit || '').trim() || 'Unassigned'
+                              ;(acc[unit] ||= []).push(d)
+                              return acc
+                            }, {})
+                          )
+                            .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
+                            .map(([unit, unitItems]) => (
+                              <div key={unit} className="mb-4">
+                                <p className="font-bold text-[11px] mt-2 mb-1">
+                                  {unit.toUpperCase().startsWith('UNIT') ? unit : `Unit ${unit}`}
+                                </p>
+                                <UnitDeficiencyTable items={unitItems} />
+                              </div>
+                            ))
+                        ) : items.length === 0 ? (
                           <p className="italic text-gray-400 text-xs pl-1">No deficiencies found.</p>
                         ) : (
                           <div className="overflow-x-auto">
