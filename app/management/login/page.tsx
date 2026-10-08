@@ -51,50 +51,33 @@ export default function ManagementLogin() {
     try {
       const response = await authAPI.login(email, password, rememberMe, 'management')
 
-      if (response.success) {
-        // Store token in localStorage
-        // A failed write here would leave the user looking signed in with no
-        // token, and the next request would bounce them straight back here.
-        if (!safeSetItem('token', response.token)) {
-          toast.error("Couldn't save your session — free up some space on your device and try again.", { position: "top-right", autoClose: 5000 })
-          setIsLoading(false)
-          return
-        }
-        safeSetItem('user', JSON.stringify(response.user))
-
-        const userRole = response.user?.role || 'management'
-
-        toast.success("Login successful! Redirecting to dashboard...", {
-          position: "top-right",
-          autoClose: 2000,
-        })
-
-        // Redirect to appropriate dashboard based on user role
-        setTimeout(() => {
-          if (userRole === 'admin') {
-            router.push('/admin/dashboard')
-          } else if (userRole === 'management' || userRole === 'property-manager' || userRole === 'supervisor') {
-            router.push('/management/dashboard')
-          } else if (userRole === 'inspector') {
-            router.push('/dashboard')
-          } else {
-            router.push('/other/dashboard')
-          }
-        }, 2000)
-      } else {
-        toast.error(response.message || "Login failed. Please try again.", {
-          position: "top-right",
-          autoClose: 3000,
-        })
-        setIsLoading(false)
+      if (!response.success) {
+        toast.error(response.message || "Login failed. Please try again.", { position: "top-right", autoClose: 3000 })
+        return
       }
+
+      // A failed write here would leave the user looking signed in with no
+      // token, and the next request would bounce them straight back here.
+      if (!safeSetItem('token', response.token)) {
+        toast.error("Couldn't save your session — free up some space on your device and try again.", { position: "top-right", autoClose: 5000 })
+        return
+      }
+      safeSetItem('user', JSON.stringify(response.user))
+
+      toast.success("Login successful! Redirecting to dashboard...", { position: "top-right", autoClose: 2000 })
+      router.push(dashboardForRole(response.user?.role || 'management'))
     } catch (error: any) {
       console.error('Login error:', error)
-      // ── EMAIL VERIFICATION REDIRECT BYPASSED FOR TESTING ──
-      toast.error(error.message || "Error connecting to server. Please check if backend is running.", {
-        position: "top-right",
-        autoClose: 3000,
-      })
+      toast.error(
+        error?.timedOut
+          ? 'That took too long. Check your connection and try again.'
+          : error?.status
+            ? error.message || 'Invalid email or password'
+            : "Can't reach the server. Check your connection and try again.",
+        { position: "top-right", autoClose: 4000 },
+      )
+    } finally {
+      // One place, so no branch can leave the button stuck on "Logging in...".
       setIsLoading(false)
     }
   }
@@ -146,7 +129,6 @@ export default function ManagementLogin() {
         // token, and the next request would bounce them straight back here.
         if (!safeSetItem('token', response.token)) {
           toast.error("Couldn't save your session — free up some space on your device and try again.", { position: "top-right", autoClose: 5000 })
-          setIsLoading(false)
           return
         }
         safeSetItem('user', JSON.stringify(response.user))
@@ -157,23 +139,12 @@ export default function ManagementLogin() {
         })
 
         const userRole = response.user.role
-        setTimeout(() => {
-          if (userRole === 'admin') {
-            router.push('/admin/dashboard')
-          } else if (userRole === 'management' || userRole === 'property-manager' || userRole === 'supervisor') {
-            router.push('/management/dashboard')
-          } else if (userRole === 'inspector') {
-            router.push('/dashboard')
-          } else {
-            router.push('/other/dashboard')
-          }
-        }, 2000)
+        router.push(dashboardForRole(userRole))
       } else {
         toast.error(response.message || 'Social login failed', {
           position: "top-right",
           autoClose: 3000,
         })
-        setIsLoading(false)
       }
     } catch (error: any) {
       console.error(`${provider} login error:`, error)
@@ -183,6 +154,8 @@ export default function ManagementLogin() {
           autoClose: 3000,
         })
       }
+    } finally {
+      // One place, so no branch can leave the button disabled.
       setIsLoading(false)
     }
   }

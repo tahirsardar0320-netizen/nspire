@@ -10,6 +10,7 @@ import { initGoogleLogin, initFacebookLogin, initAppleLogin } from "@/lib/social
 import { authAPI } from "@/lib/api"
 import { safeSetItem } from "@/lib/safeStorage"
 import { fetchWithTimeout } from '@/lib/httpFetch';
+import { dashboardForRole } from "@/lib/completeSocialSignIn"
 
 export default function ManagementSignup() {
   const [fullName, setFullName] = useState("")
@@ -205,7 +206,6 @@ export default function ManagementSignup() {
         // token, and the next request would bounce them straight back here.
         if (!safeSetItem('token', response.token)) {
           toast.error("Couldn't save your session — free up some space on your device and try again.", { position: "top-right", autoClose: 5000 })
-          setIsLoading(false)
           return
         }
         safeSetItem('user', JSON.stringify(response.user))
@@ -217,23 +217,12 @@ export default function ManagementSignup() {
 
         // Redirect based on role
         const userRole = response.user.role
-        setTimeout(() => {
-          if (userRole === 'admin') {
-            router.push('/admin/dashboard')
-          } else if (userRole === 'management' || userRole === 'property-manager' || userRole === 'supervisor') {
-            router.push('/management/dashboard')
-          } else if (userRole === 'inspector') {
-            router.push('/dashboard')
-          } else {
-            router.push('/other/dashboard')
-          }
-        }, 2000)
+        router.push(dashboardForRole(userRole))
       } else {
         toast.error(response.message || 'Social login failed', {
           position: "top-right",
           autoClose: 3000,
         })
-        setIsLoading(false)
       }
     } catch (error: any) {
       console.error(`${provider} login error:`, error)
@@ -244,6 +233,8 @@ export default function ManagementSignup() {
           autoClose: 3000,
         })
       }
+    } finally {
+      // One place, so no branch can leave the button disabled.
       setIsLoading(false)
     }
   }

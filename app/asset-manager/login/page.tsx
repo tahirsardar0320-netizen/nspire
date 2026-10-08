@@ -7,6 +7,7 @@ import { toast } from "react-toastify"
 import { useRouter } from "next/navigation"
 import { safeSetItem } from "@/lib/safeStorage"
 import { fetchWithTimeout } from '@/lib/httpFetch';
+import { dashboardForRole } from "@/lib/completeSocialSignIn"
 
 export default function AssetManagerLogin() {
   const [email, setEmail] = useState("")
@@ -128,19 +129,7 @@ export default function AssetManagerLogin() {
         autoClose: 1500,
       })
 
-      setTimeout(() => {
-        if (userRole === 'admin') {
-          router.push('/admin/dashboard')
-        } else if (userRole === 'management') {
-          router.push('/management/dashboard')
-        } else if (userRole === 'inspector') {
-          router.push('/dashboard')
-        } else if (userRole === 'asset-manager') {
-          router.push('/asset-manager/dashboard')
-        } else {
-          router.push('/dashboard')
-        }
-      }, 1500)
+      router.push(dashboardForRole(userRole))
     } catch (error) {
       console.error('Login error:', error)
       toast.error("Login failed. Please try again.", {

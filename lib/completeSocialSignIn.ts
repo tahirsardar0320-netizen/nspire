@@ -33,9 +33,16 @@ export async function completeSocialSignIn(
 }
 
 /** Where a given role belongs after signing in. */
+/**
+ * Where a signed-in user belongs. Five dashboards exist, and this knew only
+ * four: an asset manager was sent to /other/dashboard from every screen that
+ * used this helper, because only the asset-manager login page spelled its own
+ * route out by hand.
+ */
 export function dashboardForRole(role?: string): string {
     if (role === 'admin') return '/admin/dashboard'
     if (role === 'management' || role === 'property-manager' || role === 'supervisor') return '/management/dashboard'
+    if (role === 'asset-manager') return '/asset-manager/dashboard'
     if (role === 'inspector') return '/dashboard'
     return '/other/dashboard'
 }
