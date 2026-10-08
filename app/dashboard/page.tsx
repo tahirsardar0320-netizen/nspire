@@ -21,6 +21,7 @@ import { propertiesAPI } from "@/lib/api"
 import { fetchPropertyProgressMap } from "@/lib/inspectionProgress"
 import { Country, State, City } from 'country-state-city'
 import { safeSetItem } from "@/lib/safeStorage"
+import { durableGet, durableSet } from "@/lib/durableStore"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -166,16 +167,26 @@ export default function Dashboard() {
       if (response && response.success && response.properties) {
         // A cached answer means the server was unreachable, not that the
         // account is empty — the empty state below depends on the difference.
-        if ((response as any).fromCache) setLoadFailed(true)
+        const fromCache = !!(response as any).fromCache
+        if (fromCache) setLoadFailed(true)
         setProperties(response.properties)
-        safeSetItem('cached_properties', JSON.stringify(response.properties))
+
+        // Only a genuine, unfiltered server answer may replace the saved copy.
+        // Previously every result was written straight back, so a cached reply
+        // or a narrowed search overwrote the full list with a subset — and one
+        // failed load turned into "all my properties are gone", with nothing
+        // left to restore them from.
+        const filtered = !!(searchQuery || selectedState || selectedCity)
+        if (!fromCache && !filtered) {
+          durableSet('cached_properties', JSON.stringify(response.properties))
+        }
         // Fetch progress for these properties
         if (response.properties.length > 0) {
           fetchProgress(response.properties)
         }
         setSelectedIds(new Set()) // clear selection on refresh
       } else {
-        const cached = localStorage.getItem('cached_properties')
+        const cached = durableGet('cached_properties')
         if (cached) {
           try {
             const parsed = JSON.parse(cached)
@@ -189,7 +200,7 @@ export default function Dashboard() {
       // The list below must not claim the account has no properties when all
       // that happened is we could not reach the server.
       setLoadFailed(true)
-      const cached = localStorage.getItem('cached_properties')
+      const cached = durableGet('cached_properties')
       if (cached) {
         try {
           const parsed = JSON.parse(cached)

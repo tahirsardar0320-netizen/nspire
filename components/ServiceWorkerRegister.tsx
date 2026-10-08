@@ -1,8 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
+import { ensureHydrated } from "@/lib/durableStore"
 
 export default function ServiceWorkerRegister() {
+  useEffect(() => {
+    // Offline work is kept in durable storage because iOS clears the ordinary
+    // kind. Open it as early as possible so the first screen has it.
+    ensureHydrated()
+  }, [])
+
   useEffect(() => {
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
       // A new worker deliberately does NOT reload the page. Reloading on its

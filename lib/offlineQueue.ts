@@ -7,7 +7,7 @@
  * removed from the queue once the real server write actually succeeds.
  */
 
-import { safeSetItem } from './safeStorage';
+import { durableGet, durableSet } from './durableStore';
 
 const QUEUE_KEY = 'inspire_offline_property_queue';
 
@@ -29,7 +29,7 @@ export interface QueuedProperty {
 function readQueue(): QueuedProperty[] {
   if (typeof window === 'undefined') return [];
   try {
-    const raw = localStorage.getItem(QUEUE_KEY);
+    const raw = durableGet(QUEUE_KEY);
     const parsed = raw ? JSON.parse(raw) : [];
     return Array.isArray(parsed) ? parsed : [];
   } catch {
@@ -40,7 +40,7 @@ function readQueue(): QueuedProperty[] {
 function writeQueue(queue: QueuedProperty[]) {
   if (typeof window === 'undefined') return;
   try {
-    safeSetItem(QUEUE_KEY, JSON.stringify(queue));
+    durableSet(QUEUE_KEY, JSON.stringify(queue));
   } catch {
     // Storage full or unavailable — the item just won't be queued.
   }

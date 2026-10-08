@@ -12,6 +12,7 @@ import { ReportPreviewModal } from "@/components/ReportPreviewModal"
 import { toast } from "react-toastify"
 import { Download, FileText, Calendar, MapPin, User, CheckCircle2, Loader2, Trash2, AlertCircle, Building2, RefreshCw, Lock } from "lucide-react"
 import { safeSetItem } from "@/lib/safeStorage"
+import { durableGet, durableSet } from "@/lib/durableStore"
 
 interface Property {
   _id: string
@@ -104,9 +105,9 @@ export default function InspectionStatusPage() {
       let allProperties: Property[] = []
       if (propertiesRes.success && propertiesRes.properties && propertiesRes.properties.length > 0) {
         allProperties = propertiesRes.properties
-        safeSetItem('cached_properties', JSON.stringify(propertiesRes.properties))
+        durableSet('cached_properties', JSON.stringify(propertiesRes.properties))
       } else {
-        const cached = localStorage.getItem('cached_properties')
+        const cached = durableGet('cached_properties')
         if (cached) {
           try {
             allProperties = JSON.parse(cached)
@@ -152,7 +153,7 @@ export default function InspectionStatusPage() {
       }
     } catch (error: any) {
       console.error('Error fetching data:', error)
-      const cached = localStorage.getItem('cached_properties')
+      const cached = durableGet('cached_properties')
       if (cached) {
         try {
           const allProperties = JSON.parse(cached)

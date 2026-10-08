@@ -12,6 +12,7 @@ import { generateRandomUnitSample, getUnitsToInspect, getSamplingExplanation } f
 import { fetchPropertyProgressMap } from "@/lib/inspectionProgress"
 import { safeSetItem } from "@/lib/safeStorage"
 import { fetchWithTimeout } from '@/lib/httpFetch';
+import { durableGet } from "@/lib/durableStore"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -248,7 +249,7 @@ export default function PropertyDetailsPage() {
      *  told "Property not found" for work they had just entered. */
     const propertyFromLocalCache = () => {
         try {
-            const raw = localStorage.getItem('inspire_local_properties')
+            const raw = durableGet('inspire_local_properties')
             const list = raw ? JSON.parse(raw) : []
             if (!Array.isArray(list)) return null
             return list.find((p: any) => String(p?._id || p?.id) === String(id)) || null

@@ -1,6 +1,7 @@
 // API Configuration
 import { safeSetItem } from './safeStorage';
 import { fetchWithTimeout } from './httpFetch';
+import { durableGet, durableSet, ensureHydrated } from './durableStore';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -275,7 +276,7 @@ export const authAPI = {
 function getLocalCache(): any[] {
   if (typeof window === 'undefined') return [];
   try {
-    const raw = localStorage.getItem('inspire_local_properties');
+    const raw = durableGet('inspire_local_properties');
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) return parsed;
@@ -287,7 +288,7 @@ function getLocalCache(): any[] {
 function saveLocalCache(props: any[]) {
   if (typeof window === 'undefined') return;
   try {
-    safeSetItem('inspire_local_properties', JSON.stringify(props));
+    durableSet('inspire_local_properties', JSON.stringify(props));
   } catch (e) {}
 }
 
@@ -454,6 +455,11 @@ export const propertiesAPI = {
     limit?: number;
   }) => {
     let props: any[] = [];
+
+    // The saved copy lives in IndexedDB (a native file in the app), both of
+    // which load asynchronously. Without this the first read after launch can
+    // run before they are open and conclude there is nothing stored.
+    await ensureHydrated();
 
     // Opportunistically flush anything queued while offline. If we're still
     // offline this is a fast no-op (the first POST fails and the loop stops);
