@@ -129,8 +129,23 @@ const closeNativeAuthBrowser = () => {
     callNativePlugin('Browser', 'close').catch(() => {})
 }
 
-const openAuthWindow = (authUrl: string, title: string): Window | null => {
+/**
+ * Google refuses to render its sign-in UI inside an app's in-app browser: the
+ * request comes back as "Access blocked: Authorization Error / 400
+ * invalid_request". It only ever appeared to work because Google was able to
+ * complete silently against an existing session and never had to show anything.
+ *
+ * Google does allow the device's real browser, so Google alone goes there.
+ * Navigating to an external URL makes Capacitor hand it to the system browser,
+ * and the callback brings the user straight back through the app's own scheme —
+ * with the result recorded so the sign-in finishes itself on return.
+ */
+const openAuthWindow = (authUrl: string, title: string, preferSystemBrowser = false): Window | null => {
     if (isNativeApp()) {
+        if (preferSystemBrowser) {
+            window.location.href = authUrl
+            return null
+        }
         if (hasNativePlugin('Browser')) {
             callNativePlugin('Browser', 'open', { url: authUrl }).catch(() => {
                 // The in-app browser refused to present. Falling back to a
@@ -345,14 +360,16 @@ export const initGoogleLogin = (portal: string): Promise<OAuthResult> => {
         redirect_uri: redirectUri,
         response_type: 'token',
         scope: 'openid email profile',
-        // Without this Google silently reuses whichever account is already
-        // signed in on the device and never offers the chooser, so there is no
-        // way to sign in as anyone else — or to tell which account was used.
-        prompt: 'select_account',
+        // Deliberately no `prompt`. Asking for the account chooser makes Google
+        // render its full sign-in UI, which it refuses to serve inside an app's
+        // in-app browser — the request came back as
+        // "Access blocked: Authorization Error / 400 invalid_request" on iOS.
+        // Without it Google completes silently against the session already on
+        // the device, which is the only thing that works there today.
         state,
     })
 
-    const popup = openAuthWindow(authUrl, 'Google Sign In')
+    const popup = openAuthWindow(authUrl, 'Google Sign In', true)
     if (!popup && !isNativeApp()) {
         return Promise.reject(new Error('Popup blocked. Please allow popups for this site.'))
     }
