@@ -540,3 +540,19 @@
             border-radius: 2px;
             width: 60px;
         }
+/*
+ * iOS zooms the whole page in the moment a form field smaller than 16px takes
+ * focus, and never zooms back out — which is why adding a property left the
+ * layout looking broken and oversized on iPhone but fine on Android. The shared
+ * input components are text-sm (14px), so every form triggered it.
+ *
+ * Scoped to touch devices so the smaller type is kept on desktop, where the
+ * behaviour does not exist.
+ */
+@media (pointer: coarse) {
+  input:not([type='checkbox']):not([type='radio']),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
