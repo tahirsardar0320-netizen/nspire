@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import { fetchWithTimeout } from '@/lib/httpFetch';
 
 /**
  * Verifies the identity token Google returns from the OpenID implicit flow.
@@ -22,7 +23,9 @@ let keyCache: { keys: any[]; fetchedAt: number } | null = null;
 
 async function googlePublicKey(kid: string) {
   if (!keyCache || Date.now() - keyCache.fetchedAt > 60 * 60 * 1000) {
-    const res = await fetch('https://www.googleapis.com/oauth2/v3/certs');
+    // A stalled key fetch would hang the sign-in request itself, so it is
+    // capped well below the client's own timeout.
+    const res = await fetchWithTimeout('https://www.googleapis.com/oauth2/v3/certs', {}, 10000);
     if (!res.ok) throw new Error('Could not fetch Google signing keys');
     const { keys } = await res.json();
     keyCache = { keys, fetchedAt: Date.now() };

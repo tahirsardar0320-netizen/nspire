@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "react-toastify"
 import { useRouter } from "next/navigation"
 import { safeSetItem } from "@/lib/safeStorage"
+import { fetchWithTimeout } from '@/lib/httpFetch';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("")
@@ -56,7 +57,7 @@ export default function AdminLogin() {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL
         if (apiUrl) {
-          const res = await fetch(`${apiUrl}/api/auth/login`, {
+          const res = await fetchWithTimeout(`${apiUrl}/api/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody),
@@ -73,7 +74,7 @@ export default function AdminLogin() {
       // Try 2: Internal route
       if (!success) {
         try {
-          const res = await fetch('/api/auth/login', {
+          const res = await fetchWithTimeout('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody),

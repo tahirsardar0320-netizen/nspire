@@ -9,6 +9,7 @@ import SocialLoginButtons from "@/components/SocialLoginButtons"
 import { initGoogleLogin, initFacebookLogin, initAppleLogin } from "@/lib/social-auth"
 import { authAPI } from "@/lib/api"
 import { safeSetItem } from "@/lib/safeStorage"
+import { fetchWithTimeout } from '@/lib/httpFetch';
 
 export default function ManagementSignup() {
   const [fullName, setFullName] = useState("")
@@ -127,7 +128,7 @@ export default function ManagementSignup() {
 
     try {
       // Call local Next.js API route — no email verification
-      const res = await fetch('/api/auth/register', {
+      const res = await fetchWithTimeout('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

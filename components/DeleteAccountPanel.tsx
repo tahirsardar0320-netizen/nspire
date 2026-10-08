@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { authAPI } from "@/lib/api"
 import { toast } from "react-toastify"
 import { AlertTriangle, Trash2, Shield, Lock, User, Mail, Loader2, Info } from "lucide-react"
+import { fetchWithTimeout } from '@/lib/httpFetch';
 
 // The account-deletion flow itself, with no portal chrome around it. Apple
 // requires every portal that can create an account to also offer deletion, so
@@ -54,7 +55,7 @@ export default function DeleteAccountPanel() {
     setDeleting(true)
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(
+      const response = await fetchWithTimeout(
         `${process.env.NEXT_PUBLIC_API_URL || ''}/api/auth/delete-account`,
         {
           method: 'DELETE',

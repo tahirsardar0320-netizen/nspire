@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import MainLayout from "@/components/MainLayout";
+import { fetchWithTimeout } from '@/lib/httpFetch';
 
 export default function ContactClient() {
   const [submitted, setSubmitted] = useState(false);
@@ -15,7 +16,7 @@ export default function ContactClient() {
     e.preventDefault();
     setIsSending(true);
     try {
-      const res = await fetch("/api/contact/send", {
+      const res = await fetchWithTimeout("/api/contact/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

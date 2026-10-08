@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { toast } from "react-toastify"
 import { adminAPI, propertiesAPI, inspectionsAPI } from "@/lib/api"
+import { fetchWithTimeout } from '@/lib/httpFetch';
 
 interface Report {
   _id: string
@@ -102,7 +103,7 @@ export default function Reports() {
       // Make the request with proper authorization and open in new window
       const previewUrl = `${process.env.NEXT_PUBLIC_API_URL || ''}/api/inspections/${reportId}/nspire-preview`
       
-      const response = await fetch(previewUrl, {
+      const response = await fetchWithTimeout(previewUrl, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -144,7 +145,7 @@ export default function Reports() {
         return
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/inspections/${reportId}/nspire-pdf?includeImages=true&includeSummary=true&includeDeficiencies=true`, {
+      const response = await fetchWithTimeout(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/inspections/${reportId}/nspire-pdf?includeImages=true&includeSummary=true&includeDeficiencies=true`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

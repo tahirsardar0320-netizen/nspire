@@ -49,7 +49,11 @@ const nextConfig = {
           { key: 'Access-Control-Allow-Origin', value: '*' },
           { key: 'Access-Control-Allow-Methods', value: 'GET,POST,PUT,PATCH,DELETE,OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization, X-Requested-With' },
-          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          // Deliberately no Access-Control-Allow-Credentials. Sending it
+          // alongside an origin of "*" is invalid, and a browser is required to
+          // reject the whole response — Safari does, which is why signing in
+          // hung on iOS while Android was unaffected. Nothing here relies on
+          // cookies; the session travels in the Authorization header.
           // Required for Google OAuth popup to communicate with parent window
           { key: 'Cross-Origin-Opener-Policy', value: 'unsafe-none' },
           { key: 'Cross-Origin-Embedder-Policy', value: 'unsafe-none' },

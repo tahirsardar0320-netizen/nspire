@@ -1,3 +1,5 @@
+import { fetchWithTimeout } from './httpFetch';
+
 /**
  * Inspection photos are stored inline with the inspection record, so a raw
  * phone capture — commonly 4-12 MB — has to be carried through every save,
@@ -124,7 +126,7 @@ export const uploadDataUrl = async (dataUrl: string): Promise<string> => {
         const body = new FormData();
         body.append('image', await dataUrlToBlob(dataUrl), 'inspection-photo.jpg');
 
-        const res = await fetch('/api/images', {
+        const res = await fetchWithTimeout('/api/images', {
             method: 'POST',
             headers: { Authorization: `Bearer ${token}` },
             body,

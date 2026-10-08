@@ -10,6 +10,7 @@ import { initGoogleLogin, initFacebookLogin, initAppleLogin , resumePendingOAuth
 import { authAPI } from "@/lib/api"
 import { completeSocialSignIn, dashboardForRole } from "@/lib/completeSocialSignIn"
 import { safeSetItem } from "@/lib/safeStorage"
+import { fetchWithTimeout } from '@/lib/httpFetch';
 
 export default function Signup() {
   const [fullName, setFullName] = useState("")
@@ -122,7 +123,7 @@ export default function Signup() {
       const targetRole = loginType === 'inspector' ? 'inspector' : 'management'
 
       try {
-        const res = await fetch('/api/auth/register', {
+        const res = await fetchWithTimeout('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

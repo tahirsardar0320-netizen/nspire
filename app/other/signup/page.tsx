@@ -10,6 +10,7 @@ import { initGoogleLogin, initFacebookLogin, initAppleLogin } from "@/lib/social
 import { authAPI } from "@/lib/api"
 import { inspectorTypeLabel } from "@/lib/inspectorTypes"
 import { safeSetItem } from "@/lib/safeStorage"
+import { fetchWithTimeout } from '@/lib/httpFetch';
 
 function OtherSignupContent() {
   const [fullName, setFullName] = useState("")
@@ -113,7 +114,7 @@ function OtherSignupContent() {
 
     try {
       // Call local Next.js API route — no email verification
-      const res = await fetch('/api/auth/register', {
+      const res = await fetchWithTimeout('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

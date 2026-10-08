@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "react-toastify"
 import { useRouter } from "next/navigation"
 import { authAPI } from "@/lib/api"
+import { fetchWithTimeout } from '@/lib/httpFetch';
 
 type Step = 'email' | 'otp' | 'password'
 
@@ -46,7 +47,7 @@ export default function ForgotPassword() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
-      const response = await fetch(`${apiUrl}/api/auth/forgot-password`, {
+      const response = await fetchWithTimeout(`${apiUrl}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -87,7 +88,7 @@ export default function ForgotPassword() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
-      const response = await fetch(`${apiUrl}/api/auth/verify-otp`, {
+      const response = await fetchWithTimeout(`${apiUrl}/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp }),
@@ -133,7 +134,7 @@ export default function ForgotPassword() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
-      const response = await fetch(`${apiUrl}/api/auth/reset-password`, {
+      const response = await fetchWithTimeout(`${apiUrl}/api/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp, newPassword }),

@@ -24,6 +24,7 @@ import {
   mapCategoryToNSPIRECode,
 } from "@/lib/nspireReport"
 import { safeSetItem } from "@/lib/safeStorage"
+import { fetchWithTimeout } from '@/lib/httpFetch';
 
 
 // Icons
@@ -672,7 +673,7 @@ function NSPIREInspectionSummaryContent() {
       const blob = await generateNSPIREReportPDFBlob(report)
       const pdfBase64 = await blobToBase64(blob)
 
-      const res = await fetch('/api/inspections/send-report-email', {
+      const res = await fetchWithTimeout('/api/inspections/send-report-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -788,7 +789,7 @@ function NSPIREInspectionSummaryContent() {
       const propertyData = JSON.parse(storedProperty);
 
       // Update or create inspection record as completed
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/inspections/complete`, {
+      const response = await fetchWithTimeout(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/inspections/complete`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

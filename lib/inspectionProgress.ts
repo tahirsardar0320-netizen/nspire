@@ -1,4 +1,5 @@
 import { OUTSIDE_ITEMS, INSIDE_ITEMS } from "@/lib/inspectionData"
+import { fetchWithTimeout } from './httpFetch';
 
 // Computes per-property completion % from the same records the
 // inspection-category page writes (API progress + its local cache),
@@ -6,7 +7,7 @@ import { OUTSIDE_ITEMS, INSIDE_ITEMS } from "@/lib/inspectionData"
 export async function fetchPropertyProgressMap(propertyList: any[], apiUrl: string): Promise<Record<string, number>> {
   let apiProgress: any[] = []
   try {
-    const response = await fetch(`${apiUrl}/api/inspections/progress`, {
+    const response = await fetchWithTimeout(`${apiUrl}/api/inspections/progress`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }

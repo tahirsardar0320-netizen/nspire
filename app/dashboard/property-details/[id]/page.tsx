@@ -11,6 +11,7 @@ import { ChevronLeft, CheckCircle2, Clock, X, ChevronRight, Pencil, Check, Refre
 import { generateRandomUnitSample, getUnitsToInspect, getSamplingExplanation } from "@/lib/unitSamplingService"
 import { fetchPropertyProgressMap } from "@/lib/inspectionProgress"
 import { safeSetItem } from "@/lib/safeStorage"
+import { fetchWithTimeout } from '@/lib/httpFetch';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -635,7 +636,7 @@ export default function PropertyDetailsPage() {
 
             const fetchProgress = async (queryParams: Record<string, string>) => {
                 const query = new URLSearchParams(queryParams).toString()
-                const response = await fetch(`${API_URL}/api/inspections/progress?${query}`, {
+                const response = await fetchWithTimeout(`${API_URL}/api/inspections/progress?${query}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { connectDB, OAuthHandoff } from '@/lib/db';
 import { decodeState } from '@/lib/social-auth';
+import { fetchWithTimeout } from '@/lib/httpFetch';
 
 // Apple's Sign In flow uses response_mode=form_post — unlike Google/Facebook,
 // which stay entirely client-side, Apple POSTs the result straight to this
@@ -17,7 +18,9 @@ let applePublicKeysCache: { keys: any[]; fetchedAt: number } | null = null;
 
 async function getApplePublicKey(kid: string) {
   if (!applePublicKeysCache || Date.now() - applePublicKeysCache.fetchedAt > 60 * 60 * 1000) {
-    const res = await fetch('https://appleid.apple.com/auth/keys');
+    // A stalled key fetch would hang the sign-in request itself, so it is
+    // capped well below the client's own timeout.
+    const res = await fetchWithTimeout('https://appleid.apple.com/auth/keys', {}, 10000);
     if (!res.ok) throw new Error('Failed to fetch Apple signing keys');
     const { keys } = await res.json();
     applePublicKeysCache = { keys, fetchedAt: Date.now() };

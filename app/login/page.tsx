@@ -60,118 +60,52 @@ export default function Login() {
     setIsLoading(true)
 
     try {
-      const requestBody: any = {
-        email: email.trim().toLowerCase(),
+      // One request, through the same helper every other portal's login already
+      // uses. This screen used to try two endpoints with bare fetch() calls and
+      // no time limit. iOS holds a stalled request open instead of failing it,
+      // so the await never settled, the finally never ran, and the button sat on
+      // "Logging in..." with no error and no way forward — while Android's
+      // WebView gave up quickly and showed a real message. authAPI.login aborts
+      // at 45s, so this now always finishes one way or the other.
+      const data = await authAPI.login(
+        email.trim().toLowerCase(),
         password,
         rememberMe,
-      }
+        // Omitted for the default portal, so the server picks the role itself.
+        (role && role !== 'user' ? role : undefined) as string,
+      )
 
-      if (role && role !== 'user') {
-        requestBody.role = role
-      }
-
-      let data: any = null
-      let success = false
-      let reachedServer = false
-      let serverErrorMessage = ''
-
-      // Try 1: Try NEXT_PUBLIC_API_URL if configured
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL
-        if (apiUrl) {
-          const res = await fetch(`${apiUrl}/api/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestBody),
-          })
-          reachedServer = true
-          data = await res.json().catch(() => null)
-          if (res.ok && data && data.token) {
-            success = true
-          } else {
-            serverErrorMessage = data?.message || 'Invalid email or password'
-          }
-        }
-      } catch (e) {
-        console.warn('Backend API URL fetch failed, trying local API route...')
-      }
-
-      // Try 2: Try internal Next.js API route /api/auth/login
-      if (!success && !reachedServer) {
-        try {
-          const res = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestBody),
-          })
-          reachedServer = true
-          data = await res.json().catch(() => null)
-          if (res.ok && data && data.token) {
-            success = true
-          } else {
-            serverErrorMessage = data?.message || 'Invalid email or password'
-          }
-        } catch (e) {
-          console.warn('Internal API route fetch failed...')
-        }
-      }
-
-      // The server responded (reachable) but rejected the login — a real failure.
-      // Do NOT fall back to a fake local session here, or every subsequent API
-      // call will 401 with an unverifiable token and force-logout the user.
-      if (reachedServer && !success) {
-        toast.error(serverErrorMessage, {
-          position: "top-right",
-          autoClose: 3000,
-        })
-        setIsLoading(false)
+      if (!data?.success || !data?.token) {
+        toast.error(data?.message || 'Invalid email or password', { position: 'top-right', autoClose: 3000 })
         return
       }
 
-      // The backend could not be reached at all. Minting a token here produces a
-      // session the server never issued: it looks fine until the first API call
-      // 401s and drops the user back to this screen, which is exactly how the
-      // "randomly logged out" reports came about. Fail honestly instead.
-      if (!success && !reachedServer) {
-        toast.error("Can't reach the server. Check your connection and try again.", { position: "top-right", autoClose: 4000 })
-        setIsLoading(false)
-        return
-      }
-
-      // Store token in localStorage
       // A failed write here would leave the user looking signed in with no
       // token, and the next request would bounce them straight back here.
       if (!safeSetItem('token', data.token)) {
-        toast.error("Couldn't save your session — free up some space on your device and try again.", { position: "top-right", autoClose: 5000 })
-        setIsLoading(false)
+        toast.error("Couldn't save your session — free up some space on your device and try again.", { position: 'top-right', autoClose: 5000 })
         return
       }
       safeSetItem('user', JSON.stringify(data.user))
 
-      const userRole = data.user?.role || role
-
-      toast.success(`Login successful! Redirecting to dashboard...`, {
-        position: "top-right",
-        autoClose: 1500,
-      })
-
-      setTimeout(() => {
-        if (userRole === 'admin') {
-          router.push('/admin/dashboard')
-        } else if (userRole === 'management' || userRole === 'property-manager' || userRole === 'supervisor') {
-          router.push('/management/dashboard')
-        } else if (userRole === 'inspector') {
-          router.push('/dashboard')
-        } else {
-          router.push('/other/dashboard')
-        }
-      }, 1500)
-    } catch (error) {
+      toast.success('Login successful! Redirecting to dashboard...', { position: 'top-right', autoClose: 1500 })
+      router.push(dashboardForRole(data.user?.role || role))
+    } catch (error: any) {
       console.error('Login error:', error)
-      toast.error("Login failed. Please try again.", {
-        position: "top-right",
-        autoClose: 3000,
-      })
+      // Never mint a token here. A session the server did not issue looks fine
+      // until the first API call 401s and dumps the user back on this screen,
+      // which is exactly how the "randomly logged out" reports started.
+      toast.error(
+        error?.timedOut
+          ? 'That took too long. Check your connection and try again.'
+          : error?.status
+            // The server answered and refused — show what it said rather than
+            // blaming the connection, which is what used to happen on a simple
+            // wrong password.
+            ? error.message || 'Invalid email or password'
+            : "Can't reach the server. Check your connection and try again.",
+        { position: 'top-right', autoClose: 4000 },
+      )
     } finally {
       setIsLoading(false)
     }

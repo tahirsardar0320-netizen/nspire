@@ -1,4 +1,5 @@
 import { Clerk } from '@clerk/clerk-js'
+import { fetchWithTimeout } from './httpFetch';
 
 const CLERK_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_bGlnaHQtbXV0dC03Mi5jbGVyay5hY2NvdW50cy5kZXYk'
 
@@ -225,7 +226,9 @@ const waitForOAuth = (provider: Provider, sessionId: string, popup: Window | nul
 
         const poll = setInterval(async () => {
             try {
-                const res = await fetch(`/api/auth/oauth-handoff?sessionId=${encodeURIComponent(sessionId)}`)
+                // Short: this runs on an interval, so a stalled poll must not
+                // outlive the sign-in attempt it belongs to.
+                const res = await fetchWithTimeout(`/api/auth/oauth-handoff?sessionId=${encodeURIComponent(sessionId)}`, {}, 15000)
                 const data = await res.json()
                 if (data?.pending === false && data.result) {
                     if (data.result.error) fail(data.result.error)
@@ -325,7 +328,7 @@ export const resumePendingOAuth = async (): Promise<(OAuthResult & { portal: str
     if (!pending) return null
 
     try {
-        const res = await fetch(`/api/auth/oauth-handoff?sessionId=${encodeURIComponent(pending.sessionId)}`)
+        const res = await fetchWithTimeout(`/api/auth/oauth-handoff?sessionId=${encodeURIComponent(pending.sessionId)}`, {}, 15000)
         const data = await res.json()
         if (data?.pending !== false || !data.result) return null
 
@@ -486,7 +489,7 @@ export type CallbackOutcome =
 const parkResult = async (sessionId: string, payload: Record<string, unknown>) => {
     if (!sessionId) return false
     try {
-        const res = await fetch('/api/auth/oauth-handoff', {
+        const res = await fetchWithTimeout('/api/auth/oauth-handoff', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sessionId, ...payload }),
@@ -543,7 +546,7 @@ export const handleOAuthCallback = async (): Promise<CallbackOutcome> => {
             // The identity comes back in the token itself, but it is only proof
             // of anything once its signature has been checked against Google's
             // keys — which has to happen on the server.
-            const response = await fetch('/api/auth/google-verify', {
+            const response = await fetchWithTimeout('/api/auth/google-verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ idToken: googleIdToken, nonce: parsed.nonce }),

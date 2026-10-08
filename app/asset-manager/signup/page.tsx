@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "react-toastify"
 import { useRouter } from "next/navigation"
 import { safeSetItem } from "@/lib/safeStorage"
+import { fetchWithTimeout } from '@/lib/httpFetch';
 
 export default function AssetManagerSignup() {
   const [fullName, setFullName] = useState("")
@@ -51,7 +52,7 @@ export default function AssetManagerSignup() {
       let reachedServer = false
 
       try {
-        const res = await fetch('/api/auth/register', {
+        const res = await fetchWithTimeout('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ fullName, email: email.trim().toLowerCase(), password, role }),

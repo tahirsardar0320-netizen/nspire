@@ -1,31 +1,40 @@
 // API Configuration
 import { safeSetItem } from './safeStorage';
+import { fetchWithTimeout } from './httpFetch';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
-// Saving inspection progress can carry a lot of data, so it gets a generous
-// budget — but never an unlimited one. Without a ceiling a single stalled
-// request leaves the UI spinning forever with no way back.
-const REQUEST_TIMEOUT_MS = 45000;
+/**
+ * Endpoints where a 401 is the answer to the question, not a dead session.
+ *
+ * The interceptor below treats any 401 as an expired token: it clears the
+ * session and reloads /login. On a sign-in attempt that is wrong — the user has
+ * no session yet, and the 401 simply means the password did not match. The
+ * reload threw away the error message before it could be shown, so entering a
+ * wrong password looked like the app had refreshed itself back to the sign-in
+ * screen for no reason, saying nothing about why.
+ *
+ * Deliberately excludes /me, /verify-token, /logout and /delete-account: those
+ * do speak for a session, so a 401 there really does mean it has expired and
+ * the redirect is the right response.
+ */
+const AUTH_ENDPOINTS = [
+  '/api/auth/login',
+  '/api/auth/register',
+  '/api/auth/signup',
+  '/api/auth/social-login',
+  '/api/auth/google-verify',
+  '/api/auth/oauth-handoff',
+  '/api/auth/forgot-password',
+  '/api/auth/verify-otp',
+  '/api/auth/reset-password',
+  '/api/auth/resend-reset-otp',
+  '/api/auth/send-verification-email',
+  '/api/auth/verify-email',
+  '/api/auth/resend-verification-otp',
+];
 
-/** Runs a fetch that is guaranteed to settle, tagging the timeout case so
- *  callers can tell "the network is gone" apart from "this one was slow". */
-async function fetchWithTimeout(input: string, config: RequestInit, timeoutMs = REQUEST_TIMEOUT_MS) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    return await fetch(input, { ...config, signal: controller.signal });
-  } catch (err: any) {
-    if (err?.name === 'AbortError') {
-      const timeoutError = new Error('Request timed out') as any;
-      timeoutError.timedOut = true;
-      throw timeoutError;
-    }
-    throw err;
-  } finally {
-    clearTimeout(timer);
-  }
-}
+const isAuthAttempt = (endpoint: string) => AUTH_ENDPOINTS.some((e) => endpoint.startsWith(e));
 
 // Generic API request function with fallback
 async function apiRequest<T>(
@@ -48,7 +57,7 @@ async function apiRequest<T>(
     try {
       const response = await fetchWithTimeout(`${API_URL}${endpoint}`, config);
 
-      if (response.status === 401) {
+      if (response.status === 401 && !isAuthAttempt(endpoint)) {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
@@ -68,7 +77,7 @@ async function apiRequest<T>(
   try {
     const response = await fetchWithTimeout(endpoint, config);
 
-    if (response.status === 401) {
+    if (response.status === 401 && !isAuthAttempt(endpoint)) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -801,7 +810,7 @@ export const inspectionsAPI = {
 
   generateExcel: async (data: any) => {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${API_URL}/api/inspections/generate-excel`, {
+    const response = await fetchWithTimeout(`${API_URL}/api/inspections/generate-excel`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

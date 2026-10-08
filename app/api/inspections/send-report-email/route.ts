@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import dns from 'node:dns/promises';
+import { fetchWithTimeout } from '@/lib/httpFetch';
 
 const MAX_PDF_BYTES = 15 * 1024 * 1024; // 15MB
 
@@ -160,7 +161,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      const res = await fetchWithTimeout('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
         headers: {
           'api-key': process.env.BREVO_API_KEY,
