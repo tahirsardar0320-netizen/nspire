@@ -37,11 +37,21 @@ export default function RootLayout({
         <FetchTimeoutGuard />
         <ServiceWorkerRegister />
         {children}
+        {/*
+          Capped and stacked deliberately. Saving several inspection items in a
+          row queued a toast each, and with no limit they filled the screen top
+          to bottom — on a phone that covered "Add Deficiency" and "Submit"
+          entirely, so the inspection could not be continued at all. It looked
+          like the app had frozen; in fact every control was simply behind the
+          notifications. One at a time, and dismissable by tapping.
+        */}
         <ToastContainer
           position="top-right"
           autoClose={3000}
+          limit={1}
+          stacked
           hideProgressBar={false}
-          newestOnTop={false}
+          newestOnTop
           closeOnClick
           rtl={false}
           pauseOnFocusLoss
