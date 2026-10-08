@@ -5,18 +5,11 @@ import { useEffect } from "react";
 export default function ServiceWorkerRegister() {
   useEffect(() => {
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      // A newly activated worker takes control, but the page keeps running the
-      // JavaScript it already loaded — so a deployed fix stayed invisible until
-      // the app happened to be restarted, and "nothing changed" was impossible
-      // to tell apart from "the fix does not work". Reload once when a new
-      // version announces itself.
-      let reloaded = false
-      const onMessage = (event: MessageEvent) => {
-        if (event.data?.type !== "SW_UPDATED" || reloaded) return
-        reloaded = true
-        window.location.reload()
-      }
-      navigator.serviceWorker.addEventListener("message", onMessage)
+      // A new worker deliberately does NOT reload the page. Reloading on its
+      // own schedule can land in the middle of something — a sign-in that has
+      // just stored its session, a form part-filled — and throw it away, which
+      // looks exactly like being bounced back to the login screen. The next
+      // natural page load picks the new version up soon enough.
 
       const handleLoad = () => {
         navigator.serviceWorker
@@ -34,10 +27,7 @@ export default function ServiceWorkerRegister() {
         handleLoad();
       } else {
         window.addEventListener("load", handleLoad);
-        return () => {
-          window.removeEventListener("load", handleLoad);
-          navigator.serviceWorker.removeEventListener("message", onMessage);
-        };
+        return () => window.removeEventListener("load", handleLoad);
       }
     }
   }, []);
