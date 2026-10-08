@@ -18,7 +18,20 @@
  * gets the current build, with the last good copy kept for when they are not.
  */
 
-const VERSION = 'v6';
+// Stamped with the build id at compile time by scripts/stamp-sw-version.mjs.
+//
+// This was a fixed string, and that was the bug behind the black screen on
+// iOS. The shell pages below are cached once, when the worker installs, and a
+// worker only reinstalls when its own bytes change — so a constant version
+// meant the cached copy of /app-launch survived every deploy. Next.js renames
+// its chunks on each build and deletes the old ones, so that stale copy kept
+// pointing at JavaScript the server had long since stopped serving. The moment
+// the network hiccuped at launch and the worker fell back to it, the page
+// loaded with every script 404ing: no UI, nothing to retry with, just black.
+//
+// Tying the version to the build means a deploy always retires the caches it
+// invalidated.
+const VERSION = 'v7-202610081620';
 const SHELL_CACHE = `inspire-shell-${VERSION}`;
 const PAGE_CACHE = `inspire-pages-${VERSION}`;
 const ASSET_CACHE = `inspire-assets-${VERSION}`;

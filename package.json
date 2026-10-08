@@ -6,7 +6,8 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
-    "start": "next start"
+    "start": "next start",
+    "prebuild": "node scripts/stamp-sw-version.mjs"
   },
   "engines": {
     "node": "20.x"

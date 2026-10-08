@@ -131,22 +131,24 @@ const closeNativeAuthBrowser = () => {
 }
 
 /**
- * Google refuses to render its sign-in UI inside an app's in-app browser: the
- * request comes back as "Access blocked: Authorization Error / 400
- * invalid_request". It only ever appeared to work because Google was able to
- * complete silently against an existing session and never had to show anything.
+ * Every provider opens the same way: the Browser plugin, which presents an
+ * SFSafariViewController on iOS and a Chrome Custom Tab on Android.
  *
- * Google does allow the device's real browser, so Google alone goes there.
- * Navigating to an external URL makes Capacitor hand it to the system browser,
- * and the callback brings the user straight back through the app's own scheme —
- * with the result recorded so the sign-in finishes itself on return.
+ * Google used to be special-cased here to `window.location.href = authUrl`, on
+ * the belief that Google rejects in-app browsers outright. That was half right
+ * and caused the black screen on iPhone. What Google blocks is a raw embedded
+ * WebView — and assigning location.href navigates the app's *own* WebView,
+ * which is exactly that. Worse, the flow ends by redirecting to
+ * com.nspireapp://auth-done, a scheme a WebView cannot load, so it was left
+ * sitting on a dead page with nothing on it.
+ *
+ * SFSafariViewController and Chrome Custom Tabs are a real browser with the
+ * user's own session, and are what Google's own mobile OAuth guidance asks for.
+ * The earlier "400 invalid_request" that prompted the workaround came from
+ * prompt=select_account, which has since been removed.
  */
-const openAuthWindow = (authUrl: string, title: string, preferSystemBrowser = false): Window | null => {
+const openAuthWindow = (authUrl: string, title: string): Window | null => {
     if (isNativeApp()) {
-        if (preferSystemBrowser) {
-            window.location.href = authUrl
-            return null
-        }
         if (hasNativePlugin('Browser')) {
             callNativePlugin('Browser', 'open', { url: authUrl }).catch(() => {
                 // The in-app browser refused to present. Falling back to a
@@ -381,7 +383,7 @@ export const initGoogleLogin = (portal: string): Promise<OAuthResult> => {
         state,
     })
 
-    const popup = openAuthWindow(authUrl, 'Google Sign In', true)
+    const popup = openAuthWindow(authUrl, 'Google Sign In')
     if (!popup && !isNativeApp()) {
         return Promise.reject(new Error('Popup blocked. Please allow popups for this site.'))
     }
