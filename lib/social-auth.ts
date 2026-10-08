@@ -353,12 +353,21 @@ export const initGoogleLogin = (portal: string): Promise<OAuthResult> => {
     const sessionId = createSessionId()
     // The callback needs the opener's origin to postMessage back, and the
     // sessionId to park the result when there's no opener to talk to.
-    const state = encodeState({ provider: 'google', portal, origin: window.location.origin, sessionId, native: isNativeApp() ? '1' : '' })
+    // OpenID Connect requires a nonce whenever an id_token is requested; it also
+    // ties the token Google returns to this device's attempt.
+    const nonce = createSessionId()
+    const state = encodeState({ provider: 'google', portal, origin: window.location.origin, sessionId, nonce, native: isNativeApp() ? '1' : '' })
 
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` + buildQuery({
         client_id: clientId,
         redirect_uri: redirectUri,
-        response_type: 'token',
+        // Identity only. Google has closed off the access-token implicit flow
+        // for this kind of client: it was blocked outright in the in-app
+        // browser, and in the device browser it failed right after the password
+        // step. An id_token carries the user's identity directly and needs no
+        // client secret, so there is nothing to exchange.
+        response_type: 'id_token',
+        nonce,
         scope: 'openid email profile',
         // Deliberately no `prompt`. Asking for the account chooser makes Google
         // render its full sign-in UI, which it refuses to serve inside an app's
@@ -500,6 +509,7 @@ export const handleOAuthCallback = async (): Promise<CallbackOutcome> => {
 
     const stateRaw = searchParams.get('state') || params.get('state') || ''
     const accessToken = params.get('access_token')
+    const googleIdToken = params.get('id_token')
     const code = searchParams.get('code')
 
     const parsed = decodeState(decodeURIComponent(stateRaw))
@@ -529,14 +539,19 @@ export const handleOAuthCallback = async (): Promise<CallbackOutcome> => {
         let email = ''
         let fullName = ''
 
-        if (provider === 'google' && accessToken) {
-            // Fetch user info from Google
-            const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-                headers: { Authorization: `Bearer ${accessToken}` }
+        if (provider === 'google' && googleIdToken) {
+            // The identity comes back in the token itself, but it is only proof
+            // of anything once its signature has been checked against Google's
+            // keys — which has to happen on the server.
+            const response = await fetch('/api/auth/google-verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken: googleIdToken, nonce: parsed.nonce }),
             })
             const data = await response.json()
+            if (!data?.success) throw new Error(data?.message || 'Could not verify the Google sign-in')
             email = data.email || ''
-            fullName = data.name || (email.includes('@') ? email.split('@')[0] : email)
+            fullName = data.fullName || (email.includes('@') ? email.split('@')[0] : email)
         } else if (provider === 'facebook') {
             console.log('Processing Facebook callback...')
             // For Clerk-bridged Facebook, user data is available in the Clerk session
