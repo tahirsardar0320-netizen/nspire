@@ -234,6 +234,9 @@ const waitForOAuth = (provider: Provider, sessionId: string, popup: Window | nul
                 const data = await res.json()
                 if (data?.pending === false && data.result) {
                     if (data.result.error) fail(data.result.error)
+                    // Without an address there is no one to sign in as. Saying so
+                    // beats handing the caller a result it will crash on.
+                    else if (!data.result.email) fail('The sign-in did not return an email address.')
                     else succeed({ email: data.result.email, fullName: data.result.fullName, provider })
                     return
                 }
@@ -336,6 +339,7 @@ export const resumePendingOAuth = async (): Promise<(OAuthResult & { portal: str
 
         clearPendingOAuth()
         if (data.result.error) return null
+        if (!data.result.email) return null
         return {
             email: data.result.email,
             fullName: data.result.fullName,

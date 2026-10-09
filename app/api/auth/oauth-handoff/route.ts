@@ -53,13 +53,21 @@ export async function GET(request: NextRequest) {
 
     await connectDB();
 
-    // Delete on read so a sessionId that leaked into a browser history or log
-    // can't be replayed to mint a second session.
-    const handoff = await OAuthHandoff.findOneAndDelete({ sessionId });
+    const handoff = await OAuthHandoff.findOne({ sessionId });
 
-    if (!handoff) {
+    // A record now exists from the moment the sign-in *starts*, because that is
+    // where the PKCE verifier is kept. Its mere presence therefore no longer
+    // means the sign-in finished — only an email or an error does. Treating the
+    // starting record as a result handed the app a sign-in with no address at
+    // all ("undefined is not an object evaluating 'email.split'"), and reading
+    // it destructively also threw away the verifier the exchange still needed.
+    if (!handoff || (!handoff.email && !handoff.error)) {
       return NextResponse.json({ success: true, pending: true });
     }
+
+    // Delete once there really is a result, so a sessionId that leaked into a
+    // browser history or log can't be replayed to mint a second session.
+    await OAuthHandoff.deleteOne({ sessionId });
 
     return NextResponse.json({
       success: true,
