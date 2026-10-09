@@ -131,6 +131,11 @@ const oauthHandoffSchema = new mongoose.Schema({
   email: String,
   fullName: String,
   error: String,
+  // PKCE's secret half. It is generated here when the sign-in starts and never
+  // leaves the server: the callback runs in a different browser from the app
+  // that started the flow, so there is nowhere on the device both halves could
+  // share it. Only its SHA-256 hash is sent to Google.
+  codeVerifier: String,
   // TTL — Mongo drops these 5 minutes after creation so an unclaimed handoff
   // can't sit around waiting to be replayed.
   createdAt: { type: Date, default: Date.now, expires: 300 },

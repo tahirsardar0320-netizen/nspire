@@ -352,40 +352,44 @@ export const resumePendingOAuth = async (): Promise<(OAuthResult & { portal: str
  * Initialize Google OAuth login
  * Opens a popup window for Google authentication
  */
-export const initGoogleLogin = (portal: string): Promise<OAuthResult> => {
+export const initGoogleLogin = async (portal: string): Promise<OAuthResult> => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '710442251981-li0tlcqed9b61jrn8k6744a0ta8br1r7.apps.googleusercontent.com'
     const redirectUri = getRedirectUri()
     const sessionId = createSessionId()
-    // The callback needs the opener's origin to postMessage back, and the
-    // sessionId to park the result when there's no opener to talk to.
-    // OpenID Connect requires a nonce whenever an id_token is requested; it also
-    // ties the token Google returns to this device's attempt.
-    const nonce = createSessionId()
-    const state = encodeState({ provider: 'google', portal, origin: window.location.origin, sessionId, nonce, native: isNativeApp() ? '1' : '' })
+
+    // PKCE. The secret half is made and kept on the server: the callback runs
+    // in a different browser from this web view, so there is nowhere on the
+    // device the two halves could share it. Only the hash travels to Google.
+    const startRes = await fetchWithTimeout('/api/auth/oauth-start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, provider: 'google', portal }),
+    }, 15000)
+    const startData = await startRes.json().catch(() => null)
+    if (!startData?.success || !startData.codeChallenge) {
+        throw new Error("Couldn't start the Google sign-in. Please try again.")
+    }
+
+    const state = encodeState({ provider: 'google', portal, origin: window.location.origin, sessionId, native: isNativeApp() ? '1' : '' })
 
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` + buildQuery({
         client_id: clientId,
         redirect_uri: redirectUri,
-        // Identity only. Google has closed off the access-token implicit flow
-        // for this kind of client: it was blocked outright in the in-app
-        // browser, and in the device browser it failed right after the password
-        // step. An id_token carries the user's identity directly and needs no
-        // client secret, so there is nothing to exchange.
-        response_type: 'id_token',
-        nonce,
+        // The authorization code flow, which is what Google actually supports
+        // here. Asking for an id_token directly (the implicit flow) only ever
+        // worked while Google could complete silently against a session it
+        // already had; the moment it had to render anything it answered
+        // "Something went wrong". The code is exchanged server-side.
+        response_type: 'code',
+        code_challenge: startData.codeChallenge,
+        code_challenge_method: 'S256',
         scope: 'openid email profile',
-        // Deliberately no `prompt`. Asking for the account chooser makes Google
-        // render its full sign-in UI, which it refuses to serve inside an app's
-        // in-app browser — the request came back as
-        // "Access blocked: Authorization Error / 400 invalid_request" on iOS.
-        // Without it Google completes silently against the session already on
-        // the device, which is the only thing that works there today.
         state,
     })
 
     const popup = openAuthWindow(authUrl, 'Google Sign In')
     if (!popup && !isNativeApp()) {
-        return Promise.reject(new Error('Popup blocked. Please allow popups for this site.'))
+        throw new Error('Popup blocked. Please allow popups for this site.')
     }
     rememberPendingOAuth(sessionId, 'google', portal)
     return waitForOAuth('google', sessionId, popup).finally(clearPendingOAuth)
@@ -544,10 +548,29 @@ export const handleOAuthCallback = async (): Promise<CallbackOutcome> => {
         let email = ''
         let fullName = ''
 
-        if (provider === 'google' && googleIdToken) {
-            // The identity comes back in the token itself, but it is only proof
-            // of anything once its signature has been checked against Google's
-            // keys — which has to happen on the server.
+        if (provider === 'google' && code) {
+            // Google hands back a short-lived code; the server turns it into an
+            // identity using the client secret and the PKCE verifier it kept
+            // when this sign-in started. Neither can be held here.
+            const response = await fetchWithTimeout('/api/auth/google-exchange', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // Google compares this against the redirect it was given
+                // character for character, so send back exactly this page.
+                body: JSON.stringify({
+                    sessionId,
+                    code,
+                    redirectUri: window.location.origin + window.location.pathname,
+                }),
+            })
+            const data = await response.json()
+            if (!data?.success) throw new Error(data?.message || 'Could not complete the Google sign-in')
+            email = data.email || ''
+            fullName = data.fullName || (email.includes('@') ? email.split('@')[0] : email)
+        } else if (provider === 'google' && googleIdToken) {
+            // The previous flow. Kept so a sign-in that was already in flight
+            // when this deployed still finishes instead of failing at the last
+            // step; nothing starts one this way any more.
             const response = await fetchWithTimeout('/api/auth/google-verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
