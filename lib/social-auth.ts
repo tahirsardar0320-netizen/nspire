@@ -142,10 +142,16 @@ const closeNativeAuthBrowser = () => {
  * com.nspireapp://auth-done, a scheme a WebView cannot load, so it was left
  * sitting on a dead page with nothing on it.
  *
- * SFSafariViewController and Chrome Custom Tabs are a real browser with the
- * user's own session, and are what Google's own mobile OAuth guidance asks for.
- * The earlier "400 invalid_request" that prompted the workaround came from
- * prompt=select_account, which has since been removed.
+ * Both are a real browser rather than an embedded web view, which is what
+ * Google's mobile OAuth guidance asks for, and the earlier "400
+ * invalid_request" came from prompt=select_account, since removed.
+ *
+ * One caveat worth keeping in mind before trusting this further: a Chrome
+ * Custom Tab shares Chrome's cookies, but since iOS 11 SFSafariViewController
+ * does *not* share Safari's. So Android sees the user's existing Google session
+ * and signs in cleanly, while every attempt on iPhone looks to Google like a
+ * brand-new device and earns the full verification again. Closing that gap
+ * needs ASWebAuthenticationSession, which means a new iOS build.
  */
 const openAuthWindow = (authUrl: string, title: string): Window | null => {
     if (isNativeApp()) {
