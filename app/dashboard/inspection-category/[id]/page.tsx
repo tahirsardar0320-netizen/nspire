@@ -479,7 +479,15 @@ export default function InspectionCategoryPage() {
                 const pUnitId = String(p.unitId).toUpperCase();
                 const bId = String(urlBuilding || '').toUpperCase();
                 const pBldgId = String(p.buildingId || '').toUpperCase();
-                return typeMatch && pUnitId === uId && (pBldgId === bId || !pBldgId);
+                // A record saved before buildingId existed carries none, and
+                // accepting that for *any* building made Building 1's unit 001
+                // load as Building 2's unit 001 as well — which is why work
+                // recorded in one building appeared in all of them. Those
+                // legacy records can only have come from the first building,
+                // so match them there and nowhere else, exactly as the
+                // outside/inside lookup above already does.
+                const isLegacyFirstBuilding = !pBldgId && (bId === 'B1' || bId === 'BUILDING 1');
+                return typeMatch && pUnitId === uId && (pBldgId === bId || isLegacyFirstBuilding);
             });
             if (unitRec && unitRec.responses) setUnitStatuses(unitRec.responses);
         }
