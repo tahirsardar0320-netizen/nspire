@@ -5,6 +5,15 @@ import { handleOAuthCallback, type CallbackOutcome } from '@/lib/social-auth'
 
 export default function OAuthCallback() {
     const [outcome, setOutcome] = useState<CallbackOutcome | null>(null)
+    // Decided after mount: the server has no idea which device this is, and
+    // guessing during render would make the markup disagree with itself.
+    const [isIOS, setIsIOS] = useState(false)
+
+    useEffect(() => {
+        const ua = navigator.userAgent || ''
+        // iPadOS reports itself as a Mac, so the touch check catches it too.
+        setIsIOS(/iPad|iPhone|iPod/.test(ua) || (ua.includes('Macintosh') && navigator.maxTouchPoints > 1))
+    }, [])
 
     useEffect(() => {
         let active = true
@@ -29,20 +38,32 @@ export default function OAuthCallback() {
                     <>
                         <div className="h-14 w-14 rounded-full bg-[#006795] text-white text-3xl flex items-center justify-center mx-auto mb-4">✓</div>
                         <p className="text-gray-800 font-semibold text-lg">You&apos;re signed in</p>
-                        {/* iOS will not follow a custom scheme from the in-app
-                            browser unless the user taps something, so the
-                            automatic hand-back silently does nothing there and
-                            this screen just sits open. A button satisfies that
-                            requirement and works on both platforms. */}
-                        <a
-                            href="com.nspireapp://auth-done"
-                            className="inline-block mt-5 px-6 py-3 rounded-xl bg-[#006795] text-white font-semibold text-sm"
-                        >
-                            Return to the app
-                        </a>
-                        <p className="text-gray-600 text-sm mt-3">
-                            Or close this tab — the app will carry on from here.
-                        </p>
+                        {/* The link opens the app directly, which is what Chrome
+                            Custom Tabs on Android do. iPhone is told to close
+                            instead: Safari's in-app browser refuses to open the
+                            app's own scheme even when the user taps it, so the
+                            button did nothing there and people hunted for the
+                            close control anyway. Closing works on both, and
+                            the app finishes signing in the moment it is back. */}
+                        {isIOS ? (
+                            <p className="text-gray-700 text-base mt-4 leading-relaxed">
+                                Tap <span className="font-bold">✕</span> at the top of this screen to go back.
+                                <br />
+                                <span className="text-gray-500 text-sm">You&apos;ll be taken straight to your dashboard.</span>
+                            </p>
+                        ) : (
+                            <>
+                                <a
+                                    href="com.nspireapp://auth-done"
+                                    className="inline-block mt-5 px-6 py-3 rounded-xl bg-[#006795] text-white font-semibold text-sm"
+                                >
+                                    Return to the app
+                                </a>
+                                <p className="text-gray-600 text-sm mt-3">
+                                    Or close this tab — the app will carry on from here.
+                                </p>
+                            </>
+                        )}
                     </>
                 ) : (
                     <>
