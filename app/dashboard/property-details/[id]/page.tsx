@@ -496,7 +496,11 @@ export default function PropertyDetailsPage() {
         }))
 
         toast.success(`Starting inspection for ${buildingId} → ${unitName}`, { position: "top-right" })
-        router.push(`/dashboard/inspection-category/${property._id}?building=${buildingId}&unit=${encodeURIComponent(unitName)}&units=1`)
+        // propId, not property._id. A property created in the field exists only
+        // on the device and has no server id yet, so property._id is undefined
+        // and the route became .../inspection-category/undefined — a property
+        // that cannot be found, so the screen simply never moved on.
+        router.push(`/dashboard/inspection-category/${propId}?building=${buildingId}&unit=${encodeURIComponent(unitName)}&units=1`)
     }
 
     const getCompletedCount = (buildingId: string) => {
