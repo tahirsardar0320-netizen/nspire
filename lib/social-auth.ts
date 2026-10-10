@@ -155,6 +155,32 @@ const closeNativeAuthBrowser = () => {
  */
 const openAuthWindow = (authUrl: string, title: string): Window | null => {
     if (isNativeApp()) {
+        // Preferred: iOS presents this as an ASWebAuthenticationSession, which
+        // is the only thing on that platform that both shares the system
+        // browser's session — so Google recognises the user instead of running
+        // the full verification every time — and dismisses itself the moment
+        // the callback fires, with no tap. Safari's ordinary in-app browser
+        // does neither, which is why signing in on iPhone meant working
+        // through the checks again and then closing the window by hand.
+        //
+        // Android gets the same Chrome Custom Tab it already had.
+        //
+        // Absent from older builds, where hasNativePlugin simply returns false
+        // and everything carries on through the Browser plugin below.
+        if (hasNativePlugin('CapgoInAppBrowser')) {
+            callNativePlugin('CapgoInAppBrowser', 'openSecureWindow', {
+                authEndpoint: authUrl,
+                // The session watches for this and closes as soon as the
+                // callback page redirects to it. Its scheme is registered in
+                // Info.plist and AndroidManifest.xml.
+                redirectUri: APP_RETURN_URL,
+            }).catch(() => {
+                // Dismissed, cancelled, or refused to present. The caller's own
+                // polling decides what that means; navigating this web view
+                // anywhere would strand the app on a dead page.
+            })
+            return null
+        }
         if (hasNativePlugin('Browser')) {
             callNativePlugin('Browser', 'open', { url: authUrl }).catch(() => {
                 // The in-app browser refused to present. Falling back to a
