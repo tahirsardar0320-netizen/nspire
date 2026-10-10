@@ -61,6 +61,32 @@ jobs:
             }
             console.log(`Version to submit: ${version.attributes.versionString} (${version.attributes.appStoreState})`);
 
+            // A version with no build attached is rejected at the last step with
+            // "The build associated with appStoreVersions ... was not found",
+            // which says nothing about what to do. Uploading to TestFlight does
+            // not attach anything; the version has to point at a build itself.
+            const current = await api(`/appStoreVersions/${version.id}/relationships/build`).catch(() => null);
+            if (current?.data?.id) {
+              console.log(`Build already attached: ${current.data.id}`);
+            } else {
+              const builds = await api(
+                `/builds?filter[app]=${appId}&filter[preReleaseVersion.version]=${version.attributes.versionString}` +
+                `&filter[processingState]=VALID&limit=1&sort=-uploadedDate`
+              );
+              const build = builds.data?.[0];
+              if (!build) {
+                throw new Error(
+                  `No processed build found for version ${version.attributes.versionString}. ` +
+                  'Upload one with the iOS Release workflow and wait for Apple to finish processing it.'
+                );
+              }
+              await api(`/appStoreVersions/${version.id}/relationships/build`, {
+                method: 'PATCH',
+                body: JSON.stringify({ data: { type: 'builds', id: build.id } }),
+              });
+              console.log(`Attached build ${build.attributes.version} (${build.id})`);
+            }
+
             // Reuse an open submission if there is one; a second open submission
             // confuses the App Store Connect UI.
             const subs = await api(`/apps/${appId}/reviewSubmissions?limit=50`);
