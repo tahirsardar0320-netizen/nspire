@@ -31,7 +31,7 @@
 //
 // Tying the version to the build means a deploy always retires the caches it
 // invalidated.
-const VERSION = 'v7-202610102250';
+const VERSION = 'v7-202610102257';
 const SHELL_CACHE = `inspire-shell-${VERSION}`;
 const PAGE_CACHE = `inspire-pages-${VERSION}`;
 const ASSET_CACHE = `inspire-assets-${VERSION}`;

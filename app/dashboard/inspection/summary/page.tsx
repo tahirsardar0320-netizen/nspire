@@ -25,6 +25,7 @@ import {
 } from "@/lib/nspireReport"
 import { safeSetItem } from "@/lib/safeStorage"
 import { fetchWithTimeout } from '@/lib/httpFetch';
+import { durableGet } from "@/lib/durableStore"
 
 
 // Icons
@@ -203,24 +204,43 @@ function NSPIREInspectionSummaryContent() {
 
         if (propertyId && token) {
           try {
-            // Fetch property details
-            const propRes = await propertiesAPI.getById(propertyId);
-            if (propRes.success) {
+            // Fetch property details. Offline this cannot answer either, and
+            // it runs first — so letting it throw took the summary down before
+            // any of the work below had a chance to run.
+            const propRes = await propertiesAPI.getById(propertyId).catch(() => null);
+            if (propRes?.success) {
               propertyData = propRes.property;
               setProperty(propRes.property);
+            } else {
+              // Fall back to the copy held on the device, including properties
+              // created in the field that the server has never seen.
+              try {
+                const cached = JSON.parse(durableGet('inspire_local_properties') || '[]');
+                const local = Array.isArray(cached)
+                  ? cached.find((c: any) => String(c?._id || c?.id || c?.propertyId) === String(propertyId))
+                  : null;
+                if (local) {
+                  propertyData = local;
+                  setProperty(local);
+                }
+              } catch {
+                // No usable local copy; the summary still renders what it has.
+              }
             }
 
-            // Fetch current progress (drafts)
+            // Offline these cannot answer, and letting either throw abandoned
+            // the whole summary — which is why "View Summary" showed nothing in
+            // the field even though the work was sitting on the device.
             const progData = await inspectionsAPI.getProgress({
               property_id: propertyId,
               draft_only: 'false'
-            });
+            }).catch(() => null);
 
             // Fetch finalized inspections (completed)
             const inspectionsRes = await inspectionsAPI.getAll({
               property: propertyId,
               status: 'completed'
-            });
+            }).catch(() => null);
 
             let allFindings: any[] = [];
             let serverUnlocked = false;
@@ -246,6 +266,38 @@ function NSPIREInspectionSummaryContent() {
                   });
                 }
               });
+            }
+
+            // 1b. Fold in anything still queued on this device. Saves made
+            // with no signal live in pending_sync_<propertyId> until they
+            // sync, and the summary only ever asked the server — so offline
+            // it reported an empty inspection while the deficiencies were
+            // right there. Online this also covers the gap between recording
+            // something and the sync landing.
+            try {
+              const queuedRaw = localStorage.getItem(`pending_sync_${propertyId}`);
+              const queued = queuedRaw ? JSON.parse(queuedRaw) : [];
+              if (Array.isArray(queued)) {
+                queued.forEach((entry: any) => {
+                  const payload = entry?.payload || entry;
+                  const pendingFindings = payload?.inspectionData?.findings || [];
+                  if (!Array.isArray(pendingFindings)) return;
+                  const building = payload.building_id || '';
+                  const unit = payload.unit_id || '-';
+                  const rawArea = payload.inspection_type || 'Unit';
+                  const area = rawArea.charAt(0).toUpperCase() + rawArea.slice(1).toLowerCase();
+                  pendingFindings.forEach((f: any) => {
+                    allFindings.push({
+                      ...f,
+                      building: f.building || building,
+                      unit: f.unit || unit,
+                      area: f.area || area,
+                    });
+                  });
+                });
+              }
+            } catch {
+              // Nothing queued, or unreadable — the server data above stands.
             }
 
             // 2. Collect findings from finalized (completed) inspections
