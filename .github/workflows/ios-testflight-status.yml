@@ -1,0 +1,67 @@
+name: iOS - TestFlight status (read only)
+
+# Reports what App Store Connect actually thinks, so a build that is missing
+# from TestFlight can be diagnosed instead of guessed at. Reads only; it
+# creates, changes and submits nothing.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report builds, compliance and internal testers
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_P8: ${{ secrets.APPSTORE_API_KEY_P8 }}
+        run: |
+          npm install jsonwebtoken@9
+          node <<'EOF'
+          const jwt = require('jsonwebtoken');
+          const BUNDLE_ID = 'com.nspireapp';
+          const token = () => jwt.sign(
+            { iss: process.env.APPSTORE_ISSUER_ID, aud: 'appstoreconnect-v1' },
+            process.env.APPSTORE_API_KEY_P8,
+            { algorithm: 'ES256', expiresIn: '19m', header: { kid: process.env.APPSTORE_KEY_ID, typ: 'JWT' } }
+          );
+
+          async function api(path) {
+            const res = await fetch(`https://api.appstoreconnect.apple.com/v1${path}`, {
+              headers: { Authorization: `Bearer ${token()}`, 'Content-Type': 'application/json' },
+            });
+            const body = res.status === 204 ? null : await res.json();
+            if (!res.ok) throw new Error(`GET ${path} -> ${res.status}: ${JSON.stringify(body)}`);
+            return body;
+          }
+
+          async function main() {
+            const apps = await api(`/apps?filter[bundleId]=${BUNDLE_ID}`);
+            const app = apps.data[0];
+            console.log(`App: ${app.attributes.name}  (id ${app.id})`);
+
+            console.log('\n── Recent builds ─────────────────────────────');
+            const builds = await api(`/builds?filter[app]=${app.id}&limit=5&sort=-uploadedDate`);
+            for (const b of builds.data) {
+              const a = b.attributes;
+              console.log(
+                `  version ${a.version}  state=${a.processingState}  ` +
+                `expired=${a.expired}  compliance=${a.usesNonExemptEncryption === null ? 'NOT ANSWERED' : a.usesNonExemptEncryption}  ` +
+                `uploaded=${a.uploadedDate}`
+              );
+            }
+
+            console.log('\n── Beta groups ───────────────────────────────');
+            const groups = await api(`/betaGroups?filter[app]=${app.id}&limit=20`);
+            for (const g of groups.data) {
+              const ga = g.attributes;
+              const testers = await api(`/betaGroups/${g.id}/betaTesters?limit=50`);
+              console.log(`  "${ga.name}"  internal=${ga.isInternalGroup}  testers=${testers.data.length}`);
+              for (const t of testers.data) {
+                console.log(`      - ${t.attributes.email}  state=${t.attributes.state || 'n/a'}`);
+              }
+            }
+          }
+
+          main().catch((e) => { console.error(e.message); process.exit(1); });
+          EOF
