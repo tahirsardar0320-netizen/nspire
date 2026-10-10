@@ -1229,10 +1229,18 @@ export default function InspectionCategoryPage() {
 
         if (propertyFindings.length > 0) {
             try {
-                const existingIndex = propertyFindings.findIndex((f: any) => 
-                    f.item === newFinding.item && 
-                    f.area === newFinding.area && 
+                // Which deficiency it is has to be part of this, not just where
+                // it is. Matching on location alone meant a second deficiency
+                // recorded against the same item -- two separate faults on one
+                // chimney, say -- was treated as an edit of the first and
+                // overwrote it, so only the last one ever reached the report.
+                // Re-saving the same fault still updates it in place.
+                const existingIndex = propertyFindings.findIndex((f: any) =>
+                    f.item === newFinding.item &&
+                    f.area === newFinding.area &&
                     f.unit === newFinding.unit &&
+                    f.nspireCode === newFinding.nspireCode &&
+                    f.title === newFinding.title &&
                     (f.building === urlBuilding || f.building === buildingName)
                 );
 
