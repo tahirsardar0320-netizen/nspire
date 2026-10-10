@@ -68,11 +68,20 @@ jobs:
 
       - name: Upload to App Store Connect
         run: |
+          set -o pipefail
           xcrun altool --upload-app \
             -f "$RUNNER_TEMP/export/App.ipa" \
             -t ios \
             --apiKey ${{ secrets.APPSTORE_KEY_ID }} \
-            --apiIssuer ${{ secrets.APPSTORE_ISSUER_ID }}
+            --apiIssuer ${{ secrets.APPSTORE_ISSUER_ID }} 2>&1 | tee "$RUNNER_TEMP/altool.log"
+          # altool prints its failures and still exits 0. A rejected upload
+          # therefore finished as a green run with nothing on TestFlight --
+          # which is exactly how a closed version train went unnoticed until
+          # someone went looking for a build that was never there.
+          if grep -qiE "ERROR|Validation failed" "$RUNNER_TEMP/altool.log"; then
+            echo "::error::App Store Connect rejected the upload - see the altool output above"
+            exit 1
+          fi
 
       - name: Upload build artifact (for debugging)
         if: always()
