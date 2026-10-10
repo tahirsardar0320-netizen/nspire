@@ -74,12 +74,16 @@ jobs:
             -t ios \
             --apiKey ${{ secrets.APPSTORE_KEY_ID }} \
             --apiIssuer ${{ secrets.APPSTORE_ISSUER_ID }} 2>&1 | tee "$RUNNER_TEMP/altool.log"
-          # altool prints its failures and still exits 0. A rejected upload
-          # therefore finished as a green run with nothing on TestFlight --
-          # which is exactly how a closed version train went unnoticed until
-          # someone went looking for a build that was never there.
-          if grep -qiE "ERROR|Validation failed" "$RUNNER_TEMP/altool.log"; then
-            echo "::error::App Store Connect rejected the upload - see the altool output above"
+          # altool prints its failures and still exits 0, so a rejected upload
+          # finished as a green run with nothing on TestFlight -- which is how a
+          # closed version train went unnoticed until someone went looking for a
+          # build that was never there.
+          #
+          # Insist on the success line rather than hunting for the word "error":
+          # altool announces success as "UPLOAD SUCCEEDED with no errors", and
+          # searching for "error" duly failed a perfectly good upload.
+          if ! grep -q "UPLOAD SUCCEEDED" "$RUNNER_TEMP/altool.log"; then
+            echo "::error::altool did not report a successful upload - see its output above"
             exit 1
           fi
 
