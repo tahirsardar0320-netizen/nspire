@@ -581,13 +581,13 @@ export default function InspectionCategoryPage() {
     const queueForOfflineSync = (payload: any) => {
         try {
             const syncKey = `pending_sync_${id}`;
-            const existingSyncStr = localStorage.getItem(syncKey);
+            const existingSyncStr = durableGet(syncKey);
             const existingSync = existingSyncStr ? JSON.parse(existingSyncStr) : [];
             const filteredSync = existingSync.filter((item: any) => 
                 !(item.inspection_type === payload.inspection_type && item.unit_id === payload.unit_id)
             );
             filteredSync.push(payload);
-            safeSetItem(syncKey, JSON.stringify(filteredSync));
+            durableSet(syncKey, JSON.stringify(filteredSync));
             setOfflineChangesCount(filteredSync.length);
         } catch (e: any) {
             console.error("Error queueing offline sync:", e);
@@ -608,11 +608,11 @@ export default function InspectionCategoryPage() {
         const syncKey = `pending_sync_${id}`;
         let queue: any[] = [];
         try {
-            const existingSyncStr = localStorage.getItem(syncKey);
+            const existingSyncStr = durableGet(syncKey);
             if (!existingSyncStr) return;
             queue = JSON.parse(existingSyncStr);
         } catch {
-            localStorage.removeItem(syncKey);
+            durableRemove(syncKey);
             setOfflineChangesCount(0);
             return;
         }
@@ -635,9 +635,9 @@ export default function InspectionCategoryPage() {
         }
 
         if (remaining.length === 0) {
-            localStorage.removeItem(syncKey);
+            durableRemove(syncKey);
         } else {
-            safeSetItem(syncKey, JSON.stringify(remaining));
+            durableSet(syncKey, JSON.stringify(remaining));
         }
         setOfflineChangesCount(remaining.length);
 
@@ -670,7 +670,7 @@ export default function InspectionCategoryPage() {
         
         try {
             const syncKey = `pending_sync_${id}`;
-            const existingSyncStr = localStorage.getItem(syncKey);
+            const existingSyncStr = durableGet(syncKey);
             if (existingSyncStr) {
                 const existingSync = JSON.parse(existingSyncStr);
                 setOfflineChangesCount(existingSync.length);

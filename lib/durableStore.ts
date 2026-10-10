@@ -31,6 +31,30 @@ export const DURABLE_KEYS = [
   'cached_properties',
 ];
 
+/**
+ * Families of keys that are equally costly but whose names are not known in
+ * advance — pending_sync_<propertyId> holds every deficiency recorded with no
+ * signal, one key per property.
+ */
+const DURABLE_PREFIXES = ['pending_sync_'];
+
+const isDurableKey = (key: string) =>
+  DURABLE_KEYS.includes(key) || DURABLE_PREFIXES.some((p) => key.startsWith(p));
+
+/** Every durable key currently known, from either side of the mirror. */
+function knownKeys(fromDurable: Record<string, string>): string[] {
+  const keys = new Set<string>([...DURABLE_KEYS, ...Object.keys(fromDurable)]);
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && isDurableKey(k)) keys.add(k);
+    }
+  } catch {
+    // localStorage unavailable; the durable side alone decides.
+  }
+  return Array.from(keys);
+}
+
 const FILE_PATH = 'inspire-offline-store.json';
 const DB_NAME = 'inspire-durable';
 const DB_STORE = 'kv';
@@ -110,19 +134,17 @@ async function readIdb(): Promise<Record<string, string>> {
   return new Promise((resolve) => {
     const out: Record<string, string> = {};
     try {
+      // Everything present, rather than a fixed list: pending_sync_<id> keys
+      // are named after the property and cannot be enumerated ahead of time.
       const tx = db.transaction(DB_STORE, 'readonly');
-      const store = tx.objectStore(DB_STORE);
-      let pending = DURABLE_KEYS.length;
-      DURABLE_KEYS.forEach((k) => {
-        const r = store.get(k);
-        r.onsuccess = () => {
-          if (typeof r.result === 'string') out[k] = r.result;
-          if (--pending === 0) resolve(out);
-        };
-        r.onerror = () => {
-          if (--pending === 0) resolve(out);
-        };
-      });
+      const cursor = tx.objectStore(DB_STORE).openCursor();
+      cursor.onsuccess = () => {
+        const c = cursor.result;
+        if (!c) return resolve(out);
+        if (typeof c.key === 'string' && typeof c.value === 'string') out[c.key] = c.value;
+        c.continue();
+      };
+      cursor.onerror = () => resolve(out);
       tx.onerror = () => resolve(out);
     } catch {
       resolve(out);
@@ -167,7 +189,7 @@ export async function hydrateDurableStore(): Promise<void> {
 
   const durable = useNativeFile() ? await readNativeFile() : await readIdb();
 
-  for (const key of DURABLE_KEYS) {
+  for (const key of knownKeys(durable || {})) {
     const fromDurable = durable?.[key];
     const fromLocal = (() => {
       try {

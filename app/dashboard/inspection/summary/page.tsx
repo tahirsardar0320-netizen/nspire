@@ -275,7 +275,7 @@ function NSPIREInspectionSummaryContent() {
             // right there. Online this also covers the gap between recording
             // something and the sync landing.
             try {
-              const queuedRaw = localStorage.getItem(`pending_sync_${propertyId}`);
+              const queuedRaw = durableGet(`pending_sync_${propertyId}`);
               const queued = queuedRaw ? JSON.parse(queuedRaw) : [];
               if (Array.isArray(queued)) {
                 queued.forEach((entry: any) => {
