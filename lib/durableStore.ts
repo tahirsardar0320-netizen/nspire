@@ -258,6 +258,31 @@ async function flushAll(): Promise<void> {
   await writeNativeFile(all);
 }
 
+/**
+ * Writing one key used to rewrite the entire store — every property, every
+ * cached photo, all of it — and that happens on every save during an
+ * inspection. The first deficiency was cheap; by the second the store was
+ * large enough for the rewrite to be slow, and a save that should take no
+ * time at all started getting in its own way.
+ *
+ * IndexedDB can store a single key on its own, so do that. The native file
+ * has to be written whole, so coalesce rapid saves into one write shortly
+ * after the last of them rather than one per keystroke.
+ */
+let nativeFlushTimer: ReturnType<typeof setTimeout> | null = null;
+
+function flushKey(key: string, value: string): void {
+  if (!useNativeFile()) {
+    void writeIdb(key, value);
+    return;
+  }
+  if (nativeFlushTimer) clearTimeout(nativeFlushTimer);
+  nativeFlushTimer = setTimeout(() => {
+    nativeFlushTimer = null;
+    void flushAll();
+  }, 400);
+}
+
 /** Every known key in a family, e.g. all cached_progress_ records. */
 export function durableKeysWithPrefix(prefix: string): string[] {
   const keys = new Set<string>();
@@ -289,7 +314,7 @@ export function durableSet(key: string, value: string): boolean {
   // Mirrored to localStorage as well: harmless where it survives, and it keeps
   // any code still reading localStorage directly in step.
   safeSetItem(key, value);
-  void flushAll();
+  flushKey(key, value);
   return true;
 }
 
@@ -298,5 +323,6 @@ export function durableRemove(key: string): void {
   try {
     localStorage.removeItem(key);
   } catch {}
+  // A removal has to go through the whole-store write either way.
   void flushAll();
 }
