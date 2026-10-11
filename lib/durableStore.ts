@@ -26,6 +26,12 @@ import { safeSetItem } from './safeStorage';
 
 /** Keys whose loss costs an inspector real work. */
 export const DURABLE_KEYS = [
+  // The session itself. It lived only in localStorage — the storage iOS
+  // clears — so losing it sent the next request up unauthenticated, the
+  // server answered 401, and the app logged the inspector out in the middle
+  // of a job. That is the "it suddenly threw me out" report.
+  'token',
+  'user',
   'inspire_offline_property_queue',
   'inspire_local_properties',
   'cached_properties',
@@ -204,7 +210,19 @@ export async function hydrateDurableStore(): Promise<void> {
     // is empty must not erase a localStorage copy that still has the user's
     // work in it.
     const chosen = pickRicher(fromDurable, fromLocal);
-    if (chosen != null) memory.set(key, chosen);
+    if (chosen != null) {
+      memory.set(key, chosen);
+      // Restore it to localStorage as well. Dozens of call sites read the
+      // token straight from there, and rewriting them all would be a far
+      // bigger change than simply putting back what was evicted.
+      if (fromLocal == null) {
+        try {
+          localStorage.setItem(key, chosen);
+        } catch {
+          // Still held in memory and in the durable copy.
+        }
+      }
+    }
   }
 
   hydrated = true;

@@ -10,6 +10,7 @@ import { initGoogleLogin, initFacebookLogin, initAppleLogin , resumePendingOAuth
 import { authAPI } from "@/lib/api"
 import { completeSocialSignIn, dashboardForRole } from "@/lib/completeSocialSignIn"
 import { safeSetItem } from "@/lib/safeStorage"
+import { durableSet } from "@/lib/durableStore"
 
 export default function Login() {
   const [email, setEmail] = useState("")
@@ -82,11 +83,11 @@ export default function Login() {
 
       // A failed write here would leave the user looking signed in with no
       // token, and the next request would bounce them straight back here.
-      if (!safeSetItem('token', data.token)) {
+      if (!durableSet('token', data.token)) {
         toast.error("Couldn't save your session — free up some space on your device and try again.", { position: 'top-right', autoClose: 5000 })
         return
       }
-      safeSetItem('user', JSON.stringify(data.user))
+      durableSet('user', JSON.stringify(data.user))
 
       toast.success('Login successful! Redirecting to dashboard...', { position: 'top-right', autoClose: 1500 })
       router.push(dashboardForRole(data.user?.role || role))
@@ -157,11 +158,11 @@ export default function Login() {
         // Store token
         // A failed write here would leave the user looking signed in with no
         // token, and the next request would bounce them straight back here.
-        if (!safeSetItem('token', response.token)) {
+        if (!durableSet('token', response.token)) {
           toast.error("Couldn't save your session — free up some space on your device and try again.", { position: "top-right", autoClose: 5000 })
           return
         }
-        safeSetItem('user', JSON.stringify(response.user))
+        durableSet('user', JSON.stringify(response.user))
 
         toast.success(`Logged in with ${provider}! Redirecting...`, {
           position: "top-right",

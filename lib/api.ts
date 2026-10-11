@@ -60,6 +60,11 @@ async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
+  // The session may still be on its way back from durable storage after the
+  // engine cleared localStorage. Reading the token before that finishes sent
+  // the request up unauthenticated, and the 401 that came back logged the
+  // inspector out of a session that was perfectly valid.
+  await ensureHydrated();
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
   const config: RequestInit = {

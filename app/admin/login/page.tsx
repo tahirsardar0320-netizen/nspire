@@ -7,6 +7,7 @@ import { toast } from "react-toastify"
 import { useRouter } from "next/navigation"
 import { safeSetItem } from "@/lib/safeStorage"
 import { fetchWithTimeout } from '@/lib/httpFetch';
+import { durableSet } from "@/lib/durableStore"
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("")
@@ -100,12 +101,12 @@ export default function AdminLogin() {
       // Store token in localStorage
       // A failed write here would leave the user looking signed in with no
       // token, and the next request would bounce them straight back here.
-      if (!safeSetItem('token', data.token)) {
+      if (!durableSet('token', data.token)) {
         toast.error("Couldn't save your session — free up some space on your device and try again.", { position: "top-right", autoClose: 5000 })
         setIsLoading(false)
         return
       }
-      safeSetItem('user', JSON.stringify(data.user))
+      durableSet('user', JSON.stringify(data.user))
 
       toast.success("Admin login successful! Redirecting to dashboard...", {
         position: "top-right",
