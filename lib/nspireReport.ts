@@ -525,15 +525,64 @@ export function buildNSPIREReport(data: any, property: any): NSPIREInspectionRep
 export async function fetchNSPIREReportForProperty(propertyId: string): Promise<NSPIREInspectionReport | null> {
     const { propertiesAPI, inspectionsAPI } = await import('@/lib/api')
 
-    const propRes = await propertiesAPI.getById(propertyId)
-    const propertyData = propRes.success ? propRes.property : null
+    // None of these can answer with no connection, and letting any of them
+    // throw meant the whole report gave up — which is why "View NSPIRE
+    // Summary" did nothing at all in the field, even with deficiencies
+    // recorded minutes earlier and sitting on the device.
+    const propRes = await propertiesAPI.getById(propertyId).catch(() => null)
+    let propertyData = propRes?.success ? propRes.property : null
+
+    if (!propertyData) {
+        // The copy held on the device, which also covers properties created in
+        // the field that the server has never seen.
+        try {
+            const { durableGet } = await import('@/lib/durableStore')
+            const cached = JSON.parse(durableGet('inspire_local_properties') || '[]')
+            if (Array.isArray(cached)) {
+                propertyData = cached.find(
+                    (c: any) => String(c?._id || c?.id || c?.propertyId) === String(propertyId)
+                ) || null
+            }
+        } catch {
+            // No usable local copy; the report is built from what follows.
+        }
+    }
 
     const [progData, inspectionsRes] = await Promise.all([
-        inspectionsAPI.getProgress({ property_id: propertyId, draft_only: 'false' }),
-        inspectionsAPI.getAll({ property: propertyId, status: 'completed' }),
+        inspectionsAPI.getProgress({ property_id: propertyId, draft_only: 'false' }).catch(() => null),
+        inspectionsAPI.getAll({ property: propertyId, status: 'completed' }).catch(() => null),
     ])
 
     const allFindings: any[] = []
+
+    // Anything saved with no signal lives in pending_sync_<propertyId> until it
+    // reaches the server. Include it, or the report omits exactly the work the
+    // inspector just did.
+    try {
+        const { durableGet } = await import('@/lib/durableStore')
+        const queued = JSON.parse(durableGet(`pending_sync_${propertyId}`) || '[]')
+        if (Array.isArray(queued)) {
+            queued.forEach((entry: any) => {
+                const payload = entry?.payload || entry
+                const pending = payload?.inspectionData?.findings
+                if (!Array.isArray(pending)) return
+                const building = payload.building_id || ''
+                const unit = payload.unit_id || '-'
+                const rawArea = payload.inspection_type || 'Unit'
+                const area = rawArea.charAt(0).toUpperCase() + rawArea.slice(1).toLowerCase()
+                pending.forEach((f: any) => {
+                    allFindings.push({
+                        ...f,
+                        building: f.building || building,
+                        unit: f.unit || unit,
+                        area: f.area || area,
+                    })
+                })
+            })
+        }
+    } catch {
+        // Nothing queued, or unreadable — the server data below stands alone.
+    }
 
     if (progData && progData.progress) {
         progData.progress.forEach((record: any) => {
@@ -561,7 +610,7 @@ export async function fetchNSPIREReportForProperty(propertyId: string): Promise<
         })
     }
 
-    if (inspectionsRes.success && inspectionsRes.inspections) {
+    if (inspectionsRes?.success && inspectionsRes.inspections) {
         inspectionsRes.inspections.forEach((insp: any) => {
             const inspFindings = insp.findings || insp.deficiencies || []
             if (Array.isArray(inspFindings)) {
