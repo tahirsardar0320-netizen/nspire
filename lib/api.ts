@@ -37,6 +37,24 @@ const AUTH_ENDPOINTS = [
 
 const isAuthAttempt = (endpoint: string) => AUTH_ENDPOINTS.some((e) => endpoint.startsWith(e));
 
+/**
+ * The only endpoints whose 401 really means "this session is over".
+ *
+ * Every 401 used to clear the token and bounce to /login. A single expired or
+ * refused request while an inspector was mid-job therefore threw them out of
+ * the app — they saw it as being logged out, or as a deficiency that "did not
+ * save and kicked me out", because saving progress is what triggered it. It
+ * was intermittent, happened in any section, and only online, which is exactly
+ * the shape of a token that lapses during a long inspection.
+ *
+ * A data request that comes back 401 now simply fails, and the screen keeps
+ * the work on the device like any other failure.
+ */
+const SESSION_CHECK_ENDPOINTS = ['/api/auth/me', '/api/auth/verify-token'];
+
+const endsSession = (endpoint: string) =>
+  SESSION_CHECK_ENDPOINTS.some((e) => endpoint.startsWith(e));
+
 // Generic API request function with fallback
 async function apiRequest<T>(
   endpoint: string,
@@ -59,12 +77,14 @@ async function apiRequest<T>(
       const response = await fetchWithTimeout(`${API_URL}${endpoint}`, config);
 
       if (response.status === 401 && !isAuthAttempt(endpoint)) {
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && endsSession(endpoint)) {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           window.location.href = '/login';
         }
-        throw new Error('Unauthorized');
+        const unauthorized = new Error('Unauthorized') as any;
+        unauthorized.status = 401;
+        throw unauthorized;
       }
 
       const data = await response.json();
@@ -79,12 +99,14 @@ async function apiRequest<T>(
     const response = await fetchWithTimeout(endpoint, config);
 
     if (response.status === 401 && !isAuthAttempt(endpoint)) {
-      if (typeof window !== 'undefined') {
+      if (typeof window !== 'undefined' && endsSession(endpoint)) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = '/login';
       }
-      throw new Error('Unauthorized');
+      const unauthorized = new Error('Unauthorized') as any;
+      unauthorized.status = 401;
+      throw unauthorized;
     }
 
     const data = await response.json();

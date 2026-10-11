@@ -1072,6 +1072,23 @@ export default function InspectionCategoryPage() {
         setOdForm({ category: "", note: "", location: getDefaultLocation(currentSection), healthAndSafety: "", repairBy: "", codeAndCompliance: "" });
     };
 
+    /**
+     * Tapping the dark area around the modal used to run the full close, which
+     * throws away the photos, the chosen deficiency and the form. Coming back
+     * from the camera it is easy to catch that area by accident — so a
+     * deficiency that had just been photographed vanished and the inspector
+     * was "thrown out" without saving. Only dismiss this way when there is
+     * nothing to lose; the X and Cancel remain for deliberate exits.
+     */
+    const handleODBackdropClick = () => {
+        const hasUnsavedWork = photos.length > 0 || !!selectedDeficiency || !!odForm.note?.trim();
+        if (hasUnsavedWork) {
+            toast.info('Use Proceed to save, or Cancel to discard.', { position: 'top-right', autoClose: 2500 });
+            return;
+        }
+        handleODModalClose();
+    };
+
     const handleRemoveODDeficiency = () => {
         if (!currentSection || !currentModalItem) return;
         const savedKey = `${urlBuilding}:${currentSection}:${currentModalItem}`;
@@ -2205,7 +2222,7 @@ export default function InspectionCategoryPage() {
             {/* OD Modal - BULLETPROOF SCROLLING AND POSITIONING */}
             {isODModalOpen && (
                 <div className="fixed inset-0 bg-black/80 z-[1000] flex items-start justify-center p-4 sm:p-6 md:p-10 overflow-hidden isolate">
-                    <div className="absolute inset-0 -z-10" onClick={handleODModalClose} />
+                    <div className="absolute inset-0 -z-10" onClick={handleODBackdropClick} />
 
                     <Card className="font-lexend w-full max-w-xl bg-white rounded-3xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.35)] animate-in slide-in-from-top-4 duration-300 flex flex-col h-auto max-h-[70vh] self-center border border-slate-100">
                         <div className="flex items-center gap-3 px-4 py-3 shrink-0 bg-gradient-to-r from-[#00C6D7] to-[#006795] sticky top-0 z-20 shadow-sm">
