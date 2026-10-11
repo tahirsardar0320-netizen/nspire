@@ -31,7 +31,7 @@
 //
 // Tying the version to the build means a deploy always retires the caches it
 // invalidated.
-const VERSION = 'v7-202610111626';
+const VERSION = 'v7-202610111835';
 const SHELL_CACHE = `inspire-shell-${VERSION}`;
 const PAGE_CACHE = `inspire-pages-${VERSION}`;
 const ASSET_CACHE = `inspire-assets-${VERSION}`;
@@ -55,13 +55,50 @@ const SHELL_PAGES = [
   '/dashboard/inspection-category/template',
 ];
 
+/**
+ * Caching a page's HTML is not enough to open it offline — it is a shell that
+ * does nothing until its JavaScript arrives. Next.js names those files after
+ * the build and deletes the previous ones, so a page the inspector had not
+ * opened since the last deploy had its scripts fetched from a server that was
+ * no longer reachable: the page loaded and rendered absolutely nothing.
+ *
+ * That is what made pressing Back offline land on a blank screen. So pull the
+ * script and stylesheet URLs out of each shell page and cache those too.
+ */
+async function precacheShellAssets(shellCache, assetCache) {
+  const pages = await shellCache.keys();
+  const assets = new Set();
+
+  for (const request of pages) {
+    if (!/\.(png|jpg|jpeg|svg|webp)$/i.test(new URL(request.url).pathname)) {
+      try {
+        const html = await (await shellCache.match(request)).text();
+        for (const m of html.matchAll(/(?:src|href)="(\/_next\/static\/[^"]+\.(?:js|css))"/g)) {
+          assets.add(m[1]);
+        }
+      } catch (err) {
+        // Unreadable entry — the others still contribute.
+      }
+    }
+  }
+
+  await Promise.all(
+    Array.from(assets).map((url) =>
+      assetCache.match(url).then((hit) => (hit ? null : assetCache.add(url).catch(() => {})))
+    )
+  );
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches
-      .open(SHELL_CACHE)
+    (async () => {
+      const shellCache = await caches.open(SHELL_CACHE);
       // Individually, so one 404 cannot abort the whole install.
-      .then((cache) => Promise.all(SHELL_PAGES.map((p) => cache.add(p).catch(() => {}))))
-      .then(() => self.skipWaiting())
+      await Promise.all(SHELL_PAGES.map((p) => shellCache.add(p).catch(() => {})));
+      const assetCache = await caches.open(ASSET_CACHE);
+      await precacheShellAssets(shellCache, assetCache);
+      await self.skipWaiting();
+    })()
   );
 });
 

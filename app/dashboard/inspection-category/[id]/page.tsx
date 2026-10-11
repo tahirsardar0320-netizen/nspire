@@ -34,7 +34,8 @@ import { OUTSIDE_ITEMS, INSIDE_ITEMS, UNIT_ITEMS } from "@/lib/inspectionData";
 import { ReportPreviewModal } from "@/components/ReportPreviewModal";
 import { fetchNSPIREReportForProperty, NSPIREInspectionReport } from "@/lib/nspireReport";
 import { safeSetItem } from "@/lib/safeStorage"
-import { durableGet } from "@/lib/durableStore"
+import { durableGet, durableRemove, durableSet } from '@/lib/durableStore'
+import { watchReachability } from "@/lib/reachability"
 
 
 const outsideItemsList = OUTSIDE_ITEMS.map(item => `${item.id}. ${item.name}`);
@@ -582,7 +583,18 @@ export default function InspectionCategoryPage() {
         try {
             const syncKey = `pending_sync_${id}`;
             const existingSyncStr = durableGet(syncKey);
-            const existingSync = existingSyncStr ? JSON.parse(existingSyncStr) : [];
+            // An unreadable or non-array queue must not take the save down with
+            // it: the deficiency itself is already stored, and failing here
+            // told the inspector their work was lost when it was not.
+            let existingSync: any[] = [];
+            if (existingSyncStr) {
+                try {
+                    const parsed = JSON.parse(existingSyncStr);
+                    if (Array.isArray(parsed)) existingSync = parsed;
+                } catch {
+                    // Start the queue again rather than refuse to queue at all.
+                }
+            }
             const filteredSync = existingSync.filter((item: any) => 
                 !(item.inspection_type === payload.inspection_type && item.unit_id === payload.unit_id)
             );
@@ -595,11 +607,14 @@ export default function InspectionCategoryPage() {
             // outgrow the storage quota. Silently swallowing that loses the
             // inspector's work without them ever knowing.
             const quotaHit = e?.name === 'QuotaExceededError' || /quota/i.test(e?.message || '');
-            toast.error(
+            // Only the sync queue failed here. The deficiency itself was
+            // written before this runs, so say what is actually true rather
+            // than telling an inspector their work is gone.
+            toast.warning(
                 quotaHit
-                    ? "Device storage is full — this change could not be saved offline. Please reconnect to sync before continuing."
-                    : "This change could not be saved offline. Please reconnect to sync.",
-                { autoClose: 8000 }
+                    ? "Device storage is full. Your work is saved on this device, but reconnect soon so it can sync."
+                    : "Saved on this device, but it could not be queued for sync. Reconnect when you can.",
+                { autoClose: 6000 }
             );
         }
     };
@@ -612,8 +627,12 @@ export default function InspectionCategoryPage() {
             if (!existingSyncStr) return;
             queue = JSON.parse(existingSyncStr);
         } catch {
-            durableRemove(syncKey);
-            setOfflineChangesCount(0);
+            // Never delete the queue because it could not be read. A truncated
+            // write — easy to hit once photos are inline — would otherwise
+            // throw away every deficiency waiting to sync, which is exactly
+            // how a day's offline work could vanish on reconnecting.
+            console.error('Offline queue is unreadable; leaving it in place for recovery.');
+            toast.error('Some offline work could not be read. It has been kept on this device — please contact support before reinstalling.', { autoClose: 10000 });
             return;
         }
         if (!Array.isArray(queue) || queue.length === 0) return;
@@ -626,7 +645,11 @@ export default function InspectionCategoryPage() {
         let synced = 0;
         for (const payload of queue) {
             try {
-                await inspectionsAPI.saveProgress(await uploadQueuedPhotos(payload));
+                const res: any = await inspectionsAPI.saveProgress(await uploadQueuedPhotos(payload));
+                // A 200 that says success:false is still a failure. Treating it
+                // as synced dropped the record from the queue while the server
+                // never kept it.
+                if (res && res.success === false) throw new Error(res.message || 'Server rejected the change');
                 synced++;
             } catch (error) {
                 console.error('Error syncing an offline change:', error);
@@ -655,18 +678,20 @@ export default function InspectionCategoryPage() {
     };
 
     useEffect(() => {
-        setIsOnline(navigator.onLine);
-        const handleOnline = () => {
-            setIsOnline(true);
-            toast.success("Connection restored! Syncing offline changes...");
-            syncPendingChanges(true);
-        };
-        const handleOffline = () => {
-            setIsOnline(false);
-            toast.warn("You are offline. Progress will be saved locally.");
-        };
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
+        // Driven by whether the server actually answers, not by
+        // navigator.onLine — which stays true in a dead spot and left the
+        // offline warning on screen long after the signal came back.
+        let first = true;
+        const stopWatching = watchReachability((reachable) => {
+            setIsOnline(reachable);
+            if (first) { first = false; if (reachable) return; }
+            if (reachable) {
+                toast.success("Connection restored! Syncing offline changes...");
+                syncPendingChanges(true);
+            } else {
+                toast.warn("You are offline. Progress will be saved locally.");
+            }
+        });
         
         try {
             const syncKey = `pending_sync_${id}`;
@@ -681,8 +706,7 @@ export default function InspectionCategoryPage() {
         } catch (e) {}
 
         return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
+            stopWatching();
         };
     }, [id]);
 

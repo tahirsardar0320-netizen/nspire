@@ -45,7 +45,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
         zipCode: formData.zipCode,
       })
 
-      if (response.success) {
+      if (response?.success) {
         toast.success("Inspection request submitted successfully!", { position: "top-right" })
         onClose()
         setFormData({
@@ -1358,7 +1358,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
         units: parseInt(formData.units) || 0,
       });
 
-      if (response.success) {
+      if (response?.success) {
         toast.success("Property updated successfully!", { position: "top-right" });
         if (onSuccess) onSuccess();
         onClose();
@@ -1378,7 +1378,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
     setIsLoading(true);
     try {
       const response = await propertiesAPI.delete(propertyData._id);
-      if (response.success) {
+      if (response?.success) {
         toast.success("Property deleted successfully", { position: "top-right" });
         if (onSuccess) onSuccess();
         onClose();

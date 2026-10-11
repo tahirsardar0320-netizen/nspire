@@ -231,7 +231,7 @@ export default function Dashboard() {
     if (confirm(`Are you sure you want to remove ${property.name}?`)) {
       try {
         const response = await propertiesAPI.delete(property._id)
-        if (response.success) {
+        if (response?.success) {
           setSelectedIds(prev => {
             const next = new Set(prev)
             next.delete(property._id)
@@ -277,7 +277,7 @@ export default function Dashboard() {
             units: parseInt(p.units) || 0,
           }))
         )
-        if (response.success) {
+        if (response?.success) {
           toast.success(`${response.properties?.length || data.length} properties added successfully!`, { position: "top-right" })
           fetchProperties()
           setNewPropertyData(response.properties?.[0] || data[0])
@@ -308,9 +308,9 @@ export default function Dashboard() {
         buildings: buildings.length,
         units: buildings.reduce((sum, b) => sum + b.units, 0),
       })
-      if (response.success) {
+      if (response?.success) {
         if (response.offline) {
-          toast.info(response.message || "Saved offline — it'll sync once you're back online.", { position: "top-right", autoClose: 5000 })
+          toast.info(response?.message || "Saved offline — it'll sync once you're back online.", { position: "top-right", autoClose: 5000 })
         } else {
           toast.success("Data saved successfully", { position: "top-right" })
         }
@@ -318,7 +318,7 @@ export default function Dashboard() {
         // Save custom building names and per-building unit split to localStorage
         // (the backend only stores the building count + total units, not the
         // individual breakdown, so this mirrors that until the API supports it)
-        const propId = response.property?._id || response.property?.propertyId || data.propertyId
+        const propId = response?.property?._id || response?.property?.propertyId || data.propertyId
         if (propId) {
           const namesMap: Record<string, string> = {}
           const unitsMap: Record<string, number> = {}
@@ -331,7 +331,7 @@ export default function Dashboard() {
         }
 
         fetchProperties()
-        setNewPropertyData(response.property || data)
+        setNewPropertyData(response?.property || data)
         setShowBuildingDivisionModal(false)
         setShowActionModal(true)
       }

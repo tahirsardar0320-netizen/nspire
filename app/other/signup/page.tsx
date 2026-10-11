@@ -9,6 +9,7 @@ import SocialLoginButtons from "@/components/SocialLoginButtons"
 import { initGoogleLogin, initFacebookLogin, initAppleLogin } from "@/lib/social-auth"
 import { authAPI } from "@/lib/api"
 import { inspectorTypeLabel } from "@/lib/inspectorTypes"
+import { dashboardForRole } from "@/lib/completeSocialSignIn"
 import { safeSetItem } from "@/lib/safeStorage"
 import { fetchWithTimeout } from '@/lib/httpFetch';
 

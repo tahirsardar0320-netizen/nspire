@@ -300,7 +300,7 @@ function NSPIREInspectionSummaryContent() {
             }
 
             // 2. Collect findings from finalized (completed) inspections
-            if (inspectionsRes.success && inspectionsRes.inspections) {
+            if (inspectionsRes?.success && inspectionsRes.inspections) {
               inspectionsRes.inspections.forEach((insp: any) => {
                 const inspFindings = insp.findings || insp.deficiencies || [];
                 if (insp.isReportUnlocked) serverUnlocked = true;
