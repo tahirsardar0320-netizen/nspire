@@ -179,7 +179,7 @@ export default function InspectionCategoryPage() {
 
             // Merge in the local cache so this still works when the backend is unreachable
             try {
-                const cached = localStorage.getItem(`cached_progress_${id}_${urlBuilding}`);
+                const cached = durableGet(`cached_progress_${id}_${urlBuilding}`);
                 if (cached) {
                     const cachedList = JSON.parse(cached);
                     if (Array.isArray(cachedList)) records = [...records, ...cachedList];
@@ -534,7 +534,7 @@ export default function InspectionCategoryPage() {
         const localCacheKey = `cached_progress_${id}_${urlBuilding}`;
         let cachedList: any[] = [];
         try {
-            const cachedDataStr = localStorage.getItem(localCacheKey);
+            const cachedDataStr = durableGet(localCacheKey);
             if (cachedDataStr) {
                 cachedList = JSON.parse(cachedDataStr);
             }
@@ -575,7 +575,7 @@ export default function InspectionCategoryPage() {
             cachedList.push(newRecord);
         }
 
-        safeSetItem(localCacheKey, JSON.stringify(cachedList));
+        durableSet(localCacheKey, JSON.stringify(cachedList));
     };
 
     const queueForOfflineSync = (payload: any) => {
@@ -690,7 +690,7 @@ export default function InspectionCategoryPage() {
         const localCacheKey = `cached_progress_${id}_${urlBuilding}`;
         let cachedRecords: any[] = [];
         try {
-            const cachedDataStr = localStorage.getItem(localCacheKey);
+            const cachedDataStr = durableGet(localCacheKey);
             if (cachedDataStr) {
                 cachedRecords = JSON.parse(cachedDataStr);
                 applyProgressData(cachedRecords);
@@ -708,7 +708,7 @@ export default function InspectionCategoryPage() {
             // Never let an empty/partial server response wipe out richer local progress
             // (e.g. while the backend is unreachable or hasn't caught up yet).
             if (res.progress && res.progress.length >= cachedRecords.length) {
-                safeSetItem(localCacheKey, JSON.stringify(res.progress));
+                durableSet(localCacheKey, JSON.stringify(res.progress));
                 applyProgressData(res.progress);
             }
         } catch (error) {

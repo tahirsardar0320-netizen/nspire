@@ -401,7 +401,7 @@ export default function PropertyDetailsPage() {
             // Merge in the local cache the inspection-category page writes to,
             // so progress still shows up even when the backend is unreachable.
             try {
-                const cached = localStorage.getItem(`cached_progress_${propId}_${b.buildingId}`)
+                const cached = durableGet(`cached_progress_${propId}_${b.buildingId}`)
                 if (cached) {
                     const cachedList = JSON.parse(cached)
                     if (Array.isArray(cachedList)) records = [...records, ...cachedList]

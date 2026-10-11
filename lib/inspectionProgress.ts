@@ -1,5 +1,6 @@
 import { OUTSIDE_ITEMS, INSIDE_ITEMS } from "@/lib/inspectionData"
 import { fetchWithTimeout } from './httpFetch';
+import { durableGet, durableSet } from './durableStore';
 
 // Computes per-property completion % from the same records the
 // inspection-category page writes (API progress + its local cache),
@@ -61,7 +62,7 @@ export async function fetchPropertyProgressMap(propertyList: any[], apiUrl: stri
 
       if (typeof window !== 'undefined') {
         try {
-          const cached = localStorage.getItem(`cached_progress_${propId}_${buildingId}`)
+          const cached = durableGet(`cached_progress_${propId}_${buildingId}`)
           if (cached) {
             const cachedList = JSON.parse(cached)
             if (Array.isArray(cachedList)) records = [...records, ...cachedList]

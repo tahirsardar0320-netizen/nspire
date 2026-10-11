@@ -555,22 +555,23 @@ export async function fetchNSPIREReportForProperty(propertyId: string): Promise<
 
     const allFindings: any[] = []
 
-    // Anything saved with no signal lives in pending_sync_<propertyId> until it
-    // reaches the server. Include it, or the report omits exactly the work the
-    // inspector just did.
     try {
-        const { durableGet } = await import('@/lib/durableStore')
-        const queued = JSON.parse(durableGet(`pending_sync_${propertyId}`) || '[]')
-        if (Array.isArray(queued)) {
-            queued.forEach((entry: any) => {
-                const payload = entry?.payload || entry
-                const pending = payload?.inspectionData?.findings
-                if (!Array.isArray(pending)) return
-                const building = payload.building_id || ''
-                const unit = payload.unit_id || '-'
-                const rawArea = payload.inspection_type || 'Unit'
+        const { durableKeysWithPrefix, durableGet } = await import('@/lib/durableStore')
+        // Deficiencies recorded with no signal land in
+        // cached_progress_<propertyId>_<buildingId>, one key per building.
+        // Without these the report shows nothing in the field — which is
+        // exactly what it did.
+        for (const key of durableKeysWithPrefix(`cached_progress_${propertyId}_`)) {
+            const records = JSON.parse(durableGet(key) || '[]')
+            if (!Array.isArray(records)) continue
+            records.forEach((record: any) => {
+                const recordFindings = record?.inspectionData?.findings || []
+                if (!Array.isArray(recordFindings)) return
+                const building = record.buildingId || ''
+                const unit = record.unitId || '-'
+                const rawArea = record.inspectionType || 'Unit'
                 const area = rawArea.charAt(0).toUpperCase() + rawArea.slice(1).toLowerCase()
-                pending.forEach((f: any) => {
+                recordFindings.forEach((f: any) => {
                     allFindings.push({
                         ...f,
                         building: f.building || building,
@@ -581,7 +582,7 @@ export async function fetchNSPIREReportForProperty(propertyId: string): Promise<
             })
         }
     } catch {
-        // Nothing queued, or unreadable — the server data below stands alone.
+        // Nothing held locally, or unreadable — the server data stands alone.
     }
 
     if (progData && progData.progress) {

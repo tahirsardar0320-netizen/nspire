@@ -25,7 +25,7 @@ import {
 } from "@/lib/nspireReport"
 import { safeSetItem } from "@/lib/safeStorage"
 import { fetchWithTimeout } from '@/lib/httpFetch';
-import { durableGet } from "@/lib/durableStore"
+import { durableGet, durableKeysWithPrefix } from "@/lib/durableStore"
 
 
 // Icons
@@ -268,25 +268,24 @@ function NSPIREInspectionSummaryContent() {
               });
             }
 
-            // 1b. Fold in anything still queued on this device. Saves made
-            // with no signal live in pending_sync_<propertyId> until they
-            // sync, and the summary only ever asked the server — so offline
-            // it reported an empty inspection while the deficiencies were
-            // right there. Online this also covers the gap between recording
-            // something and the sync landing.
+            // 1b. Fold in work still held on this device. A deficiency saved
+            // with no signal lands in cached_progress_<propertyId>_<buildingId>,
+            // one key per building, and until it syncs the server knows nothing
+            // about it — so the summary reported an empty inspection while the
+            // deficiencies sat on the phone. Online this also covers the gap
+            // between recording something and its save landing.
             try {
-              const queuedRaw = durableGet(`pending_sync_${propertyId}`);
-              const queued = queuedRaw ? JSON.parse(queuedRaw) : [];
-              if (Array.isArray(queued)) {
-                queued.forEach((entry: any) => {
-                  const payload = entry?.payload || entry;
-                  const pendingFindings = payload?.inspectionData?.findings || [];
-                  if (!Array.isArray(pendingFindings)) return;
-                  const building = payload.building_id || '';
-                  const unit = payload.unit_id || '-';
-                  const rawArea = payload.inspection_type || 'Unit';
+              for (const key of durableKeysWithPrefix(`cached_progress_${propertyId}_`)) {
+                const records = JSON.parse(durableGet(key) || '[]');
+                if (!Array.isArray(records)) continue;
+                records.forEach((record: any) => {
+                  const recordFindings = record?.inspectionData?.findings || [];
+                  if (!Array.isArray(recordFindings)) return;
+                  const building = record.buildingId || '';
+                  const unit = record.unitId || '-';
+                  const rawArea = record.inspectionType || 'Unit';
                   const area = rawArea.charAt(0).toUpperCase() + rawArea.slice(1).toLowerCase();
-                  pendingFindings.forEach((f: any) => {
+                  recordFindings.forEach((f: any) => {
                     allFindings.push({
                       ...f,
                       building: f.building || building,
@@ -297,7 +296,7 @@ function NSPIREInspectionSummaryContent() {
                 });
               }
             } catch {
-              // Nothing queued, or unreadable — the server data above stands.
+              // Nothing held locally, or unreadable — the server data stands.
             }
 
             // 2. Collect findings from finalized (completed) inspections

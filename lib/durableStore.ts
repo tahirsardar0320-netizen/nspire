@@ -33,10 +33,11 @@ export const DURABLE_KEYS = [
 
 /**
  * Families of keys that are equally costly but whose names are not known in
- * advance — pending_sync_<propertyId> holds every deficiency recorded with no
- * signal, one key per property.
+ * advance: cached_progress_<propertyId>_<buildingId> is where a deficiency
+ * recorded with no signal actually lands, one key per building, and
+ * pending_sync_<propertyId> queues saves waiting to go up.
  */
-const DURABLE_PREFIXES = ['pending_sync_'];
+const DURABLE_PREFIXES = ['pending_sync_', 'cached_progress_'];
 
 const isDurableKey = (key: string) =>
   DURABLE_KEYS.includes(key) || DURABLE_PREFIXES.some((p) => key.startsWith(p));
@@ -237,6 +238,23 @@ async function flushAll(): Promise<void> {
     all[k] = v;
   });
   await writeNativeFile(all);
+}
+
+/** Every known key in a family, e.g. all cached_progress_ records. */
+export function durableKeysWithPrefix(prefix: string): string[] {
+  const keys = new Set<string>();
+  memory.forEach((_v, k) => {
+    if (k.startsWith(prefix)) keys.add(k);
+  });
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(prefix)) keys.add(k);
+    }
+  } catch {
+    // localStorage unavailable; memory alone answers.
+  }
+  return Array.from(keys);
 }
 
 export function durableGet(key: string): string | null {
