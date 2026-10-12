@@ -189,12 +189,24 @@ export default function InspectionCategoryPage() {
 
             const completed: string[] = [];
             const seen = new Set<string>();
+            const bId = String(urlBuilding || '').toLowerCase();
             records.forEach((p: any) => {
                 const type = String(p.inspectionType || '').toLowerCase();
-                if (type.startsWith('unit_') && p.inspectionData?.isComplete && p.unitId && !seen.has(p.unitId)) {
-                    seen.add(p.unitId);
-                    completed.push(p.unitId);
-                }
+                if (!type.startsWith('unit_') || !p.inspectionData?.isComplete || !p.unitId || seen.has(p.unitId)) return;
+                // The API answers with the whole property's records — it does not
+                // filter by building — so Building 1's finished units were counted
+                // for Building 2 as well: "2 units inspected" on a building never
+                // touched. Only count a unit that belongs to this building. A
+                // legacy record with no building in its type or fields can only
+                // have come from the first building (same rule applyProgressData
+                // already applies).
+                const pBldg = String(p.buildingId || '').toLowerCase();
+                const belongsHere = type.startsWith(`unit_${bId}_`) ||
+                    pBldg === bId ||
+                    (!pBldg && !/^unit_b\d+_/.test(type) && (bId === 'b1' || bId === 'building 1'));
+                if (!belongsHere) return;
+                seen.add(p.unitId);
+                completed.push(p.unitId);
             });
 
             setCompletedUnits(completed);
@@ -267,7 +279,17 @@ export default function InspectionCategoryPage() {
     // Track items that have actual saved OD findings (to protect from accidental Select All overwrite)
     const [savedODItems, setSavedODItems] = useState<Set<string>>(new Set());
 
-    // Store previously saved OD form data per item key (section:itemName) for pre-filling when re-opened
+    // A saved deficiency's identity. Building and section alone are not enough:
+    // Unit 001's "1. Bathroom" and Unit 002's "1. Bathroom" hashed to the same
+    // key, so one unit's saved deficiency showed up in — and was overwritten
+    // by — every other unit's copy of the same item. Unit records therefore
+    // carry the unit in the key; outside/inside have no unit and never did.
+    const odSavedKey = (section: 'outside' | 'inside' | 'unit', itemName: string, unit?: string) =>
+        section === 'unit'
+            ? `${urlBuilding}:${section}:${unit ?? activeInspectionUnit}:${itemName}`
+            : `${urlBuilding}:${section}:${itemName}`;
+
+    // Store previously saved OD form data per item key (see odSavedKey) for pre-filling when re-opened
     const [savedODFormData, setSavedODFormData] = useState<Record<string, {
         odForm: { category: string; note: string; location: string; healthAndSafety: string; repairBy: string; codeAndCompliance: string };
         selectedDeficiency: DeficiencyDetail | null;
@@ -507,7 +529,11 @@ export default function InspectionCategoryPage() {
                 const area = f.area || f.category || 'unknown';
                 const unit = f.unit || '-';
                 const item = f.item || f.deficiencyName || f.title || 'unknown';
-                const key = `${bldg}|${area}|${unit}|${item}`.toLowerCase().trim();
+                // The title belongs in the identity: without it, three different
+                // deficiencies recorded on the same item deduped down to one —
+                // "saved three, only one survived".
+                const title = f.title || f.description || f.deficiencyName || '';
+                const key = `${bldg}|${area}|${unit}|${item}|${title}`.toLowerCase().trim();
                 if (seen.has(key)) return false;
                 seen.add(key);
                 return true;
@@ -519,9 +545,20 @@ export default function InspectionCategoryPage() {
         const restoredSavedODKeys = new Set<string>();
         progressList.forEach((p: any) => {
             if (p.inspectionData && p.inspectionData.odFormSnapshots) {
+                const pType = String(p.inspectionType || '').toLowerCase();
                 Object.entries(p.inspectionData.odFormSnapshots).forEach(([key, val]) => {
-                    restoredSnapshots[key] = val;
-                    restoredSavedODKeys.add(key);
+                    // Snapshots saved before keys carried the unit are
+                    // `building:unit:item` (3 parts). They can only have come
+                    // from the unit record they were stored in, so scope them
+                    // to that record's unit rather than letting them answer
+                    // for every unit's copy of the item.
+                    let scopedKey = key;
+                    const parts = key.split(':');
+                    if (pType.startsWith('unit') && p.unitId && parts.length === 3 && parts[1] === 'unit') {
+                        scopedKey = `${parts[0]}:unit:${p.unitId}:${parts[2]}`;
+                    }
+                    restoredSnapshots[scopedKey] = val;
+                    restoredSavedODKeys.add(scopedKey);
                 });
             }
         });
@@ -729,11 +766,47 @@ export default function InspectionCategoryPage() {
                 building_id: urlBuilding
             });
 
-            // Never let an empty/partial server response wipe out richer local progress
-            // (e.g. while the backend is unreachable or hasn't caught up yet).
-            if (res.progress && res.progress.length >= cachedRecords.length) {
-                durableSet(localCacheKey, JSON.stringify(res.progress));
-                applyProgressData(res.progress);
+            // The server's answer must never wipe out richer local progress. The
+            // old guard compared list lengths — but the API ignores building_id
+            // and answers with every building's records, so its list was almost
+            // always "longer" and overwrote the cache even when the local copy
+            // held offline work the server had never seen. Coming back online
+            // then showed the inspection empty while the queued findings later
+            // synced into the report: present in the report, gone on screen.
+            //
+            // So merge per record instead: match records by identity and keep
+            // whichever side knows more.
+            if (res.progress && res.progress.length > 0) {
+                const belongsHere = (p: any) => {
+                    const type = String(p.inspectionType || '').toLowerCase();
+                    const bId = String(urlBuilding || '').toLowerCase();
+                    const pBldg = String(p.buildingId || '').toLowerCase();
+                    const pUnit = String(p.unitId || '').toLowerCase();
+                    if (type.startsWith('unit_') && /^unit_b\d+_/.test(type)) return type.startsWith(`unit_${bId}_`);
+                    if (pBldg) return pBldg === bId;
+                    // Older Outside/Inside saves carried the building in unit_id.
+                    if (/^b\d+$/.test(pUnit) || pUnit.startsWith('building ')) return pUnit === bId;
+                    // A record with no building anywhere can only predate
+                    // multi-building support — it belongs to the first building.
+                    return bId === 'b1' || bId === 'building 1';
+                };
+                const recKey = (p: any) =>
+                    `${String(p.inspectionType || '').toLowerCase()}|${String(p.unitId || '').toLowerCase()}`;
+                const richness = (p: any) =>
+                    (p?.responses ? Object.values(p.responses).filter((v: any) => v !== null && v !== undefined).length : 0) +
+                    (Array.isArray(p?.inspectionData?.findings) ? p.inspectionData.findings.length : 0) +
+                    Object.keys(p?.inspectionData?.odFormSnapshots || {}).length;
+
+                const merged = new Map<string, any>();
+                res.progress.filter(belongsHere).forEach((p: any) => merged.set(recKey(p), p));
+                (Array.isArray(cachedRecords) ? cachedRecords : []).filter(belongsHere).forEach((p: any) => {
+                    const existing = merged.get(recKey(p));
+                    if (!existing || richness(p) > richness(existing)) merged.set(recKey(p), p);
+                });
+
+                const mergedList = Array.from(merged.values());
+                durableSet(localCacheKey, JSON.stringify(mergedList));
+                applyProgressData(mergedList);
             }
         } catch (error) {
             console.error("Error loading progress from API:", error);
@@ -749,7 +822,10 @@ export default function InspectionCategoryPage() {
             // Saving inspectionData here REPLACES the whole field on the backend (no deep
             // merge), so we must carry forward any findings already recorded for each
             // section — otherwise this debounced/auto save silently wipes out deficiencies
-            // added via the Add-Deficiency modal.
+            // added via the Add-Deficiency modal. The same goes for odFormSnapshots:
+            // leaving them out meant this autosave, firing two seconds after a
+            // deficiency was recorded, erased the server's copy of it — the item
+            // re-opened as "no existing deficiency record".
             const outsideFindings = propertyFindings.filter((f: any) => f.area === 'outside');
             const insideFindings = propertyFindings.filter((f: any) => f.area === 'inside');
             // Read the unit portion from refs, not the closed-over unitStatuses/activeInspectionUnit —
@@ -767,7 +843,7 @@ export default function InspectionCategoryPage() {
                     inspection_type: 'Outside',
                     responses: outsideStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete, findings: outsideFindings }
+                    inspectionData: { isComplete, findings: outsideFindings, odFormSnapshots: savedODFormData }
                 };
                 payloads.push({ type: 'Outside', isComplete, payload });
                 updateLocalCache('Outside', outsideStatuses, isComplete);
@@ -781,7 +857,7 @@ export default function InspectionCategoryPage() {
                     inspection_type: 'Inside',
                     responses: insideStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete, findings: insideFindings }
+                    inspectionData: { isComplete, findings: insideFindings, odFormSnapshots: savedODFormData }
                 };
                 payloads.push({ type: 'Inside', isComplete, payload });
                 updateLocalCache('Inside', insideStatuses, isComplete);
@@ -798,7 +874,7 @@ export default function InspectionCategoryPage() {
                     inspection_type: `unit_${urlBuilding}_${currentUnitId}`,
                     responses: currentUnitStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete, findings: unitFindings }
+                    inspectionData: { isComplete, findings: unitFindings, odFormSnapshots: savedODFormData }
                 };
                 payloads.push({ type: `unit_${urlBuilding}_${currentUnitId}`, isComplete, payload, unitId: currentUnitId });
                 updateLocalCache(`unit_${urlBuilding}_${currentUnitId}`, currentUnitStatuses, isComplete, currentUnitId);
@@ -827,7 +903,7 @@ export default function InspectionCategoryPage() {
                     inspection_type: 'Outside',
                     responses: outsideStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete, findings: outsideFindings }
+                    inspectionData: { isComplete, findings: outsideFindings, odFormSnapshots: savedODFormData }
                 });
             }
             if (Object.keys(insideStatuses).length > 0) {
@@ -838,7 +914,7 @@ export default function InspectionCategoryPage() {
                     inspection_type: 'Inside',
                     responses: insideStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete, findings: insideFindings }
+                    inspectionData: { isComplete, findings: insideFindings, odFormSnapshots: savedODFormData }
                 });
             }
             if (Object.keys(currentUnitStatuses).length > 0 && currentUnitId) {
@@ -852,7 +928,7 @@ export default function InspectionCategoryPage() {
                     inspection_type: `unit_${urlBuilding}_${currentUnitId}`,
                     responses: currentUnitStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete, findings: unitFindings }
+                    inspectionData: { isComplete, findings: unitFindings, odFormSnapshots: savedODFormData }
                 });
             }
         }
@@ -864,7 +940,7 @@ export default function InspectionCategoryPage() {
         }, 2000); // Debounce save
 
         return () => clearTimeout(timer);
-    }, [outsideStatuses, insideStatuses, unitStatuses, urlBuilding, activeInspectionUnit, propertyFindings]);
+    }, [outsideStatuses, insideStatuses, unitStatuses, urlBuilding, activeInspectionUnit, propertyFindings, savedODFormData]);
 
     useEffect(() => {
         if (activeInspectionUnit) {
@@ -946,7 +1022,7 @@ export default function InspectionCategoryPage() {
             setCurrentModalItem(itemName);
 
             // If this item was previously saved, pre-fill the form with saved data
-            const savedKey = `${urlBuilding}:${section}:${itemName}`;
+            const savedKey = odSavedKey(section, itemName);
             const previousData = savedODFormData[savedKey];
             if (previousData) {
                 setOdForm(previousData.odForm);
@@ -993,7 +1069,7 @@ export default function InspectionCategoryPage() {
 
         // If status is being changed away from OD, clean up the saved finding
         if ((status as any) !== 'OD') {
-            const savedKey = `${urlBuilding}:${section}:${itemName}`;
+            const savedKey = odSavedKey(section, itemName);
             setSavedODItems(prev => {
                 const next = new Set(prev);
                 next.delete(savedKey);
@@ -1030,11 +1106,11 @@ export default function InspectionCategoryPage() {
         const list = section === 'outside' ? outsideItemsList : section === 'inside' ? insideItemsList : unitItemsList;
         const currentStatuses = section === 'outside' ? outsideStatuses : section === 'inside' ? insideStatuses : unitStatuses;
 
-        // Items with saved OD findings are always locked to 'OD'
+        // Items with saved OD findings are always locked to 'OD'. Matched via
+        // odSavedKey — the old `section:` prefix never matched the stored keys
+        // (they start with the building), so nothing was ever locked.
         const itemsWithFindings = new Set(
-            Array.from(savedODItems)
-                .filter(key => key.startsWith(`${section}:`))
-                .map(key => key.slice(section.length + 1))
+            list.filter(item => savedODItems.has(odSavedKey(section, item)))
         );
 
         // IMPORTANT: Only touch items that are either:
@@ -1091,7 +1167,7 @@ export default function InspectionCategoryPage() {
 
     const handleRemoveODDeficiency = () => {
         if (!currentSection || !currentModalItem) return;
-        const savedKey = `${urlBuilding}:${currentSection}:${currentModalItem}`;
+        const savedKey = odSavedKey(currentSection, currentModalItem);
 
         if (currentSection === 'outside') {
             setOutsideStatuses(prev => ({ ...prev, [currentModalItem]: null }));
@@ -1315,7 +1391,7 @@ export default function InspectionCategoryPage() {
                     isComplete,
                     odFormSnapshots: {
                         ...(savedODFormData),
-                        [`${urlBuilding}:${currentSection}:${currentModalItem}`]: {
+                        [odSavedKey(currentSection, currentModalItem as string)]: {
                             odForm: { ...odForm },
                             selectedDeficiency: selectedDeficiency,
                             photos: [...photos],
@@ -1333,7 +1409,7 @@ export default function InspectionCategoryPage() {
         setAnalysisResult(analysisResult);
         
         if (currentSection && currentModalItem) {
-            const savedKey = `${urlBuilding}:${currentSection}:${currentModalItem}`;
+            const savedKey = odSavedKey(currentSection, currentModalItem);
             setSavedODItems(prev => new Set(prev).add(savedKey));
             setSavedODFormData(prev => ({
                 ...prev,
@@ -1469,14 +1545,14 @@ export default function InspectionCategoryPage() {
                         onClick={() => selectAll(section, 'No OD')} 
                         className={`w-full text-[10px] h-10 font-bold flex items-center justify-center gap-2 uppercase rounded-lg shadow-sm transition-all ${
                             (() => {
-                                const toggleableItems = items.filter(i => !savedODItems.has(`${section}:${i}`));
+                                const toggleableItems = items.filter(i => !savedODItems.has(odSavedKey(section, i)));
                                 return toggleableItems.length > 0 && toggleableItems.every(item => statuses[item] === 'No OD');
                             })() ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white'
                         }`}
                     >
                         <div className="w-4 h-4 bg-white/20 border border-white/40 flex items-center justify-center rounded">
                             {(() => {
-                                const toggleableItems = items.filter(i => !savedODItems.has(`${section}:${i}`));
+                                const toggleableItems = items.filter(i => !savedODItems.has(odSavedKey(section, i)));
                                 return toggleableItems.length > 0 && toggleableItems.every(item => statuses[item] === 'No OD') ? <Check className="w-3 h-3 text-white" strokeWidth={4} /> : null;
                             })()}
                         </div>
@@ -1487,7 +1563,7 @@ export default function InspectionCategoryPage() {
                             onClick={() => selectAll(section, 'OD')}
                             className={`w-full text-[10px] h-10 font-extrabold flex items-center justify-center gap-1.5 uppercase rounded-lg shadow-sm transition-all border-2 ${
                                 (() => {
-                                    const toggleableItems = items.filter(i => !savedODItems.has(`${section}:${i}`));
+                                    const toggleableItems = items.filter(i => !savedODItems.has(odSavedKey(section, i)));
                                     return toggleableItems.length > 0 && toggleableItems.every(item => statuses[item] === 'OD');
                                 })() ? 'bg-[#F84B5F] border-[#F84B5F] text-white' : 'bg-white border-[#F84B5F] text-[#F84B5F] hover:bg-red-50'
                             }`}
@@ -1499,14 +1575,14 @@ export default function InspectionCategoryPage() {
                             onClick={() => selectAll(section, 'N/A')} 
                             className={`w-full text-[10px] h-10 font-bold flex items-center justify-center gap-2 uppercase rounded-lg shadow-sm transition-all ${
                                 (() => {
-                                    const toggleableItems = items.filter(i => !savedODItems.has(`${section}:${i}`));
+                                    const toggleableItems = items.filter(i => !savedODItems.has(odSavedKey(section, i)));
                                     return toggleableItems.length > 0 && toggleableItems.every(item => statuses[item] === 'N/A');
                                 })() ? 'bg-gray-600 hover:bg-gray-700 text-white' : 'bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white'
                             }`}
                         >
                             <div className="w-4 h-4 bg-white/20 border border-white/40 flex items-center justify-center rounded">
                                 {(() => {
-                                    const toggleableItems = items.filter(i => !savedODItems.has(`${section}:${i}`));
+                                    const toggleableItems = items.filter(i => !savedODItems.has(odSavedKey(section, i)));
                                     return toggleableItems.length > 0 && toggleableItems.every(item => statuses[item] === 'N/A') ? <Check className="w-3 h-3 text-white" strokeWidth={4} /> : null;
                                 })()}
                             </div>
@@ -1575,7 +1651,7 @@ export default function InspectionCategoryPage() {
                                 <Button onClick={() => selectAll(section, 'No OD')} className="w-full bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white text-[10px] h-8 font-bold flex items-center gap-1.5 px-3 uppercase">
                                     <div className="w-3 h-3 bg-white border border-cyan-800 flex items-center justify-center">
                                         {(() => {
-                                            const toggleableItems = items.filter(i => !savedODItems.has(`${section}:${i}`));
+                                            const toggleableItems = items.filter(i => !savedODItems.has(odSavedKey(section, i)));
                                             const isChecked = toggleableItems.length > 0 && toggleableItems.every(item => statuses[item] === 'No OD');
                                             return isChecked ? <Check className="w-2.5 h-2.5 text-cyan-800" strokeWidth={4} /> : null;
                                         })()}
@@ -1588,7 +1664,7 @@ export default function InspectionCategoryPage() {
                                     onClick={() => selectAll(section, 'OD')}
                                     className={`w-full text-[10px] h-8 font-extrabold flex items-center justify-center gap-1.5 px-3 uppercase border-2 rounded-lg shadow-sm font-lexend ${
                                         (() => {
-                                            const toggleableItems = items.filter(i => !savedODItems.has(`${section}:${i}`));
+                                            const toggleableItems = items.filter(i => !savedODItems.has(odSavedKey(section, i)));
                                             return toggleableItems.length > 0 && toggleableItems.every(item => statuses[item] === 'OD');
                                         })() ? 'bg-[#F84B5F] border-[#F84B5F] text-white' : 'bg-white border-[#F84B5F] text-[#F84B5F] hover:bg-red-50'
                                     }`}
@@ -1601,7 +1677,7 @@ export default function InspectionCategoryPage() {
                                 <Button onClick={() => selectAll(section, 'N/A')} className="w-full bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white text-[10px] h-8 font-bold flex items-center gap-1.5 px-3 uppercase">
                                     <div className="w-3 h-3 bg-white border border-cyan-800 flex items-center justify-center">
                                         {(() => {
-                                            const toggleableItems = items.filter(i => !savedODItems.has(`${section}:${i}`));
+                                            const toggleableItems = items.filter(i => !savedODItems.has(odSavedKey(section, i)));
                                             const isChecked = toggleableItems.length > 0 && toggleableItems.every(item => statuses[item] === 'N/A');
                                             return isChecked ? <Check className="w-2.5 h-2.5 text-cyan-800" strokeWidth={4} /> : null;
                                         })()}
