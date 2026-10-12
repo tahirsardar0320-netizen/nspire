@@ -31,7 +31,7 @@
 //
 // Tying the version to the build means a deploy always retires the caches it
 // invalidated.
-const VERSION = 'v7-202610112155';
+const VERSION = 'v7-202610122102';
 const SHELL_CACHE = `inspire-shell-${VERSION}`;
 const PAGE_CACHE = `inspire-pages-${VERSION}`;
 const ASSET_CACHE = `inspire-assets-${VERSION}`;
@@ -53,6 +53,12 @@ const SHELL_PAGES = [
   // the field can be opened — and reloaded — with no connection at all.
   '/dashboard/property-details/template',
   '/dashboard/inspection-category/template',
+  // Read their ids from the query string, so one cached copy serves them all.
+  // Summary was missing from here entirely: offline, "View Summary" fetched a
+  // route the worker had never cached, the fetch failed, and the tap looked
+  // like it did nothing — the inspection appeared stuck.
+  '/dashboard/inspection/summary',
+  '/dashboard/my-inspection',
 ];
 
 /**
