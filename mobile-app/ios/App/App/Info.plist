@@ -40,6 +40,17 @@
 			</array>
 		</dict>
 	</array>
+	<!-- iOS only enables service workers inside an app's WKWebView for domains
+	     declared here (App-Bound Domains). Without this the offline cache never
+	     exists in the app: launched with no connection it rendered a blank white
+	     page, while the same site worked offline in Safari. Must stay in step
+	     with server.allowNavigation in capacitor.config.json, and
+	     limitsNavigationsToAppBoundDomains must be true for WebKit to honor it. -->
+	<key>WKAppBoundDomains</key>
+	<array>
+		<string>nspireinspectionapp.com</string>
+		<string>www.nspireinspectionapp.com</string>
+	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>NSPIRE Inspection needs camera access to capture photos of inspection deficiencies.</string>
 	<!-- Reading from the library is a separate permission from adding to it;
