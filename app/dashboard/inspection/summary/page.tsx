@@ -332,7 +332,10 @@ function NSPIREInspectionSummaryContent() {
               // MUST include area — without it, an Outside item and an Inside item that happen to
               // share a name (building/unit are often identical, e.g. both "-") collide and one
               // silently overwrites the other, dropping real data from the report.
-              const key = [normName, normBuilding, normUnit, normArea].filter(Boolean).join('|');
+              // A finding's own id wins outright: name-built keys merge two
+              // separately recorded instances of the same deficiency type (two
+              // broken signs, two photos) into one. Copies share the id.
+              const key = f.id ? `id:${f.id}` : [normName, normBuilding, normUnit, normArea].filter(Boolean).join('|');
               
               // If we have duplicates, prefer the one that came from a finalized inspection or has an image
               const existing = deduped.get(key);

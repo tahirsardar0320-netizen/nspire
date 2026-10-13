@@ -525,13 +525,21 @@ export default function InspectionCategoryPage() {
         if (allFindings.length > 0) {
             const seen = new Set();
             const uniqueFindings = allFindings.filter((f: any) => {
+                // Each saved deficiency carries its own id, and that id is the
+                // only safe identity: most items offer a single deficiency
+                // type, so any key built from names collapses two instances of
+                // it — "saved three, only one survived". Copies of the same
+                // finding (cache + server) share the id, so they still dedup.
+                if (f.id) {
+                    const key = `id:${f.id}`;
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                }
                 const bldg = (f.building && !['unknown', 'UNKNOWN-BUILDING'].includes(f.building)) ? f.building : (urlBuilding || 'unknown');
                 const area = f.area || f.category || 'unknown';
                 const unit = f.unit || '-';
                 const item = f.item || f.deficiencyName || f.title || 'unknown';
-                // The title belongs in the identity: without it, three different
-                // deficiencies recorded on the same item deduped down to one —
-                // "saved three, only one survived".
                 const title = f.title || f.description || f.deficiencyName || '';
                 const key = `${bldg}|${area}|${unit}|${item}|${title}`.toLowerCase().trim();
                 if (seen.has(key)) return false;
@@ -1365,38 +1373,13 @@ export default function InspectionCategoryPage() {
                     : false;
 
         const newFinding = inspectionDataForSummary.findings[0];
-        let mergedFindings = [newFinding];
-
-        if (propertyFindings.length > 0) {
-            try {
-                // Which deficiency it is has to be part of this, not just where
-                // it is. Matching on location alone meant a second deficiency
-                // recorded against the same item -- two separate faults on one
-                // chimney, say -- was treated as an edit of the first and
-                // overwrote it, so only the last one ever reached the report.
-                // Re-saving the same fault still updates it in place.
-                const existingIndex = propertyFindings.findIndex((f: any) =>
-                    f.item === newFinding.item &&
-                    f.area === newFinding.area &&
-                    f.unit === newFinding.unit &&
-                    f.nspireCode === newFinding.nspireCode &&
-                    f.title === newFinding.title &&
-                    (f.building === urlBuilding || f.building === buildingName)
-                );
-
-                if (existingIndex >= 0) {
-                    newFinding.id = propertyFindings[existingIndex].id || newFinding.id;
-                    const updatedFindings = [...propertyFindings];
-                    updatedFindings[existingIndex] = newFinding;
-                    mergedFindings = updatedFindings;
-                } else {
-                    mergedFindings = [...propertyFindings, newFinding];
-                }
-            } catch (e) {
-                console.error("Error merging findings:", e);
-                mergedFindings = [...propertyFindings, newFinding];
-            }
-        }
+        // Always a new record. Matching "the same" deficiency and updating it
+        // in place sounded right, but most items offer exactly one deficiency
+        // type — so recording it twice (two broken signs on one building, each
+        // with its own photo) silently replaced the first. In the field every
+        // Proceed is a separate observed instance; it gets its own id, and
+        // everything downstream dedups on that id.
+        const mergedFindings = [...propertyFindings, newFinding];
 
         setPropertyFindings(mergedFindings);
 

@@ -31,7 +31,7 @@
 //
 // Tying the version to the build means a deploy always retires the caches it
 // invalidated.
-const VERSION = 'v7-202610122102';
+const VERSION = 'v7-202610131756';
 const SHELL_CACHE = `inspire-shell-${VERSION}`;
 const PAGE_CACHE = `inspire-pages-${VERSION}`;
 const ASSET_CACHE = `inspire-assets-${VERSION}`;
@@ -247,10 +247,13 @@ self.addEventListener('fetch', (event) => {
             (await cache.match(request, { ignoreSearch: true })) ||
             (await matchSibling(cache, url));
           if (hit) return hit;
-          // Nothing cached for this route. Returning an error response rather
-          // than throwing lets the router surface a normal navigation failure
-          // instead of leaving the tap looking like it did nothing.
-          return new Response('', { status: 504, statusText: 'Offline' });
+          // Nothing cached for this route. Fail the fetch the way a dead
+          // network fails it: the router's error path then falls back to a
+          // full document navigation, which the navigation handler below
+          // serves from the cached shell. The previous 504 looked like a
+          // server answer — the router rendered nothing, and tapping
+          // Continue Inspection offline appeared to do nothing at all.
+          return Response.error();
         }
       })()
     );
