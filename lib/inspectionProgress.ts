@@ -1,6 +1,27 @@
-import { OUTSIDE_ITEMS, INSIDE_ITEMS } from "@/lib/inspectionData"
+import { OUTSIDE_ITEMS, INSIDE_ITEMS, UNIT_ITEMS } from "@/lib/inspectionData"
 import { fetchWithTimeout } from './httpFetch';
 import { durableGet, durableSet } from './durableStore';
+
+/**
+ * Whether a progress record belongs to the given building. The progress API
+ * does not filter by building — it answers with the whole property — so every
+ * screen that shows per-building numbers has to apply this itself, or one
+ * building's work shows up under all of them.
+ *
+ * Unit records carry the building in their type (unit_B1_Unit 001); older
+ * Outside/Inside records carried it in unit_id; records with no building
+ * anywhere predate multi-building support and can only be the first building's.
+ */
+export function recordBelongsToBuilding(p: any, buildingId: string): boolean {
+  const bId = String(buildingId || '').toLowerCase();
+  const type = String(p?.inspectionType || '').toLowerCase();
+  const pBldg = String(p?.buildingId || '').toLowerCase();
+  const pUnit = String(p?.unitId || '').toLowerCase();
+  if (/^unit_b\d+_/.test(type)) return type.startsWith(`unit_${bId}_`);
+  if (pBldg) return pBldg === bId;
+  if (/^b\d+$/.test(pUnit) || pUnit.startsWith('building ')) return pUnit === bId;
+  return bId === 'b1' || bId === 'building 1';
+}
 
 // Computes per-property completion % from the same records the
 // inspection-category page writes (API progress + its local cache),
@@ -56,9 +77,7 @@ export async function fetchPropertyProgressMap(propertyList: any[], apiUrl: stri
     for (let b = 1; b <= numBuildings; b++) {
       const buildingId = `B${b}`
 
-      let records = propApiRecords.filter((p: any) =>
-        String(p.buildingId || p.unitId || '').toUpperCase() === buildingId
-      )
+      let records = propApiRecords.filter((p: any) => recordBelongsToBuilding(p, buildingId))
 
       if (typeof window !== 'undefined') {
         try {
@@ -88,7 +107,16 @@ export async function fetchPropertyProgressMap(propertyList: any[], apiUrl: stri
           const key = `${buildingId}_${p.unitId}`
           if (!completedUnitKeys.has(key)) {
             completedUnitKeys.add(key)
-            completedTasks += 1
+            // A unit mid-inspection used to count as a whole task here while the
+            // inspection screen counted it as a fraction, so the dashboard and
+            // the screen disagreed about the same property. Count it the same
+            // way everywhere.
+            if (p.inspectionData?.isComplete) {
+              completedTasks += 1
+            } else if (p.responses) {
+              const done = Object.values(p.responses).filter((s: any) => s !== null && s !== undefined).length
+              completedTasks += Math.min(1, done / (UNIT_ITEMS.length || 1))
+            }
           }
         }
       })

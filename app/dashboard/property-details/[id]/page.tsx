@@ -9,7 +9,7 @@ import { propertiesAPI, authAPI, inspectionsAPI } from "@/lib/api"
 import { toast } from "react-toastify"
 import { ChevronLeft, CheckCircle2, Clock, X, ChevronRight, Pencil, Check, RefreshCw } from "lucide-react"
 import { generateRandomUnitSample, getUnitsToInspect, getSamplingExplanation } from "@/lib/unitSamplingService"
-import { fetchPropertyProgressMap } from "@/lib/inspectionProgress"
+import { fetchPropertyProgressMap, recordBelongsToBuilding } from "@/lib/inspectionProgress"
 import { safeSetItem } from "@/lib/safeStorage"
 import { fetchWithTimeout } from '@/lib/httpFetch';
 import { durableGet } from "@/lib/durableStore"
@@ -407,6 +407,12 @@ export default function PropertyDetailsPage() {
                     if (Array.isArray(cachedList)) records = [...records, ...cachedList]
                 }
             } catch (e) {}
+
+            // The API answers with the whole property's records regardless of
+            // the building_id it was asked for, so without this filter every
+            // building showed the same progress — work done in B1 lit up B2 and
+            // B3 as well.
+            records = records.filter((p: any) => recordBelongsToBuilding(p, b.buildingId))
 
             const completed: string[] = []
             const outsideRec = records.find((p: any) => p.inspectionType === 'Outside')
