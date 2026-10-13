@@ -568,7 +568,7 @@ export default function InspectionCategoryPage() {
         }
     };
 
-    const updateLocalCache = (type: string, responses: any, isComplete: boolean, unitId?: string) => {
+    const updateLocalCache = (type: string, responses: any, isComplete: boolean, unitId?: string, findings?: any[]) => {
         const localCacheKey = `cached_progress_${id}_${urlBuilding}`;
         let cachedList: any[] = [];
         try {
@@ -596,14 +596,18 @@ export default function InspectionCategoryPage() {
             responses: responses,
             inspectionData: {
                 isComplete,
-                findings: propertyFindings,
+                // Live state is the truth here. This used to prefer the record's
+                // previous findings, which meant a deficiency added after the
+                // record first existed never reached the cache — offline, where
+                // the cache is all there is, the second deficiency on an item
+                // simply disappeared. It also resurrected removed ones.
+                findings: findings ?? propertyFindings,
                 odFormSnapshots: savedODFormData
             }
         };
 
         if (recordIndex >= 0) {
             const prevRecord = cachedList[recordIndex];
-            newRecord.inspectionData.findings = prevRecord.inspectionData?.findings || propertyFindings;
             newRecord.inspectionData.odFormSnapshots = {
                 ...(prevRecord.inspectionData?.odFormSnapshots || {}),
                 ...savedODFormData
@@ -846,7 +850,7 @@ export default function InspectionCategoryPage() {
                     inspectionData: { isComplete, findings: outsideFindings, odFormSnapshots: savedODFormData }
                 };
                 payloads.push({ type: 'Outside', isComplete, payload });
-                updateLocalCache('Outside', outsideStatuses, isComplete);
+                updateLocalCache('Outside', outsideStatuses, isComplete, undefined, outsideFindings);
             }
 
             if (Object.keys(insideStatuses).length > 0) {
@@ -860,7 +864,7 @@ export default function InspectionCategoryPage() {
                     inspectionData: { isComplete, findings: insideFindings, odFormSnapshots: savedODFormData }
                 };
                 payloads.push({ type: 'Inside', isComplete, payload });
-                updateLocalCache('Inside', insideStatuses, isComplete);
+                updateLocalCache('Inside', insideStatuses, isComplete, undefined, insideFindings);
             }
 
             if (Object.keys(currentUnitStatuses).length > 0 && currentUnitId) {
@@ -877,7 +881,7 @@ export default function InspectionCategoryPage() {
                     inspectionData: { isComplete, findings: unitFindings, odFormSnapshots: savedODFormData }
                 };
                 payloads.push({ type: `unit_${urlBuilding}_${currentUnitId}`, isComplete, payload, unitId: currentUnitId });
-                updateLocalCache(`unit_${urlBuilding}_${currentUnitId}`, currentUnitStatuses, isComplete, currentUnitId);
+                updateLocalCache(`unit_${urlBuilding}_${currentUnitId}`, currentUnitStatuses, isComplete, currentUnitId, unitFindings);
             }
             
             if (navigator.onLine) {
@@ -1165,9 +1169,34 @@ export default function InspectionCategoryPage() {
         handleODModalClose();
     };
 
-    const handleRemoveODDeficiency = () => {
+    /** True when a finding belongs to the item the modal is open on. */
+    const isCurrentItemFinding = (f: any) => {
+        const unitVal = currentSection === 'unit' ? (activeInspectionUnit || unitsString) : '-';
+        return f.item === currentModalItem && f.area === currentSection && f.unit === unitVal &&
+            (f.building === urlBuilding || f.building === buildingName);
+    };
+
+    /**
+     * Removes one deficiency, not the whole item. An item can carry several
+     * deficiencies now, so the item only reverts to unanswered — and the modal
+     * only closes — when the last one goes.
+     */
+    const handleRemoveODDeficiency = (target?: any) => {
         if (!currentSection || !currentModalItem) return;
         const savedKey = odSavedKey(currentSection, currentModalItem);
+
+        const matchesTarget = (f: any) => !target ||
+            (f.id && target.id ? f.id === target.id
+                : f.title === target.title && f.nspireCode === target.nspireCode);
+
+        const remaining = propertyFindings.filter((f: any) => !(isCurrentItemFinding(f) && matchesTarget(f)));
+        const itemStillHasFindings = remaining.some(isCurrentItemFinding);
+        setPropertyFindings(remaining);
+
+        if (itemStillHasFindings) {
+            toast.success('Deficiency removed.', { position: 'top-right' });
+            return;
+        }
 
         if (currentSection === 'outside') {
             setOutsideStatuses(prev => ({ ...prev, [currentModalItem]: null }));
@@ -1186,12 +1215,6 @@ export default function InspectionCategoryPage() {
             const next = { ...prev };
             delete next[savedKey];
             return next;
-        });
-        setPropertyFindings(prev => {
-            const unitVal = currentSection === 'unit' ? (activeInspectionUnit || unitsString) : '-';
-            return prev.filter((f: any) =>
-                !(f.item === currentModalItem && f.area === currentSection && f.unit === unitVal && (f.building === urlBuilding || f.building === buildingName))
-            );
         });
 
         toast.success('Deficiency removed.', { position: 'top-right' });
@@ -2596,38 +2619,51 @@ export default function InspectionCategoryPage() {
                         </div>
                         )}
 
-                        {modalStep === 4 && (
+                        {modalStep === 4 && (() => {
+                            // Every deficiency saved on this item, not just the
+                            // last one — Add Deficiency can stack several, and
+                            // hiding all but the latest read as them being lost.
+                            const itemFindings = propertyFindings.filter(isCurrentItemFinding);
+                            const cards = itemFindings.length > 0 ? itemFindings : [{
+                                imageUri: photos[0],
+                                description: analysisResult?.description || analysisResult?.defect || selectedDeficiency?.detail || odForm.note || "Deficiency recorded",
+                                severity: analysisResult?.severity || odForm.healthAndSafety || "Moderate",
+                            }];
+                            const severityClass = (sev: string) =>
+                                sev.toLowerCase().includes('life') ? 'text-red-600' :
+                                    sev.toLowerCase().includes('severe') ? 'text-orange-600' :
+                                        sev.toLowerCase().includes('low') ? 'text-emerald-600' :
+                                            'text-blue-600';
+                            return (
                             <div className="flex-1 overflow-y-auto flex flex-col p-6 md:p-8 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-0 bg-gradient-to-b from-[#0F4C5C] to-[#142834]">
                                 <div className="text-center mb-1">
                                     <img src="/logo.png" alt="NSPIRE" className="h-7 mx-auto mb-3 object-contain brightness-125" />
                                     <h4 className="text-white font-extrabold text-lg font-lexend">Saved for Summary Report</h4>
-                                    <p className="text-white/60 text-xs font-semibold mt-0.5">1 deficiency on this item</p>
+                                    <p className="text-white/60 text-xs font-semibold mt-0.5">{cards.length} deficienc{cards.length === 1 ? 'y' : 'ies'} on this item</p>
                                 </div>
-                                <div className="w-full bg-emerald-50/60 border border-emerald-200 rounded-2xl p-4 flex items-start gap-4 text-left">
-                                    {photos[0] && (
-                                        <img src={photos[0]} alt="Deficiency" className="w-20 h-20 rounded-xl object-cover shrink-0 border-2 border-white shadow-sm" />
+                                {cards.map((f: any, idx: number) => (
+                                <div key={f.id || idx} className="w-full bg-emerald-50/60 border border-emerald-200 rounded-2xl p-4 flex items-start gap-4 text-left">
+                                    {f.imageUri && (
+                                        <img src={f.imageUri} alt="Deficiency" className="w-20 h-20 rounded-xl object-cover shrink-0 border-2 border-white shadow-sm" />
                                     )}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-start justify-between gap-3">
                                             <p className="font-bold text-gray-800 text-sm leading-snug">
-                                                {analysisResult?.description || analysisResult?.defect || selectedDeficiency?.detail || odForm.note || "Deficiency recorded"}
+                                                {f.description || f.title || "Deficiency recorded"}
                                             </p>
                                             <button
-                                                onClick={handleRemoveODDeficiency}
+                                                onClick={() => handleRemoveODDeficiency(f)}
                                                 className="shrink-0 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
                                             >
                                                 Remove
                                             </button>
                                         </div>
-                                        <p className={`mt-2 text-[11px] font-black uppercase tracking-widest ${(analysisResult?.severity || odForm.healthAndSafety || "").toLowerCase().includes('life') ? 'text-red-600' :
-                                            (analysisResult?.severity || odForm.healthAndSafety || "").toLowerCase().includes('severe') ? 'text-orange-600' :
-                                                (analysisResult?.severity || odForm.healthAndSafety || "").toLowerCase().includes('low') ? 'text-emerald-600' :
-                                                    'text-blue-600'
-                                            }`}>
-                                            {analysisResult?.severity || odForm.healthAndSafety || "Moderate"}
+                                        <p className={`mt-2 text-[11px] font-black uppercase tracking-widest ${severityClass(String(f.severity || f.healthAndSafety || ''))}`}>
+                                            {f.severity || f.healthAndSafety || "Moderate"}
                                         </p>
                                     </div>
                                 </div>
+                                ))}
 
                                 <Button
                                     onClick={() => {
@@ -2672,7 +2708,8 @@ export default function InspectionCategoryPage() {
                                     Continue Inspection
                                 </Button>
                             </div>
-                        )}
+                            );
+                        })()}
 
                         {/* Only show modalStep 2 footer if not in step 4 */}
                         {modalStep === 2 && (
