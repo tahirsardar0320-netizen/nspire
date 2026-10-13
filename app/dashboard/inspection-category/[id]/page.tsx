@@ -1288,11 +1288,23 @@ export default function InspectionCategoryPage() {
     const [reportUrl, setReportUrl] = useState<string | null>(null);
     const [analysisResult, setAnalysisResult] = useState<any>(null);
 
+    // Every run of handleProceed records a new deficiency instance, so a tap
+    // that lands while a save is still in flight must not run it again.
+    // Offline the save takes long enough that an inspector taps Proceed three
+    // or four times waiting for something to happen — each tap used to save
+    // another copy ("10 deficiencies on this item", all identical). A ref, not
+    // state: taps in the same frame beat a re-render.
+    const proceedingRef = useRef(false);
+
     const handleProceed = async () => {
+        if (proceedingRef.current) return;
         if (photos.length === 0) {
             toast.error("Please upload a photo first");
             return;
         }
+        proceedingRef.current = true;
+        setIsAnalyzing(true);
+        try {
 
         const analysisResult = {
             defect: selectedDeficiency?.selected || odForm.category,
@@ -1428,6 +1440,10 @@ export default function InspectionCategoryPage() {
             }));
         }
         setModalStep(4);
+        } finally {
+            proceedingRef.current = false;
+            setIsAnalyzing(false);
+        }
     };
 
     // In the app the camera is opened natively: <input capture> opens the photo
