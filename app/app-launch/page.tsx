@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ensureHydrated, durableGet } from "@/lib/durableStore";
+import { dashboardForRole } from "@/lib/completeSocialSignIn";
 
 const STALL_TIMEOUT_MS = 2500;
 const MAX_PLAYBACK_MS = 9000;
@@ -11,13 +13,35 @@ export default function AppLaunch() {
   const [videoFailed, setVideoFailed] = useState(false);
   const stallTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wentRef = useRef(false);
+  // The video's own ended/error handlers leave through here too — they used to
+  // call router.replace directly, racing past the session check below and
+  // landing a signed-in inspector on the portal screen anyway.
+  const goRef = useRef<() => void>(() => {});
 
   useEffect(() => {
-    const go = () => {
+    const go = async () => {
       if (wentRef.current) return;
       wentRef.current = true;
+      // The app relaunches here every time it is opened, and this always went
+      // to the portal/login screens — so an inspector who killed the app and
+      // reopened it was handed the login form despite holding a perfectly
+      // valid session, which reads as "it logged me out". Resume the session
+      // instead. ensureHydrated first: on iOS the token's durable copy lives
+      // in a file that is only pulled into memory asynchronously.
+      try {
+        await ensureHydrated();
+        const token = durableGet("token");
+        const user = JSON.parse(durableGet("user") || "null");
+        if (token && user) {
+          router.replace(dashboardForRole(user.role));
+          return;
+        }
+      } catch {
+        // No readable session — the normal flow below takes over.
+      }
       router.replace("/profile-selection");
     };
+    goRef.current = go;
 
     // No point even attempting the video if we're already known offline —
     // avoids the browser's broken-video icon flashing over the splash screen.
@@ -65,10 +89,10 @@ export default function AppLaunch() {
           muted
           playsInline
           onPlaying={clearStallTimer}
-          onEnded={() => router.replace("/profile-selection")}
+          onEnded={() => goRef.current()}
           onError={() => {
             setVideoFailed(true);
-            router.replace("/profile-selection");
+            goRef.current();
           }}
           className="relative w-full h-full object-contain mix-blend-multiply"
         />

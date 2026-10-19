@@ -65,6 +65,18 @@ async function apiRequest<T>(
   // the request up unauthenticated, and the 401 that came back logged the
   // inspector out of a session that was perfectly valid.
   await ensureHydrated();
+
+  // With no network interface at all there is nothing to try. Every screen
+  // already knows how to fall back to the device's cached copy — but only
+  // after the request fails, and on iOS a doomed request can sit on its
+  // timeout for a long time. Pressing Back offline left a spinner on an empty
+  // page for half a minute before the cached screen appeared. Failing here
+  // immediately makes offline render as fast as online. (navigator.onLine
+  // false is definitive; true is not, so that case still goes to the wire.)
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    throw new Error('Offline — served from the device instead');
+  }
+
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
   const config: RequestInit = {

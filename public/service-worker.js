@@ -31,7 +31,7 @@
 //
 // Tying the version to the build means a deploy always retires the caches it
 // invalidated.
-const VERSION = 'v7-202610131756';
+const VERSION = 'v7-202610191916';
 const SHELL_CACHE = `inspire-shell-${VERSION}`;
 const PAGE_CACHE = `inspire-pages-${VERSION}`;
 const ASSET_CACHE = `inspire-assets-${VERSION}`;
@@ -161,7 +161,11 @@ async function matchSibling(cache, url) {
 /** Hashed build assets and stored photos never change — serve them from cache. */
 async function cacheFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
-  const hit = await cache.match(request);
+  // Any cache, not just this handler's own. The logo is precached into the
+  // shell cache, but images are served through here, which only looked in the
+  // asset cache — empty right after a deploy rotates the cache names — so
+  // offline the header logo rendered as a broken image.
+  const hit = (await cache.match(request)) || (await caches.match(request, { ignoreSearch: false }));
   if (hit) return hit;
   const response = await fetch(request);
   if (response && response.status === 200) cache.put(request, response.clone());
