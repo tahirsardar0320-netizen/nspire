@@ -33,9 +33,17 @@ export async function GET(req: NextRequest) {
       filter.propertyId = propertyId;
     }
 
-    const progress = await Inspection.find(filter)
-      .select('propertyId inspectionType unitId buildingId status responses inspectionData data')
-      .lean();
+    // Progress and completed-unit counts only need to know what was answered,
+    // not every finding with its photos and form snapshots. Those blobs grow
+    // with every inspection, and this endpoint is hit on the dashboard, on
+    // property details, and after every save — which is why the app slowed to
+    // a crawl once an inspector had a property or two of real data behind it.
+    const slim = searchParams.get('slim') === '1';
+    const fields = slim
+      ? 'propertyId inspectionType unitId buildingId status responses inspectionData.isComplete'
+      : 'propertyId inspectionType unitId buildingId status responses inspectionData data';
+
+    const progress = await Inspection.find(filter).select(fields).lean();
 
     return NextResponse.json({ success: true, progress });
   } catch (error: any) {

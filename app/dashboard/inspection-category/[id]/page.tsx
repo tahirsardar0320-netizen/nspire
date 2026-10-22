@@ -172,7 +172,8 @@ export default function InspectionCategoryPage() {
         try {
             let records: any[] = [];
             try {
-                const res = await inspectionsAPI.getProgress({ property_id: id, building_id: urlBuilding });
+                // slim: completion counts need answers only, not every finding and photo.
+                const res = await inspectionsAPI.getProgress({ property_id: id, building_id: urlBuilding, slim: '1' });
                 if (res && Array.isArray(res.progress)) records = res.progress;
             } catch (error) {
                 console.error("Error fetching progress from API:", error);
@@ -628,6 +629,47 @@ export default function InspectionCategoryPage() {
         durableSet(localCacheKey, JSON.stringify(cachedList));
     };
 
+    /**
+     * After a save whose photos were uploaded, adopt the hosted URLs into
+     * local state. The upload used to swap URLs only in the outgoing payload,
+     * so a photo captured offline stayed a multi-megabyte data URL on the
+     * device forever: every later save re-uploaded it and re-serialized it
+     * into the cache, and the app ground to a halt once a property or two of
+     * real photos had accumulated. One successful upload now retires the
+     * data URL everywhere.
+     */
+    const adoptHostedPhotos = (original: any[] | undefined, swapped: any[] | undefined) => {
+        if (!Array.isArray(original) || !Array.isArray(swapped)) return;
+        const mapping = new Map<string, string>();
+        original.forEach((f: any, i: number) => {
+            const before = f?.imageUri;
+            const after = swapped[i]?.imageUri;
+            if (typeof before === 'string' && before.startsWith('data:') &&
+                typeof after === 'string' && !after.startsWith('data:')) {
+                mapping.set(before, after);
+            }
+        });
+        if (mapping.size === 0) return;
+
+        setPropertyFindings(prev => prev.map((f: any) =>
+            mapping.has(f?.imageUri) ? { ...f, imageUri: mapping.get(f.imageUri) } : f));
+        setSavedODFormData(prev => {
+            let changed = false;
+            const next: typeof prev = {};
+            for (const [k, snap] of Object.entries(prev)) {
+                const photos = Array.isArray((snap as any)?.photos)
+                    ? (snap as any).photos.map((p: string) => {
+                        if (mapping.has(p)) { changed = true; return mapping.get(p)!; }
+                        return p;
+                    })
+                    : (snap as any)?.photos;
+                next[k] = changed ? { ...(snap as any), photos } : snap;
+            }
+            return changed ? next : prev;
+        });
+        setPhotos(prev => prev.map(p => mapping.get(p) || p));
+    };
+
     const queueForOfflineSync = (payload: any) => {
         try {
             const syncKey = `pending_sync_${id}`;
@@ -694,7 +736,9 @@ export default function InspectionCategoryPage() {
         let synced = 0;
         for (const payload of queue) {
             try {
-                const res: any = await inspectionsAPI.saveProgress(await uploadQueuedPhotos(payload));
+                const swappedQueued = await uploadQueuedPhotos(payload);
+                const res: any = await inspectionsAPI.saveProgress(swappedQueued);
+                adoptHostedPhotos(payload?.inspectionData?.findings, swappedQueued?.inspectionData?.findings);
                 // A 200 that says success:false is still a failure. Treating it
                 // as synced dropped the record from the queue while the server
                 // never kept it.
@@ -893,7 +937,12 @@ export default function InspectionCategoryPage() {
             }
             
             if (navigator.onLine) {
-                const promises = payloads.map(async p => inspectionsAPI.saveProgress(await uploadQueuedPhotos(p.payload)));
+                const promises = payloads.map(async p => {
+                    const swapped = await uploadQueuedPhotos(p.payload);
+                    const res = await inspectionsAPI.saveProgress(swapped);
+                    adoptHostedPhotos(p.payload?.inspectionData?.findings, swapped?.inspectionData?.findings);
+                    return res;
+                });
                 await Promise.all(promises);
                 await refreshCompletedUnits();
             } else {
@@ -1398,7 +1447,7 @@ export default function InspectionCategoryPage() {
         try {
             // Any photo whose upload did not land stays a data URL; host it now
             // rather than carrying it inline in the inspection record.
-            await inspectionsAPI.saveProgress(await uploadQueuedPhotos({
+            const proceedPayload = {
                 property_id: property?._id || params.id,
                 unit_id: currentSection === 'unit' ? activeInspectionUnit : urlBuilding,
                 building_id: urlBuilding,
@@ -1417,7 +1466,10 @@ export default function InspectionCategoryPage() {
                         }
                     }
                 }
-            }));
+            };
+            const swappedPayload = await uploadQueuedPhotos(proceedPayload);
+            await inspectionsAPI.saveProgress(swappedPayload);
+            adoptHostedPhotos(proceedPayload.inspectionData.findings, swappedPayload?.inspectionData?.findings);
         } catch (saveError) {
             console.warn("Failed to sync manual finding to server, cached locally:", saveError);
         }

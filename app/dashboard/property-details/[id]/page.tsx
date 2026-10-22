@@ -392,7 +392,7 @@ export default function PropertyDetailsPage() {
         for (const b of buildings) {
             let records: any[] = []
             try {
-                const res = await inspectionsAPI.getProgress({ property_id: propId, building_id: b.buildingId })
+                const res = await inspectionsAPI.getProgress({ property_id: propId, building_id: b.buildingId, slim: '1' })
                 if (res && Array.isArray(res.progress)) records = res.progress
             } catch (error) {
                 console.error("Error fetching progress from API:", error)

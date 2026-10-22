@@ -29,7 +29,7 @@ export function recordBelongsToBuilding(p: any, buildingId: string): boolean {
 export async function fetchPropertyProgressMap(propertyList: any[], apiUrl: string): Promise<Record<string, number>> {
   let apiProgress: any[] = []
   try {
-    const response = await fetchWithTimeout(`${apiUrl}/api/inspections/progress`, {
+    const response = await fetchWithTimeout(`${apiUrl}/api/inspections/progress?slim=1`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
