@@ -1659,22 +1659,13 @@ export default function InspectionCategoryPage() {
                         </div>
                         Select All No OD
                     </Button>
-                    <div className="grid grid-cols-2 gap-2 font-lexend">
+                    {/* No bulk "Observe Deficiency": a deficiency needs its own
+                        photo and details, so marking every item OD in one tap
+                        only ever produced meaningless rows. OD is set per item. */}
+                    <div className="grid grid-cols-1 gap-2 font-lexend">
                         <Button
-                            onClick={() => selectAll(section, 'OD')}
-                            className={`w-full text-[10px] h-10 font-extrabold flex items-center justify-center gap-1.5 uppercase rounded-lg shadow-sm transition-all border-2 ${
-                                (() => {
-                                    const toggleableItems = items.filter(i => !savedODItems.has(odSavedKey(section, i)));
-                                    return toggleableItems.length > 0 && toggleableItems.every(item => statuses[item] === 'OD');
-                                })() ? 'bg-[#F84B5F] border-[#F84B5F] text-white' : 'bg-white border-[#F84B5F] text-[#F84B5F] hover:bg-red-50'
-                            }`}
-                        >
-                            <Check className="w-3.5 h-3.5" strokeWidth={3} />
-                            Observe Deficiency
-                        </Button>
-                        <Button 
-                            onClick={() => selectAll(section, 'N/A')} 
-                            className={`w-full text-[10px] h-10 font-bold flex items-center justify-center gap-2 uppercase rounded-lg shadow-sm transition-all ${
+                            onClick={() => selectAll(section, 'N/A')}
+                            className={`w-full text-xs h-10 font-bold flex items-center justify-center gap-2 uppercase rounded-lg shadow-sm transition-all ${
                                 (() => {
                                     const toggleableItems = items.filter(i => !savedODItems.has(odSavedKey(section, i)));
                                     return toggleableItems.length > 0 && toggleableItems.every(item => statuses[item] === 'N/A');
@@ -1760,20 +1751,9 @@ export default function InspectionCategoryPage() {
                                     Select All No OD
                                 </Button>
                             </th>
-                            <th className="py-2 px-2">
-                                <Button
-                                    onClick={() => selectAll(section, 'OD')}
-                                    className={`w-full text-[10px] h-8 font-extrabold flex items-center justify-center gap-1.5 px-3 uppercase border-2 rounded-lg shadow-sm font-lexend ${
-                                        (() => {
-                                            const toggleableItems = items.filter(i => !savedODItems.has(odSavedKey(section, i)));
-                                            return toggleableItems.length > 0 && toggleableItems.every(item => statuses[item] === 'OD');
-                                        })() ? 'bg-[#F84B5F] border-[#F84B5F] text-white' : 'bg-white border-[#F84B5F] text-[#F84B5F] hover:bg-red-50'
-                                    }`}
-                                >
-                                    <Check className="w-4 h-4" strokeWidth={3} />
-                                    Observe Deficiency
-                                </Button>
-                            </th>
+                            {/* No bulk "Observe Deficiency" — OD is set per item,
+                                with its own photo and details. */}
+                            <th className="py-2 px-2"></th>
                             <th className="py-2 px-2">
                                 <Button onClick={() => selectAll(section, 'N/A')} className="w-full bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white text-[10px] h-8 font-bold flex items-center gap-1.5 px-3 uppercase">
                                     <div className="w-3 h-3 bg-white border border-cyan-800 flex items-center justify-center">
@@ -2128,11 +2108,17 @@ export default function InspectionCategoryPage() {
                                                     <User className="w-3.5 h-3.5" /> Inspecting: {activeInspectionUnit}
                                                 </span>
                                                 <button
-                                                    onClick={async () => {
-                                                        await saveCurrentProgress();
-                                                        await refreshCompletedUnits();
+                                                    onClick={() => {
+                                                        // Answer the tap now. The work is already held on the
+                                                        // device; the server sync (photo uploads included) can
+                                                        // take ten-plus seconds on site, and waiting on it made
+                                                        // Submit look dead. It runs on in the background and the
+                                                        // sync badge reports anything that could not go up.
                                                         toast.success(`${activeInspectionUnit} saved!`, { position: 'top-right' });
                                                         setUnitSelectionPopupOpen(true);
+                                                        void saveCurrentProgress()
+                                                            .then(() => refreshCompletedUnits())
+                                                            .catch((e) => console.error('Background submit sync failed:', e));
                                                     }}
                                                     className="text-xs font-bold text-rose-600 hover:underline flex items-center gap-1 bg-rose-50 px-2 py-1 rounded-full transition-colors"
                                                 >

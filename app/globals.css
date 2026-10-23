@@ -556,3 +556,14 @@
     font-size: 16px;
   }
 }
+
+/* Field legibility: on phones the rem-based type was too small to read on
+   site. Raising the root size scales every rem-based Tailwind class (text-xs,
+   text-sm, ...) together, so the layout keeps its proportions. Fixed-px
+   sizes (and the 16px input rule above, which prevents iOS zoom-on-focus)
+   are untouched. */
+@media (max-width: 640px) {
+  html {
+    font-size: 17.5px;
+  }
+}
