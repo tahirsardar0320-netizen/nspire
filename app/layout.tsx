@@ -4,6 +4,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import './globals.css'
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
+import HardwareBackHandler from '@/components/HardwareBackHandler'
 import FetchTimeoutGuard from '@/components/FetchTimeoutGuard'
 
 // const inter = Inter({ subsets: ["latin"] });
@@ -36,6 +37,7 @@ export default function RootLayout({
       <body suppressHydrationWarning className="antialiased font-sans">
         <FetchTimeoutGuard />
         <ServiceWorkerRegister />
+        <HardwareBackHandler />
         {children}
         {/*
           Capped and stacked deliberately. Saving several inspection items in a
