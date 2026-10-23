@@ -167,13 +167,26 @@ export const uploadQueuedPhotos = async (payload: any): Promise<any> => {
     const findings = payload?.inspectionData?.findings;
     if (!Array.isArray(findings)) return payload;
 
-    const swapped = await Promise.all(
-        findings.map(async (finding: any) =>
-            typeof finding?.imageUri === 'string' && finding.imageUri.startsWith('data:')
-                ? { ...finding, imageUri: await uploadDataUrl(finding.imageUri) }
-                : finding
-        )
-    );
+    // A couple at a time, never all at once. A backlog of offline captures can
+    // be dozens of multi-megabyte blobs; firing every upload simultaneously
+    // held them all in memory and saturated the connection — on a phone that
+    // reads as the app freezing, or the WebView being killed to a black
+    // screen. Two in flight keeps memory flat and the UI responsive, and the
+    // backlog still drains in a round or two of saves.
+    const swapped = [...findings];
+    const queue = swapped
+        .map((f: any, i: number) => ({ f, i }))
+        .filter(({ f }) => typeof f?.imageUri === 'string' && f.imageUri.startsWith('data:'));
+
+    const CONCURRENCY = 2;
+    let cursor = 0;
+    const worker = async () => {
+        while (cursor < queue.length) {
+            const job = queue[cursor++];
+            swapped[job.i] = { ...job.f, imageUri: await uploadDataUrl(job.f.imageUri) };
+        }
+    };
+    await Promise.all(Array.from({ length: Math.min(CONCURRENCY, queue.length) }, worker));
 
     return { ...payload, inspectionData: { ...payload.inspectionData, findings: swapped } };
 };

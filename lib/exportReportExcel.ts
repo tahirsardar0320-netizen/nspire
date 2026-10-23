@@ -3,11 +3,48 @@
  * Mirrors the format previously produced by the (now-removed) backend
  * /api/inspections/generate-excel route. No backend dependency.
  */
-import { NSPIREInspectionReport } from './nspireReport'
+import { NSPIREInspectionReport, SEVERITY_COLORS } from './nspireReport'
 
 const HEADER_FILL = { type: 'pattern' as const, pattern: 'solid' as const, fgColor: { argb: 'FFD1D5DB' } }
 const THIN_BORDER = { style: 'thin' as const, color: { argb: 'FF000000' } }
 const ALL_BORDERS = { top: THIN_BORDER, left: THIN_BORDER, bottom: THIN_BORDER, right: THIN_BORDER }
+
+/** '#DC2626' → ExcelJS 'FFDC2626'. The same palette the PDF uses. */
+const severityFill = (severity: string | undefined) => {
+  const hex = SEVERITY_COLORS[(severity || '') as keyof typeof SEVERITY_COLORS]
+  if (!hex) return null
+  return { type: 'pattern' as const, pattern: 'solid' as const, fgColor: { argb: `FF${hex.slice(1)}` } }
+}
+
+/**
+ * The photo itself, ready to drop into the sheet. Hosted URLs are fetched,
+ * offline captures are already data URLs; either way Excel wants raw base64.
+ * Null when the image cannot be had (offline and not cached) — the cell then
+ * falls back to the old "Photo" hyperlink.
+ */
+async function imageBase64(uri: string): Promise<{ base64: string; extension: 'jpeg' | 'png' } | null> {
+  try {
+    if (uri.startsWith('data:')) {
+      const m = uri.match(/^data:image\/(png|jpe?g);base64,(.+)$/i)
+      if (!m) return null
+      return { base64: m[2], extension: m[1].toLowerCase() === 'png' ? 'png' : 'jpeg' }
+    }
+    const res = await fetch(uri)
+    if (!res.ok) return null
+    const blob = await res.blob()
+    const dataUrl: string = await new Promise((resolve, reject) => {
+      const r = new FileReader()
+      r.onload = () => resolve(String(r.result))
+      r.onerror = reject
+      r.readAsDataURL(blob)
+    })
+    const m = dataUrl.match(/^data:image\/(png|jpe?g);base64,(.+)$/i)
+    if (!m) return null
+    return { base64: m[2], extension: m[1].toLowerCase() === 'png' ? 'png' : 'jpeg' }
+  } catch {
+    return null
+  }
+}
 
 const COLUMNS = [
   { header: '#', key: 'num', width: 5 },
@@ -76,10 +113,28 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
     cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }
   })
 
+  // Fetch photos first, a couple at a time — a big report can carry dozens.
+  const images: (null | { base64: string; extension: 'jpeg' | 'png' })[] =
+    new Array(report.deficiencies.length).fill(null)
+  {
+    let cursor = 0
+    const worker = async () => {
+      while (cursor < report.deficiencies.length) {
+        const i = cursor++
+        const uri = report.deficiencies[i]?.imageUri
+        if (uri) images[i] = await imageBase64(uri)
+      }
+    }
+    await Promise.all(Array.from({ length: 3 }, worker))
+  }
+
   report.deficiencies.forEach((def, index) => {
+    const embedded = images[index]
     const row = sheet.addRow({
       num: index + 1,
-      image: def.imageUri ? { text: 'Photo', hyperlink: def.imageUri } : '',
+      // The photo itself when we have it; the old hyperlink when we don't
+      // (offline with nothing cached is better served by a link than a blank).
+      image: embedded ? '' : def.imageUri ? { text: 'Photo', hyperlink: def.imageUri } : '',
       building: def.building || '-',
       unit: def.unit || '-',
       areaItem: `${def.area || ''} / ${def.room || ''}`.trim(),
@@ -98,6 +153,31 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
       cell.border = ALL_BORDERS
       cell.alignment = { vertical: 'top', wrapText: true }
     })
+
+    // Severity reads at a glance, same palette as the PDF.
+    const fill = severityFill(def.severity)
+    if (fill) {
+      const cell = row.getCell('severity')
+      cell.fill = fill
+      cell.font = { color: { argb: 'FFFFFFFF' }, bold: true }
+    }
+    const hsFill = severityFill(def.healthAndSafety)
+    if (hsFill) {
+      const cell = row.getCell('healthSafety')
+      cell.fill = hsFill
+      cell.font = { color: { argb: 'FFFFFFFF' }, bold: true }
+    }
+
+    if (embedded) {
+      const imageId = workbook.addImage({ base64: embedded.base64, extension: embedded.extension })
+      row.height = 70
+      // tl is zero-based: column B of this row.
+      sheet.addImage(imageId, {
+        tl: { col: 1, row: row.number - 1 },
+        ext: { width: 92, height: 92 },
+        editAs: 'oneCell',
+      })
+    }
   })
 
   sheet.addRow([])

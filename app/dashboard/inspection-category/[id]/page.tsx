@@ -869,7 +869,34 @@ export default function InspectionCategoryPage() {
         }
     };
 
+    // One save at a time. The debounce only spaces out STARTS — with a photo
+    // backlog a save can run long, the next debounced save piles on top, and
+    // soon several rounds of uploads run at once: the phone freezes, and left
+    // long enough the WebView is killed to a black screen. A save that fires
+    // while one is in flight waits its turn instead; one queued re-run is
+    // enough, since it reads the latest state when it finally runs.
+    const saveInFlightRef = useRef(false);
+    const saveQueuedRef = useRef(false);
+
     const saveCurrentProgress = async () => {
+        if (!id || !user) return;
+        if (saveInFlightRef.current) {
+            saveQueuedRef.current = true;
+            return;
+        }
+        saveInFlightRef.current = true;
+        try {
+            await doSaveCurrentProgress();
+        } finally {
+            saveInFlightRef.current = false;
+            if (saveQueuedRef.current) {
+                saveQueuedRef.current = false;
+                void saveCurrentProgress();
+            }
+        }
+    };
+
+    const doSaveCurrentProgress = async () => {
         if (!id || !user) return;
         
         try {
