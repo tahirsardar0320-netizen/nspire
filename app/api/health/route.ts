@@ -10,6 +10,11 @@ import crypto from 'crypto';
  * could tell — "where did my properties go" was two environments looking at
  * two databases. The db hash identifies the cluster without leaking the URI.
  */
+// Never prerendered: this handler reads nothing from the request, so Next
+// froze its BUILD-TIME result — including a failed build-box DB connect —
+// and served that same "unreachable" answer to everyone, forever.
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   let db = 'unreachable';
   try {
