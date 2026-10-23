@@ -48,9 +48,16 @@ export async function POST(req: NextRequest) {
     const status = typeof inspectionData?.status === 'string' ? inspectionData.status : 'completed';
     const inspectorId = toObjectId(user.id);
 
-    // Finishing the same property twice should update that inspector's record
-    // rather than pile up duplicates.
-    const existing = await Inspection.findOne({ propertyId, inspectorId }).sort({ createdAt: -1 });
+    // Finishing the same property twice should update that inspector's
+    // COMPLETION record — and only that. Matching any record here grabbed the
+    // newest per-building/per-unit progress record (same collection) and
+    // replaced its inspectionData wholesale: unit isComplete flags and form
+    // snapshots vanished every time a report was exported.
+    const existing = await Inspection.findOne({
+      propertyId,
+      inspectorId,
+      inspectionType: 'completed_report',
+    }).sort({ createdAt: -1 });
 
     if (existing) {
       existing.inspectionData = inspectionData;
@@ -66,7 +73,7 @@ export async function POST(req: NextRequest) {
       inspectionId: `INS-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`,
       propertyId,
       inspectorId,
-      inspectionType: inspectionData?.inspectionType || body.inspectionType,
+      inspectionType: 'completed_report',
       unitId: inspectionData?.unitId || body.unitId,
       buildingId: inspectionData?.buildingId || body.buildingId,
       status,

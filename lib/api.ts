@@ -77,7 +77,10 @@ async function apiRequest<T>(
     throw new Error('Offline — served from the device instead');
   }
 
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  // durableGet, not localStorage: on a quota-full device the hydration
+  // writeback can fail, leaving the token only in the durable store's memory
+  // — reading localStorage alone sent every request up unauthenticated.
+  const token = typeof window !== 'undefined' ? durableGet('token') : null;
 
   const config: RequestInit = {
     headers: {

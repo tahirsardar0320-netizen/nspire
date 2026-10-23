@@ -31,7 +31,7 @@
 //
 // Tying the version to the build means a deploy always retires the caches it
 // invalidated.
-const VERSION = 'v7-202610191916';
+const VERSION = 'v7-202610231951';
 const SHELL_CACHE = `inspire-shell-${VERSION}`;
 const PAGE_CACHE = `inspire-pages-${VERSION}`;
 const ASSET_CACHE = `inspire-assets-${VERSION}`;
@@ -184,7 +184,11 @@ async function networkFirstPage(request) {
     const shellCache = await caches.open(SHELL_CACHE);
     const hit =
       (await cache.match(request)) ||
-      (await caches.match(request, { ignoreSearch: true })) ||
+      // Page and shell caches only. The global caches.match also searched the
+      // RSC cache, and with ignoreSearch a navigation could be answered with a
+      // raw flight payload — serialized tree rendered as text on screen.
+      (await cache.match(request, { ignoreSearch: true })) ||
+      (await shellCache.match(request, { ignoreSearch: true })) ||
       (await matchSibling(cache, url)) ||
       (await matchSibling(shellCache, url));
     if (hit) return hit;

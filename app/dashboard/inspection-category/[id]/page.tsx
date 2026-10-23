@@ -455,6 +455,7 @@ export default function InspectionCategoryPage() {
         }
     }, [selectedDeficiency, deficiencyCount, totalSamples, odForm.healthAndSafety, odForm.note, currentSection, currentModalItem]);
 
+    const prevBuildingRef = useRef(urlBuilding);
     useEffect(() => {
         if (id) {
             // CRITICAL: Reset building/unit specific states when location changes
@@ -464,7 +465,17 @@ export default function InspectionCategoryPage() {
             setUnitStatuses({});
             setSavedODItems(new Set());
             setSavedODFormData({});
-            
+            // Findings too, but only when the BUILDING changes — on a unit
+            // switch they are this building's outside/inside work and must
+            // survive. Without this, an empty building inherited the previous
+            // building's findings (applyProgressData only replaces them when
+            // the new building has at least one) and the next autosave wrote
+            // them into the wrong building's records.
+            if (prevBuildingRef.current !== urlBuilding) {
+                prevBuildingRef.current = urlBuilding;
+                setPropertyFindings([]);
+            }
+
             fetchData();
             loadSavedProgress();
         }
@@ -616,11 +627,10 @@ export default function InspectionCategoryPage() {
         };
 
         if (recordIndex >= 0) {
-            const prevRecord = cachedList[recordIndex];
-            newRecord.inspectionData.odFormSnapshots = {
-                ...(prevRecord.inspectionData?.odFormSnapshots || {}),
-                ...savedODFormData
-            };
+            // Live state is the truth for snapshots too: merging the previous
+            // record's snapshots over the current ones resurrected snapshots
+            // the inspector had deleted with Remove, and after a reload the
+            // item came back as 'OD' with the removed deficiency prefilled.
             cachedList[recordIndex] = newRecord;
         } else {
             cachedList.push(newRecord);
@@ -886,7 +896,12 @@ export default function InspectionCategoryPage() {
         }
         saveInFlightRef.current = true;
         try {
-            await doSaveCurrentProgress();
+            // Through the ref, never the closure: this function is recreated
+            // every render, and the queued re-run below would otherwise call
+            // the render it was created in — re-saving statuses from before
+            // the save started and silently skipping everything answered
+            // while it ran.
+            await doSaveRef.current();
         } finally {
             saveInFlightRef.current = false;
             if (saveQueuedRef.current) {
@@ -1021,6 +1036,19 @@ export default function InspectionCategoryPage() {
             }
         }
     };
+
+    // Latest render's save, for the single-flight re-run, the unit-switch
+    // flush, and the unmount flush below.
+    const doSaveRef = useRef<() => Promise<void>>(() => Promise.resolve());
+    doSaveRef.current = doSaveCurrentProgress;
+
+    // A pending debounced save dies with the component — its timer is cleared
+    // in the cleanup below. The cache writes inside the save are synchronous,
+    // so one last call here lands the final two seconds of taps in durable
+    // storage before the screen goes away.
+    useEffect(() => {
+        return () => { try { void doSaveRef.current(); } catch { /* best effort */ } };
+    }, []);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -1322,6 +1350,32 @@ export default function InspectionCategoryPage() {
             } else {
                 setUnitStatuses(prev => ({ ...prev, [currentGeneralItem!]: 'OD' }));
             }
+            // The note and photo used to be discarded right here while the
+            // toast said "saved" — they appeared in no payload, no cache and
+            // no report. They are a finding like any other now, so the
+            // autosave persists them and the report shows them.
+            const unitVal = currentGeneralSection === 'unit' ? (activeInspectionUnit || unitsString) : '-';
+            setPropertyFindings(prev => ([...prev, {
+                id: `DEF-${Date.now()}`,
+                imageUri: generalImage || '',
+                title: `General Comment — ${currentGeneralItem}`,
+                description: generalNote || currentGeneralItem,
+                category: currentGeneralItem,
+                building: buildingName,
+                unit: unitVal,
+                location: getDefaultLocation(currentGeneralSection),
+                severity: 'Low',
+                healthAndSafety: 'Low',
+                repairBy: '30 Days',
+                notes: generalNote,
+                nspireCode: 'GEN-NOTE',
+                status: 'Open',
+                timestamp: new Date().toISOString(),
+                area: currentGeneralSection,
+                item: currentGeneralItem,
+            }]));
+            const savedKey = odSavedKey(currentGeneralSection, currentGeneralItem);
+            setSavedODItems(prev => new Set(prev).add(savedKey));
         }
         toast.success('General comment saved!', { position: 'top-right' });
         handleGeneralModalClose();
@@ -1471,17 +1525,23 @@ export default function InspectionCategoryPage() {
 
         setPropertyFindings(mergedFindings);
 
-        try {
-            // Any photo whose upload did not land stays a data URL; host it now
-            // rather than carrying it inline in the inspection record.
-            const proceedPayload = {
-                property_id: property?._id || params.id,
+        // Only this record's findings. Writing ALL areas' findings into
+        // whichever record was being saved parked stale copies in inactive
+        // unit records, and a deficiency removed elsewhere rose from those
+        // copies on the next load. Declared outside the try so the offline
+        // path below can cache and queue the very same payload.
+        const unitScope = activeInspectionUnit || unitsString;
+        const scopedProceedFindings = currentSection === 'unit'
+            ? mergedFindings.filter((f: any) => f.area === 'unit' && f.unit === unitScope)
+            : mergedFindings.filter((f: any) => f.area === currentSection);
+        const proceedPayload = {
+                property_id: property?._id || id || params.id,
                 unit_id: currentSection === 'unit' ? activeInspectionUnit : urlBuilding,
                 building_id: urlBuilding,
                 inspection_type: type,
                 responses: updatedStatuses,
                 inspectionData: {
-                    findings: mergedFindings,
+                    findings: scopedProceedFindings,
                     isComplete,
                     odFormSnapshots: {
                         ...(savedODFormData),
@@ -1494,11 +1554,25 @@ export default function InspectionCategoryPage() {
                     }
                 }
             };
+
+        try {
+            // Any photo whose upload did not land stays a data URL; host it now
+            // rather than carrying it inline in the inspection record.
             const swappedPayload = await uploadQueuedPhotos(proceedPayload);
             await inspectionsAPI.saveProgress(swappedPayload);
             adoptHostedPhotos(proceedPayload.inspectionData.findings, swappedPayload?.inspectionData?.findings);
         } catch (saveError) {
-            console.warn("Failed to sync manual finding to server, cached locally:", saveError);
+            console.warn("Failed to sync manual finding to server, caching and queueing locally:", saveError);
+            // The deficiency must not live only in React state until a
+            // debounce happens to fire — cache it and queue it right now, so
+            // closing the screen in the next two seconds cannot lose it.
+            try {
+                queueForOfflineSync(proceedPayload);
+                const cacheUnitId = currentSection === 'unit' ? (activeInspectionUnit || undefined) : undefined;
+                updateLocalCache(type, updatedStatuses, isComplete, cacheUnitId, scopedProceedFindings);
+            } catch (persistError) {
+                console.error("Could not persist the finding locally:", persistError);
+            }
         }
 
         toast.info("Item saved. You can continue with other items or view summary.", { position: "top-right" });
@@ -2250,6 +2324,13 @@ export default function InspectionCategoryPage() {
                                         {!isEditing && (
                                             <button
                                                 onClick={() => {
+                                                    // Land anything still inside the 2s debounce window
+                                                    // BEFORE the unit switches — the switch effect clears
+                                                    // every status map and cancels the pending save, which
+                                                    // silently reverted taps made in the last two seconds.
+                                                    // Here the refs are still consistent (old unit + its
+                                                    // statuses), and the cache writes are synchronous.
+                                                    void doSaveRef.current()
                                                     setActiveInspectionUnit(displayName)
                                                     setUnitSelectionPopupOpen(false)
                                                     setExpandedSection('unit')

@@ -29,6 +29,10 @@ export function recordBelongsToBuilding(p: any, buildingId: string): boolean {
 export async function fetchPropertyProgressMap(propertyList: any[], apiUrl: string): Promise<Record<string, number>> {
   let apiProgress: any[] = []
   try {
+    // With no network interface the request can ride its full timeout on iOS
+    // while the progress column shows nothing — the local cache below is the
+    // answer, so go straight to it.
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) throw new Error('offline')
     const response = await fetchWithTimeout(`${apiUrl}/api/inspections/progress?slim=1`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`

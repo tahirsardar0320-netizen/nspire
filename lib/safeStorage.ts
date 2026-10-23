@@ -59,13 +59,15 @@ const evict = (keep: string, aggressive: boolean): boolean => {
     }
     if (!candidates.length) return false;
 
+    // Largest first, ONE at a time — the caller retries the write between
+    // evictions. Deleting every candidate in one sweep threw away building
+    // names and coverage choices that one freed cache entry would have
+    // made room for.
     candidates.sort((a, b) => b.size - a.size);
-    for (const c of candidates) {
-        try {
-            localStorage.removeItem(c.key);
-        } catch {
-            // Ignore — we are already in the failure path.
-        }
+    try {
+        localStorage.removeItem(candidates[0].key);
+    } catch {
+        // Ignore — we are already in the failure path.
     }
     return true;
 };
@@ -85,12 +87,15 @@ export const safeSetItem = (key: string, value: string): boolean => {
         // Expendable caches first; then, only to save something as important as
         // the session, anything that is not itself protected.
         for (const aggressive of isProtected(key) ? [false, true] : [false]) {
-            if (!evict(key, aggressive)) continue;
-            try {
-                localStorage.setItem(key, value);
-                return true;
-            } catch {
-                // Try the next, wider sweep.
+            // Evict one entry, retry, evict the next — up to a sane bound.
+            for (let i = 0; i < 40; i++) {
+                if (!evict(key, aggressive)) break;
+                try {
+                    localStorage.setItem(key, value);
+                    return true;
+                } catch {
+                    // Still no room — free the next entry.
+                }
             }
         }
 

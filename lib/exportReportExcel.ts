@@ -73,7 +73,10 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
   const sheet = workbook.addWorksheet('Inspection Report', {
     views: [{ state: 'frozen', ySplit: 0 }],
   })
-  sheet.columns = COLUMNS
+  // Keys and widths only: handing ExcelJS the headers here makes it write
+  // them into row 1 immediately, leaving a stray duplicate header above the
+  // title in every export. The styled header row below is the real one.
+  sheet.columns = COLUMNS.map(({ key, width }) => ({ key, width }))
 
   const now = new Date()
   const dateStr = now.toLocaleDateString('en-US')

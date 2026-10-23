@@ -48,7 +48,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: true, progress });
   } catch (error: any) {
     console.error('GET /api/inspections/progress error:', error);
-    return NextResponse.json({ success: true, progress: [] });
+    // An honest failure. Answering success-with-nothing made a database
+    // outage look like "no findings", and a report built in that window
+    // shipped missing every server-stored deficiency.
+    return NextResponse.json({ success: false, message: 'Could not load progress', progress: [] }, { status: 500 });
   }
 }
 

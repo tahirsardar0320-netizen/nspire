@@ -251,7 +251,7 @@ function NSPIREInspectionSummaryContent() {
               allProgress.forEach((record: any) => {
                 const recordFindings = record.inspectionData?.findings || record.inspectionData?.deficiencies || [];
                 if (Array.isArray(recordFindings)) {
-                  const building = record.buildingId || record.inspectionData?.buildingId || '';
+                  const building = record.buildingId || record.building_id || record.inspectionData?.buildingId || record.inspectionData?.building_id || '';
                   const unit = record.unitId || record.inspectionData?.currentUnit || '-';
                   const rawArea = record.inspectionType || (unit === 'Outside' ? 'Outside' : unit === 'Inside' ? 'Inside' : 'Unit');
                   const area = rawArea.charAt(0).toUpperCase() + rawArea.slice(1).toLowerCase();
@@ -335,7 +335,10 @@ function NSPIREInspectionSummaryContent() {
               // A finding's own id wins outright: name-built keys merge two
               // separately recorded instances of the same deficiency type (two
               // broken signs, two photos) into one. Copies share the id.
-              const key = f.id ? `id:${f.id}` : [normName, normBuilding, normUnit, normArea].filter(Boolean).join('|');
+              // Keep every slot (no filter(Boolean)): dropping empties shifted
+              // the remaining parts left, so a finding with no building but
+              // unit "B1" collided with one with building "B1" and no unit.
+              const key = f.id ? `id:${f.id}` : [normName, normBuilding, normUnit, normArea].join('|');
               
               // If we have duplicates, prefer the one that came from a finalized inspection or has an image
               const existing = deduped.get(key);
@@ -465,7 +468,7 @@ function NSPIREInspectionSummaryContent() {
         nspireCode: finding.nspireCode || mapCategoryToNSPIRECode(finding.category || finding.area),
         deficiencyDetails: finding.description || finding.detail || finding.deficiencyDetails || '',
         comments: finding.notes || finding.comments || finding.recommendation || '',
-        deductionPts: calculateDeductionPoints(finding.severity || 'moderate'),
+        deductionPts: calculateDeductionPoints(finding.severity || finding.healthAndSafety || 'moderate'),
         repeatIndicator: finding.repeat || false,
         severity,
         healthAndSafety: finding.healthAndSafety || severity,

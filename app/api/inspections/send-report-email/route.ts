@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'inspire_jwt_secret_key_2024';
 import nodemailer from 'nodemailer';
 import dns from 'node:dns/promises';
 import { fetchWithTimeout } from '@/lib/httpFetch';
@@ -129,6 +132,19 @@ function buildReportEmailHTML({
 // POST /api/inspections/send-report-email — email the generated NSPIRE report PDF to a recipient
 export async function POST(req: NextRequest) {
   try {
+    // Signed-in inspectors only. Without this check anyone on the internet
+    // could relay arbitrary attachments from the app's verified sender.
+    const auth = req.headers.get('authorization') || '';
+    let sender: any = null;
+    try {
+      sender = jwt.verify(auth.replace('Bearer ', ''), JWT_SECRET);
+    } catch {
+      sender = null;
+    }
+    if (!sender?.id) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
+
     const { email, pdfBase64, filename, propertyName, propertyAddress, inspectionNo, reportUrl } = await req.json();
 
     if (!email || !/^\S+@\S+\.\S+$/.test(email)) {

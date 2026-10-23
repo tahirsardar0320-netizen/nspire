@@ -125,10 +125,13 @@ function openDb(): Promise<IDBDatabase | null> {
       req.onupgradeneeded = () => {
         if (!req.result.objectStoreNames.contains(DB_STORE)) req.result.createObjectStore(DB_STORE);
       };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => resolve(null);
+      let settled = false;
+      req.onsuccess = () => { settled = true; resolve(req.result); };
+      req.onerror = () => { settled = true; resolve(null); };
       // Safari can leave an open() hanging forever in a backgrounded tab.
-      setTimeout(() => resolve(null), 3000);
+      // Generous, and only as a last resort — resolving null here makes the
+      // whole session read an empty store.
+      setTimeout(() => { if (!settled) resolve(null); }, 8000);
     } catch {
       resolve(null);
     }
@@ -216,11 +219,10 @@ export async function hydrateDurableStore(): Promise<void> {
       // token straight from there, and rewriting them all would be a far
       // bigger change than simply putting back what was evicted.
       if (fromLocal == null) {
-        try {
-          localStorage.setItem(key, chosen);
-        } catch {
-          // Still held in memory and in the durable copy.
-        }
+        // Through the quota-aware writer: on a full device a plain setItem
+        // throws, the token never lands back in localStorage, and every
+        // request goes up unauthenticated while the token sits in memory.
+        safeSetItem(key, chosen);
       }
     }
   }
@@ -251,11 +253,19 @@ async function flushAll(): Promise<void> {
     await Promise.all(Array.from(memory.entries()).map(([k, v]) => writeIdb(k, v)));
     return;
   }
-  const all: Record<string, string> = {};
+  // Read-merge-write, never a blind overwrite. A transient failed read at
+  // hydration used to leave memory nearly empty, and the flush then replaced
+  // the file — and with it a day's offline work — with that near-empty map.
+  // Merging over whatever the file holds right now means a key we never
+  // managed to load can never be destroyed by us.
+  const existing = (await readNativeFile()) || {};
   memory.forEach((v, k) => {
-    all[k] = v;
+    existing[k] = v;
   });
-  await writeNativeFile(all);
+  removedKeys.forEach((k) => {
+    delete existing[k];
+  });
+  await writeNativeFile(existing);
 }
 
 /**
@@ -311,6 +321,7 @@ export function durableGet(key: string): string | null {
 
 export function durableSet(key: string, value: string): boolean {
   memory.set(key, value);
+  removedKeys.delete(key);
   // Mirrored to localStorage as well: harmless where it survives, and it keeps
   // any code still reading localStorage directly in step.
   safeSetItem(key, value);
@@ -318,11 +329,28 @@ export function durableSet(key: string, value: string): boolean {
   return true;
 }
 
+/** Keys deliberately removed — so the merge-write above honors deletions. */
+const removedKeys = new Set<string>();
+
+async function deleteIdb(key: string): Promise<void> {
+  const db = await openDb();
+  if (!db) return;
+  try {
+    db.transaction(DB_STORE, 'readwrite').objectStore(DB_STORE).delete(key);
+  } catch {
+    // The stale row survives until the next successful delete.
+  }
+}
+
 export function durableRemove(key: string): void {
   memory.delete(key);
+  removedKeys.add(key);
   try {
     localStorage.removeItem(key);
   } catch {}
-  // A removal has to go through the whole-store write either way.
+  // IndexedDB was never told about removals: a drained offline queue rose
+  // from its IDB row at the next launch and re-synced week-old payloads over
+  // newer server data.
+  void deleteIdb(key);
   void flushAll();
 }

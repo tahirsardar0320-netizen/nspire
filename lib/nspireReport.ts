@@ -435,7 +435,7 @@ export function buildNSPIREReport(data: any, property: any): NSPIREInspectionRep
             nspireCode: finding.nspireCode || mapCategoryToNSPIRECode(finding.category || finding.area),
             deficiencyDetails: finding.description || finding.detail || finding.deficiencyDetails || '',
             comments: finding.notes || finding.comments || finding.recommendation || '',
-            deductionPts: calculateDeductionPoints(finding.severity || 'moderate'),
+            deductionPts: calculateDeductionPoints(finding.severity || finding.healthAndSafety || 'moderate'),
             repeatIndicator: finding.repeat || false,
             severity,
             healthAndSafety: finding.healthAndSafety || severity,
