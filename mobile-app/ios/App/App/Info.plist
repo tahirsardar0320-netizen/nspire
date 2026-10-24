@@ -101,5 +101,12 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<!-- Reports saved to the app's Documents folder must be reachable by the
+	     user: these expose that folder in the Files app (On My iPhone > NSPIRE)
+	     so "Download to phone" lands somewhere a person can actually find. -->
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 </dict>
 </plist>

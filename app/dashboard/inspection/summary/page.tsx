@@ -112,6 +112,9 @@ function NSPIREInspectionSummaryContent() {
   const [property, setProperty] = useState<any>(null)
   // Custom column header from the building table (editable in property-details)
   const [buildingColumnHeader, setBuildingColumnHeader] = useState('Building')
+  // In the app, a finished export waits here while the user picks Download or
+  // Share. On the web the browser's own download manager handles it directly.
+  const [exportReady, setExportReady] = useState<{ blob: Blob; filename: string } | null>(null)
 
   // Unit-based inspection context
   const [inspectionContext, setInspectionContext] = useState<{
@@ -794,10 +797,17 @@ function NSPIREInspectionSummaryContent() {
         await markInspectionAsCompleted({ silentToast: true, returnInspection: true });
       }
 
-      const { downloadNSPIREReportPDF } = await import('@/lib/exportReportPdf')
-      await downloadNSPIREReportPDF(report, `INSPIRE_Report_${report.metadata.inspectionNo}.pdf`)
-
-      toast.success("PDF downloaded successfully", { position: "top-right" })
+      const filename = `INSPIRE_Report_${report.metadata.inspectionNo}.pdf`
+      const { generateNSPIREReportPDFBlob } = await import('@/lib/exportReportPdf')
+      const blob = await generateNSPIREReportPDFBlob(report)
+      const { isNativeApp, saveAndShareBlob } = await import('@/lib/nativeDownload')
+      if (isNativeApp()) {
+        // Hand the choice to the user instead of forcing the share sheet.
+        setExportReady({ blob, filename })
+      } else {
+        await saveAndShareBlob(blob, filename)
+        toast.success("PDF downloaded successfully", { position: "top-right" })
+      }
 
       await markInspectionAsCompleted({ silentToast: true });
     } catch (error: any) {
@@ -813,10 +823,16 @@ function NSPIREInspectionSummaryContent() {
 
     setExportingExcel(true)
     try {
-      const { downloadNSPIREReportExcel } = await import('@/lib/exportReportExcel')
-      await downloadNSPIREReportExcel(report, `NSPIRE_Report_${report.metadata.inspectionNo || 'Export'}.xlsx`)
-
-      toast.success('Excel report downloaded!', { position: 'top-right' })
+      const filename = `NSPIRE_Report_${report.metadata.inspectionNo || 'Export'}.xlsx`
+      const { generateNSPIREReportExcelBlob } = await import('@/lib/exportReportExcel')
+      const blob = await generateNSPIREReportExcelBlob(report)
+      const { isNativeApp, saveAndShareBlob } = await import('@/lib/nativeDownload')
+      if (isNativeApp()) {
+        setExportReady({ blob, filename })
+      } else {
+        await saveAndShareBlob(blob, filename)
+        toast.success('Excel report downloaded!', { position: 'top-right' })
+      }
       await markInspectionAsCompleted({ silentToast: true })
     } catch (error: any) {
       console.error('Excel export error:', error)
@@ -1361,6 +1377,54 @@ function NSPIREInspectionSummaryContent() {
 
           {showReportPreview && (
             <ReportPreviewModal report={report} onClose={() => setShowReportPreview(false)} />
+          )}
+
+          {exportReady && (
+            <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-1">Report ready</h3>
+                <p className="text-sm text-gray-500 mb-5 break-all">{exportReady.filename}</p>
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={async () => {
+                      const { blob, filename } = exportReady
+                      setExportReady(null)
+                      try {
+                        const { saveBlobToDevice } = await import('@/lib/nativeDownload')
+                        const saved = await saveBlobToDevice(blob, filename)
+                        toast.success(`Saved to ${saved.location}`, { position: 'top-right', autoClose: 5000 })
+                      } catch (e: any) {
+                        toast.error(e?.message || 'Could not save the file.', { position: 'top-right' })
+                      }
+                    }}
+                    className="w-full bg-[#006795] hover:bg-[#0a5670] text-white font-bold py-3 rounded-xl"
+                  >
+                    ⬇️ Download to phone
+                  </button>
+                  <button
+                    onClick={async () => {
+                      const { blob, filename } = exportReady
+                      setExportReady(null)
+                      try {
+                        const { shareBlob } = await import('@/lib/nativeDownload')
+                        await shareBlob(blob, filename)
+                      } catch (e: any) {
+                        toast.error(e?.message || 'Could not share the file.', { position: 'top-right' })
+                      }
+                    }}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl"
+                  >
+                    📤 Share
+                  </button>
+                  <button
+                    onClick={() => setExportReady(null)}
+                    className="w-full text-gray-500 font-semibold py-2 rounded-xl hover:bg-gray-100"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>

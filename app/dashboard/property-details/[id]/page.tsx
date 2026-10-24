@@ -375,7 +375,11 @@ export default function PropertyDetailsPage() {
         if (!property) return
         try {
             const map = await fetchPropertyProgressMap([property], API_URL)
-            setOverallProgress(map[property._id] ?? 0)
+            const pct = map[property._id] ?? 0
+            setOverallProgress(pct)
+            // Remembered so the next visit shows this figure instantly instead
+            // of climbing from 0 while the server answers.
+            safeSetItem(`cached_overall_progress_${property._id}`, String(pct))
         } catch (e) {
             console.error('Error refreshing overall progress:', e)
         }
@@ -440,7 +444,25 @@ export default function PropertyDetailsPage() {
         }
 
         setCompletedUnitsMap(map)
+        safeSetItem(`cached_completed_units_${propId}`, JSON.stringify(map))
     }, [property, buildings, id])
+
+    // Seed both figures from the last visit's answer the moment the page
+    // mounts: the fetch still runs and corrects them, but the user sees their
+    // real progress immediately instead of "0%" counting up on every return —
+    // which read as the app forgetting their work for six seconds.
+    useEffect(() => {
+        if (!property) return
+        const propId = property._id || id
+        try {
+            const pct = durableGet(`cached_overall_progress_${propId}`)
+            if (pct != null && pct !== '') setOverallProgress(Number(pct) || 0)
+            const cachedMap = durableGet(`cached_completed_units_${propId}`)
+            if (cachedMap) setCompletedUnitsMap(JSON.parse(cachedMap))
+        } catch {
+            // Unreadable cache — the live refresh below fills things in.
+        }
+    }, [property, id])
 
     useEffect(() => {
         refreshCompletedUnits()
