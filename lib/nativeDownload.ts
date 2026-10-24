@@ -38,6 +38,19 @@ const mimeFor = (filename: string) =>
       ? 'application/pdf'
       : undefined
 
+/**
+ * Whether a file written to Documents will actually be visible to the user.
+ * On Android, Documents is public. On iOS it only appears in the Files app
+ * once the binary ships UIFileSharingEnabled — the same build generation that
+ * bundles FileOpener, so the plugin's presence stands in for the plist flag.
+ * Older iOS builds must route "save" through the share sheet's Save to Files.
+ */
+export function canSaveVisibly(): boolean {
+  const Capacitor = (window as any).Capacitor
+  if (Capacitor?.getPlatform?.() !== 'ios') return true
+  return !!Capacitor?.Plugins?.FileOpener
+}
+
 /** Browser-only path: the ordinary download manager. */
 function browserDownload(blob: Blob, filename: string) {
   const url = window.URL.createObjectURL(blob)

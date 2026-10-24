@@ -1389,10 +1389,30 @@ function NSPIREInspectionSummaryContent() {
                     onClick={async () => {
                       const { blob, filename } = exportReady
                       setExportReady(null)
+                      const { saveBlobToDevice, shareBlob, canSaveVisibly } = await import('@/lib/nativeDownload')
+                      if (canSaveVisibly()) {
+                        try {
+                          const saved = await saveBlobToDevice(blob, filename)
+                          toast.success(`Saved to ${saved.location}`, { position: 'top-right', autoClose: 6000 })
+                          return
+                        } catch (e: any) {
+                          // The write can be refused (storage permission, OEM
+                          // quirks). Never leave the user empty-handed — say
+                          // why, then land in the share sheet, whose "Save to
+                          // Files / Drive" reaches storage on every device.
+                          console.error('Direct save failed, falling back to share:', e)
+                          toast.info(`Direct save unavailable (${e?.message || 'storage refused'}) — use "Save to Files" instead`, { position: 'top-right', autoClose: 6000 })
+                        }
+                      } else {
+                        // This iOS build can't expose its Documents folder in
+                        // the Files app — a silent save would be a file the
+                        // user can never find. Apple's road there is the share
+                        // sheet's "Save to Files", so open it and say what to
+                        // tap.
+                        toast.info('Choose "Save to Files" to download it on your phone', { position: 'top-right', autoClose: 6000 })
+                      }
                       try {
-                        const { saveBlobToDevice } = await import('@/lib/nativeDownload')
-                        const saved = await saveBlobToDevice(blob, filename)
-                        toast.success(`Saved to ${saved.location}`, { position: 'top-right', autoClose: 5000 })
+                        await shareBlob(blob, filename)
                       } catch (e: any) {
                         toast.error(e?.message || 'Could not save the file.', { position: 'top-right' })
                       }
