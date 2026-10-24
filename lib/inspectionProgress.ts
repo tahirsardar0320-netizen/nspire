@@ -33,7 +33,11 @@ export async function fetchPropertyProgressMap(propertyList: any[], apiUrl: stri
     // while the progress column shows nothing — the local cache below is the
     // answer, so go straight to it.
     if (typeof navigator !== 'undefined' && navigator.onLine === false) throw new Error('offline')
-    const response = await fetchWithTimeout(`${apiUrl}/api/inspections/progress?slim=1`, {
+    // Scope to the one property when that is all the caller shows — the
+    // property-details page was downloading every property's records just to
+    // compute a single percentage.
+    const scope = propertyList.length === 1 && propertyList[0]?._id ? `&property_id=${propertyList[0]._id}` : ''
+    const response = await fetchWithTimeout(`${apiUrl}/api/inspections/progress?slim=1${scope}`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }

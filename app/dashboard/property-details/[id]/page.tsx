@@ -389,14 +389,21 @@ export default function PropertyDetailsPage() {
         const propId = property._id || id
         const map: Record<string, string[]> = {}
 
+        // ONE request for the whole property. This used to ask the server
+        // once per building, serially — the API answers with the whole
+        // property's records regardless, so a 5-building property paid for
+        // five identical round-trips and the progress column sat stale for
+        // half a minute while they dribbled in.
+        let serverRecords: any[] = []
+        try {
+            const res = await inspectionsAPI.getProgress({ property_id: propId, slim: '1' })
+            if (res && Array.isArray(res.progress)) serverRecords = res.progress
+        } catch (error) {
+            console.error("Error fetching progress from API:", error)
+        }
+
         for (const b of buildings) {
-            let records: any[] = []
-            try {
-                const res = await inspectionsAPI.getProgress({ property_id: propId, building_id: b.buildingId, slim: '1' })
-                if (res && Array.isArray(res.progress)) records = res.progress
-            } catch (error) {
-                console.error("Error fetching progress from API:", error)
-            }
+            let records: any[] = serverRecords
 
             // Merge in the local cache the inspection-category page writes to,
             // so progress still shows up even when the backend is unreachable.
