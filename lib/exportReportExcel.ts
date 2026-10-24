@@ -4,6 +4,7 @@
  * /api/inspections/generate-excel route. No backend dependency.
  */
 import { NSPIREInspectionReport, SEVERITY_COLORS } from './nspireReport'
+import { fetchWithTimeout } from './httpFetch'
 
 const HEADER_FILL = { type: 'pattern' as const, pattern: 'solid' as const, fgColor: { argb: 'FFD1D5DB' } }
 const THIN_BORDER = { style: 'thin' as const, color: { argb: 'FF000000' } }
@@ -29,7 +30,12 @@ async function imageBase64(uri: string): Promise<{ base64: string; extension: 'j
       if (!m) return null
       return { base64: m[2], extension: m[1].toLowerCase() === 'png' ? 'png' : 'jpeg' }
     }
-    const res = await fetch(uri)
+    // With no connection there is nothing to fetch, and on iOS a doomed
+    // request can hang rather than fail — each stalled photo held the export
+    // on "Generating..." with no end. Skip straight to the hyperlink fallback
+    // offline, and give the online path a hard stop per photo.
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return null
+    const res = await fetchWithTimeout(uri, {}, 10000)
     if (!res.ok) return null
     const blob = await res.blob()
     const dataUrl: string = await new Promise((resolve, reject) => {

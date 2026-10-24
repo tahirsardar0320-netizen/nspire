@@ -524,12 +524,22 @@ export function buildNSPIREReport(data: any, property: any): NSPIREInspectionRep
  */
 export async function fetchNSPIREReportForProperty(propertyId: string): Promise<NSPIREInspectionReport | null> {
     const { propertiesAPI, inspectionsAPI } = await import('@/lib/api')
+    const { settleWithin } = await import('@/lib/httpFetch')
 
     // None of these can answer with no connection, and letting any of them
     // throw meant the whole report gave up — which is why "View NSPIRE
     // Summary" did nothing at all in the field, even with deficiencies
-    // recorded minutes earlier and sitting on the device.
-    const propRes = await propertiesAPI.getById(propertyId).catch(() => null)
+    // recorded minutes earlier and sitting on the device. They also must not
+    // be awaited one after another: each one retries two hosts at 45s apiece,
+    // and on iOS a stalled connection doesn't fail — airplane-mode testers
+    // watched "Loading..." for minutes. All three go out together, and none
+    // may hold the report longer than the budget; the device copy covers the
+    // rest.
+    const [propRes, progData, inspectionsRes] = await Promise.all([
+        settleWithin(propertiesAPI.getById(propertyId), 25000),
+        settleWithin(inspectionsAPI.getProgress({ property_id: propertyId, draft_only: 'false' }), 25000),
+        settleWithin(inspectionsAPI.getAll({ property: propertyId, status: 'completed' }), 25000),
+    ])
     let propertyData = propRes?.success ? propRes.property : null
 
     if (!propertyData) {
@@ -547,11 +557,6 @@ export async function fetchNSPIREReportForProperty(propertyId: string): Promise<
             // No usable local copy; the report is built from what follows.
         }
     }
-
-    const [progData, inspectionsRes] = await Promise.all([
-        inspectionsAPI.getProgress({ property_id: propertyId, draft_only: 'false' }).catch(() => null),
-        inspectionsAPI.getAll({ property: propertyId, status: 'completed' }).catch(() => null),
-    ])
 
     const allFindings: any[] = []
 

@@ -66,6 +66,22 @@ export default function InspectionStatusPage() {
     fetchData()
   }, [])
 
+  // Warm the lazy export chunks while the connection holds — offline they
+  // can't be fetched, and a stalled chunk request on iOS pins the button on
+  // its loading label. See the same effect on the summary page.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      import('@/lib/exportReportPdf').catch(() => {})
+      import('@/lib/exportReportExcel').catch(() => {})
+      import('@/lib/nativeDownload').catch(() => {})
+      import('@/lib/nspirePDFService').catch(() => {})
+      import('jspdf').catch(() => {})
+      import('html2canvas').catch(() => {})
+      import('exceljs').catch(() => {})
+    }, 2000)
+    return () => clearTimeout(timer)
+  }, [])
+
   const fetchData = async (isRefresh = false) => {
     try {
       if (isRefresh) {

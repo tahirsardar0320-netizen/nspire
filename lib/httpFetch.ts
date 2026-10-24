@@ -20,6 +20,24 @@ export interface TimedOutError extends Error {
   timedOut?: boolean;
 }
 
+/**
+ * Resolve to null if the promise hasn't settled within the budget. For reads
+ * that have a local fallback: apiRequest retries two hosts at 45s each, so a
+ * stalled connection holds a caller for minutes — far longer than anyone
+ * watches a spinner. The underlying request keeps running (and may still
+ * populate caches); the caller just stops waiting for it and renders from the
+ * device instead. Never use this for writes — abandoning a write is data loss.
+ */
+export function settleWithin<T>(promise: Promise<T>, ms: number): Promise<T | null> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(null), ms);
+    promise.then(
+      (value) => { clearTimeout(timer); resolve(value); },
+      () => { clearTimeout(timer); resolve(null); },
+    );
+  });
+}
+
 export async function fetchWithTimeout(
   input: string,
   config: RequestInit = {},

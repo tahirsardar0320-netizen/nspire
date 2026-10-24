@@ -204,10 +204,19 @@ function NSPIREInspectionSummaryContent() {
 
         if (propertyId && token) {
           try {
-            // Fetch property details. Offline this cannot answer either, and
-            // it runs first — so letting it throw took the summary down before
-            // any of the work below had a chance to run.
-            const propRes = await propertiesAPI.getById(propertyId).catch(() => null);
+            // All three reads go out together, each with a hard stop. They
+            // used to run one after another with no ceiling, and each retries
+            // two hosts at 45s apiece — on iOS a stalled airplane-mode
+            // connection doesn't fail, so "View Summary" sat on a spinner for
+            // minutes while the deficiencies it wanted were already on the
+            // device. Anything that misses the budget is covered by the local
+            // fallbacks below.
+            const { settleWithin } = await import('@/lib/httpFetch');
+            const [propRes, progData, inspectionsRes] = await Promise.all([
+              settleWithin(propertiesAPI.getById(propertyId), 25000),
+              settleWithin(inspectionsAPI.getProgress({ property_id: propertyId, draft_only: 'false' }), 25000),
+              settleWithin(inspectionsAPI.getAll({ property: propertyId, status: 'completed' }), 25000),
+            ]);
             if (propRes?.success) {
               propertyData = propRes.property;
               setProperty(propRes.property);
@@ -227,20 +236,6 @@ function NSPIREInspectionSummaryContent() {
                 // No usable local copy; the summary still renders what it has.
               }
             }
-
-            // Offline these cannot answer, and letting either throw abandoned
-            // the whole summary — which is why "View Summary" showed nothing in
-            // the field even though the work was sitting on the device.
-            const progData = await inspectionsAPI.getProgress({
-              property_id: propertyId,
-              draft_only: 'false'
-            }).catch(() => null);
-
-            // Fetch finalized inspections (completed)
-            const inspectionsRes = await inspectionsAPI.getAll({
-              property: propertyId,
-              status: 'completed'
-            }).catch(() => null);
 
             let allFindings: any[] = [];
             let serverUnlocked = false;
@@ -398,6 +393,25 @@ function NSPIREInspectionSummaryContent() {
 
     loadInspectionData()
   }, [searchParams])
+
+  // Pull the export machinery down while there's still a connection. Every
+  // exporter is a lazy chunk (exceljs, jspdf, html2canvas, the exporters
+  // themselves), and a chunk that was never fetched can't be fetched in the
+  // field — tapping Export offline died with a ChunkLoadError, and on iOS the
+  // stalled chunk request held "Generating..." open forever. Once imported,
+  // the service worker keeps the chunks for every later visit.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      import('@/lib/exportReportExcel').catch(() => {})
+      import('@/lib/exportReportPdf').catch(() => {})
+      import('@/lib/nativeDownload').catch(() => {})
+      import('@/lib/nspirePDFService').catch(() => {})
+      import('exceljs').catch(() => {})
+      import('jspdf').catch(() => {})
+      import('html2canvas').catch(() => {})
+    }, 2000)
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     const paymentStatus = searchParams.get('payment')

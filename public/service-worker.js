@@ -31,7 +31,7 @@
 //
 // Tying the version to the build means a deploy always retires the caches it
 // invalidated.
-const VERSION = 'v7-202610250145';
+const VERSION = 'v7-202610242026';
 const SHELL_CACHE = `inspire-shell-${VERSION}`;
 const PAGE_CACHE = `inspire-pages-${VERSION}`;
 const ASSET_CACHE = `inspire-assets-${VERSION}`;
@@ -174,11 +174,26 @@ async function cacheFirst(request, cacheName) {
   return response;
 }
 
+/**
+ * A fetch that gives up in bounded time. In airplane mode fetch rejects
+ * instantly and the cache fallbacks below take over — but on a dying signal
+ * iOS holds the request open instead of failing it, and a navigation that
+ * waits on that fetch is a white screen with no end. Losing the race only
+ * abandons the wait, not the request; a late success just misses one
+ * cache.put.
+ */
+function fetchBounded(request, ms = 12000) {
+  return Promise.race([
+    fetch(request),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('sw-timeout')), ms)),
+  ]);
+}
+
 /** Pages: prefer the network, keep the last good copy for offline. */
 async function networkFirstPage(request) {
   const cache = await caches.open(PAGE_CACHE);
   try {
-    const response = await fetch(request);
+    const response = await fetchBounded(request);
     if (response && response.status === 200) cache.put(request, response.clone());
     return response;
   } catch (err) {
@@ -248,7 +263,7 @@ self.addEventListener('fetch', (event) => {
       (async () => {
         const cache = await caches.open(RSC_CACHE);
         try {
-          const response = await fetch(request);
+          const response = await fetchBounded(request);
           if (response && response.status === 200) cache.put(request, response.clone());
           return response;
         } catch (err) {
