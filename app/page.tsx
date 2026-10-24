@@ -13,6 +13,38 @@ export default function Home() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const [isNativeApp, setIsNativeApp] = useState(false);
+  const [subscribeEmail, setSubscribeEmail] = useState("");
+  const [subscribeStatus, setSubscribeStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
+
+  const handleSubscribe = async () => {
+    const email = subscribeEmail.trim();
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setSubscribeStatus("error");
+      return;
+    }
+    setSubscribeStatus("sending");
+    try {
+      const res = await fetch("/api/contact/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "Newsletter subscriber",
+          email,
+          subject: "Newsletter subscription",
+          message: `Please add ${email} to the NSPIRE updates mailing list.`,
+        }),
+      });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.success) {
+        setSubscribeStatus("done");
+        setSubscribeEmail("");
+      } else {
+        setSubscribeStatus("error");
+      }
+    } catch {
+      setSubscribeStatus("error");
+    }
+  };
 
   useEffect(() => {
     document.body.style.overflowX = 'hidden';
@@ -66,8 +98,9 @@ export default function Home() {
                             <a href="/inspection-services/insurance-risk" className="dropdown-item"><span className="dot text-red-600"></span> Risk Management inspection</a>
                         </div>
                     </div>
-                    <a href="/data-retention" className="nav-item-container"><span className="nav-title">ABOUT</span><span className="nav-subtitle">Our Story</span></a>
+                    <a href="/about" className="nav-item-container"><span className="nav-title">ABOUT</span><span className="nav-subtitle">Our Story</span></a>
                     <a href="/education-training" className="nav-item-container"><span className="nav-title">EDUCATION & TRAINING</span><span className="nav-subtitle">NSPIRE Videos</span></a>
+                    <a href="/faq" className="nav-item-container"><span className="nav-title">FAQ</span><span className="nav-subtitle">Help & Answers</span></a>
                     <a href="/NSPIRE_Inspection_Protocol_Guide.pdf" target="_blank" rel="noopener noreferrer" className="nav-item-container"><span className="nav-title">PROTOCOL GUIDE</span><span className="nav-subtitle">Version 1.0</span></a>
                 </div>
 
@@ -133,8 +166,9 @@ export default function Home() {
                             </div>
                         )}
                     </div>
-                    <a href="/data-retention" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">ABOUT</span><span className="text-[11px] text-cyan-400">Our Story</span></a>
+                    <a href="/about" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">ABOUT</span><span className="text-[11px] text-cyan-400">Our Story</span></a>
                     <a href="/education-training" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">EDUCATION &amp; TRAINING</span><span className="text-[11px] text-cyan-400">NSPIRE Videos</span></a>
+                    <a href="/faq" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">FAQ</span><span className="text-[11px] text-cyan-400">Help &amp; Answers</span></a>
                     <a href="/NSPIRE_Inspection_Protocol_Guide.pdf" target="_blank" rel="noopener noreferrer" onClick={() => setMobileNavOpen(false)} className="flex flex-col px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"><span className="font-bold text-white text-sm">PROTOCOL GUIDE</span><span className="text-[11px] text-cyan-400">Version 1.0</span></a>
                 </div>
                 <div className="p-4 mt-auto border-t border-white/10">
@@ -217,10 +251,11 @@ export default function Home() {
                     <h3 className="font-bold mb-4 serif text-xl">Quick Links</h3>
                     <ul className="space-y-2 text-gray-400 font-medium">
                         <li><a href="#" className="hover:text-white transition-colors">Home</a></li>
-                        <li><a href="/data-retention" className="hover:text-white transition-colors">About</a></li>
+                        <li><a href="/about" className="hover:text-white transition-colors">About</a></li>
                         <li><a href="#services" className="hover:text-white transition-colors">Services</a></li>
                         <li><a href="/contact" className="hover:text-white transition-colors">Contact</a></li>
                         <li><a href="/education-training" className="hover:text-white transition-colors">Education &amp; Training</a></li>
+                        <li><a href="/faq" className="hover:text-white transition-colors">FAQ</a></li>
                     </ul>
                     <p className="mt-4 text-gray-400 font-medium">
                         Email us, <a href="mailto:info@nspireinspectionapp.com" className="hover:text-white transition-colors">Info@NspireInspectionApp.Com</a>
@@ -233,12 +268,25 @@ export default function Home() {
                     <div className="flex mb-4">
                         <div className="relative flex-1">
                             <svg className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                            <input type="email" placeholder="Enter your email address" className="pl-10 pr-4 py-3 rounded-l bg-white text-gray-900 placeholder-gray-500 w-full border-0 outline-none" />
+                            <input
+                                type="email"
+                                value={subscribeEmail}
+                                onChange={(e) => { setSubscribeEmail(e.target.value); if (subscribeStatus !== "idle") setSubscribeStatus("idle"); }}
+                                onKeyDown={(e) => { if (e.key === "Enter") handleSubscribe(); }}
+                                placeholder="Enter your email address"
+                                className="pl-10 pr-4 py-3 rounded-l bg-white text-gray-900 placeholder-gray-500 w-full border-0 outline-none"
+                            />
                         </div>
-                        <button className="bg-[var(--primary)] hover:bg-[var(--primary-dark)] transition-colors px-5 py-3 rounded-r flex items-center justify-center">
+                        <button onClick={handleSubscribe} disabled={subscribeStatus === "sending"} aria-label="Subscribe" className="bg-[var(--primary)] hover:bg-[var(--primary-dark)] transition-colors px-5 py-3 rounded-r flex items-center justify-center disabled:opacity-60">
                             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                         </button>
                     </div>
+                    {subscribeStatus === "done" && (
+                        <p className="text-emerald-400 text-sm font-semibold mb-2">You&apos;re subscribed! We&apos;ll keep you posted on NSPIRE updates.</p>
+                    )}
+                    {subscribeStatus === "error" && (
+                        <p className="text-rose-400 text-sm font-semibold mb-2">Please enter a valid email address and try again.</p>
+                    )}
                     <p className="text-gray-400 text-sm font-medium">
                         Subscribe to get the latest NSPIRE updates, news, and inspection resources.
                     </p>

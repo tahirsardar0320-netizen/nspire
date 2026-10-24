@@ -17,6 +17,9 @@ export default function Login() {
   const [password, setPassword] = useState("")
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  // Toasts auto-dismiss in seconds; a rejected login also needs a message that
+  // stays on the form until the user edits something.
+  const [loginError, setLoginError] = useState("")
   const searchParams = useSearchParams()
   const router = useRouter()
   const role = searchParams.get('role') || 'user'
@@ -59,6 +62,7 @@ export default function Login() {
     }
 
     setIsLoading(true)
+    setLoginError("")
 
     try {
       // One request, through the same helper every other portal's login already
@@ -77,7 +81,9 @@ export default function Login() {
       )
 
       if (!data?.success || !data?.token) {
-        toast.error(data?.message || 'Invalid email or password', { position: 'top-right', autoClose: 3000 })
+        const message = data?.message || 'Invalid email or password'
+        setLoginError(message)
+        toast.error(message, { position: 'top-right', autoClose: 3000 })
         return
       }
 
@@ -96,17 +102,16 @@ export default function Login() {
       // Never mint a token here. A session the server did not issue looks fine
       // until the first API call 401s and dumps the user back on this screen,
       // which is exactly how the "randomly logged out" reports started.
-      toast.error(
-        error?.timedOut
-          ? 'That took too long. Check your connection and try again.'
-          : error?.status
-            // The server answered and refused — show what it said rather than
-            // blaming the connection, which is what used to happen on a simple
-            // wrong password.
-            ? error.message || 'Invalid email or password'
-            : "Can't reach the server. Check your connection and try again.",
-        { position: 'top-right', autoClose: 4000 },
-      )
+      const message = error?.timedOut
+        ? 'That took too long. Check your connection and try again.'
+        : error?.status
+          // The server answered and refused — show what it said rather than
+          // blaming the connection, which is what used to happen on a simple
+          // wrong password.
+          ? error.message || 'Invalid email or password'
+          : "Can't reach the server. Check your connection and try again."
+      setLoginError(message)
+      toast.error(message, { position: 'top-right', autoClose: 4000 })
     } finally {
       setIsLoading(false)
     }
@@ -238,7 +243,7 @@ export default function Login() {
                 type="email"
                 id="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => { setEmail(e.target.value); if (loginError) setLoginError("") }}
                 placeholder="example@example.com"
                 className="w-full px-4 py-3 rounded-lg bg-[#E8F4F8] border-0 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#006795]"
               />
@@ -253,12 +258,18 @@ export default function Login() {
                 type="password"
                 id="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => { setPassword(e.target.value); if (loginError) setLoginError("") }}
                 placeholder="Enter your Password"
                 maxLength={128}
                 className="w-full px-4 py-3 rounded-lg bg-[#E8F4F8] border-0 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#006795]"
               />
             </div>
+
+            {loginError && (
+              <p role="alert" className="text-sm font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
+                {loginError}
+              </p>
+            )}
 
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between">

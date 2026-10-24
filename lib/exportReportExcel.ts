@@ -160,9 +160,14 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
     const embedded = images[index]
     const row = sheet.addRow({
       num: index + 1,
-      // The photo itself when we have it; the old hyperlink when we don't
-      // (offline with nothing cached is better served by a link than a blank).
-      image: embedded ? '' : def.imageUri ? { text: 'Photo', hyperlink: def.imageUri } : '',
+      // The photo itself when we have it — but keep the hyperlink in the cell
+      // regardless: iOS Quick Look and Google Sheets' importer don't render
+      // embedded images, and the link is all those viewers get. Desktop Excel
+      // draws the photo over the cell, so the link never shows there. Data
+      // URLs are no use as links (and megabytes big), so only http(s) counts.
+      image: def.imageUri && /^https?:/i.test(def.imageUri)
+        ? { text: 'Photo', hyperlink: def.imageUri }
+        : embedded ? '' : '',
       building: def.building || '-',
       unit: def.unit || '-',
       areaItem: `${def.area || ''} / ${def.room || ''}`.trim(),

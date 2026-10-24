@@ -49,7 +49,18 @@ export default function Dashboard() {
   // Multi-select state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
-  const allIds = properties.map(p => p._id || p.propertyId)
+  // The server search only runs on Enter; the list itself must narrow as the
+  // user types or the search box looks broken on touch keyboards without an
+  // obvious Enter key.
+  const visibleProperties = searchQuery.trim()
+    ? properties.filter(p => {
+        const q = searchQuery.trim().toLowerCase()
+        return [p.name, p.propertyId, p.city, p.state, p.address, p.zipCode]
+          .some(v => typeof v === 'string' && v.toLowerCase().includes(q))
+      })
+    : properties
+
+  const allIds = visibleProperties.map(p => p._id || p.propertyId)
   const allSelected = allIds.length > 0 && allIds.every(id => selectedIds.has(id))
   const someSelected = allIds.some(id => selectedIds.has(id))
 
@@ -509,7 +520,7 @@ export default function Dashboard() {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold text-slate-800">Your Properties</h2>
             <span className="text-xs font-semibold text-slate-500">
-              {properties.length} {properties.length === 1 ? 'property' : 'properties'}
+              {visibleProperties.length} {visibleProperties.length === 1 ? 'property' : 'properties'}
             </span>
           </div>
 
@@ -523,11 +534,13 @@ export default function Dashboard() {
                 </svg>
                 Loading properties...
               </div>
-            ) : properties.length === 0 ? (
+            ) : visibleProperties.length === 0 ? (
               <div className="p-12 text-center text-slate-500 font-medium">
-                {loadFailed
-                  ? "Can't reach the server right now. Your properties will appear here once you're back online — nothing has been lost."
-                  : "No properties found. Add your first property!"}
+                {searchQuery.trim() && properties.length > 0
+                  ? `No properties match "${searchQuery.trim()}".`
+                  : loadFailed
+                    ? "Can't reach the server right now. Your properties will appear here once you're back online — nothing has been lost."
+                    : "No properties found. Add your first property!"}
               </div>
             ) : (
               <table className="w-full table-fixed">
@@ -555,7 +568,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {properties.map((property) => {
+                  {visibleProperties.map((property) => {
                     const pid = property._id || property.propertyId
                     const isChecked = selectedIds.has(pid)
                     return (
@@ -672,7 +685,7 @@ export default function Dashboard() {
                 </svg>
                 Loading properties...
               </div>
-            ) : properties.map((property) => {
+            ) : visibleProperties.map((property) => {
               const pid = property._id || property.propertyId
               return (
                   <Card key={pid} className="p-4 bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
