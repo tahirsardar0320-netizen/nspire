@@ -49,6 +49,26 @@ export async function saveAndShareBlob(blob: Blob, filename: string): Promise<vo
     recursive: true,
   })
 
+  // Open the file directly in the device's default viewer (Excel, Sheets,
+  // PDF viewer) when the binary carries the FileOpener plugin — exporting
+  // used to land on the share sheet only, and reaching the actual report
+  // meant hunting through Files or a share target. Older binaries without
+  // the plugin keep the share sheet.
+  const FileOpener = Plugins?.FileOpener
+  if (FileOpener) {
+    const mime = filename.endsWith('.xlsx')
+      ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      : filename.endsWith('.pdf')
+        ? 'application/pdf'
+        : undefined
+    try {
+      await FileOpener.openFile({ path: written.uri, contentType: mime })
+      return
+    } catch {
+      // No app can open it, or the user backed out — fall through to Share.
+    }
+  }
+
   if (Share) {
     await Share.share({ title: filename, url: written.uri })
   }

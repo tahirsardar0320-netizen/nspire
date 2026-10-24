@@ -86,10 +86,23 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
     row.getCell(1).font = { bold: true }
   }
 
-  const titleRow = sheet.addRow(['NSPIRE INSPECTION REPORT'])
-  sheet.mergeCells(titleRow.number, 1, titleRow.number, COLUMNS.length)
-  titleRow.getCell(1).font = { bold: true, size: 16 }
-  titleRow.getCell(1).alignment = { horizontal: 'center' }
+  // The NSPIRE logo, same as the PDF carries. It floats over the first rows'
+  // left columns; the title is merged to its right so they share the band.
+  const logo = await imageBase64('/logo.png?v=2')
+  const titleRow = sheet.addRow(['', '', 'NSPIRE INSPECTION REPORT'])
+  titleRow.height = 64
+  sheet.mergeCells(titleRow.number, 3, titleRow.number, COLUMNS.length)
+  const titleCell = titleRow.getCell(3)
+  titleCell.font = { bold: true, size: 18, color: { argb: 'FF1E3A8A' } }
+  titleCell.alignment = { horizontal: 'center', vertical: 'middle' }
+  if (logo) {
+    const logoId = workbook.addImage({ base64: logo.base64, extension: logo.extension })
+    sheet.addImage(logoId, {
+      tl: { col: 0, row: titleRow.number - 1 },
+      ext: { width: 180, height: 82 },
+      editAs: 'oneCell',
+    })
+  }
 
   addLabelValueRow('Property Name:', report.metadata.propertyName || '-')
   addLabelValueRow('Property Address:', report.metadata.propertyAddress || '-')
@@ -100,11 +113,23 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
   sheet.addRow([])
 
   const summaryHeaderRow = sheet.addRow(['SUMMARY BY SEVERITY'])
-  summaryHeaderRow.getCell(1).font = { bold: true }
-  addLabelValueRow('Life-Threatening', String(report.summary.lifeThreatening))
-  addLabelValueRow('Severe', String(report.summary.severe))
-  addLabelValueRow('Moderate', String(report.summary.moderate))
-  addLabelValueRow('Low', String(report.summary.low))
+  summaryHeaderRow.getCell(1).font = { bold: true, size: 12 }
+  const addSeverityRow = (label: string, value: string) => {
+    const row = sheet.addRow([label, value])
+    const cell = row.getCell(1)
+    const fill = severityFill(label)
+    if (fill) {
+      cell.fill = fill
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }
+    } else {
+      cell.font = { bold: true }
+    }
+    row.getCell(2).font = { bold: true }
+  }
+  addSeverityRow('Life-Threatening', String(report.summary.lifeThreatening))
+  addSeverityRow('Severe', String(report.summary.severe))
+  addSeverityRow('Moderate', String(report.summary.moderate))
+  addSeverityRow('Low', String(report.summary.low))
 
   sheet.addRow([])
 
