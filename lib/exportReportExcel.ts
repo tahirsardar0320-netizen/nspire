@@ -63,9 +63,9 @@ const COLUMNS = [
   { header: 'H&S', key: 'healthSafety', width: 14 },
   { header: 'Pts', key: 'pts', width: 8 },
   { header: 'Status', key: 'status', width: 10 },
-  { header: 'Date Completed', key: 'dateCompleted', width: 14 },
+  { header: 'Date of Inspection', key: 'dateCompleted', width: 14 },
   { header: 'Completed By', key: 'initials', width: 10 },
-  { header: 'Notes', key: 'notes', width: 24 },
+  { header: 'Work Order', key: 'notes', width: 24 },
   { header: 'Standard', key: 'standard', width: 14 },
   { header: 'Inspection Protocol', key: 'protocol', width: 16 },
 ]
@@ -103,9 +103,13 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
   titleCell.alignment = { horizontal: 'center', vertical: 'middle' }
   if (logo) {
     const logoId = workbook.addImage({ base64: logo.base64, extension: logo.extension })
+    // tl+br (a twoCellAnchor), never tl+ext: ExcelJS writes an ext-sized image
+    // as a oneCellAnchor with no a:xfrm, and Apple's previewers (iPhone Quick
+    // Look, macOS Preview) silently drop exactly that shape — the report opened
+    // on an iPhone showed no logo and no photos while desktop Excel was fine.
     sheet.addImage(logoId, {
-      tl: { col: 0, row: titleRow.number - 1 },
-      ext: { width: 180, height: 82 },
+      tl: { col: 0.05, row: titleRow.number - 1 + 0.05 } as any,
+      br: { col: 1.9, row: titleRow.number - 0.05 } as any,
       editAs: 'oneCell',
     })
   }
@@ -210,10 +214,12 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
     if (embedded) {
       const imageId = workbook.addImage({ base64: embedded.base64, extension: embedded.extension })
       row.height = 70
-      // tl is zero-based: column B of this row.
+      // tl is zero-based: column B of this row. tl+br, not tl+ext — see the
+      // logo above: ext produces a oneCellAnchor that iPhone/macOS previews
+      // silently drop. The small insets keep a visible cell border around it.
       sheet.addImage(imageId, {
-        tl: { col: 1, row: row.number - 1 },
-        ext: { width: 92, height: 92 },
+        tl: { col: 1.05, row: row.number - 1 + 0.05 } as any,
+        br: { col: 1.95, row: row.number - 0.05 } as any,
         editAs: 'oneCell',
       })
     }
