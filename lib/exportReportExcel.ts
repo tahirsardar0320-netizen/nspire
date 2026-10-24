@@ -131,11 +131,11 @@ const COLUMNS = [
   { header: 'H&S', key: 'healthSafety', width: 14 },
   { header: 'Pts', key: 'pts', width: 8 },
   { header: 'Status', key: 'status', width: 10 },
-  { header: 'Date of Inspection', key: 'dateCompleted', width: 14 },
+  { header: 'Inspection Date', key: 'dateCompleted', width: 14 },
   { header: 'Completed By', key: 'initials', width: 10 },
   { header: 'Work Order', key: 'notes', width: 24 },
   { header: 'Standard', key: 'standard', width: 14 },
-  { header: 'Inspection Protocol', key: 'protocol', width: 16 },
+  { header: 'Completion Date', key: 'protocol', width: 16 },
 ]
 
 export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionReport): Promise<Blob> {
