@@ -75,7 +75,7 @@ export default function AdminDashboardLayout({ children }: AdminDashboardLayoutP
       <aside className="hidden lg:flex lg:flex-col w-64 bg-gradient-to-b from-[#1E3A5F] to-[#152A45] shadow-lg fixed h-full z-10">
         <div className="p-6 border-b border-[#1E3A5F] flex justify-center">
           <Image
-            src="/logo.png"
+            src="/logo.png?v=2"
             alt="NSPIRE"
             width={300}
             height={100}
@@ -129,7 +129,7 @@ export default function AdminDashboardLayout({ children }: AdminDashboardLayoutP
       }`}>
         <div className="p-4 border-b border-[#1E3A5F] flex items-center justify-between">
           <Image
-            src="/logo.png"
+            src="/logo.png?v=2"
             alt="NSPIRE"
             width={180}
             height={60}
@@ -202,7 +202,7 @@ export default function AdminDashboardLayout({ children }: AdminDashboardLayoutP
             {/* Mobile Logo */}
             <div className="lg:hidden">
               <Image
-                src="/logo.png"
+                src="/logo.png?v=2"
                 alt="NSPIRE"
                 width={120}
                 height={40}

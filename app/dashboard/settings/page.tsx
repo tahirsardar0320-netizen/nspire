@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { durableRemove } from '@/lib/durableStore'
 import { useRouter } from "next/navigation"
 import DashboardLayout from "@/components/DashboardLayout"
 import { Button } from "@/components/ui/button"
@@ -156,8 +157,8 @@ export default function SettingsPage() {
     } catch (error) {
       // Ignore logout errors
     }
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    durableRemove('token')
+    durableRemove('user')
     toast.info("Logged out successfully", { position: "top-right" })
     setTimeout(() => router.push("/"), 1000)
   }

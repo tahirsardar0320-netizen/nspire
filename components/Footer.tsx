@@ -95,7 +95,7 @@ export default function Footer() {
         <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <NextLink href="/" className="flex items-center justify-center bg-white rounded-lg px-3 py-1.5 w-32 h-16 md:w-40 md:h-20">
-              <img src="/logo.png" alt="NSPIRE" className="object-contain w-full h-full" />
+              <img src="/logo.png?v=2" alt="NSPIRE" className="object-contain w-full h-full" />
             </NextLink>
             <a href="https://nspireinspection.ai/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center bg-white rounded-lg px-3 py-1.5 w-32 h-16 md:w-40 md:h-20">
               <img src="/nspire-inspection-ai-badge.png" alt="NSPIRE Inspection.ai International Standard" className="object-contain w-full h-full" />

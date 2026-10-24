@@ -50,7 +50,7 @@ export default function AssetManagerDashboardLayout({ children }: AssetManagerDa
       <aside className="hidden lg:flex lg:flex-col w-64 bg-gradient-to-b from-[#0D7FA8] to-[#0A5F7F] shadow-lg fixed h-full z-10">
         <div className="p-6 border-b border-[#0A5F7F] flex justify-center">
           <Image
-            src="/logo.png"
+            src="/logo.png?v=2"
             alt="NSPIRE"
             width={300}
             height={100}
@@ -116,7 +116,7 @@ export default function AssetManagerDashboardLayout({ children }: AssetManagerDa
       }`}>
         <div className="p-4 border-b border-[#0A5F7F] flex items-center justify-between">
           <Image
-            src="/logo.png"
+            src="/logo.png?v=2"
             alt="NSPIRE"
             width={180}
             height={60}
@@ -204,7 +204,7 @@ export default function AssetManagerDashboardLayout({ children }: AssetManagerDa
             {/* Mobile Logo */}
             <div className="lg:hidden">
               <Image
-                src="/logo.png"
+                src="/logo.png?v=2"
                 alt="NSPIRE"
                 width={120}
                 height={40}

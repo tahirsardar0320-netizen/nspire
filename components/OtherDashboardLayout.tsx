@@ -1,6 +1,7 @@
 "use client"
 
 import { ReactNode, useState, useEffect } from "react"
+import { durableRemove } from '@/lib/durableStore'
 import Image from "next/image"
 import { useRouter, usePathname } from "next/navigation"
 import { toast } from "react-toastify"
@@ -99,7 +100,7 @@ export default function OtherDashboardLayout({ children }: OtherDashboardLayoutP
       <aside className="hidden lg:flex lg:flex-col w-64 bg-gradient-to-b from-[#1E1B4B] to-[#312E81] shadow-xl border-r border-[#312E81]/30 fixed h-full z-10">
         <div className="p-6 border-b border-[#312E81]/40 flex justify-center">
           <Image
-            src="/logo.png"
+            src="/logo.png?v=2"
             alt="NSPIRE"
             width={300}
             height={100}
@@ -142,8 +143,8 @@ export default function OtherDashboardLayout({ children }: OtherDashboardLayoutP
           
           <button
             onClick={() => {
-              localStorage.removeItem('token')
-              localStorage.removeItem('user')
+              durableRemove('token')
+              durableRemove('user')
               toast.success("Logged out successfully!", { position: "top-right" })
               setTimeout(() => router.push('/'), 1500)
             }}
@@ -171,7 +172,7 @@ export default function OtherDashboardLayout({ children }: OtherDashboardLayoutP
       }`}>
         <div className="p-4 border-b border-[#312E81]/40 flex items-center justify-between">
           <Image
-            src="/logo.png"
+            src="/logo.png?v=2"
             alt="NSPIRE"
             width={180}
             height={60}
@@ -231,8 +232,8 @@ export default function OtherDashboardLayout({ children }: OtherDashboardLayoutP
           
           <button
             onClick={() => {
-              localStorage.removeItem('token')
-              localStorage.removeItem('user')
+              durableRemove('token')
+              durableRemove('user')
               toast.success("Logged out successfully!", { position: "top-right" })
               setTimeout(() => router.push('/'), 1500)
               setIsMobileMenuOpen(false)
@@ -265,7 +266,7 @@ export default function OtherDashboardLayout({ children }: OtherDashboardLayoutP
             {/* Mobile Logo */}
             <div className="lg:hidden">
               <Image
-                src="/logo.png"
+                src="/logo.png?v=2"
                 alt="NSPIRE"
                 width={120}
                 height={40}

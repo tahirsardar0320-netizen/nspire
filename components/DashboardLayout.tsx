@@ -1,6 +1,7 @@
 "use client"
 
 import { ReactNode, useState, useEffect } from "react"
+import { durableRemove } from '@/lib/durableStore'
 import Image from "next/image"
 import { useRouter, usePathname } from "next/navigation"
 import { toast } from "react-toastify"
@@ -81,7 +82,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="relative p-6 border-b border-[#0F4C5C]/40 flex justify-center overflow-hidden">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-[#00C6D7]/20 rounded-full blur-3xl pointer-events-none" />
           <Image
-            src="/logo.png"
+            src="/logo.png?v=2"
             alt="NSPIRE"
             width={300}
             height={100}
@@ -124,8 +125,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
           <button
             onClick={() => {
-              localStorage.removeItem('token')
-              localStorage.removeItem('user')
+              durableRemove('token')
+              durableRemove('user')
               toast.success("Logged out successfully!", { position: "top-right" })
               setTimeout(() => router.push('/'), 1500)
             }}
@@ -158,7 +159,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="relative p-4 border-b border-[#0F4C5C]/40 flex items-center justify-between overflow-hidden">
           <div className="absolute top-1/2 left-8 -translate-y-1/2 w-28 h-28 bg-[#00C6D7]/20 rounded-full blur-3xl pointer-events-none" />
           <Image
-            src="/logo.png"
+            src="/logo.png?v=2"
             alt="NSPIRE"
             width={180}
             height={60}
@@ -212,8 +213,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
           <button
             onClick={() => {
-              localStorage.removeItem('token')
-              localStorage.removeItem('user')
+              durableRemove('token')
+              durableRemove('user')
               toast.success("Logged out successfully!", { position: "top-right" })
               setTimeout(() => router.push('/'), 1500)
               setIsMobileMenuOpen(false)
@@ -246,7 +247,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {/* Mobile Logo */}
             <div className="lg:hidden">
               <Image
-                src="/logo.png"
+                src="/logo.png?v=2"
                 alt="NSPIRE"
                 width={120}
                 height={40}

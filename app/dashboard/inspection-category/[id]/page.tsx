@@ -2471,7 +2471,7 @@ export default function InspectionCategoryPage() {
                     <Card className="font-lexend w-full max-w-xl bg-white rounded-3xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.35)] animate-in slide-in-from-top-4 duration-300 flex flex-col h-auto max-h-[70vh] self-center border border-slate-100">
                         <div className="flex items-center gap-3 px-4 py-3 shrink-0 bg-gradient-to-r from-[#00C6D7] to-[#006795] sticky top-0 z-20 shadow-sm">
                             <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center shrink-0 overflow-hidden">
-                                <img src="/logo.png" alt="NSPIRE" className="h-6 w-6 object-contain" />
+                                <img src="/logo.png?v=2" alt="NSPIRE" className="h-6 w-6 object-contain" />
                             </div>
                             <div className="min-w-0 flex-1">
                                 <h3 className="text-sm font-extrabold text-white uppercase tracking-tight truncate font-lexend">{currentModalItem}</h3>
@@ -2782,7 +2782,7 @@ export default function InspectionCategoryPage() {
                             return (
                             <div className="flex-1 overflow-y-auto flex flex-col p-6 md:p-8 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-0 bg-gradient-to-b from-[#0F4C5C] to-[#142834]">
                                 <div className="text-center mb-1">
-                                    <img src="/logo.png" alt="NSPIRE" className="h-7 mx-auto mb-3 object-contain brightness-125" />
+                                    <img src="/logo.png?v=2" alt="NSPIRE" className="h-7 mx-auto mb-3 object-contain brightness-125" />
                                     <h4 className="text-white font-extrabold text-lg font-lexend">Saved for Summary Report</h4>
                                     <p className="text-white/60 text-xs font-semibold mt-0.5">{cards.length} deficienc{cards.length === 1 ? 'y' : 'ies'} on this item</p>
                                 </div>

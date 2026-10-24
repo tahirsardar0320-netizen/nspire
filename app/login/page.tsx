@@ -200,7 +200,7 @@ export default function Login() {
       <div className="w-full bg-[#E8F4F8] px-6 text-center flex flex-col items-center justify-center rounded-b-[70px]" style={{ height: '280px' }}>
         <div className="flex justify-center mb-8">
           <Image
-            src="/logo.png"
+            src="/logo.png?v=2"
             alt="NSPIRE Logo"
             width={480}
             height={560}

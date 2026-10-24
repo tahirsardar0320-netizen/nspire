@@ -31,7 +31,7 @@
 //
 // Tying the version to the build means a deploy always retires the caches it
 // invalidated.
-const VERSION = 'v7-202610231951';
+const VERSION = 'v7-202610241509';
 const SHELL_CACHE = `inspire-shell-${VERSION}`;
 const PAGE_CACHE = `inspire-pages-${VERSION}`;
 const ASSET_CACHE = `inspire-assets-${VERSION}`;
@@ -49,6 +49,8 @@ const SHELL_PAGES = [
   '/login',
   '/dashboard',
   '/logo.png',
+  // Versioned copy the headers use — cache-busts every stale logo at once.
+  '/logo.png?v=2',
   // One rendered copy of each client-rendered family, so a property created in
   // the field can be opened — and reloaded — with no connection at all.
   '/dashboard/property-details/template',

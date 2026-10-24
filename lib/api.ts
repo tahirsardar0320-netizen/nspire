@@ -1,7 +1,7 @@
 // API Configuration
 import { safeSetItem } from './safeStorage';
 import { fetchWithTimeout } from './httpFetch';
-import { durableGet, durableSet, ensureHydrated } from './durableStore';
+import { durableGet, durableSet, durableRemove, ensureHydrated } from './durableStore';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -98,8 +98,8 @@ async function apiRequest<T>(
 
       if (response.status === 401 && !isAuthAttempt(endpoint)) {
         if (typeof window !== 'undefined' && endsSession(endpoint)) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
+          durableRemove('token');
+          durableRemove('user');
           window.location.href = '/login';
         }
         const unauthorized = new Error('Unauthorized') as any;
@@ -120,8 +120,8 @@ async function apiRequest<T>(
 
     if (response.status === 401 && !isAuthAttempt(endpoint)) {
       if (typeof window !== 'undefined' && endsSession(endpoint)) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        durableRemove('token');
+        durableRemove('user');
         window.location.href = '/login';
       }
       const unauthorized = new Error('Unauthorized') as any;

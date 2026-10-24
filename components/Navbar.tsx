@@ -32,7 +32,7 @@ export default function Navbar() {
         {/* Logo - Center on mobile, Left on desktop */}
         <div className="flex-1 md:flex-none flex justify-center md:justify-start lg:mr-8 xl:mr-16">
           <Link href="/">
-            <Image src="/logo.png" alt="NSPIRE" width={200} height={70} className="object-contain h-20 sm:h-24 md:h-28 w-auto" priority />
+            <Image src="/logo.png?v=2" alt="NSPIRE" width={200} height={70} className="object-contain h-20 sm:h-24 md:h-28 w-auto" priority />
           </Link>
         </div>
 

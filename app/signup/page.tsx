@@ -281,7 +281,7 @@ export default function Signup() {
       <div className="w-full bg-[#E8F4F8] px-4 sm:px-6 text-center flex flex-col items-center justify-center rounded-b-[40px] sm:rounded-b-[70px]" style={{ minHeight: '200px' }}>
         <div className="flex justify-center mb-4 sm:mb-8">
           <Image
-            src="/logo.png"
+            src="/logo.png?v=2"
             alt="NSPIRE Logo"
             width={480}
             height={560}

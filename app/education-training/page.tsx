@@ -37,7 +37,7 @@ export default function EducationTrainingPage() {
             <div className="px-4 md:px-6 py-5 flex items-center justify-between max-w-[1400px] mx-auto">
                 <div className="flex flex-col cursor-pointer" onClick={() => router.push('/')}>
                     <img
-                        src="/logo.png"
+                        src="/logo.png?v=2"
                         alt="NSPIRE"
                         className="h-24 md:h-32 lg:h-36 w-auto object-contain"
                     />
