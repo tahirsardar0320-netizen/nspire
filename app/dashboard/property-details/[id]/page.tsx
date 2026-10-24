@@ -169,7 +169,7 @@ export default function PropertyDetailsPage() {
         if (typeof window !== 'undefined') {
             const queryCoverage = qp('coverage')
             if (queryCoverage) return queryCoverage
-            const saved = localStorage.getItem(`property_coverage_${id}`)
+            const saved = durableGet(`property_coverage_${id}`)
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved)
@@ -184,7 +184,7 @@ export default function PropertyDetailsPage() {
         if (typeof window !== 'undefined') {
             const queryUnits = qp('calculatedUnits')
             if (queryUnits) return parseInt(queryUnits)
-            const saved = localStorage.getItem(`property_coverage_${id}`)
+            const saved = durableGet(`property_coverage_${id}`)
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved)

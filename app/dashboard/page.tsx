@@ -368,7 +368,7 @@ export default function Dashboard() {
 
     // Check if there is already a saved coverage for this property
     if (typeof window !== 'undefined' && propId !== 'new') {
-      const saved = localStorage.getItem(`property_coverage_${propId}`)
+      const saved = durableGet(`property_coverage_${propId}`)
       if (saved) {
         try {
           const { coverage, calculatedUnits } = JSON.parse(saved)
@@ -414,7 +414,7 @@ export default function Dashboard() {
     const propId = prop?._id || prop?.id || prop?.propertyId || 'new'
 
     if (typeof window !== 'undefined' && propId !== 'new') {
-      safeSetItem(`property_coverage_${propId}`, JSON.stringify({ coverage, calculatedUnits }))
+      durableSet(`property_coverage_${propId}`, JSON.stringify({ coverage, calculatedUnits }))
       // Mark this property as the active inspection (lock all others)
       activateInspection(propId)
     }

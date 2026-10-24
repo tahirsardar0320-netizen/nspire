@@ -276,7 +276,7 @@ export default function InspectionStatusPage() {
   }
 
   const handleStartInspection = (propertyId: string) => {
-    const saved = localStorage.getItem(`property_coverage_${propertyId}`)
+    const saved = durableGet(`property_coverage_${propertyId}`)
     if (saved) {
       try {
         const { coverage, calculatedUnits } = JSON.parse(saved)

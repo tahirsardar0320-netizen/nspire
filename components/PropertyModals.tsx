@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { toast } from "react-toastify"
 import { inspectionsAPI, propertiesAPI } from "@/lib/api"
+import { durableGet } from "@/lib/durableStore"
 import { Country, State, City } from 'country-state-city'
 import * as XLSX from 'xlsx'
 
@@ -1653,7 +1654,7 @@ export function SummaryModal({ isOpen, onClose, propertyData, hideFullReportButt
 
       let calculatedUnits = parseInt(propertyData.units) || 1
       if (typeof window !== 'undefined') {
-        const saved = localStorage.getItem(`property_coverage_${propertyId}`)
+        const saved = durableGet(`property_coverage_${propertyId}`)
         if (saved) {
           try {
             const parsed = JSON.parse(saved)

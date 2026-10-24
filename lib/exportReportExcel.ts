@@ -6,6 +6,74 @@
 import { NSPIREInspectionReport, SEVERITY_COLORS } from './nspireReport'
 import { fetchWithTimeout } from './httpFetch'
 
+const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+const EMU_PER_PX = 9525
+const EMU_PER_PT = 12700
+
+/**
+ * Fill in each picture's absolute position and size (a:xfrm) after ExcelJS
+ * has written the workbook. ExcelJS leaves xfrm at 0,0/0x0 — real Excel
+ * ignores it and uses the cell anchor, but Apple's previewers (iPhone Quick
+ * Look, macOS Preview) and other lightweight viewers read ONLY the absolute
+ * values, so every photo and the logo rendered as a zero-size nothing there
+ * while the Excel apps showed them fine.
+ */
+async function patchDrawingAbsolutes(buffer: ArrayBuffer, sheet: import('exceljs').Worksheet): Promise<Blob> {
+  try {
+    const JSZip = (await import('jszip')).default
+    const zip = await JSZip.loadAsync(buffer)
+    const entry = zip.file('xl/drawings/drawing1.xml')
+    if (!entry) return new Blob([buffer], { type: XLSX_MIME })
+    let xml = await entry.async('string')
+
+    // Left edge of a column / top edge of a row, in EMU, from the sheet's
+    // real metrics (width in characters ≈ width*7+5 px; height in points).
+    const colLeftEmu = (col: number, off: number) => {
+      let px = 0
+      for (let i = 0; i < col; i++) {
+        const w = sheet.getColumn(i + 1)?.width || 8.43
+        px += Math.round(w * 7 + 5)
+      }
+      return px * EMU_PER_PX + off
+    }
+    const rowTopEmu = (row: number, off: number) => {
+      let pt = 0
+      for (let i = 0; i < row; i++) pt += sheet.getRow(i + 1)?.height || 15
+      return Math.round(pt * EMU_PER_PT) + off
+    }
+    const nth = (block: string, tag: string, which: number) => {
+      const matches = [...block.matchAll(new RegExp(`<xdr:${tag}>(-?\\d+)</xdr:${tag}>`, 'g'))]
+      return matches[which] ? parseInt(matches[which][1], 10) : 0
+    }
+
+    xml = xml.replace(/<xdr:(oneCellAnchor|twoCellAnchor)[\s\S]*?<\/xdr:\1>/g, (block) => {
+      const x = colLeftEmu(nth(block, 'col', 0), nth(block, 'colOff', 0))
+      const y = rowTopEmu(nth(block, 'row', 0), nth(block, 'rowOff', 0))
+      let cx = 0
+      let cy = 0
+      const ext = block.match(/<xdr:ext cx="(\d+)" cy="(\d+)"\/>/)
+      if (ext) {
+        cx = parseInt(ext[1], 10)
+        cy = parseInt(ext[2], 10)
+      } else {
+        cx = colLeftEmu(nth(block, 'col', 1), nth(block, 'colOff', 1)) - x
+        cy = rowTopEmu(nth(block, 'row', 1), nth(block, 'rowOff', 1)) - y
+      }
+      return block.replace(
+        /<a:xfrm>[\s\S]*?<\/a:xfrm>/,
+        `<a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>`
+      )
+    })
+
+    zip.file('xl/drawings/drawing1.xml', xml)
+    return await zip.generateAsync({ type: 'blob', mimeType: XLSX_MIME })
+  } catch {
+    // A failed patch must never cost the report itself — the unpatched file
+    // is still perfect in every real Excel app.
+    return new Blob([buffer], { type: XLSX_MIME })
+  }
+}
+
 const HEADER_FILL = { type: 'pattern' as const, pattern: 'solid' as const, fgColor: { argb: 'FFD1D5DB' } }
 const THIN_BORDER = { style: 'thin' as const, color: { argb: 'FF000000' } }
 const ALL_BORDERS = { top: THIN_BORDER, left: THIN_BORDER, bottom: THIN_BORDER, right: THIN_BORDER }
@@ -103,13 +171,14 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
   titleCell.alignment = { horizontal: 'center', vertical: 'middle' }
   if (logo) {
     const logoId = workbook.addImage({ base64: logo.base64, extension: logo.extension })
-    // tl+br (a twoCellAnchor), never tl+ext: ExcelJS writes an ext-sized image
-    // as a oneCellAnchor with no a:xfrm, and Apple's previewers (iPhone Quick
-    // Look, macOS Preview) silently drop exactly that shape — the report opened
-    // on an iPhone showed no logo and no photos while desktop Excel was fine.
+    // Integer tl + ext: Excel sizes the picture by ext, which keeps it exactly
+    // 180x82 wherever the anchor lands. (Fractional tl/br anchors came out as
+    // crushed slivers — ExcelJS converts the fraction with default column
+    // metrics, not the sheet's real widths.) Viewers that only read absolute
+    // coordinates are handled after the fact by patchDrawingAbsolutes.
     sheet.addImage(logoId, {
-      tl: { col: 0.05, row: titleRow.number - 1 + 0.05 } as any,
-      br: { col: 1.9, row: titleRow.number - 0.05 } as any,
+      tl: { col: 0, row: titleRow.number - 1 },
+      ext: { width: 180, height: 82 },
       editAs: 'oneCell',
     })
   }
@@ -214,12 +283,11 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
     if (embedded) {
       const imageId = workbook.addImage({ base64: embedded.base64, extension: embedded.extension })
       row.height = 70
-      // tl is zero-based: column B of this row. tl+br, not tl+ext — see the
-      // logo above: ext produces a oneCellAnchor that iPhone/macOS previews
-      // silently drop. The small insets keep a visible cell border around it.
+      // tl is zero-based: column B of this row. Integer tl + ext — see the
+      // logo above for why fractional anchors must not be used here.
       sheet.addImage(imageId, {
-        tl: { col: 1.05, row: row.number - 1 + 0.05 } as any,
-        br: { col: 1.95, row: row.number - 0.05 } as any,
+        tl: { col: 1, row: row.number - 1 },
+        ext: { width: 92, height: 92 },
         editAs: 'oneCell',
       })
     }
@@ -230,7 +298,7 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
   addLabelValueRow('DATE:', dateStr)
 
   const buffer = await workbook.xlsx.writeBuffer()
-  return new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+  return patchDrawingAbsolutes(buffer as ArrayBuffer, sheet)
 }
 
 export async function downloadNSPIREReportExcel(report: NSPIREInspectionReport, filename: string): Promise<void> {

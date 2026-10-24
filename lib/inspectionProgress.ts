@@ -58,7 +58,7 @@ export async function fetchPropertyProgressMap(propertyList: any[], apiUrl: stri
 
     let unitsToInspect = parseInt(prop.units) || 1
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(`property_coverage_${propId}`)
+      const saved = durableGet(`property_coverage_${propId}`)
       if (saved) {
         try {
           const parsed = JSON.parse(saved)
