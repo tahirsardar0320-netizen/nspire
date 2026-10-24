@@ -171,14 +171,15 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
   titleCell.alignment = { horizontal: 'center', vertical: 'middle' }
   if (logo) {
     const logoId = workbook.addImage({ base64: logo.base64, extension: logo.extension })
-    // Integer tl + ext: Excel sizes the picture by ext, which keeps it exactly
-    // 180x82 wherever the anchor lands. (Fractional tl/br anchors came out as
-    // crushed slivers — ExcelJS converts the fraction with default column
-    // metrics, not the sheet's real widths.) Viewers that only read absolute
-    // coordinates are handled after the fact by patchDrawingAbsolutes.
+    // INTEGER tl+br spanning whole cells: with zero offsets every viewer lays
+    // the picture over its own grid, so it lands inside the box everywhere —
+    // Excel apps, iPhone preview, all of them. (Fractional anchors go through
+    // ExcelJS's default column metrics and render as crushed slivers; ext
+    // sizing is exact in Excel but absolute-only viewers then need xfrm
+    // coordinates that can drift from their own grid math.)
     sheet.addImage(logoId, {
-      tl: { col: 0, row: titleRow.number - 1 },
-      ext: { width: 180, height: 82 },
+      tl: { col: 0, row: titleRow.number - 1 } as any,
+      br: { col: 2, row: titleRow.number } as any,
       editAs: 'oneCell',
     })
   }
@@ -283,11 +284,11 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
     if (embedded) {
       const imageId = workbook.addImage({ base64: embedded.base64, extension: embedded.extension })
       row.height = 70
-      // tl is zero-based: column B of this row. Integer tl + ext — see the
-      // logo above for why fractional anchors must not be used here.
+      // tl is zero-based: the image fills column B's cell on this row exactly,
+      // corner to corner — see the logo above for why only integer anchors.
       sheet.addImage(imageId, {
-        tl: { col: 1, row: row.number - 1 },
-        ext: { width: 92, height: 92 },
+        tl: { col: 1, row: row.number - 1 } as any,
+        br: { col: 2, row: row.number } as any,
         editAs: 'oneCell',
       })
     }
