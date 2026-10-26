@@ -78,6 +78,18 @@ const HEADER_FILL = { type: 'pattern' as const, pattern: 'solid' as const, fgCol
 const THIN_BORDER = { style: 'thin' as const, color: { argb: 'FF000000' } }
 const ALL_BORDERS = { top: THIN_BORDER, left: THIN_BORDER, bottom: THIN_BORDER, right: THIN_BORDER }
 
+/**
+ * The repair window NSPIRE allows for a deficiency of this severity — what the
+ * client wants the H&S column to say: the deadline, not the severity repeated.
+ */
+const repairWindow = (severity?: string) => {
+  const s = String(severity || '').toLowerCase()
+  if (!s || s === '-') return ''
+  if (s.includes('life') || s.includes('critical') || s.includes('severe') || s.includes('major') || s.includes('high')) return '24 hrs'
+  if (s.includes('low') || s.includes('minor') || s.includes('observation')) return '60 Days'
+  return '30 Days'
+}
+
 /** '#DC2626' → ExcelJS 'FFDC2626'. The same palette the PDF uses. */
 const severityFill = (severity: string | undefined) => {
   const hex = SEVERITY_COLORS[(severity || '') as keyof typeof SEVERITY_COLORS]
@@ -253,8 +265,10 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
       areaItem: `${def.area || ''} / ${def.room || ''}`.trim(),
       details: `${def.deficiencyName || ''}\n${def.deficiencyDetails || ''}`.trim(),
       severity: def.severity,
-      healthSafety: def.healthAndSafety,
-      pts: def.deductionPts,
+      // The correction deadline, not the severity twice over: 24 hrs for
+      // Life-Threatening/Severe, 30 Days for Moderate, 60 Days for Low.
+      healthSafety: repairWindow(def.healthAndSafety || def.severity),
+      pts: Number(def.deductionPts ?? 0).toFixed(2),
       status: def.status || 'Open',
       dateCompleted: def.inspectedDate || dateStr,
       initials: '',
@@ -274,7 +288,7 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
       cell.fill = fill
       cell.font = { color: { argb: 'FFFFFFFF' }, bold: true }
     }
-    const hsFill = severityFill(def.healthAndSafety)
+    const hsFill = severityFill(def.healthAndSafety || def.severity)
     if (hsFill) {
       const cell = row.getCell('healthSafety')
       cell.fill = hsFill

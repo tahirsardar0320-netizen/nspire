@@ -42,7 +42,7 @@ function UnitDeficiencyTable({ items }: { items: any[] }) {
                   <span className="text-gray-400">No Image</span>
                 )}
               </td>
-              <td className="border border-gray-400 p-2 text-center">{d.deductionPts}</td>
+              <td className="border border-gray-400 p-2 text-center">{Number(d.deductionPts ?? 0).toFixed(2)}</td>
               <td className="border border-gray-400 p-2 text-center">{d.repeatIndicator ? 'Repeat' : 'Not Repeat'}</td>
               <td className="border border-gray-400 p-2 text-center">{d.severity}</td>
             </tr>
@@ -268,7 +268,7 @@ export function ReportPreviewModal({ report, onClose }: ReportPreviewModalProps)
                                         <span className="text-gray-400">No Image</span>
                                       )}
                                     </td>
-                                    <td className="border border-gray-400 p-2 text-center">{d.deductionPts}</td>
+                                    <td className="border border-gray-400 p-2 text-center">{Number(d.deductionPts ?? 0).toFixed(2)}</td>
                                     <td className="border border-gray-400 p-2 text-center">{d.repeatIndicator ? 'Repeat' : 'Not Repeat'}</td>
                                     <td className="border border-gray-400 p-2 text-center">{d.severity}</td>
                                   </tr>

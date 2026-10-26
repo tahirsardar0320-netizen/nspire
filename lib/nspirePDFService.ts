@@ -408,20 +408,8 @@ function generateSummaryPage(
           </tbody>
         </table>
 
-        <!-- Occupancy Information -->
-        <div class="section-header">Occupancy Information</div>
-        <table class="summary-table">
-          <thead>
-            <tr>
-              <th>Occupancy Rate(%)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>${occupancyInfo.occupancyRate.toFixed(0)}</td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- Occupancy section removed per the client: the report must not
+             carry occupancy or vacancy rates. -->
 
         <!-- Deficiency Summary -->
         <div class="section-header">Deficiency Summary</div>
@@ -561,7 +549,7 @@ function generateDeficiencyRow(def: DeficiencyEntry): string {
     }
       </td>
        <td style="text-align:center;">
-        ${isGC ? '-' : def.deductionPts}
+        ${isGC ? '-' : Number(def.deductionPts ?? 0).toFixed(2)}
       </td>
        <td style="text-align:center;">
         ${isGC ? '-' : (def.repeatIndicator ? 'Repeat' : 'Not Repeat')}

@@ -24,6 +24,9 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
+  // Spelled out for iOS: WKWebView only allows pinch-zoom when the viewport
+  // says so explicitly — the client couldn't enlarge the screen on iPhone.
+  userScalable: true,
   themeColor: '#006795',
 }
 

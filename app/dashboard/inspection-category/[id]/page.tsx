@@ -1907,12 +1907,44 @@ export default function InspectionCategoryPage() {
         // building that has several. The property is the authority.
         const buildingCount = Number(property?.buildings) || 0;
         const totalUnits = Number(property?.units) || 0;
+        const index = Math.max(0, parseInt(String(urlBuilding).replace(/\D/g, ''), 10) - 1) || 0;
         let expectedForThisBuilding = 0;
         if (buildingCount > 0 && totalUnits > 0) {
-            const index = Math.max(0, parseInt(String(urlBuilding).replace(/\D/g, ''), 10) - 1) || 0;
             const base = Math.floor(totalUnits / buildingCount);
             const remainder = totalUnits % buildingCount;
             expectedForThisBuilding = base + (index < remainder ? 1 : 0);
+        }
+
+        // Under Random/50% coverage only the SAMPLE is inspected, and the list
+        // (and the % it drives) must be the sample, not the building's whole
+        // unit count — dividing by the total left a fully-inspected building
+        // stuck at 50-80% "complete" on the client's screen. Mirror the same
+        // proportional split property-details uses to hand out the sample.
+        if (buildingCount > 0 && totalUnits > 0) {
+            try {
+                const savedCoverage = durableGet(`property_coverage_${id}`);
+                const calculated = savedCoverage ? Number(JSON.parse(savedCoverage)?.calculatedUnits) : NaN;
+                if (Number.isFinite(calculated) && calculated > 0 && calculated < totalUnits) {
+                    const base = Math.floor(totalUnits / buildingCount);
+                    const remainder = totalUnits % buildingCount;
+                    const totals = Array.from({ length: buildingCount }, (_, i) => base + (i < remainder ? 1 : 0));
+                    const rawShares = totals.map(t => (t * calculated) / totalUnits);
+                    const floors = rawShares.map(Math.floor);
+                    let remaining = calculated - floors.reduce((s, v) => s + v, 0);
+                    const order = rawShares
+                        .map((r, i) => ({ i, frac: r - floors[i] }))
+                        .sort((a, b) => b.frac - a.frac);
+                    let guard = 0;
+                    while (remaining > 0 && guard < order.length * 3) {
+                        const { i } = order[guard % order.length];
+                        if (floors[i] < totals[i]) { floors[i]++; remaining--; }
+                        guard++;
+                    }
+                    if (floors[index] > 0) expectedForThisBuilding = floors[index];
+                }
+            } catch {
+                // Unreadable coverage — the total-based expectation stands.
+            }
         }
 
         const count = Math.max(urlTotalUnits, expectedForThisBuilding);

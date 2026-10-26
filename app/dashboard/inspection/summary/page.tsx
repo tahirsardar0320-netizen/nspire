@@ -1090,8 +1090,10 @@ function NSPIREInspectionSummaryContent() {
                 </div>
               </Card>
 
-              {/* Property & Occupancy Info */}
-              <div className="grid md:grid-cols-2 gap-6">
+              {/* Property Info — the occupancy/vacancy card was removed at the
+                  client's request; only the unit total survives, folded in
+                  here, since the sampling text elsewhere refers to it. */}
+              <div className="grid gap-6">
                 <Card className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm space-y-4">
                   <div className="border-b border-slate-100 pb-3 flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-teal-500" />
@@ -1114,30 +1116,9 @@ function NSPIREInspectionSummaryContent() {
                       <span className="text-slate-450 font-semibold text-xs uppercase tracking-wider">Inspector</span>
                       <span className="font-extrabold text-slate-800">{report.metadata.inspectorName}</span>
                     </div>
-                  </div>
-                </Card>
-
-                <Card className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm space-y-4">
-                  <div className="border-b border-slate-100 pb-3 flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-teal-500" />
-                    <h2 className="text-base font-extrabold text-slate-900 tracking-tight">Occupancy Information</h2>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-50/50 border border-slate-100 p-4 rounded-2xl text-center shadow-sm">
-                      <p className="text-2xl font-extrabold text-slate-800">{report.occupancyInfo.totalUnits}</p>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Total Units</p>
-                    </div>
-                    <div className="bg-emerald-50/50 border border-emerald-100 p-4 rounded-2xl text-center shadow-sm">
-                      <p className="text-2xl font-extrabold text-emerald-700">{report.occupancyInfo.occupiedUnits}</p>
-                      <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mt-0.5">Occupied</p>
-                    </div>
-                    <div className="bg-rose-50/50 border border-rose-100 p-4 rounded-2xl text-center shadow-sm">
-                      <p className="text-2xl font-extrabold text-rose-700">{report.occupancyInfo.vacantUnits}</p>
-                      <p className="text-[10px] font-bold text-rose-600 uppercase tracking-wider mt-0.5">Vacant</p>
-                    </div>
-                    <div className="bg-sky-50/50 border border-sky-100 p-4 rounded-2xl text-center shadow-sm">
-                      <p className="text-2xl font-extrabold text-sky-700">{report.occupancyInfo.occupancyRate.toFixed(0)}%</p>
-                      <p className="text-[10px] font-bold text-sky-600 uppercase tracking-wider mt-0.5">Occupancy Rate</p>
+                    <div className="flex justify-between py-2.5">
+                      <span className="text-slate-450 font-semibold text-xs uppercase tracking-wider">Total Units</span>
+                      <span className="font-extrabold text-slate-800">{report.occupancyInfo.totalUnits}</span>
                     </div>
                   </div>
                 </Card>
