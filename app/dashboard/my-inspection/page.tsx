@@ -300,6 +300,7 @@ export default function MyInspection() {
                     <th className="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Postal Code</th>
                     <th className="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Buildings</th>
                     <th className="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Units</th>
+                    <th className="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Progress</th>
                     <th className="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Action</th>
                   </tr>
                 </thead>
@@ -337,6 +338,18 @@ export default function MyInspection() {
                         <td className="py-4 px-4 text-center text-slate-500 text-xs font-mono">{property.zipCode}</td>
                         <td className="py-4 px-4 text-center font-semibold text-slate-700">{property.buildings || 1}</td>
                         <td className="py-4 px-4 text-center font-semibold text-slate-700">{property.units || 1}</td>
+                        <td className="py-4 px-4">
+                          {/* Same figure the dashboard cards show, from the same engine. */}
+                          <div className="flex items-center gap-2 min-w-[90px]">
+                            <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
+                              <div
+                                className="h-full bg-gradient-to-r from-teal-600 to-emerald-500 rounded-full transition-all duration-500"
+                                style={{ width: `${propertyProgress[pid] ?? 0}%` }}
+                              />
+                            </div>
+                            <span className="text-xs font-extrabold text-teal-700 w-9 text-right">{propertyProgress[pid] ?? 0}%</span>
+                          </div>
+                        </td>
                         <td className="py-4 px-4 text-center">
                           {propertyProgress[pid] === 100 ? (
                             reportEmailed[pid] ? (
