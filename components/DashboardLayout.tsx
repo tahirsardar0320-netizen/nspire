@@ -2,6 +2,7 @@
 
 import { ReactNode, useState, useEffect } from "react"
 import { durableRemove } from '@/lib/durableStore'
+import { safeSetItem } from '@/lib/safeStorage'
 import Image from "next/image"
 import { useRouter, usePathname } from "next/navigation"
 import { toast } from "react-toastify"
@@ -16,6 +17,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [userName, setUserName] = useState("User")
   const [userRole, setUserRole] = useState("Inspector")
+  // In-app display zoom. Pinch is unreliable inside the iOS webview, so the
+  // header carries its own −/+ that scales the whole page via CSS zoom —
+  // supported by every WebKit/Blink webview the app ships in.
+  const [zoomLevel, setZoomLevel] = useState(1)
+
+  useEffect(() => {
+    const saved = parseFloat(localStorage.getItem('app_zoom_level') || '1')
+    if (saved >= 0.8 && saved <= 1.6) setZoomLevel(saved)
+  }, [])
+
+  useEffect(() => {
+    ;(document.body.style as any).zoom = zoomLevel === 1 ? '' : String(zoomLevel)
+    safeSetItem('app_zoom_level', String(zoomLevel))
+    return () => { (document.body.style as any).zoom = '' }
+  }, [zoomLevel])
+
+  const stepZoom = (delta: number) =>
+    setZoomLevel(prev => Math.min(1.6, Math.max(0.8, Math.round((prev + delta) * 10) / 10)))
 
   useEffect(() => {
     // Auth guard — redirect unauthenticated users
@@ -257,6 +276,30 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
 
             <div className="flex items-center gap-2 md:gap-4">
+              <div className="flex items-center rounded-lg border border-slate-200 overflow-hidden">
+                <button
+                  onClick={() => stepZoom(-0.1)}
+                  aria-label="Zoom out"
+                  className="px-2.5 py-2 text-slate-600 hover:bg-slate-50 font-extrabold text-base leading-none"
+                >
+                  −
+                </button>
+                <button
+                  onClick={() => setZoomLevel(1)}
+                  aria-label="Reset zoom"
+                  className="px-1.5 py-2 text-[10px] font-bold text-slate-400 hover:bg-slate-50 leading-none min-w-[38px]"
+                >
+                  {Math.round(zoomLevel * 100)}%
+                </button>
+                <button
+                  onClick={() => stepZoom(0.1)}
+                  aria-label="Zoom in"
+                  className="px-2.5 py-2 text-slate-600 hover:bg-slate-50 font-extrabold text-base leading-none"
+                >
+                  +
+                </button>
+              </div>
+
               <button
                 onClick={() => router.push('/dashboard/notifications')}
                 className="relative p-2 hover:bg-slate-50 text-slate-600 rounded-lg transition-colors border border-slate-200"
