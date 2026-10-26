@@ -276,25 +276,25 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
 
             <div className="flex items-center gap-2 md:gap-4">
-              <div className="flex items-center rounded-lg border border-slate-200 overflow-hidden">
+              <div className="flex items-center rounded-md border border-slate-200 overflow-hidden">
                 <button
                   onClick={() => stepZoom(-0.1)}
                   aria-label="Zoom out"
-                  className="px-2.5 py-2 text-slate-600 hover:bg-slate-50 font-extrabold text-base leading-none"
+                  className="px-1.5 py-1 text-slate-600 hover:bg-slate-50 font-bold text-xs leading-none"
                 >
                   −
                 </button>
                 <button
                   onClick={() => setZoomLevel(1)}
                   aria-label="Reset zoom"
-                  className="px-1.5 py-2 text-[10px] font-bold text-slate-400 hover:bg-slate-50 leading-none min-w-[38px]"
+                  className="px-1 py-1 text-[9px] font-bold text-slate-400 hover:bg-slate-50 leading-none min-w-[30px]"
                 >
                   {Math.round(zoomLevel * 100)}%
                 </button>
                 <button
                   onClick={() => stepZoom(0.1)}
                   aria-label="Zoom in"
-                  className="px-2.5 py-2 text-slate-600 hover:bg-slate-50 font-extrabold text-base leading-none"
+                  className="px-1.5 py-1 text-slate-600 hover:bg-slate-50 font-bold text-xs leading-none"
                 >
                   +
                 </button>
