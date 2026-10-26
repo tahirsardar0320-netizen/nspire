@@ -1,4 +1,5 @@
 import UIKit
+import WebKit
 import Capacitor
 
 @UIApplicationMain
@@ -7,7 +8,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // The client could not pinch-zoom inside the app even though the site's
+        // viewport allows it (user-scalable=yes, maximum-scale=5) and Safari on
+        // the same phone zooms fine — WKWebView applies its own scale limits.
+        // ignoresViewportScaleLimits is Apple's switch for exactly this, and it
+        // must be set on the webview's configuration once it exists; Capacitor
+        // has no config flag for it.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            func findWebView(_ view: UIView?) -> WKWebView? {
+                guard let view = view else { return nil }
+                if let webView = view as? WKWebView { return webView }
+                for subview in view.subviews {
+                    if let found = findWebView(subview) { return found }
+                }
+                return nil
+            }
+            let root = self?.window?.rootViewController?.view
+                ?? UIApplication.shared.windows.first?.rootViewController?.view
+            if let webView = findWebView(root) {
+                webView.configuration.ignoresViewportScaleLimits = true
+                webView.scrollView.minimumZoomScale = 1.0
+                webView.scrollView.maximumZoomScale = 5.0
+                webView.scrollView.bouncesZoom = true
+            }
+        }
         return true
     }
 
