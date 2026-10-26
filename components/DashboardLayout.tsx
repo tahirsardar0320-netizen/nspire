@@ -276,7 +276,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
 
             <div className="flex items-center gap-2 md:gap-4">
-              <div className="flex items-center rounded-md border border-slate-200 overflow-hidden">
+              <div className="flex items-stretch rounded-md border border-slate-200 overflow-hidden h-7 self-center">
                 <button
                   onClick={() => stepZoom(-0.1)}
                   aria-label="Zoom out"
