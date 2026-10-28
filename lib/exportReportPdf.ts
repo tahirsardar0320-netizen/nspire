@@ -54,6 +54,19 @@ async function renderReportIframe(report: NSPIREInspectionReport): Promise<HTMLI
 }
 
 export async function generateNSPIREReportPDFBlob(report: NSPIREInspectionReport): Promise<Blob> {
+  // The true text PDF (crisp, small, selectable, breaks that can never cut a
+  // row — the clean layout the client asked for). The rasterized path below
+  // stays only as a fallback if vector generation ever throws.
+  try {
+    const { generateVectorReportPdfBlob } = await import('./exportReportPdfVector')
+    return await generateVectorReportPdfBlob(report)
+  } catch (e) {
+    console.error('Vector PDF failed, falling back to rasterized export:', e)
+  }
+  return generateRasterReportPdfBlob(report)
+}
+
+async function generateRasterReportPdfBlob(report: NSPIREInspectionReport): Promise<Blob> {
   const iframe = await renderReportIframe(report)
   try {
     const [{ jsPDF }, html2canvasModule] = await Promise.all([
