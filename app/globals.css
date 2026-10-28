@@ -77,10 +77,10 @@
 }
 
 @theme inline {
-  --font-inter: "Inter", sans-serif;
-  --font-outfit: "Outfit", sans-serif;
-  --font-lexend: "Lexend", sans-serif;
-  --font-sans: "Inter", "Geist", "Geist Fallback";
+  --font-inter: var(--font-geist-sans), "Inter", sans-serif;
+  --font-outfit: var(--font-geist-sans), "Outfit", sans-serif;
+  --font-lexend: var(--font-geist-sans), "Lexend", sans-serif;
+  --font-sans: var(--font-geist-sans), "Inter", sans-serif;
   --font-mono: "Geist Mono", "Geist Mono Fallback";
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -188,7 +188,7 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-sans);
             color: #1E293B;
             overflow-x: hidden;
             background-color: var(--slate-bg);
@@ -199,7 +199,7 @@
         nav a, nav button { min-height: unset; }
 
         h1, h2, h3, .serif {
-            font-family: 'Outfit', sans-serif;
+            font-family: var(--font-sans);
             letter-spacing: -0.02em;
         }
 
@@ -224,7 +224,7 @@
             color: rgba(255,255,255,0.85);
             transition: color 0.25s ease;
             letter-spacing: 0.08em;
-            font-family: 'Outfit', sans-serif;
+            font-family: var(--font-sans);
         }
         .nav-subtitle {
             font-size: 0.62rem;
@@ -265,7 +265,7 @@
             font-weight: 500;
             color: rgba(255,255,255,0.7);
             transition: all 0.2s ease;
-            font-family: 'Outfit', sans-serif;
+            font-family: var(--font-sans);
         }
         .dropdown-item:hover {
             background: rgba(0,198,215,0.08);
@@ -284,7 +284,7 @@
         .btn-primary {
             background: linear-gradient(135deg, #00C6D7, #006795);
             color: white;
-            font-family: 'Outfit', sans-serif;
+            font-family: var(--font-sans);
             font-weight: 700;
             transition: all 0.3s ease;
             box-shadow: 0 4px 20px rgba(0, 198, 215, 0.35);
@@ -299,7 +299,7 @@
             background: transparent;
             color: #00C6D7;
             border: 2px solid #00C6D7;
-            font-family: 'Outfit', sans-serif;
+            font-family: var(--font-sans);
             font-weight: 700;
             transition: all 0.3s ease;
         }
@@ -433,7 +433,7 @@
             font-weight: 900;
             color: rgba(0,103,149,0.06);
             line-height: 1;
-            font-family: 'Outfit', sans-serif;
+            font-family: var(--font-sans);
             pointer-events: none;
         }
 
@@ -445,7 +445,7 @@
             border-radius: 0.875rem;
             padding: 1rem 1.25rem;
             color: white;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-sans);
             font-size: 0.95rem;
             outline: none;
             transition: border-color 0.25s, box-shadow 0.25s;

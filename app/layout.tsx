@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next'
-// import { Inter } from 'next/font/google'
+// Geist — the same typeface nspireinspection.ai uses; the client asked for
+// that app's look. Self-hosted through next/font, so no Google Fonts request.
+import { GeistSans } from 'geist/font/sans'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import './globals.css'
@@ -36,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={GeistSans.variable}>
       <body suppressHydrationWarning className="antialiased font-sans">
         <FetchTimeoutGuard />
         <ServiceWorkerRegister />
