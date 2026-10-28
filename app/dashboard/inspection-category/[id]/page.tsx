@@ -106,6 +106,13 @@ export default function InspectionCategoryPage() {
             : ''
     const id = idFromUrl || (params.id as string)
     const [property, setProperty] = useState<any>(null)
+    // True once the saved progress (cache or server) has been applied — the
+    // seed below stops standing in and may be overwritten from live figures.
+    const [progressHydrated, setProgressHydrated] = useState(false)
+    // Last visit's counters, read on mount so the section headers show the
+    // inspector's real standing the instant the screen opens instead of 0%
+    // climbing a few seconds later ("do not fill the % again and again").
+    const [counterSeed, setCounterSeed] = useState<{ o: number; i: number; u: number; ut: number } | null>(null)
     const [user, setUser] = useState<any>(null)
     const [units, setUnits] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
@@ -898,6 +905,7 @@ export default function InspectionCategoryPage() {
         } catch (error) {
             console.error("Error loading progress from API:", error);
         }
+        setProgressHydrated(true);
     };
 
     // One save at a time. The debounce only spaces out STARTS — with a photo
@@ -1932,15 +1940,24 @@ export default function InspectionCategoryPage() {
         </div>
     );
 
+    useEffect(() => {
+        try {
+            const raw = localStorage.getItem(`counter_seed_${id}_${urlBuilding}`)
+            if (raw) setCounterSeed(JSON.parse(raw))
+        } catch { /* no seed yet */ }
+    }, [id, urlBuilding])
+
     const outsideProgress = useMemo(() => {
-        const completed = Object.values(outsideStatuses).filter(s => s !== null).length;
+        let completed = Object.values(outsideStatuses).filter(s => s !== null).length;
+        if (!progressHydrated && completed === 0 && counterSeed) completed = counterSeed.o || 0;
         return { completed, percentage: Math.round((completed / (outsideItemsList.length || 1)) * 100) };
-    }, [outsideStatuses]);
+    }, [outsideStatuses, progressHydrated, counterSeed]);
 
     const insideProgress = useMemo(() => {
-        const completed = Object.values(insideStatuses).filter(s => s !== null).length;
+        let completed = Object.values(insideStatuses).filter(s => s !== null).length;
+        if (!progressHydrated && completed === 0 && counterSeed) completed = counterSeed.i || 0;
         return { completed, percentage: Math.round((completed / (insideItemsList.length || 1)) * 100) };
-    }, [insideStatuses]);
+    }, [insideStatuses, progressHydrated, counterSeed]);
 
 
 
@@ -1978,6 +1995,41 @@ export default function InspectionCategoryPage() {
         return [];
     }, [urlTotalUnits, units, property, urlBuilding]);
 
+    // Under Random/50% coverage the DENOMINATOR is this building's share of
+    // the sample: pick Random on 6 units, get 3, finish 3 -> 100%, even though
+    // the list keeps offering all 6 (inspecting beyond the sample is allowed,
+    // it just can't be required). Full coverage (or none saved) keeps the
+    // whole unit count.
+    const sampledUnitsForBuilding = useMemo(() => {
+        const buildingCount = Number(property?.buildings) || 0;
+        const totalUnits = Number(property?.units) || 0;
+        if (buildingCount <= 0 || totalUnits <= 0) return 0;
+        let calculated = 0;
+        try {
+            const saved = durableGet(`property_coverage_${id}`);
+            if (saved) calculated = Number(JSON.parse(saved)?.calculatedUnits) || 0;
+        } catch { /* fall through to the server copy */ }
+        if (!(calculated > 0)) calculated = Number(property?.calculatedUnits) || 0;
+        if (!(calculated > 0) || calculated >= totalUnits) return 0;
+        const index = Math.max(0, parseInt(String(urlBuilding).replace(/\D/g, ''), 10) - 1) || 0;
+        const base = Math.floor(totalUnits / buildingCount);
+        const remainder = totalUnits % buildingCount;
+        const totals = Array.from({ length: buildingCount }, (_, i) => base + (i < remainder ? 1 : 0));
+        const rawShares = totals.map(t => (t * calculated) / totalUnits);
+        const floors = rawShares.map(Math.floor);
+        let remaining = calculated - floors.reduce((sum, v) => sum + v, 0);
+        const order = rawShares
+            .map((r, i) => ({ i, frac: r - floors[i] }))
+            .sort((a, b) => b.frac - a.frac);
+        let guard = 0;
+        while (remaining > 0 && guard < order.length * 3) {
+            const { i } = order[guard % order.length];
+            if (floors[i] < totals[i]) { floors[i]++; remaining--; }
+            guard++;
+        }
+        return floors[index] || 0;
+    }, [property, id, urlBuilding]);
+
     const unitProgress = useMemo(() => {
         // The active unit's completion is derived from live local state so this updates
         // instantly (same as Outside/Inside) instead of waiting on the debounced save + refetch.
@@ -1987,8 +2039,12 @@ export default function InspectionCategoryPage() {
         const completedSet = new Set(completedUnits.filter(u => u !== 'Outside' && u !== 'Inside'));
         if (activeUnitDone && activeInspectionUnit) completedSet.add(activeInspectionUnit);
 
-        const completed = completedSet.size;
-        const total = rawUnitIds.length > 0 ? rawUnitIds.length : 1;
+        let completed = completedSet.size;
+        const total = sampledUnitsForBuilding > 0
+            ? sampledUnitsForBuilding
+            : (rawUnitIds.length > 0 ? rawUnitIds.length : 1);
+
+        if (!progressHydrated && completed === 0 && counterSeed) completed = counterSeed.u || 0;
 
         // Outside and Inside move with every item answered; units counted only
         // whole units, so working through a unit showed 0% until the last item
@@ -2003,8 +2059,22 @@ export default function InspectionCategoryPage() {
         }
 
         const percentage = Math.min(100, Math.round(((completed + partial) / total) * 100));
-        return { completed, percentage, total };
-    }, [completedUnits, rawUnitIds, unitStatuses, activeInspectionUnit, unitItemsList]);
+        // Inspecting beyond the sample must not read as "7 of 3".
+        return { completed: Math.min(completed, total), percentage, total };
+    }, [completedUnits, rawUnitIds, unitStatuses, activeInspectionUnit, unitItemsList, sampledUnitsForBuilding, progressHydrated, counterSeed]);
+
+    // Persist the live counters for the next visit's instant header.
+    useEffect(() => {
+        if (!progressHydrated) return;
+        try {
+            safeSetItem(`counter_seed_${id}_${urlBuilding}`, JSON.stringify({
+                o: Object.values(outsideStatuses).filter(s => s !== null).length,
+                i: Object.values(insideStatuses).filter(s => s !== null).length,
+                u: unitProgress.completed,
+                ut: unitProgress.total,
+            }));
+        } catch { /* seed is a nicety, never worth failing over */ }
+    }, [progressHydrated, outsideStatuses, insideStatuses, unitProgress, id, urlBuilding]);
 
     // Display unit names (edited names take priority)
     const unitsString = useMemo(() => {
