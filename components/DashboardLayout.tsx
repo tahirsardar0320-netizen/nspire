@@ -276,25 +276,28 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
 
             <div className="flex items-center gap-2 md:gap-4">
-              <div className="flex items-stretch rounded-md border border-slate-200 overflow-hidden h-7 self-center">
+              {/* min-h-0 + h-full on each button: a global button min-height
+                  otherwise stretches them past the box and the + gets clipped
+                  off at the corner. */}
+              <div className="zoom-ctl flex items-stretch rounded-md border border-slate-200 h-7 self-center shrink-0">
                 <button
                   onClick={() => stepZoom(-0.1)}
                   aria-label="Zoom out"
-                  className="px-1.5 py-1 text-slate-600 hover:bg-slate-50 font-bold text-xs leading-none"
+                  className="h-full min-h-0 flex items-center justify-center px-2 text-slate-600 hover:bg-slate-50 font-bold text-xs leading-none rounded-l-md"
                 >
                   −
                 </button>
                 <button
                   onClick={() => setZoomLevel(1)}
                   aria-label="Reset zoom"
-                  className="px-1 py-1 text-[9px] font-bold text-slate-400 hover:bg-slate-50 leading-none min-w-[30px]"
+                  className="h-full min-h-0 flex items-center justify-center px-1 text-[9px] font-bold text-slate-400 hover:bg-slate-50 leading-none min-w-[30px]"
                 >
                   {Math.round(zoomLevel * 100)}%
                 </button>
                 <button
                   onClick={() => stepZoom(0.1)}
                   aria-label="Zoom in"
-                  className="px-1.5 py-1 text-slate-600 hover:bg-slate-50 font-bold text-xs leading-none"
+                  className="h-full min-h-0 flex items-center justify-center px-2 text-slate-600 hover:bg-slate-50 font-bold text-xs leading-none rounded-r-md"
                 >
                   +
                 </button>

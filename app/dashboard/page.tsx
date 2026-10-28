@@ -19,7 +19,7 @@ import {
 } from "@/components/PropertyModals"
 import { propertiesAPI } from "@/lib/api"
 import { fetchPropertyProgressMap } from "@/lib/inspectionProgress"
-import { Country, State, City } from 'country-state-city'
+import { loadGeo, geo } from '@/lib/geo'
 import { safeSetItem } from "@/lib/safeStorage"
 import { durableGet, durableSet } from "@/lib/durableStore"
 
@@ -85,14 +85,14 @@ export default function Dashboard() {
   const [states, setStates] = useState<any[]>([])
   const [cities, setCities] = useState<any[]>([])
 
-  // Load countries on mount
+  // Load countries once the (lazily fetched) geo data lands — the package is
+  // 7.8 MB of JSON and must never ride in the page bundle.
   useEffect(() => {
-    const allCountries = Country.getAllCountries()
-    const allowedCountries = ['United States', 'Canada', 'United Kingdom', 'Australia']
-    const filteredCountries = allCountries.filter(country =>
-      allowedCountries.includes(country.name)
-    )
-    setCountries(filteredCountries)
+    loadGeo().then(({ Country }) => {
+      const allCountries = Country.getAllCountries()
+      const allowedCountries = ['United States', 'Canada', 'United Kingdom', 'Australia']
+      setCountries(allCountries.filter(country => allowedCountries.includes(country.name)))
+    })
   }, [])
 
   // Handle country change
@@ -102,9 +102,9 @@ export default function Dashboard() {
     setSelectedCity("")
 
     const country = countries.find(c => c.name === countryName)
-    if (country) {
-      const countryStates = State.getStatesOfCountry(country.isoCode)
-      setStates(countryStates)
+    const State = geo()?.State
+    if (country && State) {
+      setStates(State.getStatesOfCountry(country.isoCode))
     } else {
       setStates([])
     }
@@ -119,9 +119,9 @@ export default function Dashboard() {
     const country = countries.find(c => c.name === selectedCountry)
     const state = states.find(s => s.name === stateName)
 
-    if (country && state) {
-      const stateCities = City.getCitiesOfState(country.isoCode, state.isoCode)
-      setCities(stateCities)
+    const City = geo()?.City
+    if (country && state && City) {
+      setCities(City.getCitiesOfState(country.isoCode, state.isoCode))
     } else {
       setCities([])
     }

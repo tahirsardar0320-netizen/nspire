@@ -9,7 +9,7 @@ import { propertiesAPI } from "@/lib/api"
 import { fetchPropertyProgressMap } from "@/lib/inspectionProgress"
 import { UnitSelectionModal } from "@/components/UnitSelectionModal"
 import { ActionModal, EditPropertyModal, SummaryModal } from "@/components/PropertyModals"
-import { Country, State, City } from 'country-state-city'
+import { loadGeo } from '@/lib/geo'
 import { safeSetItem } from "@/lib/safeStorage"
 
 export default function MyInspection() {
@@ -38,12 +38,13 @@ export default function MyInspection() {
   const [cities, setCities] = useState<any[]>([])
 
   useEffect(() => {
-    const allowedCountries = ['US', 'CA', 'GB', 'AU']
-    const allCountries = Country.getAllCountries()
-    const filteredCountries = allCountries
-      .filter(country => allowedCountries.includes(country.isoCode))
-      .sort((a, b) => a.name.localeCompare(b.name))
-    setCountries(filteredCountries)
+    loadGeo().then(({ Country }) => {
+      const allowedCountries = ['US', 'CA', 'GB', 'AU']
+      const filteredCountries = Country.getAllCountries()
+        .filter(country => allowedCountries.includes(country.isoCode))
+        .sort((a, b) => a.name.localeCompare(b.name))
+      setCountries(filteredCountries)
+    })
   }, [])
 
   useEffect(() => {
@@ -51,8 +52,10 @@ export default function MyInspection() {
       setSelectedState('')
       setSelectedCity('')
       setCities([])
-      const countryStates = State.getStatesOfCountry(selectedCountry)
-      setStates(countryStates.sort((a, b) => a.name.localeCompare(b.name)))
+      loadGeo().then(({ State }) => {
+        const countryStates = State.getStatesOfCountry(selectedCountry)
+        setStates(countryStates.sort((a, b) => a.name.localeCompare(b.name)))
+      })
     } else {
       setStates([])
       setCities([])
@@ -62,8 +65,10 @@ export default function MyInspection() {
   useEffect(() => {
     if (selectedCountry && selectedState) {
       setSelectedCity('')
-      const stateCities = City.getCitiesOfState(selectedCountry, selectedState)
-      setCities(stateCities.sort((a, b) => a.name.localeCompare(b.name)))
+      loadGeo().then(({ City }) => {
+        const stateCities = City.getCitiesOfState(selectedCountry, selectedState)
+        setCities(stateCities.sort((a, b) => a.name.localeCompare(b.name)))
+      })
     } else {
       setCities([])
     }

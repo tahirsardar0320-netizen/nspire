@@ -197,6 +197,9 @@
 
         button, a, [role="button"] { min-height: 44px; }
         nav a, nav button { min-height: unset; }
+        /* The header zoom pills live in a 28px box; the tap-target floor
+           above stretched them to 44px and the + was clipped off its corner. */
+        .zoom-ctl button { min-height: unset; }
 
         h1, h2, h3, .serif {
             font-family: var(--font-sans);

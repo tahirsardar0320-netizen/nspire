@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import DashboardLayout from "@/components/DashboardLayout"
 import { Card } from "@/components/ui/card"
-import { Country, State, City } from 'country-state-city'
+import { loadGeo } from '@/lib/geo'
 import { Globe, Map, Navigation, Compass, ChevronDown, Info, ListOrdered } from "lucide-react"
 
 interface LocationStats {
@@ -29,6 +29,7 @@ export default function LocationStatsPage() {
       setLoading(true)
 
       // Get stats only for allowed countries
+      const { Country, State, City } = await loadGeo()
       const allowedCountries = ['US', 'CA', 'GB', 'AU']
       const allCountries = Country.getAllCountries()
         .filter(country => allowedCountries.includes(country.isoCode))

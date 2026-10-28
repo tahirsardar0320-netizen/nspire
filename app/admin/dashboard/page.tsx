@@ -5,7 +5,7 @@ import AdminDashboardLayout from "@/components/AdminDashboardLayout"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { toast } from "react-toastify"
-import { Country, State, City } from 'country-state-city'
+import { loadGeo, geo } from '@/lib/geo'
 
 interface Property {
   id: string
@@ -30,14 +30,12 @@ export default function AdminDashboard() {
   const [states, setStates] = useState<any[]>([])
   const [cities, setCities] = useState<any[]>([])
 
-  // Load countries on mount
+  // Load countries once the lazily fetched geo data lands.
   useEffect(() => {
-    const allCountries = Country.getAllCountries()
-    const allowedCountries = ['United States', 'Canada', 'United Kingdom', 'Australia']
-    const filteredCountries = allCountries.filter(country => 
-      allowedCountries.includes(country.name)
-    )
-    setCountries(filteredCountries)
+    loadGeo().then(({ Country }) => {
+      const allowedCountries = ['United States', 'Canada', 'United Kingdom', 'Australia']
+      setCountries(Country.getAllCountries().filter(country => allowedCountries.includes(country.name)))
+    })
   }, [])
 
   // Handle country change
@@ -47,9 +45,9 @@ export default function AdminDashboard() {
     setSelectedCity("")
     
     const country = countries.find(c => c.name === countryName)
-    if (country) {
-      const countryStates = State.getStatesOfCountry(country.isoCode)
-      setStates(countryStates)
+    const State = geo()?.State
+    if (country && State) {
+      setStates(State.getStatesOfCountry(country.isoCode))
     } else {
       setStates([])
     }
@@ -64,9 +62,9 @@ export default function AdminDashboard() {
     const country = countries.find(c => c.name === selectedCountry)
     const state = states.find(s => s.name === stateName)
     
-    if (country && state) {
-      const stateCities = City.getCitiesOfState(country.isoCode, state.isoCode)
-      setCities(stateCities)
+    const City = geo()?.City
+    if (country && state && City) {
+      setCities(City.getCitiesOfState(country.isoCode, state.isoCode))
     } else {
       setCities([])
     }

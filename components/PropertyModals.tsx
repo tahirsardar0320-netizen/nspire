@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "react-toastify"
 import { inspectionsAPI, propertiesAPI } from "@/lib/api"
 import { durableGet } from "@/lib/durableStore"
-import { Country, State, City } from 'country-state-city'
+import { loadGeo, geo } from '@/lib/geo'
 import * as XLSX from 'xlsx'
 
 interface RequestInspectionModalProps {
@@ -249,13 +249,11 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
   const [cities, setCities] = useState<any[]>([])
 
   useEffect(() => {
-    // Load only specific countries
-    const allCountries = Country.getAllCountries()
-    const allowedCountries = ['United States', 'Canada', 'United Kingdom', 'Australia']
-    const filteredCountries = allCountries.filter(country =>
-      allowedCountries.includes(country.name)
-    )
-    setCountries(filteredCountries)
+    // Load only specific countries — the geo data is lazy (7.8 MB chunk).
+    loadGeo().then(({ Country }) => {
+      const allowedCountries = ['United States', 'Canada', 'United Kingdom', 'Australia']
+      setCountries(Country.getAllCountries().filter(country => allowedCountries.includes(country.name)))
+    })
   }, [])
 
   const updateProperty = (index: number, field: keyof PropertyFormData, value: string) => {
@@ -511,7 +509,8 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
 
   const getStatesForCountry = (countryName: string): any[] => {
     const country = countries.find(c => c.name === countryName)
-    if (country) {
+    const State = geo()?.State
+    if (country && State) {
       return State.getStatesOfCountry(country.isoCode)
     }
     return []
@@ -520,7 +519,8 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
   const getCitiesForState = (countryName: string, stateName: string): any[] => {
     const country = countries.find(c => c.name === countryName)
     const state = states.find(s => s.name === stateName)
-    if (country && state) {
+    const City = geo()?.City
+    if (country && state && City) {
       return City.getCitiesOfState(country.isoCode, state.isoCode)
     }
     return []
@@ -1273,31 +1273,30 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
   const [cities, setCities] = useState<any[]>([])
 
   useEffect(() => {
-    // Load only specific countries
-    const allCountries = Country.getAllCountries()
-    const allowedCountries = ['United States', 'Canada', 'United Kingdom', 'Australia']
-    const filteredCountries = allCountries.filter(country =>
-      allowedCountries.includes(country.name)
-    )
-    setCountries(filteredCountries)
+    loadGeo().then(({ Country, State, City }) => {
+      const allowedCountries = ['United States', 'Canada', 'United Kingdom', 'Australia']
+      const filteredCountries = Country.getAllCountries().filter(country =>
+        allowedCountries.includes(country.name)
+      )
+      setCountries(filteredCountries)
 
-    // Load states for current country if exists
-    if (formData.country) {
-      const selectedCountry = filteredCountries.find(c => c.name === formData.country)
-      if (selectedCountry) {
-        const countryStates = State.getStatesOfCountry(selectedCountry.isoCode)
-        setStates(countryStates)
+      // Load states for current country if exists
+      if (formData.country) {
+        const selectedCountry = filteredCountries.find(c => c.name === formData.country)
+        if (selectedCountry) {
+          const countryStates = State.getStatesOfCountry(selectedCountry.isoCode)
+          setStates(countryStates)
 
-        // Load cities for current state if exists
-        if (formData.state) {
-          const selectedState = countryStates.find(s => s.name === formData.state)
-          if (selectedState) {
-            const stateCities = City.getCitiesOfState(selectedCountry.isoCode, selectedState.isoCode)
-            setCities(stateCities)
+          // Load cities for current state if exists
+          if (formData.state) {
+            const selectedState = countryStates.find(s => s.name === formData.state)
+            if (selectedState) {
+              setCities(City.getCitiesOfState(selectedCountry.isoCode, selectedState.isoCode))
+            }
           }
         }
       }
-    }
+    })
   }, [formData.country, formData.state])
 
   const handleCountryChange = (countryName: string) => {
@@ -1312,9 +1311,9 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
     })
 
     // Load states for selected country
-    if (selectedCountry) {
-      const countryStates = State.getStatesOfCountry(selectedCountry.isoCode)
-      setStates(countryStates)
+    const State = geo()?.State
+    if (selectedCountry && State) {
+      setStates(State.getStatesOfCountry(selectedCountry.isoCode))
     } else {
       setStates([])
     }
@@ -1331,9 +1330,9 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
     })
 
     // Load cities for selected state
-    if (selectedState && formData.countryCode) {
-      const stateCities = City.getCitiesOfState(formData.countryCode, selectedState.isoCode)
-      setCities(stateCities)
+    const City = geo()?.City
+    if (selectedState && formData.countryCode && City) {
+      setCities(City.getCitiesOfState(formData.countryCode, selectedState.isoCode))
     } else {
       setCities([])
     }
