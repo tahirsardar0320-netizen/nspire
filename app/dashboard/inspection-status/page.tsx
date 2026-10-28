@@ -232,11 +232,8 @@ export default function InspectionStatusPage() {
   }, [properties, propertyProgress])
 
   const handleDownloadPDF = async (property: PropertyWithInspection) => {
-    if (!property.inspection) {
-      toast.error("No inspection completed for this property")
-      return
-    }
-
+    // No record guard: the report builds from the progress data itself, so a
+    // finished inspection downloads fine even before any export record exists.
     setDownloadingId(property._id)
     try {
       toast.info("Generating PDF report...", { position: "top-right" })
@@ -395,7 +392,11 @@ export default function InspectionStatusPage() {
             {properties.map((property) => {
               const pid = property._id
               const pct = propertyProgress[pid] || 0
-              const isCompleted = property.hasInspection || pct === 100
+              // Only real progress decides "Completed". hasInspection merely
+              // means an export once wrote a completed record — a half-done
+              // property that was exported read as Completed while a finished
+              // one whose record lagged read as Pending: statuses inverted.
+              const isCompleted = pct === 100
               const isActive = !isCompleted && activeInspectionId === pid
               const isLocked = !isCompleted && !isActive && !!activeInspectionId && activeInspectionId !== pid
               return (
@@ -499,7 +500,7 @@ export default function InspectionStatusPage() {
                   </div>
 
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 min-w-0 sm:flex-shrink-0">
-                    {property.hasInspection ? (
+                    {isCompleted ? (
                       <Button
                         onClick={() => handleDownloadPDF(property)}
                         disabled={downloadingId === property._id}
@@ -518,15 +519,6 @@ export default function InspectionStatusPage() {
                             <span className="sm:hidden">Download</span>
                           </>
                         )}
-                      </Button>
-                    ) : isCompleted ? (
-                      <Button
-                        onClick={() => handleViewSummary(property._id)}
-                        disabled={loadingReportId === property._id}
-                        className="bg-[#006795] hover:bg-[#0a5670] text-white flex items-center justify-center gap-2 text-sm sm:text-base w-full sm:w-auto whitespace-nowrap"
-                      >
-                        <FileText className="w-4 h-4 flex-shrink-0" />
-                        {loadingReportId === property._id ? 'Loading...' : 'View Summary'}
                       </Button>
                     ) : isActive ? (
                       <Button

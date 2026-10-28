@@ -53,9 +53,15 @@ export async function GET(req: NextRequest) {
     // property details, and after every save — which is why the app slowed to
     // a crawl once an inspector had a property or two of real data behind it.
     const slim = searchParams.get('slim') === '1';
+    // Reports need findings, never the OD form snapshots — those carry every
+    // photo a snapshot ever held (base64 in older records) and were most of
+    // the payload the summary sat waiting on.
+    const noSnapshots = searchParams.get('no_snapshots') === '1';
     const fields = slim
       ? 'propertyId inspectionType unitId buildingId status responses inspectionData.isComplete'
-      : 'propertyId inspectionType unitId buildingId status responses inspectionData data';
+      : noSnapshots
+        ? 'propertyId inspectionType unitId buildingId status responses inspectionData.isComplete inspectionData.findings data'
+        : 'propertyId inspectionType unitId buildingId status responses inspectionData data';
 
     const progress = await Inspection.find(filter).select(fields).lean();
 

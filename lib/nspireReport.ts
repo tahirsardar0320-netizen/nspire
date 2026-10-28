@@ -537,7 +537,7 @@ export async function fetchNSPIREReportForProperty(propertyId: string): Promise<
     // rest.
     const [propRes, progData, inspectionsRes] = await Promise.all([
         settleWithin(propertiesAPI.getById(propertyId), 25000),
-        settleWithin(inspectionsAPI.getProgress({ property_id: propertyId, draft_only: 'false' }), 25000),
+        settleWithin(inspectionsAPI.getProgress({ property_id: propertyId, draft_only: 'false', no_snapshots: '1' }), 25000),
         settleWithin(inspectionsAPI.getAll({ property: propertyId, status: 'completed' }), 25000),
     ])
     let propertyData = propRes?.success ? propRes.property : null

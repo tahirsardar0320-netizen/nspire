@@ -849,6 +849,8 @@ export const inspectionsAPI = {
     draft_only?: string;
     /** '1' = answers and completion only — no findings, photos, or snapshots. */
     slim?: string;
+    /** '1' = everything except OD form snapshots — what reports need. */
+    no_snapshots?: string;
   }) => {
     const queryString = new URLSearchParams(
       Object.entries(params).filter(([_, v]) => v !== undefined) as [string, string][]
