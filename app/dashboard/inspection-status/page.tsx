@@ -284,6 +284,12 @@ export default function InspectionStatusPage() {
         return
       } catch (e) {}
     }
+    // Chosen on another device: the property record carries the coverage.
+    const prop: any = properties.find(p => p._id === propertyId)
+    if (prop?.coverage && Number(prop?.calculatedUnits) > 0) {
+      router.push(`/dashboard/property-details/${propertyId}?coverage=${prop.coverage}&calculatedUnits=${prop.calculatedUnits}`)
+      return
+    }
     // No coverage selected yet — send them through the normal setup flow
     router.push('/dashboard')
   }

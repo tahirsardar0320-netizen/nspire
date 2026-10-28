@@ -51,6 +51,12 @@ const propertySchema = new mongoose.Schema({
   zipCode: String,
   buildings: { type: Number, default: 1 },
   units: { type: Number, default: 1 },
+  // The inspection coverage choice (100 / 50 / random) and the unit count it
+  // works out to. These lived only in the choosing device's local storage, so
+  // every OTHER device computed completion against the full unit count — a
+  // 50%-coverage property could never reach 100% on the client's phone.
+  coverage: { type: String, default: null },
+  calculatedUnits: { type: Number, default: null },
   status: { type: String, default: 'active' },
   userId: { type: String, default: null },  // stored as string to match JWT payload
   createdAt: { type: Date, default: Date.now },

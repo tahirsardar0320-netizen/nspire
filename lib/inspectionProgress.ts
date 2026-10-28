@@ -37,11 +37,17 @@ export async function fetchPropertyProgressMap(propertyList: any[], apiUrl: stri
     // property-details page was downloading every property's records just to
     // compute a single percentage.
     const scope = propertyList.length === 1 && propertyList[0]?._id ? `&property_id=${propertyList[0]._id}` : ''
-    const response = await fetchWithTimeout(`${apiUrl}/api/inspections/progress?slim=1${scope}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    })
+    const path = `/api/inspections/progress?slim=1${scope}`
+    const headers = { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    let response: Response
+    try {
+      response = await fetchWithTimeout(`${apiUrl}${path}`, { headers })
+    } catch (externalError) {
+      // A stale NEXT_PUBLIC_API_URL must not zero out every percentage — the
+      // same-origin route is always there and answers from the same database.
+      if (!apiUrl) throw externalError
+      response = await fetchWithTimeout(path, { headers })
+    }
     const data = await response.json()
     if (data.success && Array.isArray(data.progress)) {
       apiProgress = data.progress
@@ -57,6 +63,11 @@ export async function fetchPropertyProgressMap(propertyList: any[], apiUrl: stri
     const numBuildings = parseInt(prop.buildings) || 0
 
     let unitsToInspect = parseInt(prop.units) || 1
+    // The server-stored coverage first: the choice is made on one device and
+    // read on many, and only the property record travels between them.
+    if (Number(prop.calculatedUnits) > 0) {
+      unitsToInspect = Number(prop.calculatedUnits)
+    }
     if (typeof window !== 'undefined') {
       const saved = durableGet(`property_coverage_${propId}`)
       if (saved) {

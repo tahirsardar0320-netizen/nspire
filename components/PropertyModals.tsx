@@ -1653,6 +1653,11 @@ export function SummaryModal({ isOpen, onClose, propertyData, hideFullReportButt
       const completedUnitsCount = completedUnitIds.size
 
       let calculatedUnits = parseInt(propertyData.units) || 1
+      // Server-stored coverage first, then this device's own copy on top —
+      // the choice travels between devices only on the property record.
+      if (Number(propertyData?.calculatedUnits) > 0) {
+        calculatedUnits = Number(propertyData.calculatedUnits)
+      }
       if (typeof window !== 'undefined') {
         const saved = durableGet(`property_coverage_${propertyId}`)
         if (saved) {

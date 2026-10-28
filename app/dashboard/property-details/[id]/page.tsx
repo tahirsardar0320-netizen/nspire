@@ -164,7 +164,9 @@ export default function PropertyDetailsPage() {
     const [tempBuildingName, setTempBuildingName] = useState('')
     const buildingNameInputRef = useRef<HTMLInputElement>(null)
 
-    // Coverage params from query string or localStorage fallback
+    // Coverage from the query string, this device's storage, or the property
+    // record itself — the server copy is what lets a choice made on one phone
+    // reach every other device.
     const coverage = useMemo(() => {
         if (typeof window !== 'undefined') {
             const queryCoverage = qp('coverage')
@@ -176,9 +178,10 @@ export default function PropertyDetailsPage() {
                     if (parsed && parsed.coverage) return parsed.coverage
                 } catch (e) {}
             }
+            if (property?.coverage) return property.coverage
         }
         return qp('coverage') || '100'
-    }, [searchParams, id])
+    }, [searchParams, id, property])
 
     const calculatedUnitsParam = useMemo(() => {
         if (typeof window !== 'undefined') {
@@ -191,10 +194,11 @@ export default function PropertyDetailsPage() {
                     if (parsed && parsed.calculatedUnits) return parseInt(parsed.calculatedUnits)
                 } catch (e) {}
             }
+            if (Number(property?.calculatedUnits) > 0) return Number(property.calculatedUnits)
         }
         const param = qp('calculatedUnits')
         return param ? parseInt(param) : 0
-    }, [searchParams, id])
+    }, [searchParams, id, property])
 
     // Load column header name from localStorage on mount
     useEffect(() => {

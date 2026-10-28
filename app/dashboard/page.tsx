@@ -191,6 +191,23 @@ export default function Dashboard() {
         if (!fromCache && !filtered) {
           durableSet('cached_properties', JSON.stringify(response.properties))
         }
+        // Backfill: coverage chosen before it was stored server-side exists
+        // only in this device's storage. Push it up once so every other
+        // device computes completion against the sample instead of the full
+        // unit count. After the first success the property carries it and
+        // this stops matching.
+        response.properties.forEach((p: any) => {
+          const pid = p._id || p.propertyId
+          if (!pid || Number(p.calculatedUnits) > 0) return
+          try {
+            const saved = durableGet(`property_coverage_${pid}`)
+            if (!saved) return
+            const parsed = JSON.parse(saved)
+            if (parsed && typeof parsed.calculatedUnits === 'number' && parsed.calculatedUnits > 0) {
+              propertiesAPI.update(pid, { coverage: parsed.coverage, calculatedUnits: parsed.calculatedUnits }).catch(() => {})
+            }
+          } catch {}
+        })
         // Fetch progress for these properties
         if (response.properties.length > 0) {
           fetchProgress(response.properties)
@@ -415,6 +432,10 @@ export default function Dashboard() {
 
     if (typeof window !== 'undefined' && propId !== 'new') {
       durableSet(`property_coverage_${propId}`, JSON.stringify({ coverage, calculatedUnits }))
+      // The choice must reach the server too: it used to live only on this
+      // device, so every other phone computed completion against the full
+      // unit count and a 50%-coverage property could never read 100% there.
+      propertiesAPI.update(propId, { coverage, calculatedUnits }).catch(() => {})
       // Mark this property as the active inspection (lock all others)
       activateInspection(propId)
     }
