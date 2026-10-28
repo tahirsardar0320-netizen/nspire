@@ -7,7 +7,6 @@ import { toast } from "react-toastify"
 import { inspectionsAPI, propertiesAPI } from "@/lib/api"
 import { durableGet } from "@/lib/durableStore"
 import { loadGeo, geo } from '@/lib/geo'
-import * as XLSX from 'xlsx'
 
 interface RequestInspectionModalProps {
   isOpen: boolean
@@ -331,7 +330,9 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
           toast.info("No property data found in file. Please check the format.", { position: "top-right" })
         }
       } else if (fileExtension === '.xls' || fileExtension === '.xlsx') {
-        // Parse Excel file using xlsx library
+        // Parse Excel file using xlsx library — loaded on demand so its
+        // ~400 kB never ride in the page bundles that include these modals.
+        const XLSX = await import('xlsx')
         const arrayBuffer = await file.arrayBuffer()
         const workbook = XLSX.read(arrayBuffer, { type: 'array' })
         const firstSheetName = workbook.SheetNames[0]

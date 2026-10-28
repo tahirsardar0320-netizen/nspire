@@ -1,4 +1,6 @@
-import { Clerk } from '@clerk/clerk-js'
+// clerk-js is ~2.9 MB and only needed when a social-login button is tapped —
+// imported on demand so the login screen itself stays light.
+import type { Clerk } from '@clerk/clerk-js'
 import { fetchWithTimeout } from './httpFetch';
 
 const CLERK_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_bGlnaHQtbXV0dC03Mi5jbGVyay5hY2NvdW50cy5kZXYk'
@@ -13,6 +15,7 @@ let clerkInstance: Clerk | null = null
 
 const getClerk = async () => {
     if (clerkInstance) return clerkInstance
+    const { Clerk } = await import('@clerk/clerk-js')
     clerkInstance = new Clerk(CLERK_PUBLISHABLE_KEY)
     await clerkInstance.load()
     return clerkInstance

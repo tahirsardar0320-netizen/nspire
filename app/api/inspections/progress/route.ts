@@ -32,6 +32,20 @@ export async function GET(req: NextRequest) {
     if (propertyId) {
       filter.propertyId = propertyId;
     }
+    // The inspection screen asks for one building's records and used to get
+    // the whole property back — every unit switch re-downloaded every
+    // building's findings, snapshots and photos. The old records carried the
+    // building only in unitId ("B1") or in the unit_B1_... type, so match all
+    // three shapes.
+    const buildingId = searchParams.get('building_id') || searchParams.get('buildingId');
+    if (buildingId) {
+      const escaped = buildingId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.$or = [
+        { buildingId },
+        { buildingId: { $in: [null, ''] }, unitId: buildingId },
+        { buildingId: { $in: [null, ''] }, inspectionType: new RegExp(`^unit_${escaped}_`, 'i') },
+      ];
+    }
 
     // Progress and completed-unit counts only need to know what was answered,
     // not every finding with its photos and form snapshots. Those blobs grow

@@ -1,6 +1,6 @@
 import { OUTSIDE_ITEMS, INSIDE_ITEMS, UNIT_ITEMS } from "@/lib/inspectionData"
 import { fetchWithTimeout } from './httpFetch';
-import { durableGet, durableSet } from './durableStore';
+import { durableGet, durableSet, ensureHydrated } from './durableStore';
 
 /**
  * Whether a progress record belongs to the given building. The progress API
@@ -26,9 +26,19 @@ export function recordBelongsToBuilding(p: any, buildingId: string): boolean {
 // Computes per-property completion % from the same records the
 // inspection-category page writes (API progress + its local cache),
 // so every page that shows progress stays in sync.
-export async function fetchPropertyProgressMap(propertyList: any[], apiUrl: string): Promise<Record<string, number>> {
-  let apiProgress: any[] = []
-  try {
+export async function fetchPropertyProgressMap(
+  propertyList: any[],
+  apiUrl: string,
+  // Caller already holds this property's slim records? Pass them and skip the
+  // network round-trip — property-details was issuing the same request twice
+  // on every mount and again on every window focus.
+  prefetchedRecords?: any[],
+): Promise<Record<string, number>> {
+  // The cached_progress fallbacks below read the durable store's memory,
+  // which fills asynchronously — wait for it or offline percentages read 0.
+  await ensureHydrated()
+  let apiProgress: any[] = prefetchedRecords || []
+  if (!prefetchedRecords) try {
     // With no network interface the request can ride its full timeout on iOS
     // while the progress column shows nothing — the local cache below is the
     // answer, so go straight to it.

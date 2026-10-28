@@ -31,7 +31,7 @@
 //
 // Tying the version to the build means a deploy always retires the caches it
 // invalidated.
-const VERSION = 'v7-202610281652';
+const VERSION = 'v7-202610281724';
 const SHELL_CACHE = `inspire-shell-${VERSION}`;
 const PAGE_CACHE = `inspire-pages-${VERSION}`;
 const ASSET_CACHE = `inspire-assets-${VERSION}`;
@@ -182,7 +182,7 @@ async function cacheFirst(request, cacheName) {
  * abandons the wait, not the request; a late success just misses one
  * cache.put.
  */
-function fetchBounded(request, ms = 12000) {
+function fetchBounded(request, ms = 5000) {
   return Promise.race([
     fetch(request),
     new Promise((_, reject) => setTimeout(() => reject(new Error('sw-timeout')), ms)),

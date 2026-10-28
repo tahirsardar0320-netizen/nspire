@@ -123,6 +123,12 @@ const inspectionSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 
+// The hot path: every progress GET filters on {inspectorId, propertyId} and
+// every 2-second autosave upserts on the full five-field identity. Without
+// this index both collection-scan a collection that grows with every
+// inspector's records — saves get slower fleet-wide over time.
+inspectionSchema.index({ inspectorId: 1, propertyId: 1, inspectionType: 1, buildingId: 1, unitId: 1 });
+
 export const Inspection = mongoose.models.Inspection || mongoose.model('Inspection', inspectionSchema);
 
 // ── OAuth Handoff Schema ──

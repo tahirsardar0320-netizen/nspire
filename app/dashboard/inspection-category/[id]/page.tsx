@@ -34,7 +34,7 @@ import { OUTSIDE_ITEMS, INSIDE_ITEMS, UNIT_ITEMS } from "@/lib/inspectionData";
 import { ReportPreviewModal } from "@/components/ReportPreviewModal";
 import { fetchNSPIREReportForProperty, NSPIREInspectionReport } from "@/lib/nspireReport";
 import { safeSetItem } from "@/lib/safeStorage"
-import { durableGet, durableRemove, durableSet } from '@/lib/durableStore'
+import { durableGet, durableRemove, durableSet, ensureHydrated } from '@/lib/durableStore'
 import { watchReachability } from "@/lib/reachability"
 
 
@@ -622,7 +622,14 @@ export default function InspectionCategoryPage() {
                 // the cache is all there is, the second deficiency on an item
                 // simply disappeared. It also resurrected removed ones.
                 findings: findings ?? propertyFindings,
-                odFormSnapshots: savedODFormData
+                // Only this record's slice (restore unions the slices): the
+                // full map put every unit's photos into every cached record,
+                // which is what made each 2-second cache write multi-MB.
+                odFormSnapshots: snapshotsFor(
+                    type === 'Outside' ? `${urlBuilding}:outside:`
+                    : type === 'Inside' ? `${urlBuilding}:inside:`
+                    : `${urlBuilding}:unit:${unitId}:`
+                )
             }
         };
 
@@ -721,6 +728,10 @@ export default function InspectionCategoryPage() {
     };
 
     const syncPendingChanges = async (showToastOnError = true) => {
+        // The queue lives in the durable store's memory (no localStorage
+        // mirror for bulky keys) — reading before hydration lands mistook
+        // "not loaded yet" for "nothing queued" and skipped the sync.
+        await ensureHydrated();
         const syncKey = `pending_sync_${id}`;
         let queue: any[] = [];
         try {
@@ -796,17 +807,21 @@ export default function InspectionCategoryPage() {
             }
         });
         
-        try {
-            const syncKey = `pending_sync_${id}`;
-            const existingSyncStr = durableGet(syncKey);
-            if (existingSyncStr) {
-                const existingSync = JSON.parse(existingSyncStr);
-                setOfflineChangesCount(existingSync.length);
-                if (navigator.onLine && existingSync.length > 0) {
-                    syncPendingChanges(false);
+        // After hydration, or the queue (durable memory only now) reads empty
+        // on a fresh launch and the pending work never syncs.
+        void ensureHydrated().then(() => {
+            try {
+                const syncKey = `pending_sync_${id}`;
+                const existingSyncStr = durableGet(syncKey);
+                if (existingSyncStr) {
+                    const existingSync = JSON.parse(existingSyncStr);
+                    setOfflineChangesCount(existingSync.length);
+                    if (navigator.onLine && existingSync.length > 0) {
+                        syncPendingChanges(false);
+                    }
                 }
-            }
-        } catch (e) {}
+            } catch (e) {}
+        });
 
         return () => {
             stopWatching();
@@ -814,6 +829,12 @@ export default function InspectionCategoryPage() {
     }, [id]);
 
     const loadSavedProgress = async () => {
+        // The cache lives in the durable store's memory now (no localStorage
+        // mirror for photo-bearing keys), and that memory fills from
+        // IndexedDB/the native file asynchronously — reading before it lands
+        // mistook "not loaded yet" for "nothing saved" and opened the screen
+        // empty offline.
+        await ensureHydrated();
         const localCacheKey = `cached_progress_${id}_${urlBuilding}`;
         let cachedRecords: any[] = [];
         try {
@@ -886,6 +907,12 @@ export default function InspectionCategoryPage() {
     // while one is in flight waits its turn instead; one queued re-run is
     // enough, since it reads the latest state when it finally runs.
     const saveInFlightRef = useRef(false);
+    // Signature of the last successfully stored payload set. The debounce
+    // fires on every render of its deps — including the setState a successful
+    // save itself performs — so identical back-to-back saves were common:
+    // each one re-serialized and re-POSTed everything. Identical data is a
+    // no-op now.
+    const lastSavedSignatureRef = useRef('');
     const saveQueuedRef = useRef(false);
 
     const saveCurrentProgress = async () => {
@@ -909,6 +936,15 @@ export default function InspectionCategoryPage() {
                 void saveCurrentProgress();
             }
         }
+    };
+
+    // The slice of the snapshot map belonging to one record (see odSavedKey).
+    const snapshotsFor = (prefix: string) => {
+        const out: Record<string, any> = {};
+        for (const [k, v] of Object.entries(savedODFormData)) {
+            if (k.startsWith(prefix)) out[k] = v;
+        }
+        return out;
     };
 
     const doSaveCurrentProgress = async () => {
@@ -941,10 +977,13 @@ export default function InspectionCategoryPage() {
                     inspection_type: 'Outside',
                     responses: outsideStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete, findings: outsideFindings, odFormSnapshots: savedODFormData }
+                    // Only this record's slice of the snapshot map. The whole
+                    // map used to ride in every record — three copies of every
+                    // unit's photos on every save, growing without bound.
+                    // Restore unions the slices back together.
+                    inspectionData: { isComplete, findings: outsideFindings, odFormSnapshots: snapshotsFor(`${urlBuilding}:outside:`) }
                 };
                 payloads.push({ type: 'Outside', isComplete, payload });
-                updateLocalCache('Outside', outsideStatuses, isComplete, undefined, outsideFindings);
             }
 
             if (Object.keys(insideStatuses).length > 0) {
@@ -955,10 +994,9 @@ export default function InspectionCategoryPage() {
                     inspection_type: 'Inside',
                     responses: insideStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete, findings: insideFindings, odFormSnapshots: savedODFormData }
+                    inspectionData: { isComplete, findings: insideFindings, odFormSnapshots: snapshotsFor(`${urlBuilding}:inside:`) }
                 };
                 payloads.push({ type: 'Inside', isComplete, payload });
-                updateLocalCache('Inside', insideStatuses, isComplete, undefined, insideFindings);
             }
 
             if (Object.keys(currentUnitStatuses).length > 0 && currentUnitId) {
@@ -972,12 +1010,19 @@ export default function InspectionCategoryPage() {
                     inspection_type: `unit_${urlBuilding}_${currentUnitId}`,
                     responses: currentUnitStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete, findings: unitFindings, odFormSnapshots: savedODFormData }
+                    inspectionData: { isComplete, findings: unitFindings, odFormSnapshots: snapshotsFor(`${urlBuilding}:unit:${currentUnitId}:`) }
                 };
                 payloads.push({ type: `unit_${urlBuilding}_${currentUnitId}`, isComplete, payload, unitId: currentUnitId });
-                updateLocalCache(`unit_${urlBuilding}_${currentUnitId}`, currentUnitStatuses, isComplete, currentUnitId, unitFindings);
             }
             
+            // Nothing changed since the last stored save? Then there is
+            // nothing to write or send — this also swallows the echo save the
+            // debounce schedules off a successful save's own setState.
+            const signature = JSON.stringify(payloads);
+            if (signature === lastSavedSignatureRef.current) return;
+
+            payloads.forEach((p: any) => updateLocalCache(p.type, p.payload.responses, p.isComplete, p.unitId, p.payload.inspectionData.findings));
+
             if (navigator.onLine) {
                 const promises = payloads.map(async p => {
                     const swapped = await uploadQueuedPhotos(p.payload);
@@ -986,9 +1031,11 @@ export default function InspectionCategoryPage() {
                     return res;
                 });
                 await Promise.all(promises);
+                lastSavedSignatureRef.current = signature;
                 await refreshCompletedUnits();
             } else {
                 payloads.forEach(p => queueForOfflineSync(p.payload));
+                lastSavedSignatureRef.current = signature;
             }
         } catch (error) {
             console.error("Error saving progress:", error);
@@ -1006,7 +1053,7 @@ export default function InspectionCategoryPage() {
                     inspection_type: 'Outside',
                     responses: outsideStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete, findings: outsideFindings, odFormSnapshots: savedODFormData }
+                    inspectionData: { isComplete, findings: outsideFindings, odFormSnapshots: snapshotsFor(`${urlBuilding}:outside:`) }
                 });
             }
             if (Object.keys(insideStatuses).length > 0) {
@@ -1017,7 +1064,7 @@ export default function InspectionCategoryPage() {
                     inspection_type: 'Inside',
                     responses: insideStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete, findings: insideFindings, odFormSnapshots: savedODFormData }
+                    inspectionData: { isComplete, findings: insideFindings, odFormSnapshots: snapshotsFor(`${urlBuilding}:inside:`) }
                 });
             }
             if (Object.keys(currentUnitStatuses).length > 0 && currentUnitId) {
@@ -1031,7 +1078,7 @@ export default function InspectionCategoryPage() {
                     inspection_type: `unit_${urlBuilding}_${currentUnitId}`,
                     responses: currentUnitStatuses,
                     building_id: urlBuilding,
-                    inspectionData: { isComplete, findings: unitFindings, odFormSnapshots: savedODFormData }
+                    inspectionData: { isComplete, findings: unitFindings, odFormSnapshots: snapshotsFor(`${urlBuilding}:unit:${currentUnitId}:`) }
                 });
             }
         }
@@ -2396,7 +2443,7 @@ export default function InspectionCategoryPage() {
                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Photo</label>
                                 {generalImage ? (
                                     <div className="relative rounded-xl overflow-hidden border border-gray-200">
-                                        <img src={generalImage} alt="General comment" className="w-full h-40 object-cover" />
+                                        <img src={generalImage} alt="General comment" loading="lazy" decoding="async" className="w-full h-40 object-cover" />
                                         <button
                                             onClick={() => setGeneralImage(null)}
                                             className="absolute top-2 right-2 w-7 h-7 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors"
@@ -2549,7 +2596,7 @@ export default function InspectionCategoryPage() {
                                             <div className="flex flex-wrap gap-3 mb-4">
                                                 {photos.map((p, i) => (
                                                     <div key={i} className="relative w-24 h-24 rounded-2xl overflow-hidden shadow-md group border-2 border-white">
-                                                        <img src={p} className="w-full h-full object-cover" alt={`Photo ${i + 1}`} />
+                                                        <img src={p} loading="lazy" decoding="async" className="w-full h-full object-cover" alt={`Photo ${i + 1}`} />
                                                         <button
                                                             onClick={() => setPhotos(photos.filter((_, idx) => idx !== i))}
                                                             className="absolute top-1 right-1 bg-red-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -2795,7 +2842,7 @@ export default function InspectionCategoryPage() {
                                 {cards.map((f: any, idx: number) => (
                                 <div key={f.id || idx} className="w-full bg-emerald-50/60 border border-emerald-200 rounded-2xl p-4 flex items-start gap-4 text-left">
                                     {f.imageUri && (
-                                        <img src={f.imageUri} alt="Deficiency" className="w-20 h-20 rounded-xl object-cover shrink-0 border-2 border-white shadow-sm" />
+                                        <img src={f.imageUri} alt="Deficiency" loading="lazy" decoding="async" className="w-20 h-20 rounded-xl object-cover shrink-0 border-2 border-white shadow-sm" />
                                     )}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-start justify-between gap-3">

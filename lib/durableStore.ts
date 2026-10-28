@@ -48,6 +48,21 @@ const DURABLE_PREFIXES = ['pending_sync_', 'cached_progress_'];
 const isDurableKey = (key: string) =>
   DURABLE_KEYS.includes(key) || DURABLE_PREFIXES.some((p) => key.startsWith(p));
 
+/**
+ * Whether a key's value also gets mirrored into localStorage.
+ *
+ * Small keys (token, user, property list) stay mirrored — plenty of call
+ * sites still read them straight from localStorage. The photo-bearing
+ * families do NOT: localStorage writes are synchronous on the main thread,
+ * and mirroring a multi-megabyte cached_progress blob there on every
+ * 2-second autosave is exactly the stall the client feels as "the app
+ * hangs". Durability does not suffer — those keys live in memory, in
+ * IndexedDB or the native file, and localStorage was the one layer iOS
+ * clears at will anyway.
+ */
+const mirrorsToLocalStorage = (key: string, value: string) =>
+  !DURABLE_PREFIXES.some((p) => key.startsWith(p)) && value.length <= 64_000;
+
 /** Every durable key currently known, from either side of the mirror. */
 function knownKeys(fromDurable: Record<string, string>): string[] {
   const keys = new Set<string>([...DURABLE_KEYS, ...Object.keys(fromDurable)]);
@@ -112,6 +127,77 @@ async function writeNativeFile(all: Record<string, string>): Promise<boolean> {
     return true;
   } catch {
     return false;
+  }
+}
+
+// One file per key. The single-file store meant every 2-second save re-read,
+// re-parsed, re-stringified and re-wrote EVERYTHING the app had ever cached —
+// hundreds of ms of main-thread JSON work per save once real photos piled up.
+// A changed key now costs exactly its own bytes. The legacy single file is
+// still read (it holds existing installs' data) but per-key copies win, and
+// only removals rewrite it.
+const KEY_DIR = 'inspire-store';
+
+const keyToFileName = (key: string) => `${encodeURIComponent(key)}.json`;
+const fileNameToKey = (name: string) => {
+  try {
+    return decodeURIComponent(name.replace(/\.json$/, ''));
+  } catch {
+    return null;
+  }
+};
+
+async function readNativeKeyFiles(): Promise<Record<string, string>> {
+  const out: Record<string, string> = {};
+  let names: string[] = [];
+  try {
+    const res = await callPlugin('Filesystem', 'readdir', { path: KEY_DIR, directory: 'DATA' });
+    const files = res?.files ?? [];
+    names = files.map((f: any) => (typeof f === 'string' ? f : f?.name)).filter(Boolean);
+  } catch {
+    return out; // No directory yet — fresh install or pre-migration.
+  }
+  await Promise.all(
+    names.map(async (name) => {
+      const key = fileNameToKey(name);
+      if (!key) return;
+      try {
+        const res = await callPlugin('Filesystem', 'readFile', {
+          path: `${KEY_DIR}/${name}`,
+          directory: 'DATA',
+          encoding: 'utf8',
+        });
+        if (typeof res?.data === 'string') out[key] = res.data;
+      } catch {
+        // Unreadable entry; the legacy file or localStorage may still cover it.
+      }
+    })
+  );
+  return out;
+}
+
+async function writeNativeKeyFile(key: string, value: string): Promise<void> {
+  try {
+    await callPlugin('Filesystem', 'writeFile', {
+      path: `${KEY_DIR}/${keyToFileName(key)}`,
+      directory: 'DATA',
+      encoding: 'utf8',
+      recursive: true,
+      data: value,
+    });
+  } catch {
+    // The IDB/localStorage layers and the next flush still stand.
+  }
+}
+
+async function deleteNativeKeyFile(key: string): Promise<void> {
+  try {
+    await callPlugin('Filesystem', 'deleteFile', {
+      path: `${KEY_DIR}/${keyToFileName(key)}`,
+      directory: 'DATA',
+    });
+  } catch {
+    // Already gone, or never written.
   }
 }
 
@@ -197,7 +283,15 @@ export function ensureHydrated(): Promise<void> {
 export async function hydrateDurableStore(): Promise<void> {
   if (hydrated || typeof window === 'undefined') return;
 
-  const durable = useNativeFile() ? await readNativeFile() : await readIdb();
+  let durable: Record<string, string> | null;
+  if (useNativeFile()) {
+    // Legacy single file first (existing installs), then the per-key files on
+    // top — a per-key copy is always at least as fresh as the legacy snapshot.
+    durable = (await readNativeFile()) || {};
+    Object.assign(durable, await readNativeKeyFiles());
+  } else {
+    durable = await readIdb();
+  }
 
   for (const key of knownKeys(durable || {})) {
     const fromDurable = durable?.[key];
@@ -215,14 +309,17 @@ export async function hydrateDurableStore(): Promise<void> {
     const chosen = pickRicher(fromDurable, fromLocal);
     if (chosen != null) {
       memory.set(key, chosen);
-      // Restore it to localStorage as well. Dozens of call sites read the
-      // token straight from there, and rewriting them all would be a far
-      // bigger change than simply putting back what was evicted.
-      if (fromLocal == null) {
-        // Through the quota-aware writer: on a full device a plain setItem
-        // throws, the token never lands back in localStorage, and every
-        // request goes up unauthenticated while the token sits in memory.
-        safeSetItem(key, chosen);
+      if (mirrorsToLocalStorage(key, chosen)) {
+        // Restore it to localStorage as well. Dozens of call sites read the
+        // token straight from there, and rewriting them all would be a far
+        // bigger change than simply putting back what was evicted. Through
+        // the quota-aware writer: on a full device a plain setItem throws.
+        if (fromLocal == null) safeSetItem(key, chosen);
+      } else if (fromLocal != null) {
+        // Bulky key still sitting in localStorage from an older build: the
+        // durable copy now holds it, so free the quota and stop the
+        // synchronous main-thread writes that mirror would keep costing.
+        try { localStorage.removeItem(key); } catch {}
       }
     }
   }
@@ -253,19 +350,23 @@ async function flushAll(): Promise<void> {
     await Promise.all(Array.from(memory.entries()).map(([k, v]) => writeIdb(k, v)));
     return;
   }
-  // Read-merge-write, never a blind overwrite. A transient failed read at
-  // hydration used to leave memory nearly empty, and the flush then replaced
-  // the file — and with it a day's offline work — with that near-empty map.
-  // Merging over whatever the file holds right now means a key we never
-  // managed to load can never be destroyed by us.
-  const existing = (await readNativeFile()) || {};
-  memory.forEach((v, k) => {
-    existing[k] = v;
-  });
-  removedKeys.forEach((k) => {
-    delete existing[k];
-  });
-  await writeNativeFile(existing);
+  // Every key to its own file — a changed key costs its own bytes, not a
+  // rewrite of everything ever cached.
+  await Promise.all(Array.from(memory.entries()).map(([k, v]) => writeNativeKeyFile(k, v)));
+  await Promise.all(Array.from(removedKeys).map((k) => deleteNativeKeyFile(k)));
+  if (removedKeys.size > 0) {
+    // The legacy single file would resurrect a removed key at the next
+    // hydration; prune it with the same read-merge-write it always used.
+    // (Merging, never blind: a key we never managed to load must survive.)
+    const existing = (await readNativeFile()) || {};
+    memory.forEach((v, k) => {
+      existing[k] = v;
+    });
+    removedKeys.forEach((k) => {
+      delete existing[k];
+    });
+    await writeNativeFile(existing);
+  }
 }
 
 /**
@@ -279,18 +380,22 @@ async function flushAll(): Promise<void> {
  * has to be written whole, so coalesce rapid saves into one write shortly
  * after the last of them rather than one per keystroke.
  */
-let nativeFlushTimer: ReturnType<typeof setTimeout> | null = null;
+const nativeKeyTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
 function flushKey(key: string, value: string): void {
   if (!useNativeFile()) {
     void writeIdb(key, value);
     return;
   }
-  if (nativeFlushTimer) clearTimeout(nativeFlushTimer);
-  nativeFlushTimer = setTimeout(() => {
-    nativeFlushTimer = null;
-    void flushAll();
-  }, 400);
+  // Coalesce a burst of writes to the same key into one file write; other
+  // keys are untouched either way.
+  const pending = nativeKeyTimers.get(key);
+  if (pending) clearTimeout(pending);
+  nativeKeyTimers.set(key, setTimeout(() => {
+    nativeKeyTimers.delete(key);
+    const current = memory.get(key);
+    if (current != null) void writeNativeKeyFile(key, current);
+  }, 300));
 }
 
 /** Every known key in a family, e.g. all cached_progress_ records. */
@@ -322,9 +427,15 @@ export function durableGet(key: string): string | null {
 export function durableSet(key: string, value: string): boolean {
   memory.set(key, value);
   removedKeys.delete(key);
-  // Mirrored to localStorage as well: harmless where it survives, and it keeps
-  // any code still reading localStorage directly in step.
-  safeSetItem(key, value);
+  if (mirrorsToLocalStorage(key, value)) {
+    // Mirrored to localStorage as well: harmless where it survives, and it
+    // keeps any code still reading localStorage directly in step.
+    safeSetItem(key, value);
+  } else {
+    // Never leave a stale smaller copy behind for durableGet's fallback or
+    // the hydration merge to trip over.
+    try { localStorage.removeItem(key); } catch {}
+  }
   flushKey(key, value);
   return true;
 }
@@ -352,5 +463,6 @@ export function durableRemove(key: string): void {
   // from its IDB row at the next launch and re-synced week-old payloads over
   // newer server data.
   void deleteIdb(key);
+  if (useNativeFile()) void deleteNativeKeyFile(key);
   void flushAll();
 }

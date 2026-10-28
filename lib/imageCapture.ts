@@ -165,7 +165,8 @@ export const captureInspectionPhotoNative = async (
  */
 export const uploadQueuedPhotos = async (payload: any): Promise<any> => {
     const findings = payload?.inspectionData?.findings;
-    if (!Array.isArray(findings)) return payload;
+    const snapshots = payload?.inspectionData?.odFormSnapshots;
+    if (!Array.isArray(findings) && !snapshots) return payload;
 
     // A couple at a time, never all at once. A backlog of offline captures can
     // be dozens of multi-megabyte blobs; firing every upload simultaneously
@@ -173,22 +174,61 @@ export const uploadQueuedPhotos = async (payload: any): Promise<any> => {
     // reads as the app freezing, or the WebView being killed to a black
     // screen. Two in flight keeps memory flat and the UI responsive, and the
     // backlog still drains in a round or two of saves.
-    const swapped = [...findings];
-    const queue = swapped
-        .map((f: any, i: number) => ({ f, i }))
-        .filter(({ f }) => typeof f?.imageUri === 'string' && f.imageUri.startsWith('data:'));
+    const swapped = Array.isArray(findings) ? [...findings] : findings;
+    type Job = { run: () => Promise<void> };
+    const jobs: Job[] = [];
+    if (Array.isArray(swapped)) {
+        swapped
+            .map((f: any, i: number) => ({ f, i }))
+            .filter(({ f }) => typeof f?.imageUri === 'string' && f.imageUri.startsWith('data:'))
+            .forEach(({ f, i }) => jobs.push({
+                run: async () => { swapped[i] = { ...f, imageUri: await uploadDataUrl(f.imageUri) }; },
+            }));
+    }
+
+    // Snapshot photos too: only photos[0] becomes a finding, so extra photos
+    // captured offline stayed base64 inside every snapshot — riding up in
+    // full on every save, forever. Swap them for hosted URLs the same way.
+    let swappedSnapshots = snapshots;
+    if (snapshots && typeof snapshots === 'object') {
+        swappedSnapshots = { ...snapshots };
+        for (const [key, snap] of Object.entries<any>(swappedSnapshots)) {
+            const photos: unknown = snap?.photos;
+            if (!Array.isArray(photos)) continue;
+            photos.forEach((p, pi) => {
+                if (typeof p === 'string' && p.startsWith('data:')) {
+                    jobs.push({
+                        run: async () => {
+                            const hosted = await uploadDataUrl(p);
+                            const current = swappedSnapshots[key];
+                            const nextPhotos = [...current.photos];
+                            nextPhotos[pi] = hosted;
+                            swappedSnapshots[key] = { ...current, photos: nextPhotos };
+                        },
+                    });
+                }
+            });
+        }
+    }
 
     const CONCURRENCY = 2;
     let cursor = 0;
     const worker = async () => {
-        while (cursor < queue.length) {
-            const job = queue[cursor++];
-            swapped[job.i] = { ...job.f, imageUri: await uploadDataUrl(job.f.imageUri) };
+        while (cursor < jobs.length) {
+            const job = jobs[cursor++];
+            await job.run();
         }
     };
-    await Promise.all(Array.from({ length: Math.min(CONCURRENCY, queue.length) }, worker));
+    await Promise.all(Array.from({ length: Math.min(CONCURRENCY, jobs.length) }, worker));
 
-    return { ...payload, inspectionData: { ...payload.inspectionData, findings: swapped } };
+    return {
+        ...payload,
+        inspectionData: {
+            ...payload.inspectionData,
+            ...(Array.isArray(swapped) ? { findings: swapped } : {}),
+            ...(swappedSnapshots ? { odFormSnapshots: swappedSnapshots } : {}),
+        },
+    };
 };
 
 export const fileToCompressedDataUrl = async (file: File): Promise<string> => {

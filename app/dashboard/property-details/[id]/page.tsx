@@ -375,10 +375,10 @@ export default function PropertyDetailsPage() {
     // instead of this page's own (previously binary all-or-nothing) calculation.
     const [overallProgress, setOverallProgress] = useState(0)
 
-    const refreshOverallProgress = useCallback(async () => {
+    const refreshOverallProgress = useCallback(async (prefetchedRecords?: any[]) => {
         if (!property) return
         try {
-            const map = await fetchPropertyProgressMap([property], API_URL)
+            const map = await fetchPropertyProgressMap([property], API_URL, prefetchedRecords)
             const pct = map[property._id] ?? 0
             setOverallProgress(pct)
             // Remembered so the next visit shows this figure instantly instead
@@ -409,6 +409,10 @@ export default function PropertyDetailsPage() {
         } catch (error) {
             console.error("Error fetching progress from API:", error)
         }
+
+        // One download serves both figures — the overall % used to issue an
+        // identical request of its own right behind this one.
+        refreshOverallProgress(serverRecords)
 
         for (const b of buildings) {
             let records: any[] = serverRecords
@@ -449,7 +453,7 @@ export default function PropertyDetailsPage() {
 
         setCompletedUnitsMap(map)
         safeSetItem(`cached_completed_units_${propId}`, JSON.stringify(map))
-    }, [property, buildings, id])
+    }, [property, buildings, id, refreshOverallProgress])
 
     // Seed both figures from the last visit's answer the moment the page
     // mounts: the fetch still runs and corrects them, but the user sees their
@@ -470,15 +474,14 @@ export default function PropertyDetailsPage() {
 
     useEffect(() => {
         refreshCompletedUnits()
-        refreshOverallProgress()
-    }, [refreshCompletedUnits, refreshOverallProgress])
+    }, [refreshCompletedUnits])
 
     // Also refresh when window regains focus (coming back from inspection)
     useEffect(() => {
-        const handleFocus = () => { refreshCompletedUnits(); refreshOverallProgress() }
+        const handleFocus = () => { refreshCompletedUnits() }
         window.addEventListener('focus', handleFocus)
         return () => window.removeEventListener('focus', handleFocus)
-    }, [refreshCompletedUnits, refreshOverallProgress])
+    }, [refreshCompletedUnits])
 
     // Check for returning from inspection (localStorage flag)
     useEffect(() => {
@@ -490,7 +493,6 @@ export default function PropertyDetailsPage() {
             if (data.propertyId && data.buildingId && data.unitName) {
                 markUnitCompleted(data.propertyId, data.buildingId, data.unitName)
                 refreshCompletedUnits()
-                refreshOverallProgress()
                 toast.success(`${data.unitName} inspection completed!`, { position: "top-right" })
             }
         }
