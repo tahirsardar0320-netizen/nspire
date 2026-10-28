@@ -1,6 +1,7 @@
 "use client"
 
 import { ReactNode, useState, useEffect } from "react"
+import ZoomControl from '@/components/ZoomControl'
 import { durableRemove } from '@/lib/durableStore'
 import Image from "next/image"
 import { useRouter, usePathname } from "next/navigation"
@@ -288,6 +289,7 @@ export default function OtherDashboardLayout({ children }: OtherDashboardLayoutP
             </div>
             
             <div className="flex items-center gap-2 md:gap-4">
+              <ZoomControl />
               <button 
                 onClick={() => router.push('/other/notifications')}
                 className="relative p-2 hover:bg-white/10 rounded-lg transition-colors text-white"

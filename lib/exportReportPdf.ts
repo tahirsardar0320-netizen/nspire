@@ -114,6 +114,20 @@ export async function generateNSPIREReportPDFBlob(report: NSPIREInspectionReport
     // page break. Look a little way back up from the ideal cut for a row of
     // near-uniform background and cut there instead, so breaks fall in the
     // whitespace between sections.
+    // The client wants the deficiency detail to ALWAYS open on page 2 — a
+    // mandatory break right where "Inspectable Areas Deficiencies" begins.
+    // Deterministic, so iPhone and Android paginate identically.
+    const pxScale = canvas.width / 800
+    const startEl = doc.getElementById('inspectable-areas-start') as HTMLElement | null
+    const forcedCuts: number[] = []
+    if (startEl) {
+      let y = 0
+      let el: HTMLElement | null = startEl
+      while (el) { y += el.offsetTop; el = el.offsetParent as HTMLElement | null }
+      const cut = Math.floor((y - 8) * pxScale)
+      if (cut > 0 && cut < canvas.height) forcedCuts.push(cut)
+    }
+
     const ctx0 = canvas.getContext('2d', { willReadFrequently: true })!
     const isBlankRow = (y: number): boolean => {
       if (y <= 0 || y >= canvas.height) return false
@@ -139,7 +153,10 @@ export async function generateNSPIREReportPDFBlob(report: NSPIREInspectionReport
 
     while (renderedHeight < canvas.height) {
       const ideal = Math.min(renderedHeight + scaledPageHeightPx, canvas.height)
-      const cutAt = ideal >= canvas.height ? canvas.height : findCut(ideal)
+      const forced = forcedCuts.find((f) => f > renderedHeight + 20 && f < ideal)
+      const cutAt = ideal >= canvas.height && forced === undefined
+        ? canvas.height
+        : (forced ?? findCut(ideal))
       const sliceHeight = cutAt - renderedHeight
 
       const pageCanvas = document.createElement('canvas')
