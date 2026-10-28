@@ -108,11 +108,39 @@ export async function generateNSPIREReportPDFBlob(report: NSPIREInspectionReport
 
     // Slice the full-page canvas into A4-height chunks and add each as its own PDF page.
     const scaledPageHeightPx = (canvas.width / pageWidth) * pageHeight
+
+    // A cut at an arbitrary pixel row lands mid-heading or mid-table-row —
+    // the tester's PDF had "Outside Deficiencies" sliced in half across a
+    // page break. Look a little way back up from the ideal cut for a row of
+    // near-uniform background and cut there instead, so breaks fall in the
+    // whitespace between sections.
+    const ctx0 = canvas.getContext('2d', { willReadFrequently: true })!
+    const isBlankRow = (y: number): boolean => {
+      if (y <= 0 || y >= canvas.height) return false
+      const row = ctx0.getImageData(0, y, canvas.width, 1).data
+      // Sample every 8th pixel; anything meaningfully darker than the page
+      // background means content crosses this row.
+      for (let i = 0; i < row.length; i += 32) {
+        if (row[i] < 235 || row[i + 1] < 235 || row[i + 2] < 235) return false
+      }
+      return true
+    }
+    const findCut = (ideal: number): number => {
+      if (ideal >= canvas.height) return canvas.height
+      const searchUp = Math.min(Math.floor(scaledPageHeightPx * 0.25), ideal - 1)
+      for (let back = 0; back <= searchUp; back += 4) {
+        if (isBlankRow(ideal - back)) return ideal - back
+      }
+      return ideal // No whitespace nearby — dense table; the plain cut stands.
+    }
+
     let renderedHeight = 0
     let firstPage = true
 
     while (renderedHeight < canvas.height) {
-      const sliceHeight = Math.min(scaledPageHeightPx, canvas.height - renderedHeight)
+      const ideal = Math.min(renderedHeight + scaledPageHeightPx, canvas.height)
+      const cutAt = ideal >= canvas.height ? canvas.height : findCut(ideal)
+      const sliceHeight = cutAt - renderedHeight
 
       const pageCanvas = document.createElement('canvas')
       pageCanvas.width = canvas.width

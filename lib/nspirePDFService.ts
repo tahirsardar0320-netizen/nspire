@@ -601,9 +601,9 @@ function generateDeficiencyAreaTable(label: string, subtitle: string, items: Def
     );
 
     return `
-      <p style="font-weight:bold; font-size:10pt; margin-top:14px; margin-bottom:4px;">Unit Deficiencies</p>
+      <p style="font-weight:bold; font-size:10pt; margin-top:24px; margin-bottom:8px;">Unit Deficiencies</p>
       ${sorted.map(unit => `
-        <p style="font-weight:bold; font-size:9.5pt; margin-top:10px; margin-bottom:3px; color:#1f2937;">
+        <p style="font-weight:bold; font-size:9.5pt; margin-top:18px; margin-bottom:6px; color:#1f2937;">
           ${unit.toUpperCase().startsWith('UNIT') ? unit : `Unit ${unit}`}
         </p>
         ${generateDeficiencyRowsTable(byUnit.get(unit)!)}
@@ -612,7 +612,7 @@ function generateDeficiencyAreaTable(label: string, subtitle: string, items: Def
   }
 
   return `
-    <p style="font-weight:bold; font-size:10pt; margin-top:14px; margin-bottom:4px;">${headingLabel} Deficiencies</p>
+    <p style="font-weight:bold; font-size:10pt; margin-top:24px; margin-bottom:8px;">${headingLabel} Deficiencies</p>
     ${items.length === 0 ? `
       <div style="padding:8px; border:1px solid #000; border-top:none; font-style:italic; color:#666; font-size:9pt;">No deficiencies found.</div>
     ` : `
@@ -652,7 +652,7 @@ function generateDeficiencyTable(deficiencies: DeficiencyEntry[], options: PDFGe
     }));
 
     return `
-      <div class="avoid-break" style="margin-top:16px;">
+      <div class="avoid-break" style="margin-top:28px;">
         <p style="font-weight:bold; font-size:9pt; color:#006795; background-color:#E6F0F5; border:1px solid #006795; padding:4px 6px; margin-bottom:6px;">Building: ${building}</p>
         ${areaSections.map(s => generateDeficiencyAreaTable(s.label, s.subtitle, s.items)).join('')}
       </div>
