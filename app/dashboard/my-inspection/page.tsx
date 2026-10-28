@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "react-toastify"
 import { useState, useEffect } from "react"
 import { propertiesAPI } from "@/lib/api"
-import { fetchPropertyProgressMap } from "@/lib/inspectionProgress"
+import { fetchPropertyProgressMap, cachedProgressMap } from "@/lib/inspectionProgress"
 import { UnitSelectionModal } from "@/components/UnitSelectionModal"
 import { ActionModal, EditPropertyModal, SummaryModal } from "@/components/PropertyModals"
 import { loadGeo } from '@/lib/geo'
@@ -26,7 +26,7 @@ export default function MyInspection() {
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [summaryModalOpen, setSummaryModalOpen] = useState(false)
   const [reportEmailed, setReportEmailed] = useState<Record<string, boolean>>({})
-  const [propertyProgress, setPropertyProgress] = useState<Record<string, number>>({})
+  const [propertyProgress, setPropertyProgress] = useState<Record<string, number>>(() => cachedProgressMap())
   const [activeInspectionId, setActiveInspectionId] = useState<string | null>(null)
 
   // Multi-select state

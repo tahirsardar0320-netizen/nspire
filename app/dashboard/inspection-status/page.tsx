@@ -6,7 +6,7 @@ import DashboardLayout from "@/components/DashboardLayout"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { propertiesAPI, authAPI, inspectionsAPI } from "@/lib/api"
-import { fetchPropertyProgressMap, getActiveInspectionId } from "@/lib/inspectionProgress"
+import { fetchPropertyProgressMap, cachedProgressMap, getActiveInspectionId } from "@/lib/inspectionProgress"
 import { fetchNSPIREReportForProperty, NSPIREInspectionReport } from "@/lib/nspireReport"
 import { ReportPreviewModal } from "@/components/ReportPreviewModal"
 import { toast } from "react-toastify"
@@ -57,7 +57,7 @@ export default function InspectionStatusPage() {
   const [refreshing, setRefreshing] = useState(false)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [user, setUser] = useState<any>(null)
-  const [propertyProgress, setPropertyProgress] = useState<Record<string, number>>({})
+  const [propertyProgress, setPropertyProgress] = useState<Record<string, number>>(() => cachedProgressMap())
   const [activeInspectionId, setActiveInspectionId] = useState<string | null>(null)
   const [reportPreviewData, setReportPreviewData] = useState<NSPIREInspectionReport | null>(null)
   const [loadingReportId, setLoadingReportId] = useState<string | null>(null)

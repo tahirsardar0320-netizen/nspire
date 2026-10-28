@@ -18,7 +18,7 @@ import {
   SummaryModal
 } from "@/components/PropertyModals"
 import { propertiesAPI } from "@/lib/api"
-import { fetchPropertyProgressMap } from "@/lib/inspectionProgress"
+import { fetchPropertyProgressMap, cachedProgressMap } from "@/lib/inspectionProgress"
 import { loadGeo, geo } from '@/lib/geo'
 import { safeSetItem } from "@/lib/safeStorage"
 import { durableGet, durableSet } from "@/lib/durableStore"
@@ -43,7 +43,7 @@ export default function Dashboard() {
   const [properties, setProperties] = useState<any[]>([])
   const [loadFailed, setLoadFailed] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [propertyProgress, setPropertyProgress] = useState<Record<string, number>>({})
+  const [propertyProgress, setPropertyProgress] = useState<Record<string, number>>(() => cachedProgressMap())
   const [reportEmailed, setReportEmailed] = useState<Record<string, boolean>>({})
   const [activeInspectionId, setActiveInspectionId] = useState<string | null>(null)
   // Multi-select state

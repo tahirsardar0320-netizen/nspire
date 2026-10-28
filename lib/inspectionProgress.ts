@@ -1,6 +1,7 @@
 import { OUTSIDE_ITEMS, INSIDE_ITEMS, UNIT_ITEMS } from "@/lib/inspectionData"
 import { fetchWithTimeout } from './httpFetch';
 import { durableGet, durableSet, ensureHydrated } from './durableStore';
+import { safeSetItem } from './safeStorage';
 
 /**
  * Whether a progress record belongs to the given building. The progress API
@@ -154,7 +155,26 @@ export async function fetchPropertyProgressMap(
     progressMap[propId] = Math.min(100, Math.round((completedTasks / totalTasks) * 100))
   })
 
+  // Remember the figures so the next launch paints them instantly instead
+  // of showing 0% while this re-computes — a 60% property must stay 60% on
+  // screen from the first frame. Merged, not replaced: scoped calls only
+  // compute one property.
+  try {
+    const prev = JSON.parse(localStorage.getItem('cached_progress_map') || '{}')
+    safeSetItem('cached_progress_map', JSON.stringify({ ...prev, ...progressMap }))
+  } catch { /* the live figures still rendered */ }
+
   return progressMap
+}
+
+/** Last computed per-property %, for instant first paint. */
+export function cachedProgressMap(): Record<string, number> {
+  try {
+    if (typeof window === 'undefined') return {}
+    return JSON.parse(localStorage.getItem('cached_progress_map') || '{}')
+  } catch {
+    return {}
+  }
 }
 
 export function getActiveInspectionId(): string | null {
