@@ -28,7 +28,7 @@ import {
 import { UNIT_LOCATION_OPTIONS } from "@/lib/unitScoringCalculations"
 import { getSamplingRequirements } from "@/lib/unitSamplingService"
 import { toast } from "react-toastify"
-import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, MoreHorizontal, Camera, X, ChevronLeft, CheckCircle2, FileText, User, Grid, Clock, Video, Monitor, Image as ImageIcon, Laptop, Tablet, Pencil, Check, Mail } from "lucide-react";
+import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, MoreHorizontal, Camera, X, ChevronLeft, CheckCircle2, FileText, User, Grid, Clock, Video, Monitor, Image as ImageIcon, Laptop, Tablet, Pencil, Check, Mail, CloudRain, Home, LayoutGrid, Building2, ArrowLeft } from "lucide-react";
 
 import { OUTSIDE_ITEMS, INSIDE_ITEMS, UNIT_ITEMS } from "@/lib/inspectionData";
 import { ReportPreviewModal } from "@/components/ReportPreviewModal";
@@ -161,6 +161,24 @@ export default function InspectionCategoryPage() {
     const qp = (key: string) => liveQuery?.get(key) ?? searchParams.get(key)
 
     const urlBuilding = qp('building') || 'B1'
+
+    // NSPIRE.ai-style navigation: '' = the categories list; 'outside' |
+    // 'inside' | 'unit' = that section as its own full page. State drives the
+    // view (instant, immune to a slow route payload); the URL mirrors it so
+    // the hardware/browser back button walks page → categories naturally.
+    const [sectionView, setSectionView] = useState<'' | 'outside' | 'inside' | 'unit'>(
+        () => (qp('section') || '') as '' | 'outside' | 'inside' | 'unit'
+    )
+    useEffect(() => {
+        const fromUrl = (searchParams?.get('section') || '') as '' | 'outside' | 'inside' | 'unit'
+        setSectionView(fromUrl)
+    }, [searchParams])
+    const gotoSection = (sec: '' | 'outside' | 'inside' | 'unit') => {
+        setSectionView(sec)
+        const sp = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : (searchParams?.toString() || ''))
+        if (sec) sp.set('section', sec); else sp.delete('section')
+        router.push(`/dashboard/inspection-category/${id}?${sp.toString()}`)
+    }
     const urlUnit = qp('unit') || ''
     const urlTotalUnits = parseInt(qp('totalUnits') || '0')
     const currentUnitName = decodeURIComponent(urlUnit)
@@ -2259,90 +2277,198 @@ export default function InspectionCategoryPage() {
                     </div>
                 )}
 
-                {/* Sections */}
-                {['outside', 'inside', 'unit'].map((sec) => (
-                    <div key={sec} className="mb-6 border border-blue-100/50 rounded-lg overflow-hidden shadow-sm">
-                        <button
-                            className="w-full bg-[#EBF5FF] p-4 flex items-center justify-between transition-colors text-left font-black hover:bg-[#dceeff] active:bg-[#cce3f8] cursor-pointer"
-                            onClick={() => {
-                                if (sec === 'unit' && !activeInspectionUnit) {
-                                    setUnitSelectionPopupOpen(true)
-                                } else {
-                                    setExpandedSection(expandedSection === sec ? null : sec)
-                                }
-                            }}
-                        >
-                            <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <p className="text-sm text-[#006795] uppercase tracking-tight">
-                                        {sec === 'outside' ? 'Outside (Areas affected by Rain, Snow, Wind)' : sec === 'inside' ? 'Inside (Interior Common area, Utility closet, Mechanical rooms)' : 'Units (Individual unit inspections)'}
-                                    </p>
-                                    {/* Folder link indicator */}
-                                    <span className="flex-shrink-0 inline-flex items-center gap-1 text-[10px] font-bold text-white bg-gradient-to-r from-[#00C6D7] to-[#006795] px-2 py-0.5 rounded-full shadow-sm">
-                                        <ChevronRight className="w-3 h-3" />
-                                        {sec === 'unit' && !activeInspectionUnit ? 'Select' : expandedSection === sec ? 'Open' : 'Open'}
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-4 mb-2 text-[#006795]">
-                                    <p className="text-[11px]">({sec === 'outside' ? outsideProgress.completed : sec === 'inside' ? insideProgress.completed : unitProgress.completed}/{sec === 'outside' ? outsideItemsList.length : sec === 'inside' ? insideItemsList.length : unitProgress.total})</p>
-                                    <p className="text-[11px]">{sec === 'outside' ? outsideProgress.percentage : sec === 'inside' ? insideProgress.percentage : unitProgress.percentage}% Completed</p>
-                                </div>
-                                <div className="w-full h-2 bg-white rounded-full overflow-hidden max-w-4xl shadow-inner">
-                                    <div className="h-full bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F] transition-all duration-500" style={{ width: `${sec === 'outside' ? outsideProgress.percentage : sec === 'inside' ? insideProgress.percentage : unitProgress.percentage}%` }}></div>
-                                </div>
-                            </div>
-                            <div className="ml-3 flex-shrink-0">
-                                {expandedSection === sec ? <ChevronUp className="w-6 h-6 text-[#006795]" /> : <ChevronDown className="w-6 h-6 text-[#006795]" />}
-                            </div>
-                        </button>
-                        {expandedSection === sec && (
-                            <div className="bg-white">
-                                {sec === 'unit' && (
-                                    <div className="p-4 sm:p-6 pb-0 space-y-4 border-b border-blue-50">
-                                        {activeInspectionUnit && (
-                                            <div className="flex items-center gap-2">
-                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#006795]/10 text-[#006795] text-sm font-bold">
-                                                    <User className="w-3.5 h-3.5" /> Inspecting: {activeInspectionUnit}
-                                                </span>
-                                                <button
-                                                    onClick={() => {
-                                                        // Answer the tap now. The work is already held on the
-                                                        // device; the server sync (photo uploads included) can
-                                                        // take ten-plus seconds on site, and waiting on it made
-                                                        // Submit look dead. It runs on in the background and the
-                                                        // sync badge reports anything that could not go up.
-                                                        toast.success(`${activeInspectionUnit} saved!`, { position: 'top-right' });
-                                                        setUnitSelectionPopupOpen(true);
-                                                        void saveCurrentProgress()
-                                                            .then(() => refreshCompletedUnits())
-                                                            .catch((e) => console.error('Background submit sync failed:', e));
-                                                    }}
-                                                    className="text-xs font-bold text-rose-600 hover:underline flex items-center gap-1 bg-rose-50 px-2 py-1 rounded-full transition-colors"
-                                                >
-                                                    <CheckCircle2 className="w-3 h-3" />
-                                                    Submit
-                                                </button>
-                                            </div>
-                                        )}
-                                        <div className="flex items-center gap-3">
-                                            <p className="text-sm font-bold text-gray-600 leading-relaxed">
-                                                Units Under {buildingName} : <span className="text-gray-900 font-extrabold">{activeInspectionUnit || unitsString}</span>
-                                            </p>
-                                            <button
-                                                onClick={openUnitEditModal}
-                                                className="p-1.5 rounded-full hover:bg-[#006795]/10 text-[#006795] transition-colors"
-                                                title="Edit unit names"
-                                            >
-                                                <Pencil className="w-4 h-4" />
-                                            </button>
-                                        </div>
+                {/* ——— NSPIRE.ai-style flow: categories list ⇄ full-page sections ——— */}
+                {sectionView === '' ? (
+                    <>
+                        <div className="rounded-2xl bg-gradient-to-r from-[#0E7490] to-[#006795] text-white px-5 py-5 mb-6 flex items-center gap-3 shadow-md">
+                            <Building2 className="w-7 h-7 shrink-0" />
+                            <h2 className="text-xl font-extrabold tracking-wide uppercase">Building No: {buildingName}</h2>
+                        </div>
+
+                        {([
+                            { sec: 'outside', title: 'OUTSIDE', subtitle: 'Areas affected by rain, snow, wind', icon: <CloudRain className="w-7 h-7 text-[#0E7490]" />, prog: outsideProgress, total: outsideItemsList.length },
+                            { sec: 'inside', title: 'INSIDE', subtitle: 'Interior common area, utility closet, mechanical rooms', icon: <Home className="w-7 h-7 text-[#0E7490]" />, prog: insideProgress, total: insideItemsList.length },
+                            { sec: 'unit', title: 'UNITS', subtitle: 'Individual unit inspections', icon: <LayoutGrid className="w-7 h-7 text-[#0E7490]" />, prog: unitProgress, total: unitProgress.total },
+                        ] as const).map(({ sec, title, subtitle, icon, prog, total }) => (
+                            <button
+                                key={sec}
+                                onClick={() => {
+                                    if (sec === 'unit' && !activeInspectionUnit) { setUnitSelectionPopupOpen(true); return }
+                                    gotoSection(sec)
+                                }}
+                                className="w-full bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-4 flex items-center gap-4 text-left hover:shadow-md active:scale-[0.99] transition-all"
+                            >
+                                <div className="w-14 h-14 rounded-xl bg-sky-50 flex items-center justify-center shrink-0">{icon}</div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-lg font-extrabold text-slate-900 tracking-wide">{title}</p>
+                                    <p className="text-sm text-slate-500 font-medium leading-snug">{subtitle}</p>
+                                    <div className="mt-2 w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                        <div className="h-full bg-gradient-to-r from-[#0E7490] to-[#00C6D7] rounded-full transition-all duration-500" style={{ width: `${prog.percentage}%` }} />
                                     </div>
+                                    <p className="mt-1.5 text-xs font-semibold text-slate-400">{prog.completed}/{total} • {prog.percentage}% Complete</p>
+                                </div>
+                                <ChevronRight className="w-6 h-6 text-slate-300 shrink-0" />
+                            </button>
+                        ))}
+                    </>
+                ) : (
+                    <div className="-mx-4 sm:mx-0 pb-32">
+                        {/* Section page header */}
+                        <div className="bg-gradient-to-r from-[#0E7490] to-[#006795] text-white px-4 sm:px-6 py-4 sm:rounded-2xl flex items-center gap-3 shadow-md">
+                            <button onClick={() => gotoSection('')} className="p-1.5 -ml-1 rounded-full hover:bg-white/15 transition-colors">
+                                <ArrowLeft className="w-6 h-6" />
+                            </button>
+                            <div className="min-w-0">
+                                <h2 className="text-xl font-extrabold leading-tight">
+                                    {sectionView === 'outside' ? 'Outside' : sectionView === 'inside' ? 'Inside' : (activeInspectionUnit || 'Units')}
+                                </h2>
+                                <p className="text-xs text-white/80 font-medium">{buildingName} • {rawUnitIds.length} Units</p>
+                            </div>
+                        </div>
+
+                        {/* Progress row */}
+                        <div className="bg-white px-4 sm:px-6 py-4 border-b border-slate-100">
+                            <div className="flex items-center justify-between mb-2">
+                                <p className="text-base font-extrabold text-slate-900">Progress</p>
+                                <p className="text-sm font-extrabold text-[#0E7490]">
+                                    {(sectionView === 'outside' ? outsideProgress : sectionView === 'inside' ? insideProgress : unitProgress).completed}
+                                    /{sectionView === 'outside' ? outsideItemsList.length : sectionView === 'inside' ? insideItemsList.length : unitProgress.total}
+                                    {' • '}
+                                    {(sectionView === 'outside' ? outsideProgress : sectionView === 'inside' ? insideProgress : unitProgress).percentage}%
+                                </p>
+                            </div>
+                            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div className="h-full bg-gradient-to-r from-[#0E7490] to-[#00C6D7] rounded-full transition-all duration-500" style={{ width: `${(sectionView === 'outside' ? outsideProgress : sectionView === 'inside' ? insideProgress : unitProgress).percentage}%` }} />
+                            </div>
+                        </div>
+
+                        {/* Unit context strip */}
+                        {sectionView === 'unit' && (
+                            <div className="bg-white px-4 sm:px-6 py-3 border-b border-slate-100 flex flex-wrap items-center gap-2">
+                                {activeInspectionUnit && (
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0E7490]/10 text-[#0E7490] text-sm font-bold">
+                                        <User className="w-3.5 h-3.5" /> Inspecting: {activeInspectionUnit}
+                                    </span>
                                 )}
-                                {renderTable(sec as any, sec === 'outside' ? outsideItemsList : sec === 'inside' ? insideItemsList : unitItemsList, sec === 'outside' ? outsideStatuses : sec === 'inside' ? insideStatuses : unitStatuses)}
+                                <button
+                                    onClick={() => setUnitSelectionPopupOpen(true)}
+                                    className="text-xs font-bold text-[#0E7490] bg-sky-50 hover:bg-sky-100 px-3 py-1.5 rounded-full transition-colors"
+                                >
+                                    Change Unit
+                                </button>
+                                {activeInspectionUnit && (
+                                    <button
+                                        onClick={() => {
+                                            toast.success(`${activeInspectionUnit} saved!`, { position: 'top-right' });
+                                            setUnitSelectionPopupOpen(true);
+                                            void saveCurrentProgress()
+                                                .then(() => refreshCompletedUnits())
+                                                .catch((e) => console.error('Background submit sync failed:', e));
+                                        }}
+                                        className="ml-auto inline-flex items-center gap-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-full transition-colors"
+                                    >
+                                        <CheckCircle2 className="w-3.5 h-3.5" /> Submit
+                                    </button>
+                                )}
                             </div>
                         )}
+
+                        {/* Select-all / legend bar */}
+                        {(sectionView !== 'unit' || !!activeInspectionUnit) && (() => {
+                            const sec = sectionView as 'outside' | 'inside' | 'unit'
+                            const items = sec === 'outside' ? outsideItemsList : sec === 'inside' ? insideItemsList : unitItemsList
+                            const statuses = sec === 'outside' ? outsideStatuses : sec === 'inside' ? insideStatuses : unitStatuses
+                            const toggleable = items.filter(i => !savedODItems.has(odSavedKey(sec, i)))
+                            const allNoOd = toggleable.length > 0 && toggleable.every(i => statuses[i] === 'No OD')
+                            const allNa = toggleable.length > 0 && toggleable.every(i => statuses[i] === 'N/A')
+                            return (
+                                <div className="bg-white mx-4 sm:mx-0 mt-4 rounded-xl border border-slate-200 px-3 py-3 flex items-center justify-between gap-2">
+                                    <button onClick={() => selectAll(sec, 'No OD')} className="flex items-center gap-2 text-sm font-bold text-slate-800">
+                                        <span className={`w-5 h-5 rounded border-2 flex items-center justify-center ${allNoOd ? 'bg-emerald-600 border-emerald-600' : 'border-slate-300'}`}>
+                                            {allNoOd && <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />}
+                                        </span>
+                                        All No OD
+                                    </button>
+                                    <span className="flex items-center gap-2 text-sm font-extrabold text-red-600">
+                                        <span className="w-5 h-5 rounded border-2 border-red-500" />
+                                        Observe Deficiency
+                                    </span>
+                                    <button onClick={() => selectAll(sec, 'N/A')} className="flex items-center gap-2 text-sm font-bold text-slate-800">
+                                        <span className={`w-5 h-5 rounded border-2 flex items-center justify-center ${allNa ? 'bg-slate-600 border-slate-600' : 'border-slate-300'}`}>
+                                            {allNa && <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />}
+                                        </span>
+                                        All NA
+                                    </button>
+                                </div>
+                            )
+                        })()}
+
+                        {/* Item cards */}
+                        <div className="px-4 sm:px-0 mt-4 space-y-4">
+                            {sectionView === 'unit' && !activeInspectionUnit ? (
+                                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 text-center text-slate-500 font-semibold">
+                                    Pehle unit chunein — <button onClick={() => setUnitSelectionPopupOpen(true)} className="text-[#0E7490] underline font-bold">Select Unit</button>
+                                </div>
+                            ) : (
+                                (sectionView === 'outside' ? outsideItemsList : sectionView === 'inside' ? insideItemsList : unitItemsList).map((item, index) => {
+                                    const sec = sectionView as 'outside' | 'inside' | 'unit'
+                                    const statuses = sec === 'outside' ? outsideStatuses : sec === 'inside' ? insideStatuses : unitStatuses
+                                    const isGeneral = item.toLowerCase().includes('general comment')
+                                    return (
+                                        <div key={item} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <span className="w-9 h-9 rounded-full bg-sky-100 text-[#0E7490] flex items-center justify-center text-sm font-extrabold shrink-0">{index + 1}</span>
+                                                <p className="text-base font-bold text-slate-900 leading-snug">{item}</p>
+                                            </div>
+                                            {isGeneral ? (
+                                                <button
+                                                    onClick={() => handleStatusChange(sec, item, 'OD')}
+                                                    className="w-full py-3.5 rounded-xl text-sm font-bold bg-gradient-to-r from-[#0E7490] to-[#006795] text-white shadow-sm active:scale-[0.99] transition-all"
+                                                >
+                                                    General Comment
+                                                </button>
+                                            ) : (
+                                                <div className="grid grid-cols-3 gap-3">
+                                                    <button
+                                                        onClick={() => handleStatusChange(sec, item, 'No OD')}
+                                                        className={`py-3.5 rounded-xl text-sm font-bold border-2 transition-all active:scale-[0.98] ${statuses[item] === 'No OD' ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`}
+                                                    >
+                                                        No OD
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleStatusChange(sec, item, 'OD')}
+                                                        className={`py-3.5 rounded-xl text-sm font-bold border-2 transition-all active:scale-[0.98] ${statuses[item] === 'OD' ? 'bg-red-50 border-red-500 text-red-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`}
+                                                    >
+                                                        OD
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleStatusChange(sec, item, 'N/A')}
+                                                        className={`py-3.5 rounded-xl text-sm font-bold border-2 transition-all active:scale-[0.98] ${statuses[item] === 'N/A' ? 'bg-slate-100 border-slate-400 text-slate-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`}
+                                                    >
+                                                        N/A
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )
+                                })
+                            )}
+                        </div>
+
+                        {/* Sticky Save Progress */}
+                        <div className="fixed bottom-0 left-0 right-0 z-40 px-4 pb-4 pt-8 bg-gradient-to-t from-slate-100 via-slate-100/90 to-transparent pointer-events-none">
+                            <button
+                                onClick={() => {
+                                    toast.success('Progress saved!', { position: 'top-right', autoClose: 1500 })
+                                    void saveCurrentProgress().catch((e) => console.error('Save failed:', e))
+                                }}
+                                className="pointer-events-auto w-full max-w-xl mx-auto flex items-center justify-center gap-2 py-4 rounded-full bg-gradient-to-r from-[#0E7490] to-[#006795] text-white text-base font-extrabold shadow-xl active:scale-[0.99] transition-all"
+                            >
+                                <CheckCircle2 className="w-5 h-5" /> Save Progress
+                            </button>
+                        </div>
                     </div>
-                ))}
+                )}
             </div>
 
             {/* Unit Selection Popup - shown when user clicks Units section without a unit selected */}
@@ -2456,7 +2582,7 @@ export default function InspectionCategoryPage() {
                                                     void doSaveRef.current()
                                                     setActiveInspectionUnit(displayName)
                                                     setUnitSelectionPopupOpen(false)
-                                                    setExpandedSection('unit')
+                                                    gotoSection('unit')
                                                 }}
                                                 className="bg-[#006795] hover:bg-[#00567a] text-white font-bold text-xs px-4 py-2 rounded-lg shadow-md transition-all flex items-center gap-1 ml-3 shrink-0"
                                             >
