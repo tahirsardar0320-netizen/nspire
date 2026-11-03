@@ -2,7 +2,6 @@
 
 import { ReactNode, useState, useEffect } from "react"
 import { durableRemove } from '@/lib/durableStore'
-import ZoomControl from '@/components/ZoomControl'
 import Image from "next/image"
 import { useRouter, usePathname } from "next/navigation"
 import { toast } from "react-toastify"
@@ -13,6 +12,16 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter()
+
+  // The header zoom buttons are gone — pinch does the job now. Clear any
+  // zoom level a device saved while the buttons existed, or those phones
+  // stay magnified forever.
+  useEffect(() => {
+    try {
+      (document.body.style as any).zoom = ''
+      localStorage.removeItem('app_zoom_level')
+    } catch { /* nothing saved */ }
+  }, [])
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [userName, setUserName] = useState("User")
@@ -258,7 +267,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
 
             <div className="flex items-center gap-2 md:gap-4">
-              <ZoomControl />
 
               <button
                 onClick={() => router.push('/dashboard/notifications')}

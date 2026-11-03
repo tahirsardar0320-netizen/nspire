@@ -1,7 +1,6 @@
 "use client"
 
 import { ReactNode, useState, useEffect } from "react"
-import ZoomControl from '@/components/ZoomControl'
 import { durableRemove } from '@/lib/durableStore'
 import Image from "next/image"
 import { useRouter, usePathname } from "next/navigation"
@@ -16,6 +15,16 @@ const OTHER_ROLES = ['other', 'admin']
 
 export default function OtherDashboardLayout({ children }: OtherDashboardLayoutProps) {
   const router = useRouter()
+
+  // The header zoom buttons are gone — pinch does the job now. Clear any
+  // zoom level a device saved while the buttons existed, or those phones
+  // stay magnified forever.
+  useEffect(() => {
+    try {
+      (document.body.style as any).zoom = ''
+      localStorage.removeItem('app_zoom_level')
+    } catch { /* nothing saved */ }
+  }, [])
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [user, setUser] = useState<{ fullName: string; role: string } | null>(null)
@@ -289,7 +298,6 @@ export default function OtherDashboardLayout({ children }: OtherDashboardLayoutP
             </div>
             
             <div className="flex items-center gap-2 md:gap-4">
-              <ZoomControl />
               <button 
                 onClick={() => router.push('/other/notifications')}
                 className="relative p-2 hover:bg-white/10 rounded-lg transition-colors text-white"

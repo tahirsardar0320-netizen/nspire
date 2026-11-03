@@ -1337,23 +1337,6 @@ export default function InspectionCategoryPage() {
         setOdForm({ category: "", note: "", location: getDefaultLocation(currentSection), healthAndSafety: "", repairBy: "", codeAndCompliance: "" });
     };
 
-    /**
-     * Tapping the dark area around the modal used to run the full close, which
-     * throws away the photos, the chosen deficiency and the form. Coming back
-     * from the camera it is easy to catch that area by accident — so a
-     * deficiency that had just been photographed vanished and the inspector
-     * was "thrown out" without saving. Only dismiss this way when there is
-     * nothing to lose; the X and Cancel remain for deliberate exits.
-     */
-    const handleODBackdropClick = () => {
-        const hasUnsavedWork = photos.length > 0 || !!selectedDeficiency || !!odForm.note?.trim();
-        if (hasUnsavedWork) {
-            toast.info('Use Proceed to save, or Cancel to discard.', { position: 'top-right', autoClose: 2500 });
-            return;
-        }
-        handleODModalClose();
-    };
-
     /** True when a finding belongs to the item the modal is open on. */
     const isCurrentItemFinding = (f: any) => {
         const unitVal = currentSection === 'unit' ? (activeInspectionUnit || unitsString) : '-';
@@ -2198,15 +2181,16 @@ export default function InspectionCategoryPage() {
 
                 {/* Edit Building Name Modal */}
                 {editBuildingModalOpen && (
-                    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-                            <div className="flex items-center justify-between p-5 border-b">
-                                <h3 className="text-lg font-bold text-gray-900">Edit Building Name</h3>
-                                <button onClick={() => setEditBuildingModalOpen(false)} className="p-1 hover:bg-gray-100 rounded-full">
-                                    <X className="w-5 h-5 text-gray-500" />
+                    <div className="fixed inset-0 bg-slate-100 z-50">
+                        <div className="bg-white w-full h-full overflow-hidden flex flex-col animate-in slide-in-from-right duration-300">
+                            <div className="flex items-center gap-3 px-4 py-4 bg-gradient-to-r from-[#0E7490] to-[#006795] shadow-md shrink-0">
+                                <button onClick={() => setEditBuildingModalOpen(false)} className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white shrink-0 transition-colors">
+                                    <ArrowLeft className="w-5 h-5" />
                                 </button>
+                                <h3 className="text-lg font-black text-white tracking-tight flex-1 min-w-0">Edit Building Name</h3>
                             </div>
-                            <div className="p-5">
+                            <div className="h-1 shrink-0 bg-gradient-to-r from-[#F84B5F] via-[#00C6D7] to-[#006795]" />
+                            <div className="p-5 flex-1 overflow-y-auto max-w-2xl mx-auto w-full">
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">Building Name</label>
                                 <input
                                     type="text"
@@ -2237,15 +2221,16 @@ export default function InspectionCategoryPage() {
 
                 {/* Edit Unit Names Modal */}
                 {editUnitsModalOpen && (
-                    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-                            <div className="flex items-center justify-between p-5 border-b">
-                                <h3 className="text-lg font-bold text-gray-900">Edit Unit Names</h3>
-                                <button onClick={() => setEditUnitsModalOpen(false)} className="p-1 hover:bg-gray-100 rounded-full">
-                                    <X className="w-5 h-5 text-gray-500" />
+                    <div className="fixed inset-0 bg-slate-100 z-50">
+                        <div className="bg-white w-full h-full overflow-hidden flex flex-col animate-in slide-in-from-right duration-300">
+                            <div className="flex items-center gap-3 px-4 py-4 bg-gradient-to-r from-[#0E7490] to-[#006795] shadow-md shrink-0">
+                                <button onClick={() => setEditUnitsModalOpen(false)} className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white shrink-0 transition-colors">
+                                    <ArrowLeft className="w-5 h-5" />
                                 </button>
+                                <h3 className="text-lg font-black text-white tracking-tight flex-1 min-w-0">Edit Unit Names</h3>
                             </div>
-                            <div className="p-5 max-h-[60vh] overflow-y-auto space-y-3">
+                            <div className="h-1 shrink-0 bg-gradient-to-r from-[#F84B5F] via-[#00C6D7] to-[#006795]" />
+                            <div className="p-5 flex-1 overflow-y-auto space-y-3 max-w-2xl mx-auto w-full">
                                 {rawUnitIds.map((uid) => (
                                     <div key={uid} className="flex items-center gap-3">
                                         <label className="text-sm font-semibold text-gray-500 w-20 shrink-0">Unit {uid}</label>
@@ -2473,33 +2458,28 @@ export default function InspectionCategoryPage() {
 
             {/* Unit Selection Popup - shown when user clicks Units section without a unit selected */}
             {unitSelectionPopupOpen && (
-                <div
-                    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4"
-                    onClick={() => setUnitSelectionPopupOpen(false)}
-                >
-                    <div
-                        className="bg-white rounded-2xl w-full max-w-lg max-h-[85vh] overflow-hidden shadow-2xl"
-                        onClick={(e) => e.stopPropagation()}
-                    >
+                <div className="fixed inset-0 bg-slate-100 z-50 flex flex-col">
+                    <div className="bg-white w-full h-full flex flex-col overflow-hidden">
                         {/* Header */}
-                        <div className="bg-gradient-to-r from-[#006795] to-[#0891B2] p-5 flex items-center justify-between">
-                            <div>
-                                <h3 className="text-lg font-black text-white tracking-tight">
-                                    {buildingName} — Select Unit
+                        <div className="bg-gradient-to-r from-[#0E7490] to-[#006795] px-4 py-4 flex items-center gap-3 shadow-md">
+                            <button
+                                onClick={() => setUnitSelectionPopupOpen(false)}
+                                className="w-10 h-10 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 transition-colors shrink-0"
+                            >
+                                <ArrowLeft className="w-5 h-5 text-white" />
+                            </button>
+                            <div className="min-w-0 flex-1">
+                                <h3 className="text-lg font-black text-white tracking-tight truncate">
+                                    Select Unit
                                 </h3>
                                 <p className="text-xs text-white/80 mt-0.5 font-medium">
-                                    {buildingUnitNames.length > 0
+                                    {buildingName} • {buildingUnitNames.length > 0
                                         ? `${buildingUnitNames.length} units available`
                                         : 'Select a unit to inspect'}
                                 </p>
                             </div>
-                            <button
-                                onClick={() => setUnitSelectionPopupOpen(false)}
-                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-                            >
-                                <X className="w-4 h-4 text-white" />
-                            </button>
                         </div>
+                        <div className="h-1 shrink-0 bg-gradient-to-r from-[#F84B5F] via-[#00C6D7] to-[#006795]" />
 
                         {/* Progress bar placeholder */}
                         <div className="px-5 pt-4 pb-2">
@@ -2509,7 +2489,7 @@ export default function InspectionCategoryPage() {
                         </div>
 
                         {/* Unit List */}
-                        <div className="p-5 overflow-y-auto max-h-[55vh] space-y-2">
+                        <div className="p-5 overflow-y-auto flex-1 space-y-2 max-w-2xl mx-auto w-full">
                             {(buildingUnitNames.length > 0 ? buildingUnitNames : ['Unit 001', 'Unit 002', 'Unit 003']).map((unitName, idx) => {
                                 const displayName = popupUnitCustomNames[unitName] || unitName;
                                 const isEditing = editingUnitIdx === idx;
@@ -2609,22 +2589,25 @@ export default function InspectionCategoryPage() {
 
             {/* General Comment Modal */}
             {isGeneralModalOpen && currentGeneralItem && (
-                <div className="fixed inset-0 bg-black/60 z-[1000] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 -z-10" onClick={handleGeneralModalClose} />
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in slide-in-from-top-4 duration-300">
+                <div className="fixed inset-0 bg-slate-100 z-[1000]">
+                    <div className="bg-white w-full h-full overflow-hidden animate-in slide-in-from-right duration-300 flex flex-col">
                         {/* Header */}
-                        <div className="flex items-center justify-between p-5 border-b">
-                            <h3 className="text-base font-black text-gray-900 uppercase tracking-tight">{currentGeneralItem}</h3>
-                            <button onClick={handleGeneralModalClose} className="p-1.5 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
-                                <X className="w-5 h-5" />
+                        <div className="flex items-center gap-3 px-4 py-4 bg-gradient-to-r from-[#0E7490] to-[#006795] shadow-md shrink-0">
+                            <button onClick={handleGeneralModalClose} className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white shrink-0 transition-colors">
+                                <ArrowLeft className="w-5 h-5" />
                             </button>
+                            <div className="min-w-0 flex-1">
+                                <h3 className="text-base font-black text-white tracking-tight truncate">{currentGeneralItem}</h3>
+                                <p className="text-[11px] text-white/80 font-semibold">General Comment</p>
+                            </div>
                         </div>
+                        <div className="h-1 shrink-0 bg-gradient-to-r from-[#F84B5F] via-[#00C6D7] to-[#006795]" />
 
                         {/* Body */}
-                        <div className="p-5 space-y-4">
+                        <div className="p-5 space-y-4 flex-1 overflow-y-auto max-w-2xl mx-auto w-full">
                             {/* Note text area */}
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Work Order</label>
+                                <label className="block text-xs font-extrabold text-[#C81E3C] uppercase tracking-widest mb-1.5">Work Order</label>
                                 <textarea
                                     value={generalNote}
                                     onChange={(e) => setGeneralNote(e.target.value)}
@@ -2636,7 +2619,7 @@ export default function InspectionCategoryPage() {
 
                             {/* Image upload */}
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Photo</label>
+                                <label className="block text-xs font-extrabold text-[#C81E3C] uppercase tracking-widest mb-1.5">Photo</label>
                                 {generalImage ? (
                                     <div className="relative rounded-xl overflow-hidden border border-gray-200">
                                         <img src={generalImage} alt="General comment" loading="lazy" decoding="async" className="w-full h-40 object-cover" />
@@ -2714,25 +2697,23 @@ export default function InspectionCategoryPage() {
 
             {/* OD Modal - BULLETPROOF SCROLLING AND POSITIONING */}
             {isODModalOpen && (
-                <div className="fixed inset-0 bg-black/80 z-[1000] flex items-start justify-center p-4 sm:p-6 md:p-10 overflow-hidden isolate">
-                    <div className="absolute inset-0 -z-10" onClick={handleODBackdropClick} />
-
-                    <Card className="font-lexend w-full max-w-xl bg-white rounded-3xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.35)] animate-in slide-in-from-top-4 duration-300 flex flex-col h-auto max-h-[70vh] self-center border border-slate-100">
-                        <div className="flex items-center gap-3 px-4 py-3 shrink-0 bg-gradient-to-r from-[#00C6D7] to-[#006795] sticky top-0 z-20 shadow-sm">
-                            <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center shrink-0 overflow-hidden">
-                                <img src="/logo.png?v=2" alt="NSPIRE" className="h-6 w-6 object-contain" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                                <h3 className="text-sm font-extrabold text-white uppercase tracking-tight truncate font-lexend">{currentModalItem}</h3>
-                                <p className="text-[10px] text-white/80 font-semibold tracking-wide">NSPIRE Deficiency Inspection</p>
-                            </div>
-                            <button onClick={handleODModalClose} className="p-1.5 hover:bg-white/15 rounded-full transition-colors text-white shrink-0">
-                                <X className="w-5 h-5" />
+                <div className="fixed inset-0 bg-slate-100 z-[1000] overflow-hidden isolate">
+                    <Card className="font-lexend w-full h-full max-w-none bg-white rounded-none border-0 shadow-none overflow-hidden animate-in slide-in-from-right duration-300 flex flex-col">
+                        <div className="flex items-center gap-3 px-4 py-4 shrink-0 bg-gradient-to-r from-[#0E7490] to-[#006795] sticky top-0 z-20 shadow-md">
+                            <button onClick={handleODModalClose} className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white shrink-0 transition-colors">
+                                <ArrowLeft className="w-5 h-5" />
                             </button>
+                            <div className="min-w-0 flex-1">
+                                <h3 className="text-base font-extrabold text-white tracking-tight truncate font-lexend">{currentModalItem}</h3>
+                                <p className="text-[11px] text-white/80 font-semibold tracking-wide capitalize">{currentSection === 'unit' ? `Unit • ${activeInspectionUnit || ''}` : currentSection} — NSPIRE Inspection</p>
+                            </div>
+                            <span className="shrink-0 px-3 py-1.5 rounded-full bg-[#F84B5F] text-white text-[10px] font-black uppercase tracking-widest shadow-md">Observe Deficiency</span>
                         </div>
+                        <div className="h-1 shrink-0 bg-gradient-to-r from-[#F84B5F] via-[#00C6D7] to-[#006795]" />
 
                         {(modalStep === 1 || modalStep === 2 || modalStep === 3) && (
-                        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 custom-scrollbar overscroll-contain">
+                        <div className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain">
+                        <div className="max-w-2xl mx-auto p-5 md:p-8 space-y-6">
                             {modalStep === 1 && (
                                 <div className="relative min-h-[300px] py-8 px-6 flex flex-col items-center justify-between text-center overflow-hidden rounded-2xl bg-gradient-to-b from-[#E8F4F8] via-[#F1F7FE] to-white">
                                     {/* Colorful accent strip */}
@@ -2758,7 +2739,7 @@ export default function InspectionCategoryPage() {
                                 <div className="space-y-6 animate-in fade-in duration-300 pb-6">
                                     {/* 1. DEFICIENCY SELECTED - Full width dropdown */}
                                     <div>
-                                        <label className="block text-[10px] font-extrabold text-slate-400 uppercase mb-2 tracking-wider font-lexend">Deficiency Selected</label>
+                                        <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Deficiency Selected</label>
                                         <div onClick={() => handleOpenSelection('selected')} className={`w-full border rounded-2xl p-4 text-xs font-semibold cursor-pointer transition-all flex justify-between items-center group font-lexend ${selectedDeficiency ? 'border-[#0E7490] border-2 bg-white text-slate-800 hover:border-[#0E7490]' : 'border-2 border-rose-300 bg-rose-50/40 text-rose-500 hover:border-rose-400 hover:bg-rose-50 hover:scale-[1.01] hover:shadow-sm'}`}>
                                             <span>
                                                 {selectedDeficiency ? selectedDeficiency.selected : "--Select--"}
@@ -2774,7 +2755,7 @@ export default function InspectionCategoryPage() {
 
                                     {/* 2. DEFICIENCY DETAIL - Clickable Dropdown */}
                                     <div>
-                                        <label className="block text-[10px] font-extrabold text-slate-400 uppercase mb-2 tracking-wider font-lexend">Deficiency Detail</label>
+                                        <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Deficiency Detail</label>
                                         <div onClick={() => selectedDeficiency && handleOpenSelection('detail')} className={`w-full border rounded-2xl p-4 text-xs font-semibold transition-all flex justify-between items-center group font-lexend ${selectedDeficiency ? 'cursor-pointer border-[#0E7490] border-2 bg-white text-slate-800 hover:border-[#0E7490]' : 'cursor-not-allowed border-2 border-rose-200 bg-rose-50/30 text-rose-400'}`}>
                                             <span>
                                                 {selectedDeficiency ? selectedDeficiency.detail : "-- Select deficiency first --"}
@@ -2785,7 +2766,7 @@ export default function InspectionCategoryPage() {
 
                                     {/* 4. PIC - Photo section (camera capture only) */}
                                     <div>
-                                        <label className="block text-[10px] font-extrabold text-slate-400 uppercase mb-2 tracking-wider font-lexend">Pic</label>
+                                        <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Pic</label>
 
                                         {/* Image Grid */}
                                         {photos.length > 0 && (
@@ -2825,7 +2806,7 @@ export default function InspectionCategoryPage() {
 
                                     {/* 5. NOTE - Text area */}
                                     <div>
-                                        <label className="block text-[10px] font-extrabold text-slate-400 uppercase mb-2 tracking-wider font-lexend">Work Order</label>
+                                        <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Work Order</label>
                                         <textarea
                                             className="w-full border border-slate-100 bg-slate-50/50 rounded-2xl p-4 text-xs font-semibold text-slate-800 focus:bg-white focus:border-[#0E7490] outline-none transition-all h-24 resize-none font-lexend"
                                             value={odForm.note}
@@ -2837,7 +2818,7 @@ export default function InspectionCategoryPage() {
                                     {/* 6. LOCATION + HEALTH & SAFETY - Side by side */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-[10px] font-extrabold text-slate-400 uppercase mb-2 tracking-wider font-lexend">Location</label>
+                                            <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Location</label>
                                             <select
                                                 className="w-full border border-slate-100 bg-slate-50/50 rounded-2xl p-4 text-xs font-semibold text-slate-700 outline-none focus:bg-white focus:border-[#0E7490] transition-all cursor-pointer font-lexend"
                                                 value={odForm.location}
@@ -2849,7 +2830,7 @@ export default function InspectionCategoryPage() {
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] font-extrabold text-slate-400 uppercase mb-2 tracking-wider font-lexend">Health & Safety</label>
+                                            <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Health & Safety</label>
                                             <div className={`w-full rounded-2xl p-4 text-xs font-semibold flex items-center min-h-[50px] font-lexend ${odForm.healthAndSafety === 'Life-Threatening' ? 'bg-rose-500 text-white border-rose-500 font-bold' :
                                                 odForm.healthAndSafety === 'Severe' ? 'bg-orange-500 text-white border-orange-500 font-bold' :
                                                     odForm.healthAndSafety === 'Moderate' ? 'bg-amber-500 text-white border-amber-500 font-bold' :
@@ -2863,7 +2844,7 @@ export default function InspectionCategoryPage() {
 
                                     {/* 7. INSPECTION SCORING - Auto-calculated card */}
                                     <div>
-                                        <label className="block text-[10px] font-extrabold text-slate-400 uppercase mb-2 tracking-wider font-lexend">Inspection Scoring</label>
+                                        <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Inspection Scoring</label>
                                         <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm font-lexend">
                                             {/* Row 1: All Sample and Pts Lost (Raw) */}
                                             <div className="grid grid-cols-2 gap-4 mb-3">
@@ -2935,7 +2916,7 @@ export default function InspectionCategoryPage() {
                                     {/* STANDARD & INSPECTION PROTOCOL - visible when scrolled to bottom */}
                                     <div className="space-y-3 pt-2 pb-2">
                                         <div>
-                                            <label className="block text-[10px] font-extrabold text-slate-400 uppercase mb-2 tracking-wider font-lexend">Standard ✅</label>
+                                            <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Standard ✅</label>
                                             <button
                                                 type="button"
                                                 onClick={() => setIsStandardModalOpen(true)}
@@ -2945,7 +2926,7 @@ export default function InspectionCategoryPage() {
                                             </button>
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] font-extrabold text-slate-400 uppercase mb-2 tracking-wider font-lexend">Protocols</label>
+                                            <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Protocols</label>
                                             <button
                                                 type="button"
                                                 onClick={() => setIsInspectionProtocolModalOpen(true)}
@@ -3010,6 +2991,7 @@ export default function InspectionCategoryPage() {
                                 </div>
                                 );
                             })()}
+                        </div>
                         </div>
                         )}
 
@@ -3125,18 +3107,18 @@ export default function InspectionCategoryPage() {
             {/* How to Inspect Popup */}
             {/* ====== Standard Modal ====== */}
             {isStandardModalOpen && (
-                <div className="fixed inset-0 bg-black/70 z-[1200] flex items-center justify-center p-4">
-                    <div className="absolute inset-0" onClick={() => setIsStandardModalOpen(false)} />
-                    <Card className="relative w-full max-w-2xl bg-white rounded-3xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.4)] flex flex-col max-h-[80vh]">
-                        <div className="p-5 border-b flex items-center justify-between bg-white sticky top-0 z-10">
-                            <h3 className="text-base font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
-                                STANDARD <span>✅</span>
-                            </h3>
-                            <button onClick={() => setIsStandardModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
-                                <X className="w-5 h-5" />
+                <div className="fixed inset-0 bg-slate-100 z-[1200]">
+                    <Card className="relative w-full h-full max-w-none bg-white rounded-none border-0 shadow-none overflow-hidden flex flex-col animate-in slide-in-from-right duration-300">
+                        <div className="px-4 py-4 flex items-center gap-3 bg-gradient-to-r from-[#0E7490] to-[#006795] shadow-md shrink-0 sticky top-0 z-10">
+                            <button onClick={() => setIsStandardModalOpen(false)} className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white shrink-0 transition-colors">
+                                <ArrowLeft className="w-5 h-5" />
                             </button>
+                            <h3 className="text-base font-black text-white uppercase tracking-tight flex items-center gap-2 flex-1 min-w-0">
+                                Standard <span>✅</span>
+                            </h3>
                         </div>
-                        <div className="p-6 md:p-8 overflow-y-auto space-y-4 custom-scrollbar flex-1">
+                        <div className="h-1 shrink-0 bg-gradient-to-r from-[#F84B5F] via-[#00C6D7] to-[#006795]" />
+                        <div className="p-6 md:p-8 overflow-y-auto space-y-4 custom-scrollbar flex-1 max-w-2xl mx-auto w-full">
                             {selectedDeficiency?.criteria ? (
                                 <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5">
                                     {selectedDeficiency.criteria.split('\n').map((line: string, i: number) => {
@@ -3160,18 +3142,18 @@ export default function InspectionCategoryPage() {
 
             {/* ====== Inspection Protocol (International) Modal ====== */}
             {isInspectionProtocolModalOpen && (
-                <div className="fixed inset-0 bg-black/70 z-[1200] flex items-center justify-center p-4">
-                    <div className="absolute inset-0" onClick={() => setIsInspectionProtocolModalOpen(false)} />
-                    <Card className="relative w-full max-w-2xl bg-white rounded-3xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.4)] flex flex-col max-h-[80vh]">
-                        <div className="p-5 border-b flex items-center justify-between bg-white sticky top-0 z-10">
-                            <h3 className="text-base font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
-                                INSPECTION PROTOCOL <span>✅</span>
-                            </h3>
-                            <button onClick={() => setIsInspectionProtocolModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
-                                <X className="w-5 h-5" />
+                <div className="fixed inset-0 bg-slate-100 z-[1200]">
+                    <Card className="relative w-full h-full max-w-none bg-white rounded-none border-0 shadow-none overflow-hidden flex flex-col animate-in slide-in-from-right duration-300">
+                        <div className="px-4 py-4 flex items-center gap-3 bg-gradient-to-r from-[#0E7490] to-[#006795] shadow-md shrink-0 sticky top-0 z-10">
+                            <button onClick={() => setIsInspectionProtocolModalOpen(false)} className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white shrink-0 transition-colors">
+                                <ArrowLeft className="w-5 h-5" />
                             </button>
+                            <h3 className="text-base font-black text-white uppercase tracking-tight flex items-center gap-2 flex-1 min-w-0">
+                                Inspection Protocol <span>✅</span>
+                            </h3>
                         </div>
-                        <div className="p-6 md:p-8 overflow-y-auto space-y-3 custom-scrollbar flex-1">
+                        <div className="h-1 shrink-0 bg-gradient-to-r from-[#F84B5F] via-[#00C6D7] to-[#006795]" />
+                        <div className="p-6 md:p-8 overflow-y-auto space-y-3 custom-scrollbar flex-1 max-w-2xl mx-auto w-full">
                             {selectedDeficiency ? (() => {
                                 const protocolText = lookupCodeReference(currentSection, currentModalItem || '', selectedDeficiency.selected)
                                     || selectedDeficiency.codeAndCompliance
@@ -3205,16 +3187,16 @@ export default function InspectionCategoryPage() {
             )}
 
             {isHowToInspectOpen && (
-                <div className="fixed inset-0 bg-black/70 z-[1100] flex items-center justify-center p-4">
-                    <div className="absolute inset-0" onClick={() => setIsHowToInspectOpen(false)} />
-                    <Card className="relative w-full max-w-2xl bg-white rounded-3xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.4)] flex flex-col max-h-[75vh]">
-                        <div className="p-5 border-b flex items-center justify-between bg-white sticky top-0 z-10">
-                            <h3 className="text-base font-black text-gray-900 uppercase tracking-tight">How To Inspect IRU, BRU, Local</h3>
-                            <button onClick={() => setIsHowToInspectOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
-                                <X className="w-5 h-5" />
+                <div className="fixed inset-0 bg-slate-100 z-[1100]">
+                    <Card className="relative w-full h-full max-w-none bg-white rounded-none border-0 shadow-none overflow-hidden flex flex-col animate-in slide-in-from-right duration-300">
+                        <div className="px-4 py-4 flex items-center gap-3 bg-gradient-to-r from-[#0E7490] to-[#006795] shadow-md shrink-0 sticky top-0 z-10">
+                            <button onClick={() => setIsHowToInspectOpen(false)} className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white shrink-0 transition-colors">
+                                <ArrowLeft className="w-5 h-5" />
                             </button>
+                            <h3 className="text-base font-black text-white uppercase tracking-tight flex-1 min-w-0 truncate">How To Inspect IRU, BRU, Local</h3>
                         </div>
-                        <div className="p-6 md:p-8 overflow-y-auto space-y-2 custom-scrollbar">
+                        <div className="h-1 shrink-0 bg-gradient-to-r from-[#F84B5F] via-[#00C6D7] to-[#006795]" />
+                        <div className="p-6 md:p-8 overflow-y-auto space-y-2 custom-scrollbar flex-1 max-w-2xl mx-auto w-full">
                             {(() => {
                                 const guideText = selectedDeficiency
                                     ? lookupCodeReference(currentSection, currentModalItem || '', selectedDeficiency.selected)

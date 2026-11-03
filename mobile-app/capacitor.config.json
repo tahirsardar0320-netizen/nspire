@@ -15,7 +15,8 @@
     "limitsNavigationsToAppBoundDomains": true
   },
   "android": {
-    "allowMixedContent": false
+    "allowMixedContent": false,
+    "zoomEnabled": true
   },
   "plugins": {
     "SplashScreen": {
