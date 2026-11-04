@@ -50,7 +50,8 @@ jobs:
           ANDROID_VERSION_CODE: ${{ steps.version.outputs.code }}
           # Was pinned to "2.4", so every build looked identical on the device
           # and nobody — us or the client — could tell which one they had.
-          ANDROID_VERSION_NAME: "3.0"
+          # 3.1 = pinch-to-zoom enabled in the WebView (zoomEnabled).
+          ANDROID_VERSION_NAME: "3.1"
         run: |
           echo "Building versionCode=$ANDROID_VERSION_CODE"
           ./gradlew bundleRelease --no-daemon

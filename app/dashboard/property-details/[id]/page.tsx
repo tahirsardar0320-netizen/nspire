@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { propertiesAPI, authAPI, inspectionsAPI } from "@/lib/api"
 import { toast } from "react-toastify"
-import { ChevronLeft, CheckCircle2, Clock, X, ChevronRight, Pencil, Check, RefreshCw } from "lucide-react"
+import { ChevronLeft, CheckCircle2, Clock, X, ChevronRight, Pencil, Check, RefreshCw, Play, Eye, ChevronDown, FileText } from "lucide-react"
 import { generateRandomUnitSample, getUnitsToInspect, getSamplingExplanation } from "@/lib/unitSamplingService"
 import { fetchPropertyProgressMap, recordBelongsToBuilding } from "@/lib/inspectionProgress"
 import { safeSetItem } from "@/lib/safeStorage"
@@ -127,6 +127,9 @@ export default function PropertyDetailsPage() {
     const [unitPopupOpen, setUnitPopupOpen] = useState(false)
     const [selectedBuilding, setSelectedBuilding] = useState<{ buildingId: string; totalUnits: number; unitsForInspection: number } | null>(null)
     const [completedUnitsMap, setCompletedUnitsMap] = useState<Record<string, string[]>>({})
+    // Which buildings have their unit table open. A one-building property shows
+    // it immediately; bigger properties start folded so the page stays short.
+    const [openUnitTables, setOpenUnitTables] = useState<Record<string, boolean>>({})
 
 
     // CRITICAL: Clear stale inspection data if navigating to a different property
@@ -541,7 +544,22 @@ export default function PropertyDetailsPage() {
         // on the device and has no server id yet, so property._id is undefined
         // and the route became .../inspection-category/undefined — a property
         // that cannot be found, so the screen simply never moved on.
-        router.push(`/dashboard/inspection-category/${propId}?building=${buildingId}&unit=${encodeURIComponent(unitName)}&units=1`)
+        const b = buildings.find(x => x.buildingId === buildingId)
+        router.push(`/dashboard/inspection-category/${propId}?building=${buildingId}&unit=${encodeURIComponent(unitName)}&totalUnits=${b?.unitsForInspection || 1}&coverage=${coverage}`)
+    }
+
+    // Opening a finished unit to look at it is not a re-inspection — no
+    // "do you want to re-inspect?" gate, just the unit page with its saved answers.
+    const handleViewUnitInspection = (buildingId: string, unitName: string) => {
+        const propId = property._id || id
+        safeSetItem('currentInspectionUnit', JSON.stringify({
+            propertyId: propId,
+            buildingId,
+            unitName,
+            propertyDetailsUrl: window.location.href
+        }))
+        const b = buildings.find(x => x.buildingId === buildingId)
+        router.push(`/dashboard/inspection-category/${propId}?building=${buildingId}&unit=${encodeURIComponent(unitName)}&totalUnits=${b?.unitsForInspection || 1}&coverage=${coverage}`)
     }
 
     const getCompletedCount = (buildingId: string) => {
@@ -1023,7 +1041,9 @@ export default function PropertyDetailsPage() {
                 <div className="space-y-4">
                     <div className="flex items-center justify-between px-1">
                         <h2 className="text-lg font-bold text-slate-900">Building Breakdown</h2>
-                        <span className="text-xs font-bold text-slate-400">Total units required: {totalInspectionUnits}</span>
+                        <span className="px-3.5 py-1.5 rounded-full bg-sky-100 text-[#0E7490] text-xs font-bold">
+                            {buildings.reduce((sum, b) => sum + b.unitsForInspection, 0)} / {totalInspectionUnits} units assigned
+                        </span>
                     </div>
 
                     {/* Edit Column Header Modal */}
@@ -1136,7 +1156,7 @@ export default function PropertyDetailsPage() {
                                             <td className="py-5 px-6">
                                                 <Button
                                                     onClick={() => handleBuildingClick(building)}
-                                                    className={`w-full font-bold py-2 rounded-xl text-xs shadow-sm transition-all border-0 ${
+                                                    className={`w-full font-bold h-9 rounded-full text-xs shadow-sm transition-all border-0 ${
                                                         allDone
                                                             ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/10'
                                                             : completed > 0
@@ -1234,7 +1254,7 @@ export default function PropertyDetailsPage() {
                                 </div>
                                 <Button
                                     onClick={() => handleBuildingClick(building)}
-                                    className={`w-full font-bold py-2.5 rounded-xl text-xs shadow-sm transition-all border-0 ${
+                                    className={`w-full font-bold h-9 rounded-full text-xs shadow-sm transition-all border-0 ${
                                         allDone
                                             ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/10'
                                             : completed > 0
@@ -1249,13 +1269,125 @@ export default function PropertyDetailsPage() {
                     })}
                 </div>
 
+                {/* ——— Per-building unit tables: status and progress visible right here ——— */}
+                <div className="space-y-4">
+                    {buildings.map((building) => {
+                        const completed = getCompletedCount(building.buildingId)
+                        const pct = building.unitsForInspection > 0 ? Math.round((completed / building.unitsForInspection) * 100) : 0
+                        const unitNames = generateUnitNames(building.buildingId, building.unitsForInspection)
+                        const doneList = completedUnitsMap[building.buildingId] || []
+                        const isOpen = buildings.length === 1 || !!openUnitTables[building.buildingId]
+                        return (
+                            <div key={`units-${building.buildingId}`} className="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden">
+                                {/* Big teal stats, like the reference */}
+                                <div className="grid grid-cols-3 divide-x divide-slate-100 text-center py-5 border-b border-slate-100">
+                                    <div>
+                                        <p className="text-2xl font-black text-[#0E7490]">{getBuildingDisplayName(building.buildingId)}</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Building</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-2xl font-black text-[#0E7490]">{building.totalUnits}</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Total Units</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-2xl font-black text-[#0E7490]">{building.unitsForInspection}</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">For Inspection</p>
+                                    </div>
+                                </div>
+
+                                {/* Inspection Progress — the % lives out here, no popup needed */}
+                                <div className="px-5 py-4 border-b border-slate-100">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-sm font-extrabold text-slate-900">Inspection Progress</span>
+                                        <span className="text-sm font-extrabold text-[#0E7490]">{completed}/{building.unitsForInspection} Completed</span>
+                                    </div>
+                                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                        <div className="h-full bg-emerald-500 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+                                    </div>
+                                </div>
+
+                                {/* Units for Inspection */}
+                                <div className="px-4 sm:px-5 py-4">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h3 className="text-base font-extrabold text-slate-900">Units for Inspection</h3>
+                                        {buildings.length > 1 && (
+                                            <button
+                                                onClick={() => setOpenUnitTables(prev => ({ ...prev, [building.buildingId]: !prev[building.buildingId] }))}
+                                                className="inline-flex items-center gap-1 h-8 px-4 rounded-full bg-sky-50 text-[#0E7490] text-xs font-bold hover:bg-sky-100 transition-colors"
+                                            >
+                                                {isOpen ? 'Hide Units' : 'View Units'}
+                                                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                                            </button>
+                                        )}
+                                    </div>
+                                    {isOpen && (
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full">
+                                                <thead>
+                                                    <tr className="bg-sky-50/70">
+                                                        <th className="text-left py-2.5 px-3 text-[10px] font-black text-[#0E7490] uppercase tracking-widest rounded-l-lg w-10">#</th>
+                                                        <th className="text-left py-2.5 px-3 text-[10px] font-black text-[#0E7490] uppercase tracking-widest">Unit Name</th>
+                                                        <th className="text-center py-2.5 px-3 text-[10px] font-black text-[#0E7490] uppercase tracking-widest">Status</th>
+                                                        <th className="text-right py-2.5 px-3 text-[10px] font-black text-[#0E7490] uppercase tracking-widest rounded-r-lg">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-slate-50">
+                                                    {unitNames.map((unitName, idx) => {
+                                                        const done = doneList.includes(unitName)
+                                                        return (
+                                                            <tr key={unitName} className={done ? 'bg-emerald-50/40' : ''}>
+                                                                <td className="py-3 px-3 text-sm font-bold text-slate-400">{idx + 1}</td>
+                                                                <td className="py-3 px-3">
+                                                                    <span className={`inline-flex items-center gap-1.5 text-sm font-extrabold ${done ? 'text-emerald-600' : 'text-slate-900'}`}>
+                                                                        {done && <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />}
+                                                                        {unitName}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="py-3 px-3 text-center">
+                                                                    {done ? (
+                                                                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Done</span>
+                                                                    ) : (
+                                                                        <span className="inline-flex px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-widest">Pending</span>
+                                                                    )}
+                                                                </td>
+                                                                <td className="py-3 px-3 text-right">
+                                                                    {done ? (
+                                                                        <button
+                                                                            onClick={() => handleViewUnitInspection(building.buildingId, unitName)}
+                                                                            className="inline-flex items-center gap-1.5 h-8 px-4 rounded-full border-2 border-emerald-500 text-emerald-600 bg-white text-xs font-bold hover:bg-emerald-50 transition-colors"
+                                                                        >
+                                                                            <Eye className="w-3.5 h-3.5" /> View
+                                                                        </button>
+                                                                    ) : (
+                                                                        <button
+                                                                            onClick={() => handleStartUnitInspection(building.buildingId, unitName)}
+                                                                            className="inline-flex items-center gap-1.5 h-8 px-4 rounded-full bg-[#0E7490] text-white text-xs font-bold hover:bg-[#0c617a] shadow-sm transition-colors"
+                                                                        >
+                                                                            <Play className="w-3.5 h-3.5" /> Start
+                                                                        </button>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        )
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+
                 {/* Bottom Actions */}
                 <div className="pt-4 flex justify-center">
                     <Button
                         onClick={handleExportInProgress}
                         disabled={isExporting}
-                        className="w-full md:w-auto min-w-[220px] bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 text-white font-bold py-3 px-8 rounded-xl shadow-md shadow-emerald-600/10 transition-all duration-200 border-0"
+                        className="w-full md:w-auto min-w-[220px] bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 text-white font-bold h-12 px-8 rounded-xl shadow-md shadow-emerald-600/10 transition-all duration-200 border-0"
                     >
+                        <FileText className="w-4 h-4 mr-2" />
                         {isExporting ? 'Preparing Report...' : 'Export In Progress'}
                     </Button>
                 </div>

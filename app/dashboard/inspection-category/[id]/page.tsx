@@ -166,11 +166,13 @@ export default function InspectionCategoryPage() {
     // 'inside' | 'unit' = that section as its own full page. State drives the
     // view (instant, immune to a slow route payload); the URL mirrors it so
     // the hardware/browser back button walks page → categories naturally.
+    // A ?unit= link (the per-unit Start/View buttons on property-details) means
+    // the inspector asked for that unit's page, not the categories screen.
     const [sectionView, setSectionView] = useState<'' | 'outside' | 'inside' | 'unit'>(
-        () => (qp('section') || '') as '' | 'outside' | 'inside' | 'unit'
+        () => (qp('section') || (qp('unit') ? 'unit' : '')) as '' | 'outside' | 'inside' | 'unit'
     )
     useEffect(() => {
-        const fromUrl = (searchParams?.get('section') || '') as '' | 'outside' | 'inside' | 'unit'
+        const fromUrl = (searchParams?.get('section') || (searchParams?.get('unit') ? 'unit' : '')) as '' | 'outside' | 'inside' | 'unit'
         setSectionView(fromUrl)
     }, [searchParams])
     const gotoSection = (sec: '' | 'outside' | 'inside' | 'unit') => {
@@ -2604,24 +2606,24 @@ export default function InspectionCategoryPage() {
                         <div className="h-1 shrink-0 bg-gradient-to-r from-[#F84B5F] via-[#00C6D7] to-[#006795]" />
 
                         {/* Body */}
-                        <div className="p-5 space-y-4 flex-1 overflow-y-auto max-w-2xl mx-auto w-full">
+                        <div className="p-5 space-y-7 flex-1 overflow-y-auto max-w-2xl mx-auto w-full">
                             {/* Note text area */}
                             <div>
-                                <label className="block text-xs font-extrabold text-[#C81E3C] uppercase tracking-widest mb-1.5">Work Order</label>
+                                <label className="block text-base font-black text-slate-900 uppercase tracking-wide mb-3">Note</label>
                                 <textarea
                                     value={generalNote}
                                     onChange={(e) => setGeneralNote(e.target.value)}
-                                    placeholder="Enter your general comment here..."
-                                    rows={4}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#006795]/40 focus:border-[#006795] resize-none transition-all"
+                                    placeholder="Write your observation..."
+                                    rows={5}
+                                    className="w-full px-5 py-4 border-2 border-slate-700/70 rounded-2xl text-base text-gray-800 focus:outline-none focus:border-[#006795] resize-none transition-all"
                                 />
                             </div>
 
                             {/* Image upload */}
                             <div>
-                                <label className="block text-xs font-extrabold text-[#C81E3C] uppercase tracking-widest mb-1.5">Photo</label>
+                                <label className="block text-base font-black text-slate-900 uppercase tracking-wide mb-5">Pic</label>
                                 {generalImage ? (
-                                    <div className="relative rounded-xl overflow-hidden border border-gray-200">
+                                    <div className="relative rounded-2xl overflow-hidden border border-gray-200">
                                         <img src={generalImage} alt="General comment" loading="lazy" decoding="async" className="w-full h-40 object-cover" />
                                         <button
                                             onClick={() => setGeneralImage(null)}
@@ -2631,28 +2633,32 @@ export default function InspectionCategoryPage() {
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="flex items-start justify-evenly gap-4">
                                         {/* Take Photo */}
                                         <button
                                             onClick={() => pickGeneralPhoto('camera')}
                                             disabled={isUploadingGeneralImage}
-                                            className="flex flex-col items-center justify-center gap-2 py-6 border-2 border-dashed border-[#006795]/40 rounded-xl text-[#006795] bg-[#F1F7FE] hover:bg-[#e1eef8] hover:border-[#006795] transition-all cursor-pointer"
+                                            className="flex flex-col items-center gap-4 group"
                                         >
-                                            {isUploadingGeneralImage ? (
-                                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#006795]" />
-                                            ) : (
-                                                <Camera className="w-6 h-6" />
-                                            )}
-                                            <span className="text-[11px] font-bold">Take Photo</span>
+                                            <span className="w-28 h-28 rounded-full bg-sky-100 flex items-center justify-center group-hover:bg-sky-200 transition-colors">
+                                                {isUploadingGeneralImage ? (
+                                                    <span className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0E7490]" />
+                                                ) : (
+                                                    <Camera className="w-10 h-10 text-[#0E7490]" />
+                                                )}
+                                            </span>
+                                            <span className="text-sm font-extrabold text-slate-900">Take Photo</span>
                                         </button>
                                         {/* Upload from Gallery */}
                                         <button
                                             onClick={() => pickGeneralPhoto('gallery')}
                                             disabled={isUploadingGeneralImage}
-                                            className="flex flex-col items-center justify-center gap-2 py-6 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 bg-gray-50 hover:bg-gray-100 hover:border-gray-400 transition-all cursor-pointer"
+                                            className="flex flex-col items-center gap-4 group"
                                         >
-                                            <ImageIcon className="w-6 h-6" />
-                                            <span className="text-[11px] font-bold">Upload Photo</span>
+                                            <span className="w-28 h-28 rounded-full bg-sky-100 flex items-center justify-center group-hover:bg-sky-200 transition-colors">
+                                                <ImageIcon className="w-10 h-10 text-[#0E7490]" />
+                                            </span>
+                                            <span className="text-sm font-extrabold text-slate-900">Choose from Gallery</span>
                                         </button>
                                     </div>
                                 )}
@@ -2677,18 +2683,18 @@ export default function InspectionCategoryPage() {
                         </div>
 
                         {/* Footer */}
-                        <div className="flex gap-3 p-5 border-t bg-gray-50">
+                        <div className="flex gap-4 p-5 border-t border-slate-100 bg-white shrink-0">
                             <button
                                 onClick={handleGeneralModalClose}
-                                className="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors"
+                                className="flex-1 h-14 border-2 border-slate-800 bg-white rounded-full text-sm font-black uppercase tracking-widest text-slate-900 hover:bg-slate-50 transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleSaveGeneralComment}
-                                className="flex-1 px-4 py-3 bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white rounded-xl text-sm font-bold transition-colors"
+                                className="flex-1 h-14 bg-[#0E7490] hover:bg-[#0c617a] text-white rounded-full text-sm font-black uppercase tracking-widest shadow-lg shadow-[#0E7490]/20 transition-colors"
                             >
-                                Save Comment
+                                Proceed
                             </button>
                         </div>
                     </div>
