@@ -2148,9 +2148,11 @@ export default function InspectionCategoryPage() {
                         </div>
                     </div>
                 </div>
-                <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                        <p className="text-base font-bold text-gradient uppercase tracking-tight">{columnHeaderName}: {buildingName}</p>
+                <div className="mb-5 space-y-3">
+                    <div className="flex items-center justify-center gap-2">
+                        <p className="text-base font-black text-slate-900 uppercase tracking-tight text-center">
+                            {columnHeaderName}: <span className="text-[#0E7490]">{buildingName}</span>
+                        </p>
                         <button
                             onClick={openBuildingEditModal}
                             className="p-1.5 rounded-full hover:bg-[#006795]/10 text-[#006795] transition-colors"
@@ -2160,10 +2162,11 @@ export default function InspectionCategoryPage() {
                         </button>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3">
+                    {/* Two equal buttons, centered — not two sizes drifting apart */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto w-full">
                         <Button
                             onClick={() => router.push(`/dashboard/inspection/summary?propertyId=${property?._id || id}`)}
-                            className="bg-[#F84B5F] hover:bg-[#e03a4e] text-white font-black px-4 sm:px-6 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center gap-2"
+                            className="w-full h-12 bg-[#F84B5F] hover:bg-[#e03a4e] text-white font-black rounded-xl shadow-md uppercase tracking-widest text-[11px] flex items-center justify-center gap-2"
                         >
                             <Mail className="w-4 h-4" />
                             View Report on Email
@@ -2171,14 +2174,13 @@ export default function InspectionCategoryPage() {
                         <Button
                             onClick={handleOpenReportPreview}
                             disabled={loadingReportPreview}
-                            className="bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white font-black px-4 sm:px-6 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center gap-2"
+                            className="w-full h-12 bg-[#006795] hover:bg-[#005578] text-white font-black rounded-xl shadow-md uppercase tracking-widest text-[11px] flex items-center justify-center gap-2"
                         >
                             <FileText className="w-4 h-4" />
                             {loadingReportPreview ? 'Loading...' : 'View Summary'}
                         </Button>
                     </div>
                 </div>
-
 
 
                 {/* Edit Building Name Modal */}
