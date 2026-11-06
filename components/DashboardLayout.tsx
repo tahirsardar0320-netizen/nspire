@@ -21,6 +21,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       (document.body.style as any).zoom = ''
       localStorage.removeItem('app_zoom_level')
     } catch { /* nothing saved */ }
+    // The portal runs a notch more compact than the marketing site — every
+    // rem-based size steps down together, which is what keeps proportions
+    // matching the reference app. Tap targets are px-based and keep 44px.
+    document.documentElement.style.fontSize = '14px'
+    return () => { document.documentElement.style.fontSize = '' }
   }, [])
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)

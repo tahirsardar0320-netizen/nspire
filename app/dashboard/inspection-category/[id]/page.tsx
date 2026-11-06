@@ -2126,61 +2126,34 @@ export default function InspectionCategoryPage() {
     return (
         <PortalLayout>
             <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto font-sans overflow-x-hidden">
-                <div className="flex flex-wrap items-center justify-between gap-y-2 mb-8">
-                    <button onClick={() => router.back()} className="p-2.5 hover:bg-red-50 rounded-full transition-colors">
-                        <ChevronLeft className="w-8 h-8 text-red-600" />
-                    </button>
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                        {!isOnline ? (
-                            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200 shadow-sm animate-pulse">
-                                <span className="w-2 h-2 rounded-full bg-amber-600"></span>
-                                Offline {offlineChangesCount > 0 && `(${offlineChangesCount} local)`}
-                            </span>
-                        ) : (
-                            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-sm">
-                                <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
-                                Connected
-                            </span>
-                        )}
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold text-gray-900">{user?.fullName || "Guest User"}</span>
-                            <div className="w-3 h-1.5 border-2 border-gray-400 rotate-45 border-t-0 border-l-0 ml-1" />
+                {/* The page chrome belongs to the categories screen only — a
+                    section open means its own clean page, nothing stacked above. */}
+                {sectionView === '' && (
+                    <>
+                        <div className="flex items-center justify-between gap-2 mb-4">
+                            <button onClick={() => router.back()} className="w-10 h-10 rounded-full hover:bg-slate-200/60 flex items-center justify-center transition-colors shrink-0">
+                                <ArrowLeft className="w-5 h-5 text-slate-900" />
+                            </button>
+                            <h1 className="text-lg font-black text-slate-900 tracking-tight text-center flex-1 min-w-0 truncate">Inspection Categories</h1>
+                            <Button
+                                onClick={handleOpenReportPreview}
+                                disabled={loadingReportPreview}
+                                className="h-9 px-4 bg-[#006795] hover:bg-[#005578] text-white font-black rounded-xl uppercase tracking-wider text-[10px] flex items-center gap-1.5 shrink-0"
+                            >
+                                <FileText className="w-3.5 h-3.5" />
+                                {loadingReportPreview ? '...' : 'Summary'}
+                            </Button>
                         </div>
-                    </div>
-                </div>
-                <div className="mb-5 space-y-3">
-                    <div className="flex items-center justify-center gap-2">
-                        <p className="text-base font-black text-slate-900 uppercase tracking-tight text-center">
-                            {columnHeaderName}: <span className="text-[#0E7490]">{buildingName}</span>
-                        </p>
-                        <button
-                            onClick={openBuildingEditModal}
-                            className="p-1.5 rounded-full hover:bg-[#006795]/10 text-[#006795] transition-colors"
-                            title="Edit building name"
-                        >
-                            <Pencil className="w-4 h-4" />
-                        </button>
-                    </div>
-
-                    {/* Two equal buttons, centered — not two sizes drifting apart */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto w-full">
-                        <Button
-                            onClick={() => router.push(`/dashboard/inspection/summary?propertyId=${property?._id || id}`)}
-                            className="w-full h-12 bg-[#F84B5F] hover:bg-[#e03a4e] text-white font-black rounded-xl shadow-md uppercase tracking-widest text-[11px] flex items-center justify-center gap-2"
-                        >
-                            <Mail className="w-4 h-4" />
-                            View Report on Email
-                        </Button>
-                        <Button
-                            onClick={handleOpenReportPreview}
-                            disabled={loadingReportPreview}
-                            className="w-full h-12 bg-[#006795] hover:bg-[#005578] text-white font-black rounded-xl shadow-md uppercase tracking-widest text-[11px] flex items-center justify-center gap-2"
-                        >
-                            <FileText className="w-4 h-4" />
-                            {loadingReportPreview ? 'Loading...' : 'View Summary'}
-                        </Button>
-                    </div>
-                </div>
+                        {!isOnline && (
+                            <div className="mb-3 flex justify-center">
+                                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200 shadow-sm animate-pulse">
+                                    <span className="w-2 h-2 rounded-full bg-amber-600"></span>
+                                    Offline {offlineChangesCount > 0 && `(${offlineChangesCount} local)`}
+                                </span>
+                            </div>
+                        )}
+                    </>
+                )}
 
 
                 {/* Edit Building Name Modal */}
@@ -2271,7 +2244,14 @@ export default function InspectionCategoryPage() {
                     <>
                         <div className="rounded-2xl bg-gradient-to-r from-[#0E7490] to-[#006795] text-white px-4 py-3 mb-4 flex items-center gap-2.5 shadow-md">
                             <Building2 className="w-5 h-5 shrink-0" />
-                            <h2 className="text-base font-extrabold tracking-wide uppercase">Building No: {buildingName}</h2>
+                            <h2 className="text-base font-extrabold tracking-wide uppercase flex-1 min-w-0 truncate">Building No: {buildingName}</h2>
+                            <button
+                                onClick={openBuildingEditModal}
+                                className="p-1.5 rounded-full hover:bg-white/15 text-white/90 transition-colors shrink-0"
+                                title="Edit building name"
+                            >
+                                <Pencil className="w-4 h-4" />
+                            </button>
                         </div>
 
                         {([
@@ -2299,6 +2279,14 @@ export default function InspectionCategoryPage() {
                                 <ChevronRight className="w-5 h-5 text-slate-300 shrink-0" />
                             </button>
                         ))}
+
+                        <Button
+                            onClick={() => router.push(`/dashboard/inspection/summary?propertyId=${property?._id || id}`)}
+                            className="w-full h-11 mt-1 bg-[#F84B5F] hover:bg-[#e03a4e] text-white font-black rounded-xl shadow-md uppercase tracking-widest text-[11px] flex items-center justify-center gap-2"
+                        >
+                            <Mail className="w-4 h-4" />
+                            View Report on Email
+                        </Button>
                     </>
                 ) : (
                     <div className="-mx-4 sm:mx-0 pb-32">

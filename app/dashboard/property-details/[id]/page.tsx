@@ -946,7 +946,7 @@ export default function PropertyDetailsPage() {
                             <ChevronLeft className="w-7 h-7" />
                         </button>
                         <div>
-                            <h1 className="text-xl sm:text-2xl font-extrabold text-gradient tracking-tight">Property Details</h1>
+                            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Property Details</h1>
                             <p className="text-slate-500 text-xs sm:text-sm font-medium mt-0.5">View and customize inspection sampling for this property</p>
                         </div>
                     </div>
