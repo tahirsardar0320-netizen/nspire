@@ -500,7 +500,7 @@ export default function Dashboard() {
 
           {/* Header */}
           <div className="relative mb-5">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-gradient tracking-tight">Property Dashboard</h1>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Property <span className="text-[#0E7490]">Dashboard</span></h1>
             <p className="text-slate-500 text-sm mt-1">Manage your properties and initiate inspections</p>
           </div>
 
@@ -539,7 +539,7 @@ export default function Dashboard() {
         {/* Properties Section */}
         <Card className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 sm:p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold text-slate-800">Your Properties</h2>
+            <h2 className="flex items-center gap-2 text-lg font-black text-slate-900"><span className="w-1.5 h-5 rounded-full bg-gradient-to-b from-[#00C6D7] to-[#006795] shrink-0" />Your Properties</h2>
             <span className="text-xs font-semibold text-slate-500">
               {visibleProperties.length} {visibleProperties.length === 1 ? 'property' : 'properties'}
             </span>

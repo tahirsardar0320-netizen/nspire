@@ -234,7 +234,7 @@ export default function MyInspection() {
       <div className="min-h-screen bg-[#EBF5FB] p-4 sm:p-6 lg:p-8 font-lexend">
         {/* Header */}
         <div className="mb-5">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-gradient tracking-tight">My Inspections</h1>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">My <span className="text-[#0E7490]">Inspections</span></h1>
           <p className="text-slate-500 text-sm mt-1">Review, manage, and download your completed property inspection reports</p>
         </div>
 
@@ -244,7 +244,7 @@ export default function MyInspection() {
           {/* Card Header */}
           <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
             <div className="flex items-center gap-3">
-              <h2 className="text-lg font-extrabold text-slate-800">Your Properties</h2>
+              <h2 className="flex items-center gap-2 text-lg font-black text-slate-900"><span className="w-1.5 h-5 rounded-full bg-gradient-to-b from-[#00C6D7] to-[#006795] shrink-0" />Your Properties</h2>
               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                 {properties.length} {properties.length === 1 ? 'Property' : 'Properties'}
               </span>

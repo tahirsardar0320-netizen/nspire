@@ -2134,7 +2134,7 @@ export default function InspectionCategoryPage() {
                             <button onClick={() => router.back()} className="w-10 h-10 rounded-full hover:bg-slate-200/60 flex items-center justify-center transition-colors shrink-0">
                                 <ArrowLeft className="w-5 h-5 text-slate-900" />
                             </button>
-                            <h1 className="text-lg font-black text-slate-900 tracking-tight text-center flex-1 min-w-0 truncate">Inspection Categories</h1>
+                            <h1 className="text-lg font-black text-slate-900 tracking-tight text-center flex-1 min-w-0 truncate">Inspection <span className="text-[#0E7490]">Categories</span></h1>
                             <Button
                                 onClick={handleOpenReportPreview}
                                 disabled={loadingReportPreview}
@@ -2274,7 +2274,7 @@ export default function InspectionCategoryPage() {
                                     <div className="mt-1.5 w-full h-1 bg-slate-100 rounded-full overflow-hidden">
                                         <div className="h-full bg-gradient-to-r from-[#0E7490] to-[#00C6D7] rounded-full transition-all duration-500" style={{ width: `${prog.percentage}%` }} />
                                     </div>
-                                    <p className="mt-1 text-[11px] font-semibold text-slate-400">{prog.completed}/{total} • {prog.percentage}% Complete</p>
+                                    <p className="mt-1 text-[11px] font-bold text-[#0E7490]">{prog.completed}/{total} • {prog.percentage}% Complete</p>
                                 </div>
                                 <ChevronRight className="w-5 h-5 text-slate-300 shrink-0" />
                             </button>

@@ -317,7 +317,7 @@ export default function InspectionStatusPage() {
         {/* Header */}
         <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-black text-gradient mb-2 truncate">Inspection Status</h1>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2 truncate">Inspection <span className="text-[#0E7490]">Status</span></h1>
             <p className="text-sm sm:text-base text-gray-600">View all properties and their inspection status</p>
           </div>
           <Button

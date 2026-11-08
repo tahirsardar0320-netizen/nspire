@@ -999,7 +999,7 @@ export default function PropertyDetailsPage() {
 
                 {/* Progress Summary Section */}
                 <div className="space-y-4">
-                    <h2 className="text-lg font-bold text-slate-900 px-1">Unit Status Summary</h2>
+                    <h2 className="flex items-center gap-2 text-lg font-black text-slate-900 px-1"><span className="w-1.5 h-5 rounded-full bg-gradient-to-b from-[#00C6D7] to-[#006795] shrink-0" />Unit Status Summary</h2>
                     <Card className="bg-white border border-slate-200/80 shadow-sm p-6 sm:p-8 rounded-2xl">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
                             <div className="flex-1 space-y-3">
@@ -1040,7 +1040,7 @@ export default function PropertyDetailsPage() {
                 {/* Building Table Section */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between px-1">
-                        <h2 className="text-lg font-bold text-slate-900">Building Breakdown</h2>
+                        <h2 className="flex items-center gap-2 text-lg font-black text-slate-900"><span className="w-1.5 h-5 rounded-full bg-gradient-to-b from-[#00C6D7] to-[#006795] shrink-0" />Building Breakdown</h2>
                         <span className="px-3.5 py-1.5 rounded-full bg-sky-100 text-[#0E7490] text-xs font-bold">
                             {buildings.reduce((sum, b) => sum + b.unitsForInspection, 0)} / {totalInspectionUnits} units assigned
                         </span>
@@ -1309,7 +1309,7 @@ export default function PropertyDetailsPage() {
                                 {/* Units for Inspection */}
                                 <div className="px-4 sm:px-5 py-4">
                                     <div className="flex items-center justify-between mb-3">
-                                        <h3 className="text-base font-extrabold text-slate-900">Units for Inspection</h3>
+                                        <h3 className="flex items-center gap-2 text-base font-black text-slate-900"><span className="w-1.5 h-5 rounded-full bg-gradient-to-b from-[#00C6D7] to-[#006795] shrink-0" />Units for Inspection</h3>
                                         {buildings.length > 1 && (
                                             <button
                                                 onClick={() => setOpenUnitTables(prev => ({ ...prev, [building.buildingId]: !prev[building.buildingId] }))}
