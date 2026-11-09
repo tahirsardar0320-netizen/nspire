@@ -1150,7 +1150,7 @@ export function CoverageSelectionModal({ isOpen, onClose, onStartInspection, pro
     <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 font-lexend animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto relative shadow-xl border border-slate-200/80 animate-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-3">
-          <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">Ready for Inspection</h2>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Ready for Inspection</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 border border-transparent hover:border-slate-200 transition-all">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1160,7 +1160,7 @@ export function CoverageSelectionModal({ isOpen, onClose, onStartInspection, pro
 
         <p className="text-base font-extrabold text-slate-800 tracking-tight mb-1">{propertyName}</p>
         <p className="text-sm text-slate-500 font-medium mb-6">
-          Total Units: <span className="font-extrabold text-slate-800">{totalUnits}</span>
+          Total Units: <span className="font-black text-slate-900 text-base">{totalUnits}</span>
         </p>
 
         <p className="text-xs font-black text-[#064B5E] uppercase tracking-wider mb-3">Select Inspection Coverage</p>
@@ -1193,7 +1193,7 @@ export function CoverageSelectionModal({ isOpen, onClose, onStartInspection, pro
         </div>
 
         <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 mb-6 flex items-center justify-between shadow-sm">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Units to Inspect:</span>
+          <span className="text-sm font-black text-[#064B5E] uppercase tracking-wider">Units to Inspect:</span>
           <span className="text-xl font-extrabold text-teal-600">{calculatedUnits}</span>
         </div>
 

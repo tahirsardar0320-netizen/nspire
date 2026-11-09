@@ -2133,18 +2133,18 @@ export default function InspectionCategoryPage() {
                     section open means its own clean page, nothing stacked above. */}
                 {sectionView === '' && (
                     <>
-                        <div className="rounded-2xl bg-gradient-to-r from-[#0090C0] to-[#005E92] px-4 py-3 mb-4 flex items-center justify-between gap-3 shadow-md">
+                        <div className="rounded-2xl bg-gradient-to-r from-[#0090C0] to-[#005E92] px-4 py-4 lg:py-6 mb-4 flex items-center justify-between gap-3 shadow-md">
                             <button onClick={() => router.back()} className="w-10 h-10 rounded-full hover:bg-white/15 flex items-center justify-center text-white shrink-0 transition-colors">
                                 <ChevronLeft className="w-6 h-6" />
                             </button>
                             <div className="bg-white rounded-2xl px-5 sm:px-7 py-2.5 flex items-center gap-2.5 shadow-lg min-w-0">
                                 <ShieldCheck className="w-6 h-6 text-[#005E92] shrink-0" />
-                                <span className="text-base sm:text-lg font-black text-[#0C3A5C] tracking-wide truncate">Inspection Categories</span>
+                                <span className="text-lg sm:text-2xl font-black text-[#0C3A5C] tracking-wide uppercase truncate">Inspection Categories</span>
                             </div>
                             <Button
                                 onClick={handleOpenReportPreview}
                                 disabled={loadingReportPreview}
-                                className="h-10 px-4 bg-[#003A66] hover:bg-[#072f52] text-white font-black rounded-xl uppercase tracking-wider text-[11px] flex items-center gap-1.5 shrink-0"
+                                className="h-12 px-6 bg-[#003A66] hover:bg-[#072f52] text-white font-black rounded-xl uppercase tracking-wider text-sm flex items-center gap-2 shrink-0"
                             >
                                 <FileText className="w-4 h-4" />
                                 {loadingReportPreview ? '...' : 'Summary'}
@@ -2248,7 +2248,7 @@ export default function InspectionCategoryPage() {
                 {/* ——— NSPIRE.ai-style flow: categories list ⇄ full-page sections ——— */}
                 {sectionView === '' ? (
                     <>
-                        <div className="rounded-2xl bg-gradient-to-r from-[#0E7490] to-[#006795] text-white px-4 py-3 lg:px-6 lg:py-5 mb-4 lg:mb-6 flex items-center gap-2.5 shadow-md">
+                        <div className="rounded-2xl bg-gradient-to-r from-[#0E7490] to-[#006795] text-white px-4 py-3 lg:px-6 lg:py-3.5 mb-4 flex items-center gap-2.5 shadow-md">
                             <Building2 className="w-5 h-5 shrink-0" />
                             <div className="flex-1 min-w-0">
                                 <h2 className="text-base font-extrabold tracking-wide uppercase truncate">Building No: {buildingName}</h2>
@@ -2274,11 +2274,11 @@ export default function InspectionCategoryPage() {
                                     if (sec === 'unit' && !activeInspectionUnit) { setUnitSelectionPopupOpen(true); return }
                                     gotoSection(sec)
                                 }}
-                                className="w-full bg-white rounded-2xl shadow-sm border border-slate-100 p-3.5 mb-3 lg:p-8 lg:mb-6 flex items-center gap-3 lg:gap-5 text-left hover:shadow-md active:scale-[0.99] transition-all"
+                                className="w-full bg-white rounded-2xl shadow-sm border border-slate-100 p-3.5 mb-3 lg:p-5 lg:mb-4 flex items-center gap-3 lg:gap-5 text-left hover:shadow-md active:scale-[0.99] transition-all"
                             >
-                                <div className="w-10 h-10 lg:w-16 lg:h-16 rounded-lg lg:rounded-2xl bg-sky-50 flex items-center justify-center shrink-0">{icon}</div>
+                                <div className="w-10 h-10 lg:w-14 lg:h-14 rounded-lg lg:rounded-2xl bg-sky-50 flex items-center justify-center shrink-0">{icon}</div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm lg:text-2xl font-extrabold text-slate-900 tracking-wide">{title}</p>
+                                    <p className="text-sm lg:text-xl font-extrabold text-slate-900 tracking-wide">{title}</p>
                                     <p className="text-xs lg:text-base text-slate-500 font-medium leading-snug">{subtitle}</p>
                                     <div className="mt-1.5 lg:mt-3 w-full h-1 lg:h-2 bg-slate-100 rounded-full overflow-hidden">
                                         <div className="h-full bg-gradient-to-r from-[#0E7490] to-[#00C6D7] rounded-full transition-all duration-500" style={{ width: `${prog.percentage}%` }} />
@@ -2297,8 +2297,8 @@ export default function InspectionCategoryPage() {
                             <button onClick={() => gotoSection('')} className="p-1.5 -ml-1 rounded-full hover:bg-white/15 transition-colors">
                                 <ArrowLeft className="w-5 h-5" />
                             </button>
-                            <div className="min-w-0 flex-1">
-                                <h2 className="text-base font-extrabold leading-tight">
+                            <div className="min-w-0 flex-1 text-center">
+                                <h2 className="text-xl lg:text-2xl font-black leading-tight uppercase tracking-wide">
                                     {sectionView === 'outside' ? 'Outside' : sectionView === 'inside' ? 'Inside' : (activeInspectionUnit || 'Units')}
                                 </h2>
                                 <p className="text-xs text-white/80 font-medium">{buildingName} • {rawUnitIds.length} Units</p>
@@ -2306,7 +2306,7 @@ export default function InspectionCategoryPage() {
                             <Button
                                 onClick={handleOpenReportPreview}
                                 disabled={loadingReportPreview}
-                                className="h-10 px-4 bg-[#003A66] hover:bg-[#072f52] text-white font-black rounded-xl uppercase tracking-wider text-[11px] flex items-center gap-1.5 shrink-0"
+                                className="h-12 px-6 bg-[#003A66] hover:bg-[#072f52] text-white font-black rounded-xl uppercase tracking-wider text-sm flex items-center gap-2 shrink-0"
                             >
                                 <FileText className="w-4 h-4" />
                                 {loadingReportPreview ? '...' : 'Summary'}
@@ -2369,7 +2369,7 @@ export default function InspectionCategoryPage() {
                             const allNoOd = toggleable.length > 0 && toggleable.every(i => statuses[i] === 'No OD')
                             const allNa = toggleable.length > 0 && toggleable.every(i => statuses[i] === 'N/A')
                             return (
-                                <div className="bg-white mx-4 sm:mx-0 mt-3 rounded-xl border border-slate-200 px-3 py-2 flex items-center justify-between gap-2">
+                                <div className="bg-white mx-4 sm:mx-0 mt-3 rounded-xl border border-slate-200 px-6 py-2.5 flex items-center justify-center gap-8 sm:gap-16 lg:gap-28">
                                     <button onClick={() => selectAll(sec, 'No OD')} className="flex items-center gap-2 text-base font-black text-slate-900 uppercase tracking-wide">
                                         <span className={`w-4 h-4 rounded border-2 flex items-center justify-center ${allNoOd ? 'bg-emerald-600 border-emerald-600' : 'border-slate-300'}`}>
                                             {allNoOd && <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />}
@@ -2417,19 +2417,19 @@ export default function InspectionCategoryPage() {
                                                 <div className="grid grid-cols-3 gap-3">
                                                     <button
                                                         onClick={() => handleStatusChange(sec, item, 'No OD')}
-                                                        className={`py-2.5 rounded-lg text-sm font-black border-2 transition-all active:scale-[0.98] ${statuses[item] === 'No OD' ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`}
+                                                        className={`py-2.5 rounded-lg text-base font-black border-2 transition-all active:scale-[0.98] ${statuses[item] === 'No OD' ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-slate-50 border-slate-300 text-slate-800'}`}
                                                     >
                                                         No OD
                                                     </button>
                                                     <button
                                                         onClick={() => handleStatusChange(sec, item, 'OD')}
-                                                        className={`py-2.5 rounded-lg text-sm font-black border-2 transition-all active:scale-[0.98] ${statuses[item] === 'OD' ? 'bg-red-50 border-red-500 text-red-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`}
+                                                        className={`py-2.5 rounded-lg text-base font-black border-2 transition-all active:scale-[0.98] ${statuses[item] === 'OD' ? 'bg-red-50 border-red-500 text-red-700' : 'bg-slate-50 border-slate-300 text-slate-800'}`}
                                                     >
                                                         OD
                                                     </button>
                                                     <button
                                                         onClick={() => handleStatusChange(sec, item, 'N/A')}
-                                                        className={`py-2.5 rounded-lg text-sm font-black border-2 transition-all active:scale-[0.98] ${statuses[item] === 'N/A' ? 'bg-slate-100 border-slate-400 text-slate-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`}
+                                                        className={`py-2.5 rounded-lg text-base font-black border-2 transition-all active:scale-[0.98] ${statuses[item] === 'N/A' ? 'bg-slate-100 border-slate-400 text-slate-700' : 'bg-slate-50 border-slate-300 text-slate-800'}`}
                                                     >
                                                         N/A
                                                     </button>

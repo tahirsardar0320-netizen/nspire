@@ -600,14 +600,14 @@ export default function Dashboard() {
                     </th>
                     <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[9%]">Property ID</th>
                     <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[12%]">Property Name</th>
-                    <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[5%]">Buildings</th>
-                    <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[5%]">Units</th>
-                    <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[10%]">Address</th>
+                    <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[7%]">Buildings</th>
+                    <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[6%]">Units</th>
+                    <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[9%]">Address</th>
                     <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[7%]">City</th>
                     <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[7%]">State</th>
                     <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[5%]">Zip</th>
                     <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[10%]">Progress</th>
-                    <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[20%]">Actions</th>
+                    <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[18%]">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 [&_td]:border-r [&_td]:border-slate-200/80 [&_td:last-child]:border-r-0">
@@ -696,7 +696,7 @@ export default function Dashboard() {
                           ) : (
                             <button
                               onClick={() => handleInitiate(property)}
-                              className="w-[112px] px-1 py-2 text-[15px] font-black text-white bg-teal-700 hover:bg-teal-800 rounded-lg text-center transition-colors shadow-sm shadow-teal-600/10 border-0"
+                              className="w-[112px] px-1 py-2 text-sm font-black text-white bg-teal-700 hover:bg-teal-800 rounded-lg text-center transition-colors shadow-sm shadow-teal-600/10 border-0"
                             >
                               Initiate
                             </button>
