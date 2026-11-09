@@ -1488,6 +1488,10 @@ export default function InspectionCategoryPage() {
 
     const handleProceed = async () => {
         if (proceedingRef.current) return;
+        if (!selectedDeficiency) {
+            toast.error("Please select a deficiency first");
+            return;
+        }
         proceedingRef.current = true;
         setIsAnalyzing(true);
         try {
@@ -3089,7 +3093,7 @@ export default function InspectionCategoryPage() {
                                 <Button variant="outline" onClick={handleODModalClose} className="flex-1 font-black h-14 rounded-xl border-2 bg-white hover:bg-gray-50 text-gray-500 uppercase text-[10px] tracking-widest">Cancel</Button>
                                 <Button
                                     onClick={handleProceed}
-                                    disabled={isAnalyzing}
+                                    disabled={isAnalyzing || !selectedDeficiency}
                                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black h-14 rounded-xl shadow-lg shadow-blue-100 uppercase text-[10px] tracking-widest disabled:opacity-50 disabled:cursor-not-allowed group"
                                 >
                                     {isAnalyzing ? 'Analyzing...' : 'Proceed'}
