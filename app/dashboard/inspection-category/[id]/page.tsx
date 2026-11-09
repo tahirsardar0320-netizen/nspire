@@ -2291,7 +2291,7 @@ export default function InspectionCategoryPage() {
 
                     </>
                 ) : (
-                    <div className="-mx-4 sm:mx-0 pb-32">
+                    <div className="-mx-4 sm:mx-0 pb-6">
                         {/* Section page header */}
                         <div className="bg-gradient-to-r from-[#0E7490] to-[#006795] text-white px-4 sm:px-6 py-3 sm:rounded-2xl flex items-center gap-3 shadow-md">
                             <button onClick={() => gotoSection('')} className="p-1.5 -ml-1 rounded-full hover:bg-white/15 transition-colors">
@@ -2442,14 +2442,14 @@ export default function InspectionCategoryPage() {
                         </div>
 
                         {/* Sticky Save Progress */}
-                        <div className="fixed bottom-0 left-0 right-0 z-40 px-4 pb-4 pt-2 pointer-events-none">
-                            <div className="pointer-events-auto w-full max-w-2xl mx-auto flex gap-3">
+                        <div className="px-4 mt-8 mb-6">
+                            <div className="w-full max-w-2xl mx-auto flex gap-3">
                                 <button
                                     onClick={() => {
                                         toast.success('Progress saved!', { position: 'top-right', autoClose: 1500 })
                                         void saveCurrentProgress().catch((e) => console.error('Save failed:', e))
                                     }}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full bg-gradient-to-r from-[#0E7490] to-[#006795] text-white text-sm font-extrabold shadow-xl active:scale-[0.99] transition-all"
+                                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full bg-gradient-to-r from-[#0E7490] to-[#006795] text-white text-base font-extrabold shadow-lg active:scale-[0.99] transition-all"
                                 >
                                     <CheckCircle2 className="w-4 h-4" /> Save Progress
                                 </button>
@@ -2459,7 +2459,7 @@ export default function InspectionCategoryPage() {
                                         handleOpenReportPreview()
                                     }}
                                     disabled={loadingReportPreview}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-extrabold shadow-xl active:scale-[0.99] transition-all disabled:opacity-60"
+                                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-base font-extrabold shadow-lg active:scale-[0.99] transition-all disabled:opacity-60"
                                 >
                                     <FileText className="w-4 h-4" /> {loadingReportPreview ? 'Loading...' : 'Export In Progress'}
                                 </button>
