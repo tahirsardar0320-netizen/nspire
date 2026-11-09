@@ -123,7 +123,7 @@ export default function LocationStatsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Card className="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 flex items-center justify-between">
               <div>
-                <p className="text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1">Countries Covered</p>
+                <p className="text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1">Countries Covered</p>
                 <p className="text-3xl font-extrabold text-slate-900 tracking-tight">
                   {formatNumber(stats?.totalCountries || 0)}
                 </p>
@@ -135,7 +135,7 @@ export default function LocationStatsPage() {
 
             <Card className="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 flex items-center justify-between">
               <div>
-                <p className="text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1">States/Provinces</p>
+                <p className="text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1">States/Provinces</p>
                 <p className="text-3xl font-extrabold text-slate-900 tracking-tight">
                   {formatNumber(stats?.totalStates || 0)}
                 </p>
@@ -147,7 +147,7 @@ export default function LocationStatsPage() {
 
             <Card className="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 flex items-center justify-between">
               <div>
-                <p className="text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1">Cities Registered</p>
+                <p className="text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1">Cities Registered</p>
                 <p className="text-3xl font-extrabold text-slate-900 tracking-tight">
                   {formatNumber(stats?.totalCities || 0)}
                 </p>

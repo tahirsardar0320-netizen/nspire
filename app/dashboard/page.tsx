@@ -598,16 +598,16 @@ export default function Dashboard() {
                         className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                       />
                     </th>
-                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[11%]">Property ID</th>
-                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[14%]">Property Name</th>
-                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[8%]">Buildings</th>
-                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[7%]">Units</th>
-                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[12%]">Address</th>
-                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[9%]">City</th>
-                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[10%]">State</th>
-                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[7%]">Zip</th>
-                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[9%]">Progress</th>
-                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[13%]">Actions</th>
+                    <th className="text-center py-3 px-2 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[11%]">Property ID</th>
+                    <th className="text-center py-3 px-2 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[14%]">Property Name</th>
+                    <th className="text-center py-3 px-2 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[8%]">Buildings</th>
+                    <th className="text-center py-3 px-2 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[7%]">Units</th>
+                    <th className="text-center py-3 px-2 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[12%]">Address</th>
+                    <th className="text-center py-3 px-2 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[9%]">City</th>
+                    <th className="text-center py-3 px-2 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[10%]">State</th>
+                    <th className="text-center py-3 px-2 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[7%]">Zip</th>
+                    <th className="text-center py-3 px-2 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[9%]">Progress</th>
+                    <th className="text-center py-3 px-2 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[13%]">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 [&_td]:border-r [&_td]:border-slate-200/80 [&_td:last-child]:border-r-0">

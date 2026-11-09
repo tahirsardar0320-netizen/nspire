@@ -86,7 +86,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-black text-[#0E7490] uppercase tracking-wider mb-2">Purpose of Inspection</label>
+            <label className="block text-sm font-black text-[#064B5E] uppercase tracking-wider mb-2">Purpose of Inspection</label>
             <input
               type="text"
               value={formData.purpose}
@@ -97,7 +97,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
           </div>
 
           <div>
-            <label className="block text-sm font-black text-[#0E7490] uppercase tracking-wider mb-2">HUD Pre-Negative Inspection</label>
+            <label className="block text-sm font-black text-[#064B5E] uppercase tracking-wider mb-2">HUD Pre-Negative Inspection</label>
             <input
               type="text"
               value={formData.hudFre}
@@ -108,7 +108,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
           </div>
 
           <div>
-            <label className="block text-sm font-black text-[#0E7490] uppercase tracking-wider mb-2">Management Co./Assessment</label>
+            <label className="block text-sm font-black text-[#064B5E] uppercase tracking-wider mb-2">Management Co./Assessment</label>
             <input
               type="text"
               value={formData.management}
@@ -120,7 +120,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="block text-sm font-black text-[#0E7490] uppercase tracking-wider mb-2">Insurance Co / Risk Management</label>
+              <label className="block text-sm font-black text-[#064B5E] uppercase tracking-wider mb-2">Insurance Co / Risk Management</label>
               <input
                 type="text"
                 value={formData.insurance}
@@ -130,7 +130,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
               />
             </div>
             <div>
-              <label className="block text-sm font-black text-[#0E7490] uppercase tracking-wider mb-2">Banker / Sale</label>
+              <label className="block text-sm font-black text-[#064B5E] uppercase tracking-wider mb-2">Banker / Sale</label>
               <input
                 type="text"
                 value={formData.banker}
@@ -143,7 +143,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="block text-sm font-black text-[#0E7490] uppercase tracking-wider mb-2">Number of buildings</label>
+              <label className="block text-sm font-black text-[#064B5E] uppercase tracking-wider mb-2">Number of buildings</label>
               <input
                 type="text"
                 value={formData.buildings}
@@ -153,7 +153,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
               />
             </div>
             <div>
-              <label className="block text-sm font-black text-[#0E7490] uppercase tracking-wider mb-2">Number of units</label>
+              <label className="block text-sm font-black text-[#064B5E] uppercase tracking-wider mb-2">Number of units</label>
               <input
                 type="text"
                 value={formData.units}
@@ -166,7 +166,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="block text-sm font-black text-[#0E7490] uppercase tracking-wider mb-2">State / City</label>
+              <label className="block text-sm font-black text-[#064B5E] uppercase tracking-wider mb-2">State / City</label>
               <input
                 type="text"
                 value={formData.state}
@@ -176,7 +176,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
               />
             </div>
             <div>
-              <label className="block text-sm font-black text-[#0E7490] uppercase tracking-wider mb-2">Zip / Postal Code</label>
+              <label className="block text-sm font-black text-[#064B5E] uppercase tracking-wider mb-2">Zip / Postal Code</label>
               <input
                 type="text"
                 value={formData.zipCode}
@@ -587,7 +587,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                 <div>
-                  <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">Property ID (Optional)</label>
+                  <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">Property ID (Optional)</label>
                   <input
                     type="text"
                     value={formData.propertyId}
@@ -597,7 +597,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">Address *</label>
+                  <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">Address *</label>
                   <input
                     type="text"
                     value={formData.address}
@@ -610,7 +610,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                 <div>
-                  <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">Property Name *</label>
+                  <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">Property Name *</label>
                   <input
                     type="text"
                     value={formData.propertyName}
@@ -620,7 +620,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">City *</label>
+                  <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">City *</label>
                   <input
                     type="text"
                     value={formData.city}
@@ -634,7 +634,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                 <div>
-                  <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">Number Of Buildings *</label>
+                  <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">Number Of Buildings *</label>
                   <input
                     type="text"
                     value={formData.buildings}
@@ -644,7 +644,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">State *</label>
+                  <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">State *</label>
                   <input
                     type="text"
                     value={formData.state}
@@ -658,7 +658,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                 <div>
-                  <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">Number Of Units *</label>
+                  <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">Number Of Units *</label>
                   <input
                     type="text"
                     value={formData.units}
@@ -668,7 +668,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">Zip *</label>
+                  <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">Zip *</label>
                   <input
                     type="text"
                     value={formData.zipCode}
@@ -925,10 +925,10 @@ export function BuildingDivisionModal({ isOpen, onClose, onUpdate, propertyData 
 
         {/* Property Info Header */}
         <div className="bg-slate-50 rounded-2xl p-4 mb-6 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row gap-3 sm:gap-6">
-          <p className="text-sm font-black text-[#0E7490] uppercase tracking-wider">
+          <p className="text-sm font-black text-[#064B5E] uppercase tracking-wider">
             Property ID: <span className="font-extrabold text-slate-800 normal-case ml-1">{propertyId}</span>
           </p>
-          <p className="text-sm font-black text-[#0E7490] uppercase tracking-wider">
+          <p className="text-sm font-black text-[#064B5E] uppercase tracking-wider">
             Property Name: <span className="font-extrabold text-slate-800 normal-case ml-1">{propertyName}</span>
           </p>
         </div>
@@ -939,7 +939,7 @@ export function BuildingDivisionModal({ isOpen, onClose, onUpdate, propertyData 
             <div key={index} className="border border-slate-200/85 rounded-2xl p-4 bg-slate-50/30 shadow-sm hover:border-slate-300 transition-all">
               <div className="flex items-end gap-3">
                 <div className="flex-1">
-                  <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">Building Name</label>
+                  <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">Building Name</label>
                   <input
                     type="text"
                     value={building.name}
@@ -948,7 +948,7 @@ export function BuildingDivisionModal({ isOpen, onClose, onUpdate, propertyData 
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">No. of Units</label>
+                  <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">No. of Units</label>
                   <input
                     type="number"
                     value={building.units}
@@ -1163,7 +1163,7 @@ export function CoverageSelectionModal({ isOpen, onClose, onStartInspection, pro
           Total Units: <span className="font-extrabold text-slate-800">{totalUnits}</span>
         </p>
 
-        <p className="text-xs font-black text-[#0E7490] uppercase tracking-wider mb-3">Select Inspection Coverage</p>
+        <p className="text-xs font-black text-[#064B5E] uppercase tracking-wider mb-3">Select Inspection Coverage</p>
 
         <div className="space-y-3 mb-6">
           {COVERAGE_OPTIONS.map((option) => (
@@ -1395,7 +1395,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             <div>
-              <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">Property ID</label>
+              <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">Property ID</label>
               <input
                 type="text"
                 value={formData.propertyId}
@@ -1404,7 +1404,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
               />
             </div>
             <div>
-              <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">Address</label>
+              <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">Address</label>
               <input
                 type="text"
                 value={formData.address}
@@ -1413,7 +1413,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
               />
             </div>
             <div>
-              <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">Property Name</label>
+              <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">Property Name</label>
               <input
                 type="text"
                 value={formData.propertyName}
@@ -1425,7 +1425,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div>
-              <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">Country</label>
+              <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">Country</label>
               <input
                 type="text"
                 value={formData.country}
@@ -1435,7 +1435,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
               />
             </div>
             <div>
-              <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">State (Province)</label>
+              <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">State (Province)</label>
               <input
                 type="text"
                 value={formData.state}
@@ -1445,7 +1445,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
               />
             </div>
             <div>
-              <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">City (Area)</label>
+              <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">City (Area)</label>
               <input
                 type="text"
                 value={formData.city}
@@ -1455,7 +1455,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
               />
             </div>
             <div>
-              <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">Postal Code</label>
+              <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">Postal Code</label>
               <input
                 type="text"
                 value={formData.zipCode}
@@ -1467,7 +1467,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">Number Of Buildings</label>
+              <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">Number Of Buildings</label>
               <input
                 type="text"
                 value={formData.buildings}
@@ -1477,7 +1477,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
               />
             </div>
             <div>
-              <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1.5">Number Of Units</label>
+              <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1.5">Number Of Units</label>
               <input
                 type="text"
                 value={formData.units}
@@ -1793,7 +1793,7 @@ export function SummaryModal({ isOpen, onClose, propertyData, hideFullReportButt
 
             {/* Score & Passing Status */}
             <div className="flex-shrink-0 flex flex-col items-center justify-center p-4 bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200/60 rounded-2xl shadow-sm text-center">
-              <span className="text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1">Final Score</span>
+              <span className="text-xs font-black text-[#064B5E] uppercase tracking-wider mb-1">Final Score</span>
               <span className={`text-4xl font-black ${summaryData.score >= 60 ? 'text-teal-600' : 'text-rose-600'}`}>
                 {summaryData.score}
               </span>

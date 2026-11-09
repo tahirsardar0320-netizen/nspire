@@ -135,7 +135,7 @@ export default function InspectionPage() {
           {/* Progress Bar */}
           <Card className="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-black text-[#0E7490] uppercase tracking-wider">
+              <p className="text-xs font-black text-[#064B5E] uppercase tracking-wider">
                 Progress: {completedItems} of {totalItems} items checked
               </p>
               <span className="text-base font-extrabold text-teal-600">{progressPercentage}%</span>
@@ -213,7 +213,7 @@ export default function InspectionPage() {
 
                   <div className="flex gap-3 items-start">
                     <div className="flex-1 space-y-1">
-                      <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider">
+                      <label className="block text-xs font-black text-[#064B5E] uppercase tracking-wider">
                         Add Remarks / Observations
                       </label>
                       <textarea

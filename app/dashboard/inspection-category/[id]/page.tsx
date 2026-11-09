@@ -2857,13 +2857,13 @@ export default function InspectionCategoryPage() {
                                             {/* Row 1: All Sample and Pts Lost (Raw) */}
                                             <div className="grid grid-cols-2 gap-4 mb-3">
                                                 <div>
-                                                    <p className="text-xs font-black text-[#0E7490] uppercase tracking-wide mb-1">All Sample</p>
+                                                    <p className="text-xs font-black text-[#064B5E] uppercase tracking-wide mb-1">All Sample</p>
                                                     <div className="bg-slate-50/50 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 border border-slate-100">
                                                         {scoringResult?.allSample || totalSamples}
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs font-extrabold text-[#0E7490] uppercase tracking-wide mb-1">Pts Lost (Raw)</p>
+                                                    <p className="text-xs font-extrabold text-[#064B5E] uppercase tracking-wide mb-1">Pts Lost (Raw)</p>
                                                     <div className="bg-slate-50/50 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 border border-slate-100">
                                                         {scoringResult?.ptsLostRaw?.toFixed(2) || '0.00'}
                                                     </div>
@@ -2873,13 +2873,13 @@ export default function InspectionCategoryPage() {
                                             {/* Row 2: Pts Lost and Possible Score */}
                                             <div className="grid grid-cols-2 gap-4 mb-3">
                                                 <div>
-                                                    <p className="text-xs font-extrabold text-[#0E7490] uppercase tracking-wide mb-1">Pts Lost</p>
+                                                    <p className="text-xs font-extrabold text-[#064B5E] uppercase tracking-wide mb-1">Pts Lost</p>
                                                     <div className="bg-slate-50/50 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 border border-slate-100">
                                                         {scoringResult?.ptsLost?.toFixed(2) || '0.00'}
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs font-extrabold text-[#0E7490] uppercase tracking-wide mb-1">Possible Score</p>
+                                                    <p className="text-xs font-extrabold text-[#064B5E] uppercase tracking-wide mb-1">Possible Score</p>
                                                     <div className="bg-slate-50/50 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 border border-slate-100">
                                                         {currentSection === 'outside' ? OUTSIDE_POSSIBLE_SCORE : currentSection === 'unit' ? UNIT_POSSIBLE_SCORE : INSIDE_POSSIBLE_SCORE}
                                                     </div>
@@ -2889,13 +2889,13 @@ export default function InspectionCategoryPage() {
                                             {/* Row 3: Max Pts Lost and Score */}
                                             <div className="grid grid-cols-2 gap-4 mb-3">
                                                 <div>
-                                                    <p className="text-xs font-extrabold text-[#0E7490] uppercase tracking-wide mb-1">Max Pts Lost</p>
+                                                    <p className="text-xs font-extrabold text-[#064B5E] uppercase tracking-wide mb-1">Max Pts Lost</p>
                                                     <div className="bg-slate-50/50 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 border border-slate-100">
                                                         {scoringResult?.maxPtsLost?.toFixed(2) || (currentSection === 'outside' ? '0.01' : '5.50')}
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs font-extrabold text-[#0E7490] uppercase tracking-wide mb-1">Score</p>
+                                                    <p className="text-xs font-extrabold text-[#064B5E] uppercase tracking-wide mb-1">Score</p>
                                                     <div className="bg-cyan-50/30 border border-cyan-150 rounded-xl px-3 py-2 text-sm font-extrabold text-[#0E7490]">
                                                         {scoringResult?.score?.toFixed(2) || (currentSection === 'outside' ? OUTSIDE_POSSIBLE_SCORE.toFixed(2) : currentSection === 'unit' ? UNIT_POSSIBLE_SCORE.toFixed(2) : INSIDE_POSSIBLE_SCORE.toFixed(2))}
                                                     </div>
@@ -2904,7 +2904,7 @@ export default function InspectionCategoryPage() {
 
                                             {/* Row 4: # of Deficiencies */}
                                             <div>
-                                                <p className="text-xs font-extrabold text-[#0E7490] uppercase tracking-wide mb-1"># of Deficiencies</p>
+                                                <p className="text-xs font-extrabold text-[#064B5E] uppercase tracking-wide mb-1"># of Deficiencies</p>
                                                 <div className="bg-slate-50/50 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 border border-slate-100">
                                                     {scoringResult?.deficiencies || deficiencyCount}
                                                 </div>
@@ -2963,7 +2963,7 @@ export default function InspectionCategoryPage() {
                                             <ChevronLeft className="w-5 h-5" />
                                         </button>
                                         <div>
-                                            <label className="text-xs font-black text-[#0E7490] uppercase tracking-widest">Step 3 of 3</label>
+                                            <label className="text-xs font-black text-[#064B5E] uppercase tracking-widest">Step 3 of 3</label>
                                             <h4 className="text-sm font-black text-gray-900 truncate">
                                                 {showSubcategoryPicker ? 'Select Deficiency' : selectedSubcategory ? selectedSubcategory : `Select ${selectionType === 'selected' ? 'Deficiency' : selectionType}`}
                                             </h4>
