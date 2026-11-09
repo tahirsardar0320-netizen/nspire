@@ -2443,15 +2443,27 @@ export default function InspectionCategoryPage() {
 
                         {/* Sticky Save Progress */}
                         <div className="fixed bottom-0 left-0 right-0 z-40 px-4 pb-4 pt-2 pointer-events-none">
-                            <button
-                                onClick={() => {
-                                    toast.success('Progress saved!', { position: 'top-right', autoClose: 1500 })
-                                    void saveCurrentProgress().catch((e) => console.error('Save failed:', e))
-                                }}
-                                className="pointer-events-auto w-full max-w-xl mx-auto flex items-center justify-center gap-2 py-3 rounded-full bg-gradient-to-r from-[#0E7490] to-[#006795] text-white text-sm font-extrabold shadow-xl active:scale-[0.99] transition-all"
-                            >
-                                <CheckCircle2 className="w-4 h-4" /> Save Progress
-                            </button>
+                            <div className="pointer-events-auto w-full max-w-2xl mx-auto flex gap-3">
+                                <button
+                                    onClick={() => {
+                                        toast.success('Progress saved!', { position: 'top-right', autoClose: 1500 })
+                                        void saveCurrentProgress().catch((e) => console.error('Save failed:', e))
+                                    }}
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full bg-gradient-to-r from-[#0E7490] to-[#006795] text-white text-sm font-extrabold shadow-xl active:scale-[0.99] transition-all"
+                                >
+                                    <CheckCircle2 className="w-4 h-4" /> Save Progress
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        void saveCurrentProgress().catch((e) => console.error('Save failed:', e))
+                                        handleOpenReportPreview()
+                                    }}
+                                    disabled={loadingReportPreview}
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-extrabold shadow-xl active:scale-[0.99] transition-all disabled:opacity-60"
+                                >
+                                    <FileText className="w-4 h-4" /> {loadingReportPreview ? 'Loading...' : 'Export In Progress'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
