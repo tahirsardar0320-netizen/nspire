@@ -69,7 +69,10 @@ export async function generateVectorReportPdfBlob(report: NSPIREInspectionReport
   // Every photo resolved up front, two at a time (phone-friendly).
   const images = new Map<string, Img>()
   {
-    const uris = Array.from(new Set(deficiencies.map(d => d.imageUri).filter(Boolean))) as string[]
+    const uris = Array.from(new Set([
+        ...deficiencies.map(d => d.imageUri),
+        ...(report.generalCommentEntries || []).flatMap(e => e.photos),
+    ].filter(Boolean))) as string[]
     let cursor = 0
     const worker = async () => {
       while (cursor < uris.length) {
@@ -320,14 +323,51 @@ export async function generateVectorReportPdfBlob(report: NSPIREInspectionReport
     }
   }
 
-  if (report.generalComments) {
+  const gcEntries = report.generalCommentEntries || []
+  if (report.generalComments || gcEntries.length > 0) {
     ensureRoom(60)
     y = sectionHeading(doc, 'General Comments', y)
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(8.5)
-    const lines = doc.splitTextToSize(String(report.generalComments), CONTENT_W)
-    doc.text(lines, MARGIN, y)
-    y += lines.length * 11 + 14
+    if (report.generalComments) {
+      const lines = doc.splitTextToSize(String(report.generalComments), CONTENT_W)
+      doc.text(lines, MARGIN, y)
+      y += lines.length * 11 + 8
+    }
+    for (const entry of gcEntries) {
+      ensureRoom(80)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(8.5)
+      const where = [entry.building, entry.unit !== '-' ? entry.unit : '', entry.area].filter(Boolean).join(' • ')
+      doc.text(where.toUpperCase(), MARGIN, y)
+      y += 11
+      doc.setFont('helvetica', 'normal')
+      if (entry.note) {
+        const nl = doc.splitTextToSize(String(entry.note), CONTENT_W)
+        doc.text(nl, MARGIN, y)
+        y += nl.length * 11 + 4
+      }
+      if (entry.photos.length > 0) {
+        let x = MARGIN
+        const PH = 64
+        ensureRoom(PH + 12)
+        for (const uri of entry.photos) {
+          const img = images.get(uri)
+          if (!img) continue
+          const w = Math.min(100, PH * (img.w / img.h))
+          if (x + w > MARGIN + CONTENT_W) {
+            x = MARGIN
+            y += PH + 6
+            ensureRoom(PH + 12)
+          }
+          doc.addImage(img.dataUrl, 'JPEG', x, y, w, PH)
+          x += w + 6
+        }
+        y += PH + 10
+      }
+      y += 6
+    }
+    y += 8
   }
 
   // ── Certification & footer ───────────────────────────────────────────────

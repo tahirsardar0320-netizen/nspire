@@ -189,6 +189,7 @@ export interface NSPIREInspectionReport {
 
     // Additional Information
     generalComments?: string;
+    generalCommentEntries?: { note: string; building: string; unit: string; area: string; photos: string[] }[];
     recommendations?: string[];
 
     // Certification
@@ -422,7 +423,22 @@ export const DEFAULT_PDF_OPTIONS: PDFGenerationOptions = {
 export function buildNSPIREReport(data: any, property: any): NSPIREInspectionReport {
     const now = new Date()
 
-    const deficiencies: DeficiencyEntry[] = (data.findings || data.deficiencies || []).map((finding: any, index: number) => {
+    // General Comments are notes with photos, not deficiencies — they must not
+    // appear as deficiency rows, deduct points, or inflate the counts.
+    const allFindings: any[] = (data.findings || data.deficiencies || [])
+    const genFindings = allFindings.filter((f: any) => f.nspireCode === 'GEN-NOTE')
+    const gcMap = new Map<string, { note: string; building: string; unit: string; area: string; photos: string[] }>()
+    genFindings.forEach((f: any) => {
+        const note = f.notes || f.description || ''
+        const key = `${f.building}|${f.unit}|${f.area}|${note}`
+        const entry = gcMap.get(key) || { note, building: f.building || '-', unit: f.unit || '-', area: f.area || '-', photos: [] as string[] }
+        const uri = f.imageUri || f.imageUrl || ''
+        if (uri && !entry.photos.includes(uri)) entry.photos.push(uri)
+        gcMap.set(key, entry)
+    })
+    const generalCommentEntries = Array.from(gcMap.values())
+
+    const deficiencies: DeficiencyEntry[] = allFindings.filter((f: any) => f.nspireCode !== 'GEN-NOTE').map((finding: any, index: number) => {
         const severity = mapSeverityToNSPIRE(finding.severity || finding.healthAndSafety || 'Moderate')
         return {
             id: finding.id || `DEF-${index + 1}`,
@@ -509,6 +525,7 @@ export function buildNSPIREReport(data: any, property: any): NSPIREInspectionRep
         categoryBreakdown: [],
         deficiencies,
         generalComments: data.notes || data.generalComments || '',
+        generalCommentEntries,
         recommendations: data.recommendations || [],
         certification: {
             certifiedBy: data.inspectorName || 'Inspector',
