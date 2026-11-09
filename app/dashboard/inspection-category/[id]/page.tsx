@@ -2431,7 +2431,7 @@ export default function InspectionCategoryPage() {
                         </div>
 
                         {/* Sticky Save Progress */}
-                        <div className="fixed bottom-0 left-0 right-0 z-40 px-4 pb-4 pt-8 bg-gradient-to-t from-slate-100 via-slate-100/90 to-transparent pointer-events-none">
+                        <div className="fixed bottom-0 left-0 right-0 z-40 px-4 pb-4 pt-2 pointer-events-none">
                             <button
                                 onClick={() => {
                                     toast.success('Progress saved!', { position: 'top-right', autoClose: 1500 })
