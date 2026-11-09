@@ -944,7 +944,7 @@ export function BuildingDivisionModal({ isOpen, onClose, onUpdate, propertyData 
                     type="text"
                     value={building.name}
                     onChange={(e) => updateBuildingName(index, e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#006795]/20 focus:border-[#006795] text-sm font-medium text-slate-800 transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#006795]/20 focus:border-[#006795] text-base font-black text-slate-900 transition-all"
                   />
                 </div>
                 <div className="flex-1">
@@ -954,7 +954,7 @@ export function BuildingDivisionModal({ isOpen, onClose, onUpdate, propertyData 
                     value={building.units}
                     onChange={(e) => updateBuildingUnits(index, parseInt(e.target.value) || 0)}
                     min={0}
-                    className="w-full px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#006795]/20 focus:border-[#006795] text-sm font-medium text-slate-800 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#006795]/20 focus:border-[#006795] text-base font-black text-slate-900 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
               </div>
