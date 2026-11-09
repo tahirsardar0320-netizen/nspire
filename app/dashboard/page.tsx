@@ -499,9 +499,31 @@ export default function Dashboard() {
           <div className="absolute inset-0 bg-gradient-to-b from-[#EBF5FB]/70 via-[#EBF5FB]/85 to-[#EBF5FB] pointer-events-none" />
 
           {/* Header */}
-          <div className="relative mb-5">
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Property <span className="text-[#0E7490]">Dashboard</span></h1>
-            <p className="text-slate-500 text-sm mt-1">Manage your properties and initiate inspections</p>
+          <div className="relative mb-5 flex items-start justify-between gap-6">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Property <span className="text-[#0E7490]">Dashboard</span></h1>
+              <p className="text-slate-600 text-sm mt-1 font-semibold">Manage your properties and initiate inspections</p>
+            </div>
+            {(() => {
+              const pctOf = (p: any) => propertyProgress[p._id] ?? propertyProgress[p.propertyId] ?? 0
+              const done = properties.filter(p => pctOf(p) === 100).length
+              const inProg = properties.filter(p => { const v = pctOf(p); return v > 0 && v < 100 }).length
+              const chips = [
+                { n: properties.length, label: 'Properties' },
+                { n: inProg, label: 'In Progress' },
+                { n: done, label: 'Completed' },
+              ]
+              return (
+                <div className="hidden lg:flex gap-3 shrink-0">
+                  {chips.map(c => (
+                    <div key={c.label} className="bg-white/85 backdrop-blur rounded-2xl border-2 border-[#40D0F0]/40 shadow-sm px-6 py-3 text-center min-w-[120px]">
+                      <p className="text-3xl font-black text-[#0E7490] leading-none">{c.n}</p>
+                      <p className="mt-1.5 text-xs font-black text-slate-700 uppercase tracking-widest">{c.label}</p>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
           </div>
 
           {/* Action Buttons */}
@@ -540,7 +562,7 @@ export default function Dashboard() {
         <Card className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 sm:p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="flex items-center gap-2 text-lg font-black text-slate-900"><span className="w-1.5 h-5 rounded-full bg-gradient-to-b from-[#00C6D7] to-[#006795] shrink-0" />Your Properties</h2>
-            <span className="text-xs font-semibold text-slate-500">
+            <span className="text-base font-black text-slate-900">
               {visibleProperties.length} {visibleProperties.length === 1 ? 'property' : 'properties'}
             </span>
           </div>
