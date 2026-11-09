@@ -576,19 +576,19 @@ export default function Dashboard() {
                         className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                       />
                     </th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[11%]">Property ID</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[14%]">Property Name</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[8%]">Buildings</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[7%]">Units</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[12%]">Address</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[9%]">City</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[10%]">State</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[7%]">Zip</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[9%]">Progress</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[13%]">Actions</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[11%]">Property ID</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[14%]">Property Name</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[8%]">Buildings</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[7%]">Units</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[12%]">Address</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[9%]">City</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[10%]">State</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[7%]">Zip</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[9%]">Progress</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[13%]">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-200 [&_td]:border-r [&_td]:border-slate-200/80 [&_td:last-child]:border-r-0">
                   {visibleProperties.map((property) => {
                     const pid = property._id || property.propertyId
                     const isChecked = selectedIds.has(pid)
@@ -607,12 +607,12 @@ export default function Dashboard() {
                         />
                       </td>
                       <td className="py-4 px-3 text-center">
-                        <span className="text-sky-700 font-bold text-[10px] bg-sky-50 border border-sky-100 px-2 py-0.5 rounded truncate block mx-auto w-fit font-mono">
+                        <span className="text-sky-700 font-bold text-xs bg-sky-50 border border-sky-100 px-2 py-0.5 rounded truncate block mx-auto w-fit font-mono">
                           {property.propertyId}
                         </span>
                       </td>
                       <td className="py-4 px-3 text-center">
-                        <span className="font-bold text-slate-800 text-sm truncate block">
+                        <span className="font-extrabold text-slate-900 text-base truncate block">
                           {property.name}
                           {property.pendingSync && (
                             <span className="ml-1.5 inline-block align-middle px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200" title="Saved on this device only — will sync once you're back online">
@@ -621,10 +621,10 @@ export default function Dashboard() {
                           )}
                         </span>
                       </td>
-                      <td className="py-4 px-3 text-slate-700 font-semibold text-sm text-center">{property.buildings}</td>
-                      <td className="py-4 px-3 text-slate-700 font-semibold text-sm text-center">{property.units}</td>
-                      <td className="py-4 px-3 text-slate-500 text-xs truncate text-center font-medium">{property.address}</td>
-                      <td className="py-4 px-3 text-slate-500 text-xs truncate text-center font-medium">{property.city}</td>
+                      <td className="py-4 px-3 text-slate-900 font-extrabold text-base text-center">{property.buildings}</td>
+                      <td className="py-4 px-3 text-slate-900 font-extrabold text-base text-center">{property.units}</td>
+                      <td className="py-4 px-3 text-slate-700 text-sm truncate text-center font-semibold">{property.address}</td>
+                      <td className="py-4 px-3 text-slate-700 text-sm truncate text-center font-semibold">{property.city}</td>
                       <td className="py-4 px-3 text-center overflow-hidden">
                         {/* max-w-full gives truncate an edge to cut against —
                             without it the pill outgrows its fixed-width column
@@ -634,7 +634,7 @@ export default function Dashboard() {
                           {property.state}
                         </span>
                       </td>
-                      <td className="py-4 px-3 text-slate-500 font-mono text-xs text-center font-medium">{property.zipCode}</td>
+                      <td className="py-4 px-3 text-slate-700 font-mono text-sm text-center font-bold">{property.zipCode}</td>
                       <td className="py-4 px-3">
                         <div className="w-full bg-slate-100 rounded-full h-2 mb-1">
                           <div
@@ -642,7 +642,7 @@ export default function Dashboard() {
                             style={{ width: `${propertyProgress[pid] || 0}%` }}
                           />
                         </div>
-                        <span className="text-[10px] font-bold text-slate-500 block text-center">
+                        <span className="text-xs font-extrabold text-slate-700 block text-center">
                           {propertyProgress[pid] || 0}%
                         </span>
                       </td>
@@ -652,14 +652,14 @@ export default function Dashboard() {
                             reportEmailed[pid] ? (
                               <button
                                 onClick={() => handleViewCompleted(property)}
-                                className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
+                                className="px-4 py-2.5 text-sm font-extrabold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
                               >
                                 View Report
                               </button>
                             ) : (
                               <button
                                 onClick={() => handleViewCompleted(property)}
-                                className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
+                                className="px-4 py-2.5 text-sm font-extrabold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
                               >
                                 Completed
                               </button>
@@ -667,21 +667,21 @@ export default function Dashboard() {
                           ) : activeInspectionId === pid ? (
                             <button
                               onClick={() => handleInitiate(property)}
-                              className="px-2 py-1.5 text-[11px] font-bold text-white bg-[#006795] hover:bg-[#0a5670] rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
+                              className="px-4 py-2.5 text-sm font-extrabold text-white bg-[#006795] hover:bg-[#0a5670] rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
                             >
                               In Progress
                             </button>
                           ) : (
                             <button
                               onClick={() => handleInitiate(property)}
-                              className="px-3 py-1.5 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors shadow-sm shadow-teal-600/10 border-0"
+                              className="px-4 py-2.5 text-sm font-extrabold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors shadow-sm shadow-teal-600/10 border-0"
                             >
                               Initiate
                             </button>
                           )}
                           <button
                             onClick={() => handleRemoveProperty(property)}
-                            className="px-3 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100/50 rounded-lg transition-colors"
+                            className="px-4 py-2.5 text-sm font-extrabold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors"
                           >
                             Remove
                           </button>

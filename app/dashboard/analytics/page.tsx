@@ -131,13 +131,13 @@ export default function OthersPage() {
           <Card className="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
               <Search className="w-4 h-4 text-teal-600" />
-              <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Search Filters</h2>
+              <h2 className="text-sm font-black text-[#0E7490] uppercase tracking-wider">Search Filters</h2>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Search */}
               <div className="lg:col-span-2 space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-xs font-black text-[#0E7490] uppercase tracking-wider">
                   Search by Name or Email
                 </label>
                 <div className="relative">
@@ -154,7 +154,7 @@ export default function OthersPage() {
 
               {/* Role Filter */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Role</label>
+                <label className="text-xs font-black text-[#0E7490] uppercase tracking-wider">Role</label>
                 <select
                   value={roleFilter}
                   onChange={(e) => setRoleFilter(e.target.value)}
@@ -169,7 +169,7 @@ export default function OthersPage() {
 
               {/* Status Filter */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</label>
+                <label className="text-xs font-black text-[#0E7490] uppercase tracking-wider">Status</label>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
@@ -219,7 +219,7 @@ export default function OthersPage() {
 
                       {/* Associated Properties */}
                       <div className="pt-2">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                        <p className="text-xs font-black text-[#0E7490] uppercase tracking-wider mb-2">
                           Associated Properties ({user.properties.length})
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -261,7 +261,7 @@ export default function OthersPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
             <Card className="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Users</p>
+                <p className="text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1">Total Users</p>
                 <p className="text-3xl font-extrabold text-slate-900 tracking-tight">{users.length}</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-center text-slate-600">
@@ -270,7 +270,7 @@ export default function OthersPage() {
             </Card>
             <Card className="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Active Users</p>
+                <p className="text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1">Active Users</p>
                 <p className="text-3xl font-extrabold text-emerald-600 tracking-tight">
                   {users.filter(u => u.status === "Active").length}
                 </p>
@@ -281,7 +281,7 @@ export default function OthersPage() {
             </Card>
             <Card className="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Inactive Users</p>
+                <p className="text-xs font-black text-[#0E7490] uppercase tracking-wider mb-1">Inactive Users</p>
                 <p className="text-3xl font-extrabold text-slate-500 tracking-tight">
                   {users.filter(u => u.status === "Inactive").length}
                 </p>

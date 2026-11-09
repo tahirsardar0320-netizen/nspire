@@ -951,7 +951,7 @@ export default function PropertyDetailsPage() {
                         </div>
                     </div>
                     <div className="flex items-center gap-2 self-end sm:self-center bg-slate-50 border border-slate-100 rounded-xl px-4 py-2">
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Inspector:</span>
+                        <span className="text-sm font-black text-[#0E7490] uppercase tracking-wider">Inspector:</span>
                         <span className="text-xs font-extrabold text-slate-800">{user?.fullName || "Guest User"}</span>
                     </div>
                 </div>
@@ -960,37 +960,37 @@ export default function PropertyDetailsPage() {
                 <Card className="bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200/60 shadow-sm p-6 sm:p-8 rounded-2xl">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-6 gap-x-8">
                         <div className="space-y-1">
-                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Property ID</span>
+                            <span className="text-sm font-black text-[#0E7490] uppercase tracking-wider">Property ID</span>
                             <p className="text-sm font-extrabold text-teal-600">{property.propertyId || property._id?.slice(-8)?.toUpperCase()}</p>
                             <div className="pt-2">
-                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">State</span>
+                                <span className="text-sm font-black text-[#0E7490] uppercase tracking-wider">State</span>
                                 <p className="text-sm font-bold text-slate-700">{property.state || "-"}</p>
                             </div>
                         </div>
 
                         <div className="space-y-1">
-                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Zip Code</span>
+                            <span className="text-sm font-black text-[#0E7490] uppercase tracking-wider">Zip Code</span>
                             <p className="text-sm font-bold text-slate-700">{property.zipCode || "-"}</p>
                             <div className="pt-2">
-                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Address</span>
+                                <span className="text-sm font-black text-[#0E7490] uppercase tracking-wider">Address</span>
                                 <p className="text-sm font-bold text-slate-700 truncate" title={property.address}>{property.address || "-"}</p>
                             </div>
                         </div>
 
                         <div className="space-y-1">
-                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Buildings</span>
+                            <span className="text-sm font-black text-[#0E7490] uppercase tracking-wider">Buildings</span>
                             <p className="text-sm font-extrabold text-slate-900">{property.buildings || 1}</p>
                             <div className="pt-2">
-                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Coverage Mode</span>
+                                <span className="text-sm font-black text-[#0E7490] uppercase tracking-wider">Coverage Mode</span>
                                 <p className="text-sm font-bold text-slate-700">{getCoverageLabel()}</p>
                             </div>
                         </div>
 
                         <div className="space-y-1">
-                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Property Name</span>
+                            <span className="text-sm font-black text-[#0E7490] uppercase tracking-wider">Property Name</span>
                             <p className="text-sm font-extrabold text-slate-900 truncate" title={property.name}>{property.name || "-"}</p>
                             <div className="pt-2">
-                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">City</span>
+                                <span className="text-sm font-black text-[#0E7490] uppercase tracking-wider">City</span>
                                 <p className="text-sm font-bold text-slate-700">{property.city || "-"}</p>
                             </div>
                         </div>
@@ -1004,7 +1004,7 @@ export default function PropertyDetailsPage() {
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
                             <div className="flex-1 space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Overall Inspection Progress</span>
+                                    <span className="text-sm font-black text-[#0E7490] uppercase tracking-widest">Overall Inspection Progress</span>
                                     <span className="text-xl font-extrabold text-teal-600">{overallProgress}%</span>
                                 </div>
                                 <div className="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden border border-slate-200/50">
@@ -1014,8 +1014,8 @@ export default function PropertyDetailsPage() {
                                     />
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Not Started</span>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Completed</span>
+                                    <span className="text-xs font-black text-[#0E7490] uppercase tracking-wider">Not Started</span>
+                                    <span className="text-xs font-black text-[#0E7490] uppercase tracking-wider">Completed</span>
                                 </div>
                             </div>
                             
@@ -1024,13 +1024,13 @@ export default function PropertyDetailsPage() {
                                     <p className="text-2xl font-extrabold text-slate-950">
                                         {Object.values(completedUnitsMap).flat().length}
                                     </p>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Tasks Done</p>
+                                    <p className="text-xs font-black text-[#0E7490] uppercase tracking-widest mt-0.5">Tasks Done</p>
                                 </div>
                                 <div className="text-center px-2">
                                     <p className="text-2xl font-extrabold text-slate-950">
                                         {buildings.reduce((sum, b) => sum + (2 + b.unitsForInspection), 0)}
                                     </p>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Total Tasks</p>
+                                    <p className="text-xs font-black text-[#0E7490] uppercase tracking-widest mt-0.5">Total Tasks</p>
                                 </div>
                             </div>
                         </div>
@@ -1057,7 +1057,7 @@ export default function PropertyDetailsPage() {
                                     </button>
                                 </div>
                                 <div className="p-5">
-                                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Column Name</label>
+                                    <label className="block text-sm font-black text-[#0E7490] uppercase tracking-wider mb-2">Column Name</label>
                                     <input
                                         ref={columnHeaderInputRef}
                                         type="text"
@@ -1091,7 +1091,7 @@ export default function PropertyDetailsPage() {
                         <table className="w-full">
                             <thead className="bg-slate-50/80 border-b border-slate-150">
                                 <tr>
-                                    <th className="text-left py-4 px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                    <th className="text-left py-4 px-6 text-xs font-black text-[#0E7490] uppercase tracking-widest">
                                         <span className="inline-flex items-center gap-2">
                                             {columnHeaderName}
                                             <button
@@ -1103,9 +1103,9 @@ export default function PropertyDetailsPage() {
                                             </button>
                                         </span>
                                     </th>
-                                    <th className="text-center py-4 px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Units</th>
-                                    <th className="text-center py-4 px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Units for Inspection</th>
-                                    <th className="text-center py-4 px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Progress</th>
+                                    <th className="text-center py-4 px-6 text-xs font-black text-[#0E7490] uppercase tracking-widest">Total Units</th>
+                                    <th className="text-center py-4 px-6 text-xs font-black text-[#0E7490] uppercase tracking-widest">Units for Inspection</th>
+                                    <th className="text-center py-4 px-6 text-xs font-black text-[#0E7490] uppercase tracking-widest">Progress</th>
                                     <th className="py-4 px-6 w-56"></th>
                                 </tr>
                             </thead>
@@ -1134,15 +1134,15 @@ export default function PropertyDetailsPage() {
                                                     </div>
                                                 ) : (
                                                     <div className="flex items-center gap-1.5 group">
-                                                        <span className="text-sm text-slate-900 font-extrabold">{getBuildingDisplayName(building.buildingId)}</span>
+                                                        <span className="text-lg text-slate-900 font-black">{getBuildingDisplayName(building.buildingId)}</span>
                                                         <button onClick={() => handleStartBuildingEdit(building.buildingId)} className="p-1 rounded-lg hover:bg-teal-50 text-teal-600 transition-all">
                                                             <Pencil className="w-3 h-3" />
                                                         </button>
                                                     </div>
                                                 )}
                                             </td>
-                                            <td className="py-5 px-6 text-sm text-slate-600 text-center font-bold">{building.totalUnits}</td>
-                                            <td className="py-5 px-6 text-sm text-slate-600 text-center font-bold">{building.unitsForInspection}</td>
+                                            <td className="py-5 px-6 text-lg text-slate-900 text-center font-black">{building.totalUnits}</td>
+                                            <td className="py-5 px-6 text-lg text-slate-900 text-center font-black">{building.unitsForInspection}</td>
                                             <td className="py-5 px-6 text-center">
                                                 {completed > 0 ? (
                                                     <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border ${allDone ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
@@ -1173,8 +1173,8 @@ export default function PropertyDetailsPage() {
                             </tbody>
                             <tfoot className="bg-slate-50/60 border-t-2 border-slate-200">
                                 <tr>
-                                    <td className="py-4 px-6 text-sm font-extrabold text-slate-900">Total</td>
-                                    <td className="py-4 px-6 text-sm font-bold text-slate-700 text-center">
+                                    <td className="py-4 px-6 text-base font-black text-slate-900">Total</td>
+                                    <td className="py-4 px-6 text-lg font-black text-slate-900 text-center">
                                         {buildings.reduce((sum, b) => sum + b.totalUnits, 0)}
                                     </td>
                                     <td className="py-4 px-6 text-sm font-black text-center">
@@ -1202,7 +1202,7 @@ export default function PropertyDetailsPage() {
                         return (
                             <div key={building.buildingId} className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm space-y-4">
                                 <div className="flex justify-between items-center pb-3 border-b border-slate-100">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider inline-flex items-center gap-1">
+                                    <span className="text-xs font-black text-[#0E7490] uppercase tracking-wider inline-flex items-center gap-1">
                                         {columnHeaderName}
                                         <button onClick={() => { setTempColumnHeaderName(columnHeaderName); setEditColumnHeaderOpen(true) }} className="p-1 rounded-lg hover:bg-teal-50 text-teal-600" title="Edit column name">
                                             <Pencil className="w-3 h-3" />
@@ -1226,7 +1226,7 @@ export default function PropertyDetailsPage() {
                                         </div>
                                     ) : (
                                         <div className="flex items-center gap-1 group">
-                                            <span className="text-sm text-slate-900 font-extrabold">{getBuildingDisplayName(building.buildingId)}</span>
+                                            <span className="text-lg text-slate-900 font-black">{getBuildingDisplayName(building.buildingId)}</span>
                                             <button onClick={() => handleStartBuildingEdit(building.buildingId)} className="p-0.5 rounded hover:bg-teal-50 text-teal-600">
                                                 <Pencil className="w-3 h-3" />
                                             </button>
@@ -1283,15 +1283,15 @@ export default function PropertyDetailsPage() {
                                 <div className="grid grid-cols-3 divide-x divide-slate-100 text-center py-5 border-b border-slate-100">
                                     <div>
                                         <p className="text-2xl font-black text-[#0E7490]">{getBuildingDisplayName(building.buildingId)}</p>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Building</p>
+                                        <p className="text-xs font-black text-[#0E7490] uppercase tracking-widest mt-1">Building</p>
                                     </div>
                                     <div>
                                         <p className="text-2xl font-black text-[#0E7490]">{building.totalUnits}</p>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Total Units</p>
+                                        <p className="text-xs font-black text-[#0E7490] uppercase tracking-widest mt-1">Total Units</p>
                                     </div>
                                     <div>
                                         <p className="text-2xl font-black text-[#0E7490]">{building.unitsForInspection}</p>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">For Inspection</p>
+                                        <p className="text-xs font-black text-[#0E7490] uppercase tracking-widest mt-1">For Inspection</p>
                                     </div>
                                 </div>
 

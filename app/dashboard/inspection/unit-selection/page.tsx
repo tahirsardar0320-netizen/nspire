@@ -66,7 +66,7 @@ export default function UnitSelection() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Name Input */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider">
                   Property Name
                 </label>
                 <div className="relative">
@@ -83,7 +83,7 @@ export default function UnitSelection() {
 
               {/* State Input */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider">
                   State
                 </label>
                 <div className="relative">
@@ -100,7 +100,7 @@ export default function UnitSelection() {
 
               {/* City Input */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="block text-xs font-black text-[#0E7490] uppercase tracking-wider">
                   City
                 </label>
                 <div className="relative">
@@ -134,7 +134,7 @@ export default function UnitSelection() {
               >
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <span className="text-xs font-black text-[#0E7490] uppercase tracking-wider">
                       Property #{property.id}
                     </span>
                     <span className="w-1 h-1 rounded-full bg-slate-300" />

@@ -233,12 +233,12 @@ export default function ReportsPage() {
           <Card className="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
               <SlidersHorizontal className="w-4 h-4 text-teal-600" />
-              <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Search Filters</h2>
+              <h2 className="text-sm font-black text-[#0E7490] uppercase tracking-wider">Search Filters</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <div className="lg:col-span-2 space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-xs font-black text-[#0E7490] uppercase tracking-wider">
                   Search Reports
                 </label>
                 <div className="relative">
@@ -254,7 +254,7 @@ export default function ReportsPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-xs font-black text-[#0E7490] uppercase tracking-wider">
                   Property Name
                 </label>
                 <select
@@ -271,7 +271,7 @@ export default function ReportsPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-xs font-black text-[#0E7490] uppercase tracking-wider">
                   Date Range
                 </label>
                 <select
@@ -288,7 +288,7 @@ export default function ReportsPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-xs font-black text-[#0E7490] uppercase tracking-wider">
                   Status
                 </label>
                 <select
@@ -338,26 +338,26 @@ export default function ReportsPage() {
                       
                       <div className="grid grid-cols-2 gap-3 text-xs font-medium text-slate-600">
                         <div>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Unit</span>
+                          <span className="text-xs font-black text-[#0E7490] uppercase tracking-wider block">Unit</span>
                           <span className="text-slate-950 font-semibold">{report.unit}</span>
                         </div>
                         <div>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Date</span>
+                          <span className="text-xs font-black text-[#0E7490] uppercase tracking-wider block">Date</span>
                           <span className="text-slate-950 font-semibold">{report.date}</span>
                         </div>
                         <div>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Inspector</span>
+                          <span className="text-xs font-black text-[#0E7490] uppercase tracking-wider block">Inspector</span>
                           <span className="text-slate-950 font-semibold">{report.inspector}</span>
                         </div>
                         <div>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Payment</span>
+                          <span className="text-xs font-black text-[#0E7490] uppercase tracking-wider block">Payment</span>
                           {getPaymentBadge(report.payment)}
                         </div>
                       </div>
                       
                       <div className="flex items-center justify-between pt-2 border-t border-slate-50">
                         <div className="space-y-1">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Compliance</span>
+                          <span className="text-xs font-black text-[#0E7490] uppercase tracking-wider block">Compliance</span>
                           <div className="flex items-center gap-2">
                             <span className={`text-sm font-extrabold ${compStyle.text}`}>
                               {report.compliance}%

@@ -99,7 +99,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
 
       {/* Desktop Sidebar */}
-      {!inInspection && <aside className="hidden lg:flex lg:flex-col w-64 bg-gradient-to-b from-[#0090C0] via-[#005E92] to-[#003A66] shadow-xl border-r-2 border-[#40D0F0]/70 fixed h-full z-10 overflow-hidden">
+      {!inInspection && <aside className="hidden lg:flex lg:flex-col w-72 bg-gradient-to-b from-[#0090C0] via-[#005E92] to-[#003A66] shadow-xl border-r-2 border-[#40D0F0]/70 fixed h-full z-10 overflow-hidden">
         <div className="h-1.5 shrink-0 bg-gradient-to-r from-[#40D0F0] via-[#0090C0] to-[#F84B5F]" />
         {/* Decorative color blooms so the panel isn't a flat block of color */}
         <div className="absolute -top-16 -right-16 w-64 h-64 bg-[#40D0F0]/20 rounded-full blur-3xl pointer-events-none" />
@@ -122,7 +122,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <button
               key={item.path}
               onClick={() => router.push(item.path)}
-              className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-base font-semibold transition-all duration-200 ${
+              className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-lg font-bold transition-all duration-200 ${
                 isActive(item.path)
                   ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -137,7 +137,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="p-4 border-t border-[#40D0F0]/30">
           <button
             onClick={() => router.push('/dashboard/settings')}
-            className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-base font-semibold transition-all duration-200 ${
+            className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-lg font-bold transition-all duration-200 ${
               isActive('/dashboard/settings')
                 ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30'
                 : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -156,7 +156,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               toast.success("Logged out successfully!", { position: "top-right" })
               setTimeout(() => router.push('/'), 1500)
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-base font-semibold transition-all duration-200"
+            className="w-full flex items-center gap-3 px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-lg font-bold transition-all duration-200"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
@@ -175,7 +175,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       )}
 
       {/* Mobile Sidebar */}
-      <aside className={`fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-[#0090C0] via-[#005E92] to-[#003A66] shadow-lg z-50 transform transition-transform duration-300 lg:hidden flex flex-col overflow-hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+      <aside className={`fixed top-0 left-0 h-full w-72 bg-gradient-to-b from-[#0090C0] via-[#005E92] to-[#003A66] shadow-lg z-50 transform transition-transform duration-300 lg:hidden flex flex-col overflow-hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}>
         <div className="h-1.5 shrink-0 bg-gradient-to-r from-[#40D0F0] via-[#0090C0] to-[#F84B5F]" />
         {/* Decorative color blooms so the panel isn't a flat block of color */}
@@ -213,7 +213,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 router.push(item.path)
                 setIsMobileMenuOpen(false)
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-base font-semibold transition-all duration-200 ${isActive(item.path) ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30' : 'text-white/80 hover:text-white hover:bg-white/10'
+              className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-lg font-bold transition-all duration-200 ${isActive(item.path) ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30' : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`}
             >
               {item.icon}
@@ -228,7 +228,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               router.push('/dashboard/settings')
               setIsMobileMenuOpen(false)
             }}
-            className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-base font-semibold transition-all duration-200 ${isActive('/dashboard/settings') ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30' : 'text-white/80 hover:text-white hover:bg-white/10'
+            className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-lg font-bold transition-all duration-200 ${isActive('/dashboard/settings') ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30' : 'text-white/80 hover:text-white hover:bg-white/10'
               }`}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -245,7 +245,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               setTimeout(() => router.push('/'), 1500)
               setIsMobileMenuOpen(false)
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-base font-semibold transition-all duration-200"
+            className="w-full flex items-center gap-3 px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-lg font-bold transition-all duration-200"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
@@ -256,14 +256,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </aside>
 
       {/* Main Content */}
-      <main className={`relative z-10 flex-1 ${inInspection ? '' : 'lg:ml-64'}`}>
+      <main className={`relative z-10 flex-1 ${inInspection ? '' : 'lg:ml-72'}`}>
         {/* Top Header */}
-        <header className="bg-white border-b border-slate-200/85 px-4 md:px-6 py-4 sticky top-0 z-30 shadow-sm">
+        <header className="bg-gradient-to-r from-[#0090C0] to-[#005E92] border-b-2 border-[#40D0F0]/60 px-4 md:px-6 py-4 sticky top-0 z-30 shadow-md">
           <div className="flex items-center justify-between gap-4">
             {/* Mobile Menu Button — gone during an inspection, same as the sidebar */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className={`lg:hidden p-2 hover:bg-slate-100 rounded-lg text-slate-700 ${inInspection ? 'invisible pointer-events-none' : ''}`}
+              className={`lg:hidden p-2 hover:bg-white/15 rounded-lg text-white ${inInspection ? 'invisible pointer-events-none' : ''}`}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -286,7 +286,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
               <button
                 onClick={() => router.push('/dashboard/notifications')}
-                className="relative p-2 hover:bg-slate-50 text-slate-600 rounded-lg transition-colors border border-slate-200"
+                className="relative p-2 hover:bg-white/15 text-white rounded-lg transition-colors border border-white/30"
               >
                 <svg className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
@@ -300,11 +300,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   alt="User"
                   width={40}
                   height={40}
-                  className="rounded-full w-8 h-8 md:w-10 md:h-10 border border-slate-200 shadow-sm"
+                  className="rounded-full w-8 h-8 md:w-10 md:h-10 border-2 border-white/60 shadow-sm"
                 />
                 <div className="hidden sm:block">
-                  <p className="text-sm font-bold text-slate-900">{(userName || '').toUpperCase()}</p>
-                  <p className="text-xs text-teal-600 font-bold">{userRole}</p>
+                  <p className="text-sm font-bold text-white">{(userName || '').toUpperCase()}</p>
+                  <p className="text-xs text-[#B8ECFF] font-bold">{userRole}</p>
                 </div>
               </div>
             </div>

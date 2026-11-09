@@ -196,6 +196,8 @@
         }
 
         button, a, [role="button"] { min-height: 44px; }
+        /* Client rule: every button label reads bold from now on. */
+        button, [role="button"] { font-weight: 700; }
         nav a, nav button { min-height: unset; }
 
         h1, h2, h3, .serif {
