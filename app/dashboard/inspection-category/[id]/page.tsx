@@ -2294,12 +2294,20 @@ export default function InspectionCategoryPage() {
                             <button onClick={() => gotoSection('')} className="p-1.5 -ml-1 rounded-full hover:bg-white/15 transition-colors">
                                 <ArrowLeft className="w-5 h-5" />
                             </button>
-                            <div className="min-w-0">
+                            <div className="min-w-0 flex-1">
                                 <h2 className="text-base font-extrabold leading-tight">
                                     {sectionView === 'outside' ? 'Outside' : sectionView === 'inside' ? 'Inside' : (activeInspectionUnit || 'Units')}
                                 </h2>
                                 <p className="text-xs text-white/80 font-medium">{buildingName} • {rawUnitIds.length} Units</p>
                             </div>
+                            <Button
+                                onClick={handleOpenReportPreview}
+                                disabled={loadingReportPreview}
+                                className="h-10 px-4 bg-[#003A66] hover:bg-[#072f52] text-white font-black rounded-xl uppercase tracking-wider text-[11px] flex items-center gap-1.5 shrink-0"
+                            >
+                                <FileText className="w-4 h-4" />
+                                {loadingReportPreview ? '...' : 'Summary'}
+                            </Button>
                         </div>
 
                         {/* Progress row */}
