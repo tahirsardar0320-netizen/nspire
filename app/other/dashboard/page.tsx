@@ -18,7 +18,7 @@ export default function OtherDashboard() {
             </svg>
           </div>
           <h1 className="text-2xl font-extrabold text-slate-900">Other</h1>
-          <p className="text-slate-500 font-medium">For other users.</p>
+          <p className="text-slate-500 font-medium">For others</p>
         </Card>
       </div>
     </OtherDashboardLayout>
