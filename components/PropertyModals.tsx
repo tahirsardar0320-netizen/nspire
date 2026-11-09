@@ -92,7 +92,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
               value={formData.purpose}
               onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
               placeholder="Enter purpose of inspection"
-              className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+              className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
             />
           </div>
 
@@ -103,7 +103,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
               value={formData.hudFre}
               onChange={(e) => setFormData({ ...formData, hudFre: e.target.value })}
               placeholder="Select option"
-              className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+              className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
             />
           </div>
 
@@ -114,7 +114,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
               value={formData.management}
               onChange={(e) => setFormData({ ...formData, management: e.target.value })}
               placeholder="Enter management company or assessment"
-              className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+              className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
             />
           </div>
 
@@ -126,7 +126,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
                 value={formData.insurance}
                 onChange={(e) => setFormData({ ...formData, insurance: e.target.value })}
                 placeholder="Insurance company"
-                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
               />
             </div>
             <div>
@@ -136,7 +136,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
                 value={formData.banker}
                 onChange={(e) => setFormData({ ...formData, banker: e.target.value })}
                 placeholder="Banker or sale"
-                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
               />
             </div>
           </div>
@@ -149,7 +149,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
                 value={formData.buildings}
                 onChange={(e) => setFormData({ ...formData, buildings: e.target.value })}
                 placeholder="e.g. 4"
-                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
               />
             </div>
             <div>
@@ -159,7 +159,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
                 value={formData.units}
                 onChange={(e) => setFormData({ ...formData, units: e.target.value })}
                 placeholder="e.g. 43"
-                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
               />
             </div>
           </div>
@@ -172,7 +172,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
                 value={formData.state}
                 onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                 placeholder="Enter state / city"
-                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
               />
             </div>
             <div>
@@ -182,7 +182,7 @@ export function RequestInspectionModal({ isOpen, onClose }: RequestInspectionMod
                 value={formData.zipCode}
                 onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
                 placeholder="Enter zip / postal code"
-                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
               />
             </div>
           </div>
@@ -593,7 +593,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
                     value={formData.propertyId}
                     onChange={(e) => updateProperty(index, 'propertyId', e.target.value)}
                     placeholder="Property ID"
-                    className="w-full px-3.5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all text-center"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all text-center py-3"
                   />
                 </div>
                 <div>
@@ -603,7 +603,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
                     value={formData.address}
                     onChange={(e) => updateProperty(index, 'address', e.target.value)}
                     placeholder="Enter your Address"
-                    className="w-full px-3.5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all text-center"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all text-center py-3"
                   />
                 </div>
               </div>
@@ -616,7 +616,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
                     value={formData.propertyName}
                     onChange={(e) => updateProperty(index, 'propertyName', e.target.value)}
                     placeholder="Enter your Property Name"
-                    className="w-full px-3.5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all text-center"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all text-center py-3"
                   />
                 </div>
                 <div>
@@ -626,7 +626,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
                     value={formData.city}
                     onChange={(e) => updateProperty(index, 'city', e.target.value)}
                     placeholder="Enter City"
-                    className="w-full px-3.5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all text-center"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all text-center py-3"
                     required
                   />
                 </div>
@@ -640,7 +640,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
                     value={formData.buildings}
                     onChange={(e) => updateProperty(index, 'buildings', e.target.value)}
                     placeholder="Number of Buildings"
-                    className="w-full px-3.5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all text-center"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all text-center py-3"
                   />
                 </div>
                 <div>
@@ -650,7 +650,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
                     value={formData.state}
                     onChange={(e) => updateProperty(index, 'state', e.target.value)}
                     placeholder="Enter State"
-                    className="w-full px-3.5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all text-center"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all text-center py-3"
                     required
                   />
                 </div>
@@ -664,7 +664,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
                     value={formData.units}
                     onChange={(e) => updateProperty(index, 'units', e.target.value)}
                     placeholder="Number of Units"
-                    className="w-full px-3.5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all text-center"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all text-center py-3"
                   />
                 </div>
                 <div>
@@ -674,7 +674,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
                     value={formData.zipCode}
                     onChange={(e) => updateProperty(index, 'zipCode', e.target.value)}
                     placeholder="Postal Code"
-                    className="w-full px-3.5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all text-center"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all text-center py-3"
                     required
                   />
                 </div>
@@ -1400,7 +1400,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
                 type="text"
                 value={formData.propertyId}
                 onChange={(e) => setFormData({ ...formData, propertyId: e.target.value })}
-                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
               />
             </div>
             <div>
@@ -1409,7 +1409,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
                 type="text"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
               />
             </div>
             <div>
@@ -1418,7 +1418,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
                 type="text"
                 value={formData.propertyName}
                 onChange={(e) => setFormData({ ...formData, propertyName: e.target.value })}
-                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
               />
             </div>
           </div>
@@ -1431,7 +1431,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
                 value={formData.country}
                 onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                 placeholder="Enter Country"
-                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
               />
             </div>
             <div>
@@ -1441,7 +1441,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
                 value={formData.state}
                 onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                 placeholder="Enter State"
-                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
               />
             </div>
             <div>
@@ -1451,7 +1451,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 placeholder="Enter City"
-                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
               />
             </div>
             <div>
@@ -1460,7 +1460,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
                 type="text"
                 value={formData.zipCode}
                 onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
-                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
               />
             </div>
           </div>
@@ -1473,7 +1473,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
                 value={formData.buildings}
                 onChange={(e) => setFormData({ ...formData, buildings: e.target.value })}
                 placeholder="Number of Buildings"
-                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
               />
             </div>
             <div>
@@ -1482,7 +1482,7 @@ export function EditPropertyModal({ isOpen, onClose, onSuccess, propertyData }: 
                 type="text"
                 value={formData.units}
                 onChange={(e) => setFormData({ ...formData, units: e.target.value })}
-                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm font-medium text-slate-800 transition-all"
+                className="w-full px-3.5 py-2.5 border border-slate-200 bg-slate-50/50 hover:bg-slate-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-base font-bold text-slate-900 transition-all py-3"
               />
             </div>
           </div>

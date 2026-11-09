@@ -2944,7 +2944,7 @@ export default function InspectionCategoryPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => setIsStandardModalOpen(true)}
-                                                className="w-full bg-[#006795] hover:bg-[#005580] text-white font-extrabold py-4 rounded-2xl uppercase text-xs tracking-widest transition-colors shadow-md font-lexend"
+                                                className="w-full bg-[#006795] hover:bg-[#005580] text-white font-black py-4 rounded-2xl uppercase text-base tracking-widest transition-colors shadow-md font-lexend"
                                             >
                                                 Standard
                                             </button>
@@ -2954,7 +2954,7 @@ export default function InspectionCategoryPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => setIsInspectionProtocolModalOpen(true)}
-                                                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-4 rounded-2xl uppercase text-xs tracking-widest transition-colors shadow-md font-lexend"
+                                                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-2xl uppercase text-base tracking-widest transition-colors shadow-md font-lexend"
                                             >
                                                 Protocols
                                             </button>
