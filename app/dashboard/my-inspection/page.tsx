@@ -328,21 +328,21 @@ export default function MyInspection() {
                           />
                         </td>
                         <td className="py-4 px-4 text-center">
-                          <span className="text-sky-600 font-semibold text-xs hover:underline cursor-pointer">
+                          <span className="text-sky-700 font-bold text-sm hover:underline cursor-pointer">
                             {property.propertyId || property._id?.slice(-8)?.toUpperCase()}
                           </span>
                         </td>
-                        <td className="py-4 px-4 text-center font-semibold text-slate-800 text-sm">{property.name}</td>
-                        <td className="py-4 px-4 text-center text-slate-500 text-xs truncate max-w-[140px]" title={property.address}>{property.address}</td>
+                        <td className="py-4 px-4 text-center font-extrabold text-slate-900 text-base">{property.name}</td>
+                        <td className="py-4 px-4 text-center text-slate-700 text-sm font-semibold truncate max-w-[140px]" title={property.address}>{property.address}</td>
                         <td className="py-4 px-4 text-center">
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
                             {property.state}
                           </span>
                         </td>
-                        <td className="py-4 px-4 text-center text-slate-500 text-xs">{property.city}</td>
-                        <td className="py-4 px-4 text-center text-slate-500 text-xs font-mono">{property.zipCode}</td>
-                        <td className="py-4 px-4 text-center font-semibold text-slate-700">{property.buildings || 1}</td>
-                        <td className="py-4 px-4 text-center font-semibold text-slate-700">{property.units || 1}</td>
+                        <td className="py-4 px-4 text-center text-slate-700 text-sm font-semibold">{property.city}</td>
+                        <td className="py-4 px-4 text-center text-slate-700 text-sm font-bold font-mono">{property.zipCode}</td>
+                        <td className="py-4 px-4 text-center font-extrabold text-slate-900 text-base">{property.buildings || 1}</td>
+                        <td className="py-4 px-4 text-center font-extrabold text-slate-900 text-base">{property.units || 1}</td>
                         <td className="py-4 px-4">
                           {/* Same figure the dashboard cards show, from the same engine. */}
                           <div className="flex items-center gap-2 min-w-[90px]">
@@ -352,7 +352,7 @@ export default function MyInspection() {
                                 style={{ width: `${propertyProgress[pid] ?? 0}%` }}
                               />
                             </div>
-                            <span className="text-xs font-extrabold text-teal-700 w-9 text-right">{propertyProgress[pid] ?? 0}%</span>
+                            <span className="text-sm font-black text-teal-700 w-10 text-right">{propertyProgress[pid] ?? 0}%</span>
                           </div>
                         </td>
                         <td className="py-4 px-4 text-center">
