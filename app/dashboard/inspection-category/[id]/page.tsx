@@ -2128,12 +2128,12 @@ export default function InspectionCategoryPage() {
 
     return (
         <PortalLayout>
-            <div className="p-4 sm:p-6 lg:p-8 w-full font-sans overflow-x-hidden">
+            <div className="p-4 sm:p-6 lg:px-8 lg:py-4 w-full font-sans overflow-x-hidden">
                 {/* The page chrome belongs to the categories screen only — a
                     section open means its own clean page, nothing stacked above. */}
                 {sectionView === '' && (
                     <>
-                        <div className="rounded-2xl bg-gradient-to-r from-[#0090C0] to-[#005E92] px-4 py-4 lg:py-6 mb-4 flex items-center justify-between gap-3 shadow-md">
+                        <div className="rounded-2xl bg-gradient-to-r from-[#0090C0] to-[#005E92] px-4 py-3.5 lg:py-4 mb-3 flex items-center justify-between gap-3 shadow-md">
                             <button onClick={() => router.back()} className="w-10 h-10 rounded-full hover:bg-white/15 flex items-center justify-center text-white shrink-0 transition-colors">
                                 <ChevronLeft className="w-6 h-6" />
                             </button>
@@ -2248,7 +2248,7 @@ export default function InspectionCategoryPage() {
                 {/* ——— NSPIRE.ai-style flow: categories list ⇄ full-page sections ——— */}
                 {sectionView === '' ? (
                     <>
-                        <div className="rounded-2xl bg-gradient-to-r from-[#0E7490] to-[#006795] text-white px-4 py-3 lg:px-6 lg:py-3.5 mb-4 flex items-center gap-2.5 shadow-md">
+                        <div className="rounded-2xl bg-gradient-to-r from-[#0E7490] to-[#006795] text-white px-4 py-3 lg:px-6 lg:py-3 mb-3 flex items-center gap-2.5 shadow-md">
                             <Building2 className="w-5 h-5 shrink-0" />
                             <div className="flex-1 min-w-0">
                                 <h2 className="text-base font-extrabold tracking-wide uppercase truncate">Building No: {buildingName}</h2>
@@ -2274,7 +2274,7 @@ export default function InspectionCategoryPage() {
                                     if (sec === 'unit' && !activeInspectionUnit) { setUnitSelectionPopupOpen(true); return }
                                     gotoSection(sec)
                                 }}
-                                className="w-full bg-white rounded-2xl shadow-sm border border-slate-100 p-3.5 mb-3 lg:p-5 lg:mb-4 flex items-center gap-3 lg:gap-5 text-left hover:shadow-md active:scale-[0.99] transition-all"
+                                className="w-full bg-white rounded-2xl shadow-sm border border-slate-100 p-3.5 mb-3 lg:p-4 lg:mb-3 flex items-center gap-3 lg:gap-5 text-left hover:shadow-md active:scale-[0.99] transition-all"
                             >
                                 <div className="w-10 h-10 lg:w-14 lg:h-14 rounded-lg lg:rounded-2xl bg-sky-50 flex items-center justify-center shrink-0">{icon}</div>
                                 <div className="flex-1 min-w-0">

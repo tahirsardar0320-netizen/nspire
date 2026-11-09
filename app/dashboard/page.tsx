@@ -689,7 +689,7 @@ export default function Dashboard() {
                           ) : activeInspectionId === pid ? (
                             <button
                               onClick={() => handleInitiate(property)}
-                              className="px-3 py-2 text-sm font-extrabold text-white bg-[#006795] hover:bg-[#0a5670] rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
+                              className="w-[112px] px-1 py-2 text-sm font-black text-white bg-[#006795] hover:bg-[#0a5670] rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm text-center"
                             >
                               In Progress
                             </button>
@@ -703,7 +703,7 @@ export default function Dashboard() {
                           )}
                           <button
                             onClick={() => handleRemoveProperty(property)}
-                            className="px-3 py-2 text-sm font-extrabold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors"
+                            className="w-[88px] px-1 py-2 text-sm font-extrabold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors text-center"
                           >
                             Remove
                           </button>
