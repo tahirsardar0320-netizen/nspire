@@ -1009,7 +1009,7 @@ function NSPIREInspectionSummaryContent() {
                 <Button
                   onClick={handleUnlockWithStripe}
                   disabled={purchasingUnlock}
-                  className="h-9 gap-1.5 bg-slate-900 hover:bg-slate-800 text-white font-black px-4 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center justify-center shrink-0"
+                  className="h-10 gap-1.5 bg-[#7F1D1D] hover:bg-[#681717] text-white font-black px-4 rounded-xl shadow-md uppercase tracking-widest text-[11px] flex items-center justify-center shrink-0"
                 >
                   <Unlock className="w-3.5 h-3.5" />
                   {purchasingUnlock ? 'Starting...' : 'Unlock Report $10'}
@@ -1038,7 +1038,7 @@ function NSPIREInspectionSummaryContent() {
               )}
               <Button
                 onClick={handleBackToInspection}
-                className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-2.5 rounded-xl border-0 shadow-sm shadow-amber-600/10 text-xs flex items-center justify-center gap-1.5"
+                className="bg-amber-500 hover:bg-amber-600 text-white font-black px-6 py-3 rounded-xl border-0 shadow-md shadow-amber-600/20 text-base flex items-center justify-center gap-1.5"
               >
                 <ChevronLeft className="w-4 h-4" />
                 {searchParams.get('finalize') === 'true' ? 'Back to Inspection' : 'Continue Inspection'}

@@ -1034,7 +1034,7 @@ export function ActionModal({ isOpen, onClose, onEdit, onViewSummary, onStartIns
 
   return (
     <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-50 p-6 sm:p-8 font-lexend animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full relative shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-3xl p-8 sm:p-10 max-w-lg w-full relative shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-all z-10"
@@ -1044,13 +1044,13 @@ export function ActionModal({ isOpen, onClose, onEdit, onViewSummary, onStartIns
           </svg>
         </button>
 
-        <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 mb-7 text-center tracking-tight">Action</h2>
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mb-8 text-center tracking-tight">Action</h2>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           {/* View Summary — dark outlined, bold, centered */}
           <button
             onClick={handleViewSummary}
-            className="w-full h-14 bg-white border-2 border-slate-900 hover:bg-slate-900 hover:text-white text-slate-900 font-bold rounded-xl text-base transition-all duration-200 flex items-center justify-center"
+            className="w-full h-16 bg-white border-2 border-slate-900 hover:bg-slate-900 hover:text-white text-slate-900 font-black rounded-xl text-lg transition-all duration-200 flex items-center justify-center"
           >
             View Summary
           </button>
@@ -1058,7 +1058,7 @@ export function ActionModal({ isOpen, onClose, onEdit, onViewSummary, onStartIns
           {/* Continue Inspection — brand teal */}
           <button
             onClick={handleStartInspection}
-            className="w-full h-14 bg-[#006795] hover:bg-[#005578] active:bg-[#004a6a] text-white font-bold rounded-xl text-base transition-all duration-200 shadow-lg shadow-[#006795]/30 flex items-center justify-center border-0"
+            className="w-full h-16 bg-[#006795] hover:bg-[#005578] active:bg-[#004a6a] text-white font-black rounded-xl text-lg transition-all duration-200 shadow-lg shadow-[#006795]/30 flex items-center justify-center border-0"
           >
             Continue Inspection
           </button>
@@ -1066,7 +1066,7 @@ export function ActionModal({ isOpen, onClose, onEdit, onViewSummary, onStartIns
           {/* Remove Property — red */}
           <button
             onClick={handleRemove}
-            className="w-full h-14 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold rounded-xl text-base transition-all duration-200 shadow-lg shadow-red-400/30 flex items-center justify-center border-0"
+            className="w-full h-16 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-black rounded-xl text-lg transition-all duration-200 shadow-lg shadow-red-400/30 flex items-center justify-center border-0"
           >
             Remove Property
           </button>

@@ -2738,8 +2738,8 @@ export default function InspectionCategoryPage() {
                                 <div className="space-y-6 animate-in fade-in duration-300 pb-6">
                                     {/* 1. DEFICIENCY SELECTED - Full width dropdown */}
                                     <div>
-                                        <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Deficiency Selected</label>
-                                        <div onClick={() => handleOpenSelection('selected')} className={`w-full border rounded-2xl p-4 text-xs font-semibold cursor-pointer transition-all flex justify-between items-center group font-lexend ${selectedDeficiency ? 'border-[#0E7490] border-2 bg-white text-slate-800 hover:border-[#0E7490]' : 'border-2 border-rose-300 bg-rose-50/40 text-rose-500 hover:border-rose-400 hover:bg-rose-50 hover:scale-[1.01] hover:shadow-sm'}`}>
+                                        <label className="block text-sm font-black text-[#7F1D1D] uppercase mb-2 tracking-wider font-lexend">Deficiency Selected</label>
+                                        <div onClick={() => handleOpenSelection('selected')} className={`w-full border rounded-2xl p-4 text-sm font-bold cursor-pointer transition-all flex justify-between items-center group font-lexend ${selectedDeficiency ? 'border-[#0E7490] border-2 bg-white text-slate-900 font-extrabold hover:border-[#0E7490]' : 'border-2 border-rose-300 bg-rose-50/40 text-[#7F1D1D] font-black hover:border-rose-400 hover:bg-rose-50 hover:scale-[1.01] hover:shadow-sm'}`}>
                                             <span>
                                                 {selectedDeficiency ? selectedDeficiency.selected : "--Select--"}
                                             </span>
@@ -2754,8 +2754,8 @@ export default function InspectionCategoryPage() {
 
                                     {/* 2. DEFICIENCY DETAIL - Clickable Dropdown */}
                                     <div>
-                                        <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Deficiency Detail</label>
-                                        <div onClick={() => selectedDeficiency && handleOpenSelection('detail')} className={`w-full border rounded-2xl p-4 text-xs font-semibold transition-all flex justify-between items-center group font-lexend ${selectedDeficiency ? 'cursor-pointer border-[#0E7490] border-2 bg-white text-slate-800 hover:border-[#0E7490]' : 'cursor-not-allowed border-2 border-rose-200 bg-rose-50/30 text-rose-400'}`}>
+                                        <label className="block text-sm font-black text-[#7F1D1D] uppercase mb-2 tracking-wider font-lexend">Deficiency Detail</label>
+                                        <div onClick={() => selectedDeficiency && handleOpenSelection('detail')} className={`w-full border rounded-2xl p-4 text-sm font-bold transition-all flex justify-between items-center group font-lexend ${selectedDeficiency ? 'cursor-pointer border-[#0E7490] border-2 bg-white text-slate-900 font-extrabold hover:border-[#0E7490]' : 'cursor-not-allowed border-2 border-rose-200 bg-rose-50/30 text-[#7F1D1D] font-black'}`}>
                                             <span>
                                                 {selectedDeficiency ? selectedDeficiency.detail : "-- Select deficiency first --"}
                                             </span>
@@ -2765,7 +2765,7 @@ export default function InspectionCategoryPage() {
 
                                     {/* 4. PIC - Photo section (camera capture only) */}
                                     <div>
-                                        <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Pic</label>
+                                        <label className="block text-sm font-black text-[#7F1D1D] uppercase mb-2 tracking-wider font-lexend">Pic</label>
 
                                         {/* Image Grid */}
                                         {photos.length > 0 && (
@@ -2805,7 +2805,7 @@ export default function InspectionCategoryPage() {
 
                                     {/* 5. NOTE - Text area */}
                                     <div>
-                                        <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Work Order</label>
+                                        <label className="block text-sm font-black text-[#7F1D1D] uppercase mb-2 tracking-wider font-lexend">Work Order</label>
                                         <textarea
                                             className="w-full border border-slate-100 bg-slate-50/50 rounded-2xl p-4 text-xs font-semibold text-slate-800 focus:bg-white focus:border-[#0E7490] outline-none transition-all h-24 resize-none font-lexend"
                                             value={odForm.note}
@@ -2817,7 +2817,7 @@ export default function InspectionCategoryPage() {
                                     {/* 6. LOCATION + HEALTH & SAFETY - Side by side */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Location</label>
+                                            <label className="block text-sm font-black text-[#7F1D1D] uppercase mb-2 tracking-wider font-lexend">Location</label>
                                             <select
                                                 className="w-full border border-slate-100 bg-slate-50/50 rounded-2xl p-4 text-xs font-semibold text-slate-700 outline-none focus:bg-white focus:border-[#0E7490] transition-all cursor-pointer font-lexend"
                                                 value={odForm.location}
@@ -2830,7 +2830,7 @@ export default function InspectionCategoryPage() {
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Health & Safety</label>
+                                            <label className="block text-sm font-black text-[#7F1D1D] uppercase mb-2 tracking-wider font-lexend">Health & Safety</label>
                                             <div className={`w-full rounded-2xl p-4 text-xs font-semibold flex items-center min-h-[50px] font-lexend ${odForm.healthAndSafety === 'Life-Threatening' ? 'bg-rose-500 text-white border-rose-500 font-bold' :
                                                 odForm.healthAndSafety === 'Severe' ? 'bg-orange-500 text-white border-orange-500 font-bold' :
                                                     odForm.healthAndSafety === 'Moderate' ? 'bg-amber-500 text-white border-amber-500 font-bold' :
@@ -2844,7 +2844,7 @@ export default function InspectionCategoryPage() {
 
                                     {/* 7. INSPECTION SCORING - Auto-calculated card */}
                                     <div>
-                                        <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Inspection Scoring</label>
+                                        <label className="block text-sm font-black text-[#7F1D1D] uppercase mb-2 tracking-wider font-lexend">Inspection Scoring</label>
                                         <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm font-lexend">
                                             {/* Row 1: All Sample and Pts Lost (Raw) */}
                                             <div className="grid grid-cols-2 gap-4 mb-3">
@@ -2916,7 +2916,7 @@ export default function InspectionCategoryPage() {
                                     {/* STANDARD & INSPECTION PROTOCOL - visible when scrolled to bottom */}
                                     <div className="space-y-3 pt-2 pb-2">
                                         <div>
-                                            <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Standard ✅</label>
+                                            <label className="block text-sm font-black text-[#7F1D1D] uppercase mb-2 tracking-wider font-lexend">Standard ✅</label>
                                             <button
                                                 type="button"
                                                 onClick={() => setIsStandardModalOpen(true)}
@@ -2926,7 +2926,7 @@ export default function InspectionCategoryPage() {
                                             </button>
                                         </div>
                                         <div>
-                                            <label className="block text-[11px] font-extrabold text-[#C81E3C] uppercase mb-2 tracking-wider font-lexend">Protocols</label>
+                                            <label className="block text-sm font-black text-[#7F1D1D] uppercase mb-2 tracking-wider font-lexend">Protocols</label>
                                             <button
                                                 type="button"
                                                 onClick={() => setIsInspectionProtocolModalOpen(true)}
