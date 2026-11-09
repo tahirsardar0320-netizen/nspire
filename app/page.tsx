@@ -76,11 +76,11 @@ export default function Home() {
             <div className="flex justify-between items-center py-2 lg:py-3">
                 {/* Logo */}
                 <div className="flex-shrink-0 flex flex-col relative z-20">
-                    <img src="logo.png" alt="Nspire App Logo" className="h-20 sm:h-24 md:h-28 w-auto rounded object-contain" />
+                    <img src="/logo.png?v=3" alt="Nspire App Logo" className="h-20 sm:h-24 md:h-28 w-auto rounded object-contain" />
                 </div>
 
                 {/* Desktop Menu */}
-                <div className="hidden lg:flex items-center space-x-8">
+                <div className="hidden lg:flex items-center space-x-3 xl:space-x-6">
                     <a href="#" className="nav-item-container">
                         <span className="nav-title">HOME</span>
                         <span className="nav-subtitle">Welcome</span>
@@ -134,7 +134,7 @@ export default function Home() {
             <div className="flex flex-col h-full overflow-y-auto">
                 <div className="p-5 border-b border-white/10 flex items-center justify-between">
                     <div className="flex flex-col">
-                        <img src="logo.png" alt="Nspire" className="h-12 w-auto rounded object-contain" />
+                        <img src="/logo.png?v=3" alt="Nspire" className="h-12 w-auto rounded object-contain" />
                     </div>
                     <button onClick={() => setMobileNavOpen(false)} className="p-2 rounded-lg hover:bg-white/10">
                         <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -297,7 +297,7 @@ export default function Home() {
             <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex flex-col sm:flex-row items-center gap-4">
                     <a href="#" className="flex items-center justify-center bg-white rounded-lg px-3 py-1.5 w-32 h-16 md:w-40 md:h-20">
-                        <img src="logo.png" alt="Nspire App Logo" className="object-contain w-full h-full" />
+                        <img src="/logo.png?v=3" alt="Nspire App Logo" className="object-contain w-full h-full" />
                     </a>
                     <a href="https://nspireinspection.ai/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center bg-white rounded-lg px-3 py-1.5 w-32 h-16 md:w-40 md:h-20">
                         <img src="/nspire-inspection-ai-badge.png" alt="NSPIRE Inspection.ai International Standard" className="object-contain w-full h-full" />
