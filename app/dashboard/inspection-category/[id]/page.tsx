@@ -28,7 +28,7 @@ import {
 import { UNIT_LOCATION_OPTIONS } from "@/lib/unitScoringCalculations"
 import { getSamplingRequirements } from "@/lib/unitSamplingService"
 import { toast } from "react-toastify"
-import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, MoreHorizontal, Camera, X, ChevronLeft, CheckCircle2, FileText, User, Grid, Clock, Video, Monitor, Image as ImageIcon, Laptop, Tablet, Pencil, Check, Mail, CloudRain, Home, LayoutGrid, Building2, ArrowLeft } from "lucide-react";
+import { Search, ChevronDown, ChevronUp, ChevronRight, Plus, Filter, MoreHorizontal, Camera, X, ChevronLeft, CheckCircle2, FileText, User, Grid, Clock, Video, Monitor, Image as ImageIcon, Laptop, Tablet, Pencil, Check, Mail, CloudRain, Home, LayoutGrid, Building2, ArrowLeft, ShieldCheck } from "lucide-react";
 
 import { OUTSIDE_ITEMS, INSIDE_ITEMS, UNIT_ITEMS } from "@/lib/inspectionData";
 import { ReportPreviewModal } from "@/components/ReportPreviewModal";
@@ -2126,18 +2126,21 @@ export default function InspectionCategoryPage() {
                     section open means its own clean page, nothing stacked above. */}
                 {sectionView === '' && (
                     <>
-                        <div className="flex items-center justify-between gap-2 mb-4">
-                            <button onClick={() => router.back()} className="w-10 h-10 rounded-full hover:bg-slate-200/60 flex items-center justify-center transition-colors shrink-0">
-                                <ArrowLeft className="w-5 h-5 text-slate-900" />
+                        <div className="rounded-2xl bg-gradient-to-r from-[#0090C0] to-[#005E92] px-4 py-3 mb-4 flex items-center justify-between gap-3 shadow-md">
+                            <button onClick={() => router.back()} className="w-10 h-10 rounded-full hover:bg-white/15 flex items-center justify-center text-white shrink-0 transition-colors">
+                                <ChevronLeft className="w-6 h-6" />
                             </button>
-                            <h1 className="text-lg font-black text-slate-900 tracking-tight text-center flex-1 min-w-0 truncate">Inspection <span className="text-[#0E7490]">Categories</span></h1>
+                            <div className="bg-white rounded-2xl px-5 sm:px-7 py-2.5 flex items-center gap-2.5 shadow-lg min-w-0">
+                                <ShieldCheck className="w-6 h-6 text-[#005E92] shrink-0" />
+                                <span className="text-base sm:text-lg font-black text-[#0C3A5C] tracking-wide truncate">Inspection Categories</span>
+                            </div>
                             <Button
                                 onClick={handleOpenReportPreview}
                                 disabled={loadingReportPreview}
-                                className="h-9 px-4 bg-[#006795] hover:bg-[#005578] text-white font-black rounded-xl uppercase tracking-wider text-[10px] flex items-center gap-1.5 shrink-0"
+                                className="h-10 px-4 bg-[#003A66] hover:bg-[#072f52] text-white font-black rounded-xl uppercase tracking-wider text-[11px] flex items-center gap-1.5 shrink-0"
                             >
-                                <FileText className="w-3.5 h-3.5" />
-                                {loadingReportPreview ? '...' : 'NSPIRE Summary'}
+                                <FileText className="w-4 h-4" />
+                                {loadingReportPreview ? '...' : 'Summary'}
                             </Button>
                         </div>
                         {!isOnline && (
@@ -2298,8 +2301,8 @@ export default function InspectionCategoryPage() {
                         {/* Progress row */}
                         <div className="bg-white px-4 sm:px-6 py-3 border-b border-slate-100">
                             <div className="flex items-center justify-between mb-1.5">
-                                <p className="text-sm font-extrabold text-slate-900">Progress</p>
-                                <p className="text-xs font-extrabold text-[#0E7490]">
+                                <p className="text-base font-black text-slate-900 uppercase tracking-wide">Progress</p>
+                                <p className="text-sm font-black text-[#0E7490]">
                                     {(sectionView === 'outside' ? outsideProgress : sectionView === 'inside' ? insideProgress : unitProgress).completed}
                                     /{sectionView === 'outside' ? outsideItemsList.length : sectionView === 'inside' ? insideItemsList.length : unitProgress.total}
                                     {' • '}
@@ -2352,16 +2355,16 @@ export default function InspectionCategoryPage() {
                             const allNa = toggleable.length > 0 && toggleable.every(i => statuses[i] === 'N/A')
                             return (
                                 <div className="bg-white mx-4 sm:mx-0 mt-3 rounded-xl border border-slate-200 px-3 py-2 flex items-center justify-between gap-2">
-                                    <button onClick={() => selectAll(sec, 'No OD')} className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
+                                    <button onClick={() => selectAll(sec, 'No OD')} className="flex items-center gap-2 text-base font-black text-slate-900 uppercase tracking-wide">
                                         <span className={`w-4 h-4 rounded border-2 flex items-center justify-center ${allNoOd ? 'bg-emerald-600 border-emerald-600' : 'border-slate-300'}`}>
                                             {allNoOd && <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />}
                                         </span>
                                         All No OD
                                     </button>
-                                    <span className="flex items-center gap-2 text-sm font-extrabold text-red-600">
+                                    <span className="flex items-center gap-2 text-base font-black text-red-600 uppercase tracking-wide">
                                         Observe Deficiency
                                     </span>
-                                    <button onClick={() => selectAll(sec, 'N/A')} className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
+                                    <button onClick={() => selectAll(sec, 'N/A')} className="flex items-center gap-2 text-base font-black text-slate-900 uppercase tracking-wide">
                                         <span className={`w-4 h-4 rounded border-2 flex items-center justify-center ${allNa ? 'bg-slate-600 border-slate-600' : 'border-slate-300'}`}>
                                             {allNa && <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />}
                                         </span>
@@ -2386,7 +2389,7 @@ export default function InspectionCategoryPage() {
                                         <div key={item} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-3.5">
                                             <div className="flex items-center gap-2.5 mb-3">
                                                 <span className="w-7 h-7 rounded-full bg-sky-100 text-[#0E7490] flex items-center justify-center text-xs font-extrabold shrink-0">{index + 1}</span>
-                                                <p className="text-sm font-bold text-slate-900 leading-snug">{item}</p>
+                                                <p className="text-base font-extrabold text-slate-900 leading-snug">{item}</p>
                                             </div>
                                             {isGeneral ? (
                                                 <button
@@ -2399,19 +2402,19 @@ export default function InspectionCategoryPage() {
                                                 <div className="grid grid-cols-3 gap-3">
                                                     <button
                                                         onClick={() => handleStatusChange(sec, item, 'No OD')}
-                                                        className={`py-2 rounded-lg text-xs font-bold border-2 transition-all active:scale-[0.98] ${statuses[item] === 'No OD' ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`}
+                                                        className={`py-2.5 rounded-lg text-sm font-black border-2 transition-all active:scale-[0.98] ${statuses[item] === 'No OD' ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`}
                                                     >
                                                         No OD
                                                     </button>
                                                     <button
                                                         onClick={() => handleStatusChange(sec, item, 'OD')}
-                                                        className={`py-2 rounded-lg text-xs font-bold border-2 transition-all active:scale-[0.98] ${statuses[item] === 'OD' ? 'bg-red-50 border-red-500 text-red-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`}
+                                                        className={`py-2.5 rounded-lg text-sm font-black border-2 transition-all active:scale-[0.98] ${statuses[item] === 'OD' ? 'bg-red-50 border-red-500 text-red-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`}
                                                     >
                                                         OD
                                                     </button>
                                                     <button
                                                         onClick={() => handleStatusChange(sec, item, 'N/A')}
-                                                        className={`py-2 rounded-lg text-xs font-bold border-2 transition-all active:scale-[0.98] ${statuses[item] === 'N/A' ? 'bg-slate-100 border-slate-400 text-slate-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`}
+                                                        className={`py-2.5 rounded-lg text-sm font-black border-2 transition-all active:scale-[0.98] ${statuses[item] === 'N/A' ? 'bg-slate-100 border-slate-400 text-slate-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`}
                                                     >
                                                         N/A
                                                     </button>
@@ -2722,8 +2725,8 @@ export default function InspectionCategoryPage() {
                                     <div className="absolute -top-10 -left-10 w-48 h-48 bg-[#006795]/10 rounded-full blur-3xl pointer-events-none" />
                                     <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-[#F84B5F]/10 rounded-full blur-3xl pointer-events-none" />
 
-                                    <p className="relative z-10 text-sm font-semibold text-slate-500 max-w-xs">{`No existing deficiency record for this item.`}</p>
-                                    <Button onClick={() => setModalStep(2)} className="relative z-10 bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white font-extrabold px-12 h-14 rounded-2xl shadow-lg shadow-[#006795]/20 uppercase tracking-widest text-xs font-lexend border-0">Add New</Button>
+                                    <p className="relative z-10 text-lg font-extrabold text-slate-800 max-w-sm">{`No existing deficiency record for this item.`}</p>
+                                    <Button onClick={() => setModalStep(2)} className="relative z-10 bg-gradient-to-r from-[#00C6D7] to-[#006795] hover:opacity-90 text-white font-black px-14 h-16 rounded-2xl shadow-lg shadow-[#006795]/20 uppercase tracking-widest text-base font-lexend border-0">Add New</Button>
                                 </div>
                             )}
 

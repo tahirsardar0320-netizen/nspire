@@ -52,9 +52,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [router])
 
-  // Koke: "the sidebar menu should disappear after starting the inspection" —
-  // inspection screens get the full width, no menu to wander off through.
-  const inInspection = !!pathname?.startsWith('/dashboard/inspection-category')
+  // Koke first asked the sidebar to vanish during inspections; the client then
+  // reversed it after seeing the old design side-by-side — sidebar stays.
+  const inInspection = false
 
   const isActive = (path: string) => pathname === path
 
