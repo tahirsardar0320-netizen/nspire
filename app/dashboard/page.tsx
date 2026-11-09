@@ -576,16 +576,16 @@ export default function Dashboard() {
                         className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                       />
                     </th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[11%]">Property ID</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[14%]">Property Name</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[8%]">Buildings</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[7%]">Units</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[12%]">Address</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[9%]">City</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[10%]">State</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[7%]">Zip</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[9%]">Progress</th>
-                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[13%]">Actions</th>
+                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[11%]">Property ID</th>
+                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[14%]">Property Name</th>
+                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[8%]">Buildings</th>
+                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[7%]">Units</th>
+                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[12%]">Address</th>
+                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[9%]">City</th>
+                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[10%]">State</th>
+                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[7%]">Zip</th>
+                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[9%]">Progress</th>
+                    <th className="text-center py-3 px-2 text-[13px] font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[13%]">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 [&_td]:border-r [&_td]:border-slate-200/80 [&_td:last-child]:border-r-0">
@@ -598,7 +598,7 @@ export default function Dashboard() {
                       className={`transition-colors duration-150 ${isChecked ? 'bg-teal-50/60 ring-1 ring-inset ring-teal-200' : 'hover:bg-slate-50/50'}`}
                     >
                       {/* Checkbox column */}
-                      <td className="py-4 px-3 text-center">
+                      <td className="py-4 px-2 text-center">
                         <input
                           type="checkbox"
                           checked={isChecked}
@@ -606,12 +606,12 @@ export default function Dashboard() {
                           className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                         />
                       </td>
-                      <td className="py-4 px-3 text-center">
+                      <td className="py-4 px-2 text-center">
                         <span className="text-sky-700 font-bold text-xs bg-sky-50 border border-sky-100 px-2 py-0.5 rounded truncate block mx-auto w-fit font-mono">
                           {property.propertyId}
                         </span>
                       </td>
-                      <td className="py-4 px-3 text-center">
+                      <td className="py-4 px-2 text-center">
                         <span className="font-extrabold text-slate-900 text-base truncate block">
                           {property.name}
                           {property.pendingSync && (
@@ -621,11 +621,11 @@ export default function Dashboard() {
                           )}
                         </span>
                       </td>
-                      <td className="py-4 px-3 text-slate-900 font-extrabold text-base text-center">{property.buildings}</td>
-                      <td className="py-4 px-3 text-slate-900 font-extrabold text-base text-center">{property.units}</td>
-                      <td className="py-4 px-3 text-slate-700 text-sm truncate text-center font-semibold">{property.address}</td>
-                      <td className="py-4 px-3 text-slate-700 text-sm truncate text-center font-semibold">{property.city}</td>
-                      <td className="py-4 px-3 text-center overflow-hidden">
+                      <td className="py-4 px-2 text-slate-900 font-extrabold text-base text-center">{property.buildings}</td>
+                      <td className="py-4 px-2 text-slate-900 font-extrabold text-base text-center">{property.units}</td>
+                      <td className="py-4 px-2 text-slate-700 text-sm truncate text-center font-semibold">{property.address}</td>
+                      <td className="py-4 px-2 text-slate-700 text-sm truncate text-center font-semibold">{property.city}</td>
+                      <td className="py-4 px-2 text-center overflow-hidden">
                         {/* max-w-full gives truncate an edge to cut against —
                             without it the pill outgrows its fixed-width column
                             and prints over the Zip cell. inline-block rather
@@ -634,8 +634,8 @@ export default function Dashboard() {
                           {property.state}
                         </span>
                       </td>
-                      <td className="py-4 px-3 text-slate-700 font-mono text-sm text-center font-bold">{property.zipCode}</td>
-                      <td className="py-4 px-3">
+                      <td className="py-4 px-2 text-slate-700 font-mono text-sm text-center font-bold">{property.zipCode}</td>
+                      <td className="py-4 px-2">
                         <div className="w-full bg-slate-100 rounded-full h-2 mb-1">
                           <div
                             className="bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F] h-2 rounded-full transition-all duration-500"
@@ -646,20 +646,20 @@ export default function Dashboard() {
                           {propertyProgress[pid] || 0}%
                         </span>
                       </td>
-                      <td className="py-4 px-3">
-                        <div className="flex items-center justify-center gap-2">
+                      <td className="py-4 px-2">
+                        <div className="flex items-center justify-center gap-1.5">
                           {propertyProgress[pid] === 100 ? (
                             reportEmailed[pid] ? (
                               <button
                                 onClick={() => handleViewCompleted(property)}
-                                className="px-4 py-2.5 text-sm font-extrabold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
+                                className="px-3 py-2 text-sm font-extrabold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
                               >
                                 View Report
                               </button>
                             ) : (
                               <button
                                 onClick={() => handleViewCompleted(property)}
-                                className="px-4 py-2.5 text-sm font-extrabold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
+                                className="px-3 py-2 text-sm font-extrabold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
                               >
                                 Completed
                               </button>
@@ -667,21 +667,21 @@ export default function Dashboard() {
                           ) : activeInspectionId === pid ? (
                             <button
                               onClick={() => handleInitiate(property)}
-                              className="px-4 py-2.5 text-sm font-extrabold text-white bg-[#006795] hover:bg-[#0a5670] rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
+                              className="px-3 py-2 text-sm font-extrabold text-white bg-[#006795] hover:bg-[#0a5670] rounded-lg whitespace-nowrap transition-colors border-0 shadow-sm"
                             >
                               In Progress
                             </button>
                           ) : (
                             <button
                               onClick={() => handleInitiate(property)}
-                              className="px-4 py-2.5 text-sm font-extrabold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors shadow-sm shadow-teal-600/10 border-0"
+                              className="px-3 py-2 text-[15px] font-black text-white bg-teal-700 hover:bg-teal-800 rounded-lg transition-colors shadow-sm shadow-teal-600/10 border-0"
                             >
                               Initiate
                             </button>
                           )}
                           <button
                             onClick={() => handleRemoveProperty(property)}
-                            className="px-4 py-2.5 text-sm font-extrabold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors"
+                            className="px-3 py-2 text-sm font-extrabold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors"
                           >
                             Remove
                           </button>

@@ -1150,13 +1150,13 @@ export default function PropertyDetailsPage() {
                                                         {completed}/{building.unitsForInspection}
                                                     </span>
                                                 ) : (
-                                                    <span className="text-xs text-slate-400 font-bold">Not started</span>
+                                                    <span className="text-sm text-slate-600 font-black uppercase tracking-wide">Not Started</span>
                                                 )}
                                             </td>
                                             <td className="py-5 px-6">
                                                 <Button
                                                     onClick={() => handleBuildingClick(building)}
-                                                    className={`w-full font-bold h-9 rounded-full text-xs shadow-sm transition-all border-0 ${
+                                                    className={`w-full font-black h-11 rounded-full text-sm uppercase tracking-wide shadow-sm transition-all border-0 ${
                                                         allDone
                                                             ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/10'
                                                             : completed > 0
@@ -1249,12 +1249,12 @@ export default function PropertyDetailsPage() {
                                             {completed}/{building.unitsForInspection}
                                         </span>
                                     ) : (
-                                        <span className="text-slate-400 font-bold">Not started</span>
+                                        <span className="text-slate-600 font-black uppercase tracking-wide">Not Started</span>
                                     )}
                                 </div>
                                 <Button
                                     onClick={() => handleBuildingClick(building)}
-                                    className={`w-full font-bold h-9 rounded-full text-xs shadow-sm transition-all border-0 ${
+                                    className={`w-full font-black h-11 rounded-full text-sm uppercase tracking-wide shadow-sm transition-all border-0 ${
                                         allDone
                                             ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/10'
                                             : completed > 0
