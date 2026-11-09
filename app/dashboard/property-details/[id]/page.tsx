@@ -1144,14 +1144,22 @@ export default function PropertyDetailsPage() {
                                             <td className="py-5 px-6 text-lg text-slate-900 text-center font-black">{building.totalUnits}</td>
                                             <td className="py-5 px-6 text-lg text-slate-900 text-center font-black">{building.unitsForInspection}</td>
                                             <td className="py-5 px-6 text-center">
-                                                {completed > 0 ? (
-                                                    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border ${allDone ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
-                                                        {allDone ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> : <Clock className="w-3.5 h-3.5 text-amber-500" />}
-                                                        {completed}/{building.unitsForInspection}
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-sm text-slate-600 font-black uppercase tracking-wide">Not Started</span>
-                                                )}
+                                                {(() => {
+                                                    const compList = completedUnitsMap[building.buildingId] || []
+                                                    const totalTasks = 2 + building.unitsForInspection
+                                                    const pct = totalTasks > 0 ? Math.round((compList.length / totalTasks) * 100) : 0
+                                                    return (
+                                                        <div className="min-w-[130px] mx-auto">
+                                                            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-1.5">
+                                                                <div className={`h-full rounded-full transition-all duration-500 ${pct === 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-[#0E7490] to-[#00C6D7]'}`} style={{ width: `${pct}%` }} />
+                                                            </div>
+                                                            <span className={`block text-sm font-black ${pct === 100 ? 'text-emerald-600' : pct > 0 ? 'text-[#0E7490]' : 'text-slate-600'}`}>
+                                                                {pct}% Complete
+                                                            </span>
+                                                            <span className="block text-xs font-bold text-slate-600">{completed}/{building.unitsForInspection} units done</span>
+                                                        </div>
+                                                    )
+                                                })()}
                                             </td>
                                             <td className="py-5 px-6">
                                                 <Button
@@ -1243,14 +1251,19 @@ export default function PropertyDetailsPage() {
                                 </div>
                                 <div className="flex justify-between items-center pb-4 border-b border-slate-100 text-xs font-medium">
                                     <span className="text-slate-400 font-bold uppercase tracking-wider">Progress</span>
-                                    {completed > 0 ? (
-                                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${allDone ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
-                                            {allDone ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> : <Clock className="w-3.5 h-3.5 text-amber-500" />}
-                                            {completed}/{building.unitsForInspection}
-                                        </span>
-                                    ) : (
-                                        <span className="text-slate-600 font-black uppercase tracking-wide">Not Started</span>
-                                    )}
+                                    {(() => {
+                                        const compList = completedUnitsMap[building.buildingId] || []
+                                        const totalTasks = 2 + building.unitsForInspection
+                                        const pct = totalTasks > 0 ? Math.round((compList.length / totalTasks) * 100) : 0
+                                        return (
+                                            <div className="w-32 text-right">
+                                                <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-1">
+                                                    <div className={`h-full rounded-full transition-all duration-500 ${pct === 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-[#0E7490] to-[#00C6D7]'}`} style={{ width: `${pct}%` }} />
+                                                </div>
+                                                <span className={`text-sm font-black ${pct === 100 ? 'text-emerald-600' : pct > 0 ? 'text-[#0E7490]' : 'text-slate-600'}`}>{pct}% Complete</span>
+                                            </div>
+                                        )
+                                    })()}
                                 </div>
                                 <Button
                                     onClick={() => handleBuildingClick(building)}
