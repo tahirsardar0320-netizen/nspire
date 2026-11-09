@@ -1441,18 +1441,21 @@ export default function InspectionCategoryPage() {
     };
 
     const handleGeneralImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
         setIsUploadingGeneralImage(true);
         try {
-            const photo = await captureInspectionPhoto(file);
-            setGeneralImages(prev => [...prev, photo]);
+            for (const file of files) {
+                const photo = await captureInspectionPhoto(file);
+                setGeneralImages(prev => [...prev, photo]);
+            }
         } catch (error) {
             console.error('Could not attach the photo:', error);
             toast.error('Could not attach that photo. Please try again.', { position: 'top-right' });
         } finally {
             setIsUploadingGeneralImage(false);
             if (generalFileInputRef.current) generalFileInputRef.current.value = '';
+            if (generalGalleryInputRef.current) generalGalleryInputRef.current.value = '';
         }
     };
 
@@ -2677,6 +2680,7 @@ export default function InspectionCategoryPage() {
                                     ref={generalGalleryInputRef}
                                     type="file"
                                     accept="image/*"
+                                    multiple
                                     className="hidden"
                                     onChange={handleGeneralImageUpload}
                                 />
