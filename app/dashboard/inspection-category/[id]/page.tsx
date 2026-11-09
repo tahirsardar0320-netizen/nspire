@@ -2456,12 +2456,11 @@ export default function InspectionCategoryPage() {
                                 <button
                                     onClick={() => {
                                         void saveCurrentProgress().catch((e) => console.error('Save failed:', e))
-                                        handleOpenReportPreview()
+                                        router.push(`/dashboard/inspection/summary?propertyId=${property?._id || id}`)
                                     }}
-                                    disabled={loadingReportPreview}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-base font-extrabold shadow-lg active:scale-[0.99] transition-all disabled:opacity-60"
+                                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-base font-extrabold shadow-lg active:scale-[0.99] transition-all"
                                 >
-                                    <FileText className="w-4 h-4" /> {loadingReportPreview ? 'Loading...' : 'Export In Progress'}
+                                    <FileText className="w-4 h-4" /> Export In Progress
                                 </button>
                             </div>
                         </div>
@@ -2471,8 +2470,8 @@ export default function InspectionCategoryPage() {
 
             {/* Unit Selection Popup - shown when user clicks Units section without a unit selected */}
             {unitSelectionPopupOpen && (
-                <div className="fixed inset-0 bg-slate-100 z-50 flex flex-col">
-                    <div className="bg-white w-full h-full flex flex-col overflow-hidden">
+                <div className="fixed inset-0 bg-slate-100 lg:bg-slate-950/60 lg:backdrop-blur-sm z-50 flex flex-col lg:items-center lg:justify-center lg:p-8">
+                    <div className="bg-white w-full h-full lg:h-auto lg:max-h-[85vh] lg:max-w-xl lg:rounded-3xl lg:border lg:border-slate-100 lg:shadow-2xl flex flex-col overflow-hidden">
                         {/* Header */}
                         <div className="bg-gradient-to-r from-[#0E7490] to-[#006795] px-4 py-4 flex items-center gap-3 shadow-md">
                             <button
