@@ -549,26 +549,25 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-slate-100 z-50 font-lexend flex flex-col animate-in slide-in-from-right duration-300">
-      <div className="bg-white w-full h-full flex flex-col overflow-hidden modal-content">
-        {/* Full-page header, like every other screen now */}
-        <div className="flex items-center gap-3 px-4 py-4 bg-gradient-to-r from-[#0E7490] to-[#006795] shadow-md shrink-0">
-          <button
-            onClick={handleClose}
-            className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white shrink-0 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-          </button>
-          <h2 className="text-lg font-black text-white tracking-tight flex-1 min-w-0 truncate">Add New Property</h2>
-          <span className="bg-white/15 text-white text-xs font-bold px-3.5 py-1.5 rounded-full shrink-0">
+    <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 font-lexend animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 md:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto relative modal-content border border-slate-200/80 shadow-xl animate-in zoom-in-95 duration-200">
+        <button
+          onClick={handleClose}
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 border border-transparent hover:border-slate-200 transition-all z-10"
+        >
+          <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div className="flex items-center justify-between mb-4 sm:mb-6 pr-8 border-b border-slate-100 pb-3">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-extrabold text-teal-600 tracking-tight">Add New Property</h2>
+          <span className="bg-teal-50 text-teal-700 text-xs font-bold px-3.5 py-1.5 rounded-xl border border-teal-100/60 shadow-sm">
             {properties.length} {properties.length === 1 ? 'Property' : 'Properties'}
           </span>
         </div>
-        <div className="h-1 shrink-0 bg-gradient-to-r from-[#F84B5F] via-[#00C6D7] to-[#006795]" />
 
-        <div className="space-y-6 flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 w-full max-w-7xl mx-auto">
+        <div className="space-y-6">
           {properties.map((formData, index) => (
             <div key={index} className="border border-slate-200/80 bg-slate-50/20 rounded-2xl p-4 sm:p-5 relative shadow-sm">
               {properties.length > 1 && (
@@ -884,6 +883,19 @@ export function BuildingDivisionModal({ isOpen, onClose, onUpdate, propertyData 
         return
       }
     }
+    // The property declared a fixed unit count — the manual per-building split
+    // must still add up to exactly that. 50 declared and 55 entered is an
+    // error to fix, not something to silently accept or auto-correct.
+    const declaredTotal = parseInt(propertyData?.units) || 0
+    const enteredTotal = buildings.reduce((sum, b) => sum + (b.units || 0), 0)
+    if (declaredTotal > 0 && enteredTotal !== declaredTotal) {
+      const diff = enteredTotal - declaredTotal
+      toast.error(
+        `Total units must equal ${declaredTotal} — you have entered ${enteredTotal} (${Math.abs(diff)} ${diff > 0 ? 'over' : 'short'}). Adjust the buildings so they add up to ${declaredTotal}.`,
+        { position: "top-right", autoClose: 5000 }
+      )
+      return
+    }
     setIsLoading(true)
     try {
       await onUpdate(propertyData, buildings)
@@ -949,6 +961,18 @@ export function BuildingDivisionModal({ isOpen, onClose, onUpdate, propertyData 
             </div>
           ))}
         </div>
+
+        {/* Running total vs the declared unit count — visible while typing */}
+        {(() => {
+          const declaredTotal = parseInt(propertyData?.units) || 0
+          const enteredTotal = buildings.reduce((sum, b) => sum + (b.units || 0), 0)
+          const ok = declaredTotal === 0 || enteredTotal === declaredTotal
+          return (
+            <div className={`mb-4 text-center text-sm font-black rounded-xl py-2.5 px-4 ${ok ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-600'}`}>
+              Total: {enteredTotal} / {declaredTotal || enteredTotal} units{ok ? ' ✓' : ` — ${Math.abs(enteredTotal - declaredTotal)} ${enteredTotal > declaredTotal ? 'over' : 'short'}, adjust to match`}
+            </div>
+          )
+        })()}
 
         {/* Update Button */}
         <Button

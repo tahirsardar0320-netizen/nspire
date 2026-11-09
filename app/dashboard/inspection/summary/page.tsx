@@ -102,7 +102,7 @@ function NSPIREInspectionSummaryContent() {
   const [exporting, setExporting] = useState(false)
   const [exportingExcel, setExportingExcel] = useState(false)
   const [checkingUnlock, setCheckingUnlock] = useState(false)
-  const [isReportUnlocked, setIsReportUnlocked] = useState(true)
+  const [isReportUnlocked, setIsReportUnlocked] = useState(false)
   const [purchasingUnlock, setPurchasingUnlock] = useState(false)
   const [showSummaryModal, setShowSummaryModal] = useState(false)
   const [showReportPreview, setShowReportPreview] = useState(false)
@@ -986,9 +986,9 @@ function NSPIREInspectionSummaryContent() {
                 </p>
               )}
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1 rounded-xl bg-emerald-50 border border-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-700 shadow-sm">
+                <span className={`inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold shadow-sm border ${isReportUnlocked ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-amber-50 border-amber-100 text-amber-700'}`}>
                   <Unlock className="w-3.5 h-3.5" />
-                  Report Unlocked
+                  {isReportUnlocked ? 'Report Unlocked' : 'Full Report Locked'}
                 </span>
                 <Button
                   onClick={() => setShowUnlockSummaryModal(true)}
@@ -1005,6 +1005,7 @@ function NSPIREInspectionSummaryContent() {
                   <FileText className="w-3.5 h-3.5" />
                   View Deficiency
                 </Button>
+                {!isReportUnlocked && (
                 <Button
                   onClick={handleUnlockWithStripe}
                   disabled={purchasingUnlock}
@@ -1013,9 +1014,12 @@ function NSPIREInspectionSummaryContent() {
                   <Unlock className="w-3.5 h-3.5" />
                   {purchasingUnlock ? 'Starting...' : 'Unlock Report $10'}
                 </Button>
+                )}
               </div>
             </div>
             <div className="flex flex-wrap gap-2.5">
+              {isReportUnlocked && (
+              <>
               <Button
                 onClick={handleExportPDF}
                 disabled={exporting}
@@ -1030,6 +1034,8 @@ function NSPIREInspectionSummaryContent() {
               >
                 {exportingExcel ? 'Generating...' : 'Export Excel'}
               </Button>
+              </>
+              )}
               <Button
                 onClick={handleBackToInspection}
                 className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-2.5 rounded-xl border-0 shadow-sm shadow-amber-600/10 text-xs flex items-center justify-center gap-1.5"

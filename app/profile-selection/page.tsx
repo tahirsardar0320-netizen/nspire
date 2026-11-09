@@ -87,8 +87,8 @@ export default function ProfileSelection() {
                 <line x1="36.5" y1="26.5" x2="36.5" y2="33.5" stroke="white" strokeWidth="2" strokeLinecap="round"/>
               </svg>
             </div>
-            <h2 className="ps-bubble-title">Inspector Other</h2>
-            <p className="ps-bubble-desc">Select your inspector type to access the right inspector portal</p>
+            <h2 className="ps-bubble-title">Other</h2>
+            <p className="ps-bubble-desc">For others</p>
             <div className="ps-bubble-btn" style={{ background: "linear-gradient(135deg,#fb923c,#e11d48)" }}>
               {typeOpen ? "Close ✕" : "Select Type"}
               {!typeOpen && <span className="ps-arrow group-hover:translate-x-1">→</span>}

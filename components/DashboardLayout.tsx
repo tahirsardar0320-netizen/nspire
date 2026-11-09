@@ -91,15 +91,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="min-h-screen bg-slate-100 flex font-lexend">
+      {/* Blurred cityscape behind everything — same photo family as the home page,
+          washed down so the cards stay readable. */}
+      <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
+        <div className="absolute inset-0 bg-[url('/multi_unit_housing.png')] bg-cover bg-center blur-[7px] scale-105" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#E8F4F8]/85 via-white/80 to-[#E8F4F8]/90" />
+      </div>
+
       {/* Desktop Sidebar */}
-      {!inInspection && <aside className="hidden lg:flex lg:flex-col w-64 bg-gradient-to-b from-[#0F4C5C] to-[#142834] shadow-xl border-r border-[#0F4C5C]/30 fixed h-full z-10 overflow-hidden">
-        <div className="h-1.5 shrink-0 bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F]" />
+      {!inInspection && <aside className="hidden lg:flex lg:flex-col w-64 bg-gradient-to-b from-[#0090C0] via-[#005E92] to-[#003A66] shadow-xl border-r-2 border-[#40D0F0]/70 fixed h-full z-10 overflow-hidden">
+        <div className="h-1.5 shrink-0 bg-gradient-to-r from-[#40D0F0] via-[#0090C0] to-[#F84B5F]" />
         {/* Decorative color blooms so the panel isn't a flat block of color */}
-        <div className="absolute -top-16 -right-16 w-64 h-64 bg-[#00C6D7]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-16 -right-16 w-64 h-64 bg-[#40D0F0]/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-1/2 -left-20 w-56 h-56 bg-[#F84B5F]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-24 -right-10 w-48 h-48 bg-[#00C6D7]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative p-6 border-b border-[#0F4C5C]/40 flex justify-center overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-[#00C6D7]/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-24 -right-10 w-48 h-48 bg-[#40D0F0]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative p-6 border-b border-[#40D0F0]/30 flex justify-center overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-[#40D0F0]/25 rounded-full blur-3xl pointer-events-none" />
           <Image
             src="/logo.png?v=3"
             alt="NSPIRE"
@@ -115,7 +122,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <button
               key={item.path}
               onClick={() => router.push(item.path)}
-              className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg font-medium transition-all duration-200 ${
+              className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-base font-semibold transition-all duration-200 ${
                 isActive(item.path)
                   ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -127,10 +134,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-[#0F4C5C]/40">
+        <div className="p-4 border-t border-[#40D0F0]/30">
           <button
             onClick={() => router.push('/dashboard/settings')}
-            className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg font-medium transition-all duration-200 ${
+            className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-base font-semibold transition-all duration-200 ${
               isActive('/dashboard/settings')
                 ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30'
                 : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -149,7 +156,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               toast.success("Logged out successfully!", { position: "top-right" })
               setTimeout(() => router.push('/'), 1500)
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg font-medium transition-all duration-200"
+            className="w-full flex items-center gap-3 px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-base font-semibold transition-all duration-200"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
@@ -168,15 +175,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       )}
 
       {/* Mobile Sidebar */}
-      <aside className={`fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-[#0F4C5C] to-[#142834] shadow-lg z-50 transform transition-transform duration-300 lg:hidden flex flex-col overflow-hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+      <aside className={`fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-[#0090C0] via-[#005E92] to-[#003A66] shadow-lg z-50 transform transition-transform duration-300 lg:hidden flex flex-col overflow-hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}>
-        <div className="h-1.5 shrink-0 bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F]" />
+        <div className="h-1.5 shrink-0 bg-gradient-to-r from-[#40D0F0] via-[#0090C0] to-[#F84B5F]" />
         {/* Decorative color blooms so the panel isn't a flat block of color */}
-        <div className="absolute -top-16 -right-16 w-64 h-64 bg-[#00C6D7]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-16 -right-16 w-64 h-64 bg-[#40D0F0]/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-1/2 -left-20 w-56 h-56 bg-[#F84B5F]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-24 -right-10 w-48 h-48 bg-[#00C6D7]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative p-4 border-b border-[#0F4C5C]/40 flex items-center justify-between overflow-hidden">
-          <div className="absolute top-1/2 left-8 -translate-y-1/2 w-28 h-28 bg-[#00C6D7]/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-24 -right-10 w-48 h-48 bg-[#40D0F0]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative p-4 border-b border-[#40D0F0]/30 flex items-center justify-between overflow-hidden">
+          <div className="absolute top-1/2 left-8 -translate-y-1/2 w-28 h-28 bg-[#40D0F0]/25 rounded-full blur-3xl pointer-events-none" />
           <Image
             src="/logo.png?v=3"
             alt="NSPIRE"
@@ -206,7 +213,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 router.push(item.path)
                 setIsMobileMenuOpen(false)
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg font-medium transition-all duration-200 ${isActive(item.path) ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30' : 'text-white/80 hover:text-white hover:bg-white/10'
+              className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-base font-semibold transition-all duration-200 ${isActive(item.path) ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30' : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`}
             >
               {item.icon}
@@ -215,13 +222,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-[#0F4C5C]/40">
+        <div className="p-4 border-t border-[#40D0F0]/30">
           <button
             onClick={() => {
               router.push('/dashboard/settings')
               setIsMobileMenuOpen(false)
             }}
-            className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg font-medium transition-all duration-200 ${isActive('/dashboard/settings') ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30' : 'text-white/80 hover:text-white hover:bg-white/10'
+            className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-base font-semibold transition-all duration-200 ${isActive('/dashboard/settings') ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30' : 'text-white/80 hover:text-white hover:bg-white/10'
               }`}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -238,7 +245,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               setTimeout(() => router.push('/'), 1500)
               setIsMobileMenuOpen(false)
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg font-medium transition-all duration-200"
+            className="w-full flex items-center gap-3 px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-base font-semibold transition-all duration-200"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
@@ -249,7 +256,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </aside>
 
       {/* Main Content */}
-      <main className={`flex-1 ${inInspection ? '' : 'lg:ml-64'}`}>
+      <main className={`relative z-10 flex-1 ${inInspection ? '' : 'lg:ml-64'}`}>
         {/* Top Header */}
         <header className="bg-white border-b border-slate-200/85 px-4 md:px-6 py-4 sticky top-0 z-30 shadow-sm">
           <div className="flex items-center justify-between gap-4">

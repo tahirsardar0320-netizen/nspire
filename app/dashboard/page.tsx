@@ -576,16 +576,16 @@ export default function Dashboard() {
                         className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                       />
                     </th>
-                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[11%]">Property ID</th>
-                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[14%]">Property Name</th>
-                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[8%]">Buildings</th>
-                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[7%]">Units</th>
-                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[12%]">Address</th>
-                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[9%]">City</th>
-                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[10%]">State</th>
-                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[7%]">Zip</th>
-                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[9%]">Progress</th>
-                    <th className="text-center py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-tight w-[13%]">Actions</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[11%]">Property ID</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[14%]">Property Name</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[8%]">Buildings</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[7%]">Units</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[12%]">Address</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[9%]">City</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[10%]">State</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[7%]">Zip</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[9%]">Progress</th>
+                    <th className="text-center py-3 px-3 text-[13px] font-black text-slate-900 uppercase tracking-tight w-[13%]">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">

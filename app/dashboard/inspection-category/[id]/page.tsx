@@ -1488,10 +1488,6 @@ export default function InspectionCategoryPage() {
 
     const handleProceed = async () => {
         if (proceedingRef.current) return;
-        if (photos.length === 0) {
-            toast.error("Please upload a photo first");
-            return;
-        }
         proceedingRef.current = true;
         setIsAnalyzing(true);
         try {
@@ -2125,7 +2121,7 @@ export default function InspectionCategoryPage() {
 
     return (
         <PortalLayout>
-            <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto font-sans overflow-x-hidden">
+            <div className="p-4 sm:p-6 lg:p-8 w-full font-sans overflow-x-hidden">
                 {/* The page chrome belongs to the categories screen only — a
                     section open means its own clean page, nothing stacked above. */}
                 {sectionView === '' && (
@@ -2242,7 +2238,7 @@ export default function InspectionCategoryPage() {
                 {/* ——— NSPIRE.ai-style flow: categories list ⇄ full-page sections ——— */}
                 {sectionView === '' ? (
                     <>
-                        <div className="rounded-2xl bg-gradient-to-r from-[#0E7490] to-[#006795] text-white px-4 py-3 mb-4 flex items-center gap-2.5 shadow-md">
+                        <div className="rounded-2xl bg-gradient-to-r from-[#0E7490] to-[#006795] text-white px-4 py-3 lg:px-6 lg:py-5 mb-4 lg:mb-6 flex items-center gap-2.5 shadow-md">
                             <Building2 className="w-5 h-5 shrink-0" />
                             <div className="flex-1 min-w-0">
                                 <h2 className="text-base font-extrabold tracking-wide uppercase truncate">Building No: {buildingName}</h2>
@@ -2258,9 +2254,9 @@ export default function InspectionCategoryPage() {
                         </div>
 
                         {([
-                            { sec: 'outside', title: 'OUTSIDE', subtitle: 'Areas affected by rain, snow, wind', icon: <CloudRain className="w-5 h-5 text-[#0E7490]" />, prog: outsideProgress, total: outsideItemsList.length },
-                            { sec: 'inside', title: 'INSIDE', subtitle: 'Interior common area, utility closet, mechanical rooms', icon: <Home className="w-5 h-5 text-[#0E7490]" />, prog: insideProgress, total: insideItemsList.length },
-                            { sec: 'unit', title: 'UNITS', subtitle: 'Individual unit inspections', icon: <LayoutGrid className="w-5 h-5 text-[#0E7490]" />, prog: unitProgress, total: unitProgress.total },
+                            { sec: 'outside', title: 'OUTSIDE', subtitle: 'Areas affected by rain, snow, wind', icon: <CloudRain className="w-5 h-5 lg:w-8 lg:h-8 text-[#0E7490]" />, prog: outsideProgress, total: outsideItemsList.length },
+                            { sec: 'inside', title: 'INSIDE', subtitle: 'Interior common area, utility closet, mechanical rooms', icon: <Home className="w-5 h-5 lg:w-8 lg:h-8 text-[#0E7490]" />, prog: insideProgress, total: insideItemsList.length },
+                            { sec: 'unit', title: 'UNITS', subtitle: 'Individual unit inspections', icon: <LayoutGrid className="w-5 h-5 lg:w-8 lg:h-8 text-[#0E7490]" />, prog: unitProgress, total: unitProgress.total },
                         ] as const).map(({ sec, title, subtitle, icon, prog, total }) => (
                             <button
                                 key={sec}
@@ -2268,18 +2264,18 @@ export default function InspectionCategoryPage() {
                                     if (sec === 'unit' && !activeInspectionUnit) { setUnitSelectionPopupOpen(true); return }
                                     gotoSection(sec)
                                 }}
-                                className="w-full bg-white rounded-2xl shadow-sm border border-slate-100 p-3.5 mb-3 flex items-center gap-3 text-left hover:shadow-md active:scale-[0.99] transition-all"
+                                className="w-full bg-white rounded-2xl shadow-sm border border-slate-100 p-3.5 mb-3 lg:p-8 lg:mb-6 flex items-center gap-3 lg:gap-5 text-left hover:shadow-md active:scale-[0.99] transition-all"
                             >
-                                <div className="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center shrink-0">{icon}</div>
+                                <div className="w-10 h-10 lg:w-16 lg:h-16 rounded-lg lg:rounded-2xl bg-sky-50 flex items-center justify-center shrink-0">{icon}</div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-extrabold text-slate-900 tracking-wide">{title}</p>
-                                    <p className="text-xs text-slate-500 font-medium leading-snug">{subtitle}</p>
-                                    <div className="mt-1.5 w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                                    <p className="text-sm lg:text-2xl font-extrabold text-slate-900 tracking-wide">{title}</p>
+                                    <p className="text-xs lg:text-base text-slate-500 font-medium leading-snug">{subtitle}</p>
+                                    <div className="mt-1.5 lg:mt-3 w-full h-1 lg:h-2 bg-slate-100 rounded-full overflow-hidden">
                                         <div className="h-full bg-gradient-to-r from-[#0E7490] to-[#00C6D7] rounded-full transition-all duration-500" style={{ width: `${prog.percentage}%` }} />
                                     </div>
-                                    <p className="mt-1 text-[11px] font-bold text-[#0E7490]">{prog.completed}/{total} • {prog.percentage}% Complete</p>
+                                    <p className="mt-1 lg:mt-2 text-[11px] lg:text-sm font-bold text-[#0E7490]">{prog.completed}/{total} • {prog.percentage}% Complete</p>
                                 </div>
-                                <ChevronRight className="w-5 h-5 text-slate-300 shrink-0" />
+                                <ChevronRight className="w-5 h-5 lg:w-7 lg:h-7 text-slate-300 shrink-0" />
                             </button>
                         ))}
 
@@ -2363,7 +2359,6 @@ export default function InspectionCategoryPage() {
                                         All No OD
                                     </button>
                                     <span className="flex items-center gap-2 text-sm font-extrabold text-red-600">
-                                        <span className="w-4 h-4 rounded border-2 border-red-500" />
                                         Observe Deficiency
                                     </span>
                                     <button onClick={() => selectAll(sec, 'N/A')} className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
@@ -2694,8 +2689,8 @@ export default function InspectionCategoryPage() {
 
             {/* OD Modal - BULLETPROOF SCROLLING AND POSITIONING */}
             {isODModalOpen && (
-                <div className="fixed inset-0 bg-slate-100 z-[1000] overflow-hidden isolate">
-                    <Card className="font-lexend w-full h-full max-w-none bg-white rounded-none border-0 shadow-none overflow-hidden animate-in slide-in-from-right duration-300 flex flex-col">
+                <div className="fixed inset-0 bg-slate-100 lg:bg-slate-950/60 lg:backdrop-blur-sm z-[1000] overflow-hidden isolate lg:flex lg:items-center lg:justify-center lg:p-8">
+                    <Card className="font-lexend w-full h-full max-w-none bg-white rounded-none border-0 shadow-none lg:h-auto lg:max-h-[88vh] lg:max-w-2xl lg:rounded-3xl lg:border lg:border-slate-100 lg:shadow-2xl overflow-hidden animate-in slide-in-from-right lg:slide-in-from-top-4 duration-300 flex flex-col">
                         <div className="flex items-center gap-3 px-4 py-4 shrink-0 bg-gradient-to-r from-[#0E7490] to-[#006795] sticky top-0 z-20 shadow-md">
                             <button onClick={handleODModalClose} className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white shrink-0 transition-colors">
                                 <ArrowLeft className="w-5 h-5" />
@@ -3091,7 +3086,7 @@ export default function InspectionCategoryPage() {
                                 <Button variant="outline" onClick={handleODModalClose} className="flex-1 font-black h-14 rounded-xl border-2 bg-white hover:bg-gray-50 text-gray-500 uppercase text-[10px] tracking-widest">Cancel</Button>
                                 <Button
                                     onClick={handleProceed}
-                                    disabled={isAnalyzing || photos.length === 0}
+                                    disabled={isAnalyzing}
                                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black h-14 rounded-xl shadow-lg shadow-blue-100 uppercase text-[10px] tracking-widest disabled:opacity-50 disabled:cursor-not-allowed group"
                                 >
                                     {isAnalyzing ? 'Analyzing...' : 'Proceed'}

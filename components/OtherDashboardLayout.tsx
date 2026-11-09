@@ -111,6 +111,13 @@ export default function OtherDashboardLayout({ children }: OtherDashboardLayoutP
 
   return (
     <div className="min-h-screen bg-slate-100 flex font-lexend">
+      {/* Blurred cityscape behind everything — same photo family as the home page,
+          washed down so the cards stay readable. */}
+      <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
+        <div className="absolute inset-0 bg-[url('/multi_unit_housing.png')] bg-cover bg-center blur-[7px] scale-105" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#E8F4F8]/85 via-white/80 to-[#E8F4F8]/90" />
+      </div>
+
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex lg:flex-col w-64 bg-gradient-to-b from-[#1E1B4B] to-[#312E81] shadow-xl border-r border-[#312E81]/30 fixed h-full z-10">
         <div className="p-6 border-b border-[#312E81]/40 flex justify-center">
@@ -264,7 +271,7 @@ export default function OtherDashboardLayout({ children }: OtherDashboardLayoutP
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-64">
+      <main className="relative z-10 flex-1 lg:ml-64">
         {/* Top Header */}
         <header className="bg-gradient-to-r from-[#1E1B4B] to-[#312E81] shadow-md px-4 md:px-6 py-4 sticky top-0 z-30">
           <div className="flex items-center justify-between gap-4">

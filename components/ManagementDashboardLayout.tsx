@@ -131,6 +131,13 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
 
   return (
     <div className="min-h-screen bg-[#E8F4F8] flex">
+      {/* Blurred cityscape behind everything — same photo family as the home page,
+          washed down so the cards stay readable. */}
+      <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
+        <div className="absolute inset-0 bg-[url('/multi_unit_housing.png')] bg-cover bg-center blur-[7px] scale-105" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#E8F4F8]/85 via-white/80 to-[#E8F4F8]/90" />
+      </div>
+
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex lg:flex-col w-64 bg-gradient-to-b from-[#4A1526] to-[#2B0D18] shadow-xl border-r border-[#4A1526]/30 fixed h-full z-10">
         <div className="p-6 border-b border-white/10">
@@ -268,7 +275,7 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-64">
+      <main className="relative z-10 flex-1 lg:ml-64">
         {/* Top Header */}
         <header className="bg-white shadow-sm px-4 md:px-6 py-4 sticky top-0 z-30">
           <div className="flex items-center justify-between gap-4">

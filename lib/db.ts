@@ -131,6 +131,19 @@ inspectionSchema.index({ inspectorId: 1, propertyId: 1, inspectionType: 1, build
 
 export const Inspection = mongoose.models.Inspection || mongoose.model('Inspection', inspectionSchema);
 
+// ── Report Unlock (Stripe $10 full-report purchases) ──
+// One row per paid inspection; existence with paid:true is what unlocks the
+// PDF/Excel/work-order exports for that inspection.
+const reportUnlockSchema = new mongoose.Schema({
+  inspectionId: { type: String, unique: true },
+  paid: { type: Boolean, default: false },
+  stripeSessionId: String,
+  amountCents: Number,
+  unlockedAt: Date,
+}, { timestamps: true });
+
+export const ReportUnlock = mongoose.models.ReportUnlock || mongoose.model('ReportUnlock', reportUnlockSchema);
+
 // ── OAuth Handoff Schema ──
 // The popup/postMessage bridge only works when the browser keeps the opener
 // link. Capacitor hands external URLs (accounts.google.com) to the system
