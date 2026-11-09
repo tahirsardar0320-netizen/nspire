@@ -288,7 +288,7 @@ export default function MyInspection() {
                 <thead>
                   <tr className="border-b border-slate-200">
                     {/* Select-all checkbox */}
-                    <th className="py-3 px-4 w-10 text-center">
+                    <th className="py-3 px-1 w-8 text-center">
                       <input
                         type="checkbox"
                         checked={allSelected}
@@ -297,19 +297,19 @@ export default function MyInspection() {
                         className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                       />
                     </th>
-                    <th className="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Property ID</th>
-                    <th className="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Property Name</th>
-                    <th className="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Address</th>
-                    <th className="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">State/Province</th>
-                    <th className="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">City/Area</th>
-                    <th className="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Postal Code</th>
-                    <th className="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Buildings</th>
-                    <th className="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Units</th>
-                    <th className="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Progress</th>
-                    <th className="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Action</th>
+                    <th className="py-3 px-2 text-base font-black text-slate-900 uppercase tracking-tight text-center border-r border-slate-200 last:border-r-0">Property ID</th>
+                    <th className="py-3 px-2 text-base font-black text-slate-900 uppercase tracking-tight text-center border-r border-slate-200 last:border-r-0">Property Name</th>
+                    <th className="py-3 px-2 text-base font-black text-slate-900 uppercase tracking-tight text-center border-r border-slate-200 last:border-r-0">Address</th>
+                    <th className="py-3 px-2 text-base font-black text-slate-900 uppercase tracking-tight text-center border-r border-slate-200 last:border-r-0">State/Province</th>
+                    <th className="py-3 px-2 text-base font-black text-slate-900 uppercase tracking-tight text-center border-r border-slate-200 last:border-r-0">City/Area</th>
+                    <th className="py-3 px-2 text-base font-black text-slate-900 uppercase tracking-tight text-center border-r border-slate-200 last:border-r-0">Postal Code</th>
+                    <th className="py-3 px-2 text-base font-black text-slate-900 uppercase tracking-tight text-center border-r border-slate-200 last:border-r-0">Buildings</th>
+                    <th className="py-3 px-2 text-base font-black text-slate-900 uppercase tracking-tight text-center border-r border-slate-200 last:border-r-0">Units</th>
+                    <th className="py-3 px-2 text-base font-black text-slate-900 uppercase tracking-tight text-center border-r border-slate-200 last:border-r-0">Progress</th>
+                    <th className="py-3 px-2 text-base font-black text-slate-900 uppercase tracking-tight text-center border-r border-slate-200 last:border-r-0">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-200 [&_td]:border-r [&_td]:border-slate-200/80 [&_td:last-child]:border-r-0">
                   {properties.map((property) => {
                     const pid = property._id || property.propertyId
                     const isChecked = selectedIds.has(pid)
@@ -360,7 +360,7 @@ export default function MyInspection() {
                             reportEmailed[pid] ? (
                               <button
                                 onClick={() => handleViewCompleted(property)}
-                                className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center justify-center gap-1.5 mx-auto border-0 shadow-sm transition-colors"
+                                className="w-[112px] px-1 py-2 text-sm font-black text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg text-center flex items-center justify-center gap-1.5 mx-auto border-0 shadow-sm transition-colors"
                               >
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -370,7 +370,7 @@ export default function MyInspection() {
                             ) : (
                               <button
                                 onClick={() => handleViewCompleted(property)}
-                                className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center justify-center gap-1.5 mx-auto border-0 shadow-sm transition-colors"
+                                className="w-[112px] px-1 py-2 text-sm font-black text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg text-center flex items-center justify-center gap-1.5 mx-auto border-0 shadow-sm transition-colors"
                               >
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -381,14 +381,14 @@ export default function MyInspection() {
                           ) : activeInspectionId === pid ? (
                             <button
                               onClick={() => handleInitiate(property)}
-                              className="px-4 py-1.5 text-[11px] font-bold text-white bg-[#006795] hover:bg-[#0a5670] rounded-lg whitespace-nowrap mx-auto border-0 shadow-sm transition-colors"
+                              className="w-[112px] px-1 py-2 text-sm font-black text-white bg-[#006795] hover:bg-[#0a5670] rounded-lg whitespace-nowrap mx-auto border-0 shadow-sm transition-colors text-center"
                             >
                               In Progress
                             </button>
                           ) : (
                             <button
                               onClick={() => handleInitiate(property)}
-                              className="px-4 py-1.5 text-xs font-bold text-white bg-teal-700 hover:bg-teal-800 rounded-lg transition-colors shadow-sm border-0"
+                              className="w-[112px] px-1 py-2 text-sm font-black text-white bg-teal-700 hover:bg-teal-800 rounded-lg transition-colors shadow-sm border-0 text-center"
                             >
                               Initiate
                             </button>

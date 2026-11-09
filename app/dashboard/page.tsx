@@ -589,7 +589,7 @@ export default function Dashboard() {
               <table className="w-full table-fixed">
                 <thead className="bg-slate-50/75 border-b border-slate-200">
                   <tr>
-                    <th className="py-3 px-3 w-10 text-center">
+                    <th className="py-3 px-1 w-[3%] text-center">
                       <input
                         type="checkbox"
                         checked={allSelected}
@@ -599,10 +599,10 @@ export default function Dashboard() {
                       />
                     </th>
                     <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[9%]">Property ID</th>
-                    <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[12%]">Property Name</th>
-                    <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[7%]">Buildings</th>
+                    <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[13%]">Property Name</th>
+                    <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[8%]">Buildings</th>
                     <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[6%]">Units</th>
-                    <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[9%]">Address</th>
+                    <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[10%]">Address</th>
                     <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[7%]">City</th>
                     <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[7%]">State</th>
                     <th className="text-center py-3 px-1.5 text-lg font-black text-slate-900 uppercase tracking-tight border-r border-slate-200 last:border-r-0 w-[5%]">Zip</th>

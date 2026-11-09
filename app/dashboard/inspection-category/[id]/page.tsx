@@ -178,7 +178,7 @@ export default function InspectionCategoryPage() {
     const gotoSection = (sec: '' | 'outside' | 'inside' | 'unit') => {
         setSectionView(sec)
         const sp = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : (searchParams?.toString() || ''))
-        if (sec) sp.set('section', sec); else sp.delete('section')
+        if (sec) sp.set('section', sec); else { sp.delete('section'); sp.delete('unit') }
         router.push(`/dashboard/inspection-category/${id}?${sp.toString()}`)
     }
     const urlUnit = qp('unit') || ''
