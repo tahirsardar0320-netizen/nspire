@@ -174,7 +174,7 @@ export async function generateNSPIREReportExcelBlob(report: NSPIREInspectionRepo
 
   // The NSPIRE logo, same as the PDF carries. It floats over the first rows'
   // left columns; the title is merged to its right so they share the band.
-  const logo = await imageBase64('/logo.png?v=2')
+  const logo = await imageBase64('/logo.png?v=3')
   const titleRow = sheet.addRow(['', '', 'NSPIRE INSPECTION REPORT'])
   titleRow.height = 64
   sheet.mergeCells(titleRow.number, 3, titleRow.number, COLUMNS.length)

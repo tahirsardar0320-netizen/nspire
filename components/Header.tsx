@@ -31,7 +31,7 @@ export default function Header() {
           <div className="flex-shrink-0 ml-2 md:ml-6">
             <Link href="/" className="flex flex-col">
               <Image
-                src="/logo.png?v=2"
+                src="/logo.png?v=3"
                 alt="NSPIRE"
                 width={160}
                 height={44}

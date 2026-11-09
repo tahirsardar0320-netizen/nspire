@@ -1135,7 +1135,7 @@ export default function PropertyDetailsPage() {
                                                 ) : (
                                                     <div className="flex items-center gap-1.5 group">
                                                         <span className="text-sm text-slate-900 font-extrabold">{getBuildingDisplayName(building.buildingId)}</span>
-                                                        <button onClick={() => handleStartBuildingEdit(building.buildingId)} className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-teal-50 text-teal-600 transition-all">
+                                                        <button onClick={() => handleStartBuildingEdit(building.buildingId)} className="p-1 rounded-lg hover:bg-teal-50 text-teal-600 transition-all">
                                                             <Pencil className="w-3 h-3" />
                                                         </button>
                                                     </div>
@@ -1227,7 +1227,7 @@ export default function PropertyDetailsPage() {
                                     ) : (
                                         <div className="flex items-center gap-1 group">
                                             <span className="text-sm text-slate-900 font-extrabold">{getBuildingDisplayName(building.buildingId)}</span>
-                                            <button onClick={() => handleStartBuildingEdit(building.buildingId)} className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-teal-50 text-teal-600 transition-opacity">
+                                            <button onClick={() => handleStartBuildingEdit(building.buildingId)} className="p-0.5 rounded hover:bg-teal-50 text-teal-600">
                                                 <Pencil className="w-3 h-3" />
                                             </button>
                                         </div>

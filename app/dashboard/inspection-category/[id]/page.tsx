@@ -328,7 +328,7 @@ export default function InspectionCategoryPage() {
     // General Comment modal state
     const [isGeneralModalOpen, setIsGeneralModalOpen] = useState(false);
     const [generalNote, setGeneralNote] = useState('');
-    const [generalImage, setGeneralImage] = useState<string | null>(null);
+    const [generalImages, setGeneralImages] = useState<string[]>([]);
     const [currentGeneralSection, setCurrentGeneralSection] = useState<'outside' | 'inside' | 'unit' | null>(null);
     const [currentGeneralItem, setCurrentGeneralItem] = useState<string | null>(null);
     const [isUploadingGeneralImage, setIsUploadingGeneralImage] = useState(false);
@@ -1202,7 +1202,7 @@ export default function InspectionCategoryPage() {
             setCurrentGeneralSection(section);
             setCurrentGeneralItem(itemName);
             setGeneralNote('');
-            setGeneralImage(null);
+            setGeneralImages([]);
             setIsGeneralModalOpen(true);
             return;
         }
@@ -1394,7 +1394,7 @@ export default function InspectionCategoryPage() {
     const handleGeneralModalClose = () => {
         setIsGeneralModalOpen(false);
         setGeneralNote('');
-        setGeneralImage(null);
+        setGeneralImages([]);
         setCurrentGeneralSection(null);
         setCurrentGeneralItem(null);
     };
@@ -1413,9 +1413,10 @@ export default function InspectionCategoryPage() {
             // no report. They are a finding like any other now, so the
             // autosave persists them and the report shows them.
             const unitVal = currentGeneralSection === 'unit' ? (activeInspectionUnit || unitsString) : '-';
-            setPropertyFindings(prev => ([...prev, {
-                id: `DEF-${Date.now()}`,
-                imageUri: generalImage || '',
+            const gcPhotos = generalImages.length > 0 ? generalImages : [''];
+            setPropertyFindings(prev => ([...prev, ...gcPhotos.map((photo, pi) => ({
+                id: `DEF-${Date.now()}-${pi}`,
+                imageUri: photo,
                 title: `General Comment — ${currentGeneralItem}`,
                 description: generalNote || currentGeneralItem,
                 category: currentGeneralItem,
@@ -1431,7 +1432,7 @@ export default function InspectionCategoryPage() {
                 timestamp: new Date().toISOString(),
                 area: currentGeneralSection,
                 item: currentGeneralItem,
-            }]));
+            }))]));
             const savedKey = odSavedKey(currentGeneralSection, currentGeneralItem);
             setSavedODItems(prev => new Set(prev).add(savedKey));
         }
@@ -1444,7 +1445,8 @@ export default function InspectionCategoryPage() {
         if (!file) return;
         setIsUploadingGeneralImage(true);
         try {
-            setGeneralImage(await captureInspectionPhoto(file));
+            const photo = await captureInspectionPhoto(file);
+            setGeneralImages(prev => [...prev, photo]);
         } catch (error) {
             console.error('Could not attach the photo:', error);
             toast.error('Could not attach that photo. Please try again.', { position: 'top-right' });
@@ -1673,7 +1675,7 @@ export default function InspectionCategoryPage() {
     const pickGeneralPhoto = async (source: 'camera' | 'gallery') => {
         try {
             const url = await captureInspectionPhotoNative(source);
-            if (url) { setGeneralImage(url); return; }
+            if (url) { setGeneralImages(prev => [...prev, url]); return; }
         } catch (e) { console.error('Native capture failed:', e); }
         if (source === 'camera') generalFileInputRef.current?.click();
         else generalGalleryInputRef.current?.click();
@@ -1694,10 +1696,8 @@ export default function InspectionCategoryPage() {
         }
     };
 
-    const getDefaultLocation = (section: 'outside' | 'inside' | 'unit' | null) => {
-        const list = section === 'outside' ? OUTSIDE_LOCATION_OPTIONS : section === 'inside' ? INSIDE_LOCATION_OPTIONS : UNIT_LOCATION_OPTIONS;
-        return list[0];
-    };
+    // Koke: the dropdown must open blank, not pre-filled with Basement/first entry.
+    const getDefaultLocation = (_section: 'outside' | 'inside' | 'unit' | null) => '';
 
     const getFilteredDeficiencies = () => {
         if (!currentModalItem) return [];
@@ -2141,7 +2141,7 @@ export default function InspectionCategoryPage() {
                                 className="h-9 px-4 bg-[#006795] hover:bg-[#005578] text-white font-black rounded-xl uppercase tracking-wider text-[10px] flex items-center gap-1.5 shrink-0"
                             >
                                 <FileText className="w-3.5 h-3.5" />
-                                {loadingReportPreview ? '...' : 'Summary'}
+                                {loadingReportPreview ? '...' : 'NSPIRE Summary'}
                             </Button>
                         </div>
                         {!isOnline && (
@@ -2244,7 +2244,10 @@ export default function InspectionCategoryPage() {
                     <>
                         <div className="rounded-2xl bg-gradient-to-r from-[#0E7490] to-[#006795] text-white px-4 py-3 mb-4 flex items-center gap-2.5 shadow-md">
                             <Building2 className="w-5 h-5 shrink-0" />
-                            <h2 className="text-base font-extrabold tracking-wide uppercase flex-1 min-w-0 truncate">Building No: {buildingName}</h2>
+                            <div className="flex-1 min-w-0">
+                                <h2 className="text-base font-extrabold tracking-wide uppercase truncate">Building No: {buildingName}</h2>
+                                {property?.name && <p className="text-[11px] text-white/85 font-semibold truncate">{property.name}</p>}
+                            </div>
                             <button
                                 onClick={openBuildingEditModal}
                                 className="p-1.5 rounded-full hover:bg-white/15 text-white/90 transition-colors shrink-0"
@@ -2280,13 +2283,6 @@ export default function InspectionCategoryPage() {
                             </button>
                         ))}
 
-                        <Button
-                            onClick={() => router.push(`/dashboard/inspection/summary?propertyId=${property?._id || id}`)}
-                            className="w-full h-11 mt-1 bg-[#F84B5F] hover:bg-[#e03a4e] text-white font-black rounded-xl shadow-md uppercase tracking-widest text-[11px] flex items-center justify-center gap-2"
-                        >
-                            <Mail className="w-4 h-4" />
-                            View Report on Email
-                        </Button>
                     </>
                 ) : (
                     <div className="-mx-4 sm:mx-0 pb-32">
@@ -2360,17 +2356,17 @@ export default function InspectionCategoryPage() {
                             const allNa = toggleable.length > 0 && toggleable.every(i => statuses[i] === 'N/A')
                             return (
                                 <div className="bg-white mx-4 sm:mx-0 mt-3 rounded-xl border border-slate-200 px-3 py-2 flex items-center justify-between gap-2">
-                                    <button onClick={() => selectAll(sec, 'No OD')} className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                                    <button onClick={() => selectAll(sec, 'No OD')} className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
                                         <span className={`w-4 h-4 rounded border-2 flex items-center justify-center ${allNoOd ? 'bg-emerald-600 border-emerald-600' : 'border-slate-300'}`}>
                                             {allNoOd && <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />}
                                         </span>
                                         All No OD
                                     </button>
-                                    <span className="flex items-center gap-1.5 text-xs font-extrabold text-red-600">
+                                    <span className="flex items-center gap-2 text-sm font-extrabold text-red-600">
                                         <span className="w-4 h-4 rounded border-2 border-red-500" />
                                         Observe Deficiency
                                     </span>
-                                    <button onClick={() => selectAll(sec, 'N/A')} className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                                    <button onClick={() => selectAll(sec, 'N/A')} className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
                                         <span className={`w-4 h-4 rounded border-2 flex items-center justify-center ${allNa ? 'bg-slate-600 border-slate-600' : 'border-slate-300'}`}>
                                             {allNa && <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />}
                                         </span>
@@ -2612,17 +2608,22 @@ export default function InspectionCategoryPage() {
                             {/* Image upload */}
                             <div>
                                 <label className="block text-base font-black text-slate-900 uppercase tracking-wide mb-5">Pic</label>
-                                {generalImage ? (
-                                    <div className="relative rounded-2xl overflow-hidden border border-gray-200">
-                                        <img src={generalImage} alt="General comment" loading="lazy" decoding="async" className="w-full h-40 object-cover" />
-                                        <button
-                                            onClick={() => setGeneralImage(null)}
-                                            className="absolute top-2 right-2 w-7 h-7 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors"
-                                        >
-                                            <X className="w-3.5 h-3.5" />
-                                        </button>
+                                {generalImages.length > 0 && (
+                                    <div className="flex flex-wrap gap-3 mb-5">
+                                        {generalImages.map((img, i) => (
+                                            <div key={i} className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-white shadow-md">
+                                                <img src={img} alt={`Photo ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                                                <button
+                                                    onClick={() => setGeneralImages(prev => prev.filter((_, idx) => idx !== i))}
+                                                    className="absolute top-1 right-1 w-6 h-6 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors"
+                                                >
+                                                    <X className="w-3 h-3" />
+                                                </button>
+                                            </div>
+                                        ))}
                                     </div>
-                                ) : (
+                                )}
+                                {(
                                     <div className="flex items-start justify-evenly gap-4">
                                         {/* Take Photo */}
                                         <button
@@ -2820,6 +2821,7 @@ export default function InspectionCategoryPage() {
                                                 value={odForm.location}
                                                 onChange={(e) => setOdForm({ ...odForm, location: e.target.value })}
                                             >
+                                                <option value="">-- Select Location --</option>
                                                 {(currentSection === 'outside' ? OUTSIDE_LOCATION_OPTIONS : currentSection === 'inside' ? INSIDE_LOCATION_OPTIONS : UNIT_LOCATION_OPTIONS).map((loc: string) => (
                                                     <option key={loc} value={loc}>{loc}</option>
                                                 ))}
@@ -3009,7 +3011,7 @@ export default function InspectionCategoryPage() {
                             return (
                             <div className="flex-1 overflow-y-auto flex flex-col p-6 md:p-8 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-0 bg-gradient-to-b from-[#0F4C5C] to-[#142834]">
                                 <div className="text-center mb-1">
-                                    <img src="/logo.png?v=2" alt="NSPIRE" className="h-7 mx-auto mb-3 object-contain brightness-125" />
+                                    <img src="/logo.png?v=3" alt="NSPIRE" className="h-7 mx-auto mb-3 object-contain brightness-125" />
                                     <h4 className="text-white font-extrabold text-lg font-lexend">Saved for Summary Report</h4>
                                     <p className="text-white/60 text-xs font-semibold mt-0.5">{cards.length} deficienc{cards.length === 1 ? 'y' : 'ies'} on this item</p>
                                 </div>

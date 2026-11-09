@@ -568,7 +568,7 @@ export function AddPropertyModal({ isOpen, onClose, onNext }: AddPropertyModalPr
         </div>
         <div className="h-1 shrink-0 bg-gradient-to-r from-[#F84B5F] via-[#00C6D7] to-[#006795]" />
 
-        <div className="space-y-6 flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 max-w-4xl mx-auto w-full">
+        <div className="space-y-6 flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 w-full max-w-7xl mx-auto">
           {properties.map((formData, index) => (
             <div key={index} className="border border-slate-200/80 bg-slate-50/20 rounded-2xl p-4 sm:p-5 relative shadow-sm">
               {properties.length > 1 && (
@@ -867,42 +867,12 @@ export function BuildingDivisionModal({ isOpen, onClose, onUpdate, propertyData 
     setBuildings(updated)
   }
 
-  // Redistribute the delta across the other buildings so the property-wide
-  // unit total stays fixed instead of drifting every time one building is edited.
+  // Client's rule: editing one building must never touch the others — every
+  // number is manual input, saved exactly as typed. (The old auto-redistribute
+  // made B2 jump while the inspector was still typing B1.)
   const updateBuildingUnits = (index: number, newValue: number) => {
-    const clampedValue = Math.max(0, newValue)
-    const oldValue = buildings[index].units
-    const delta = clampedValue - oldValue
-    if (delta === 0) return
-
     const updated = [...buildings]
-    updated[index] = { ...updated[index], units: clampedValue }
-
-    let remaining = -delta // amount that still needs to be added to (or removed from) other buildings
-    const otherIndices = buildings.map((_, i) => i).filter(i => i !== index)
-
-    // Reducing others (this building grew): take from the buildings with the most units first.
-    // Adding to others (this building shrank): give to the buildings with the fewest units first.
-    otherIndices.sort((a, b) => remaining > 0 ? updated[a].units - updated[b].units : updated[b].units - updated[a].units)
-
-    for (const i of otherIndices) {
-      if (remaining === 0) break
-      const current = updated[i].units
-      if (remaining > 0) {
-        updated[i] = { ...updated[i], units: current + remaining }
-        remaining = 0
-      } else {
-        const toRemove = Math.min(-remaining, current)
-        updated[i] = { ...updated[i], units: current - toRemove }
-        remaining += toRemove
-      }
-    }
-
-    if (remaining !== 0) {
-      toast.error("Not enough units in other buildings to redistribute", { position: "top-right" })
-      return
-    }
-
+    updated[index] = { ...updated[index], units: Math.max(0, newValue) }
     setBuildings(updated)
   }
 

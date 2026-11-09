@@ -135,7 +135,7 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
       <aside className="hidden lg:flex lg:flex-col w-64 bg-gradient-to-b from-[#4A1526] to-[#2B0D18] shadow-xl border-r border-[#4A1526]/30 fixed h-full z-10">
         <div className="p-6 border-b border-white/10">
           <Image
-            src="/logo.png?v=2"
+            src="/logo.png?v=3"
             alt="NSPIRE"
             width={300}
             height={100}
@@ -198,7 +198,7 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
       }`}>
         <div className="p-4 border-b border-white/10 flex items-center justify-between">
           <Image
-            src="/logo.png?v=2"
+            src="/logo.png?v=3"
             alt="NSPIRE"
             width={180}
             height={60}
@@ -285,7 +285,7 @@ export default function ManagementDashboardLayout({ children }: ManagementDashbo
             {/* Mobile Logo */}
             <div className="lg:hidden">
               <Image
-                src="/logo.png?v=2"
+                src="/logo.png?v=3"
                 alt="NSPIRE"
                 width={120}
                 height={40}

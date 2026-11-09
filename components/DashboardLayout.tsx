@@ -52,6 +52,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [router])
 
+  // Koke: "the sidebar menu should disappear after starting the inspection" —
+  // inspection screens get the full width, no menu to wander off through.
+  const inInspection = !!pathname?.startsWith('/dashboard/inspection-category')
+
   const isActive = (path: string) => pathname === path
 
   const navigationItems = [
@@ -88,7 +92,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="min-h-screen bg-slate-100 flex font-lexend">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col w-64 bg-gradient-to-b from-[#0F4C5C] to-[#142834] shadow-xl border-r border-[#0F4C5C]/30 fixed h-full z-10 overflow-hidden">
+      {!inInspection && <aside className="hidden lg:flex lg:flex-col w-64 bg-gradient-to-b from-[#0F4C5C] to-[#142834] shadow-xl border-r border-[#0F4C5C]/30 fixed h-full z-10 overflow-hidden">
         <div className="h-1.5 shrink-0 bg-gradient-to-r from-[#00C6D7] via-[#006795] to-[#F84B5F]" />
         {/* Decorative color blooms so the panel isn't a flat block of color */}
         <div className="absolute -top-16 -right-16 w-64 h-64 bg-[#00C6D7]/15 rounded-full blur-3xl pointer-events-none" />
@@ -97,7 +101,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="relative p-6 border-b border-[#0F4C5C]/40 flex justify-center overflow-hidden">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-[#00C6D7]/20 rounded-full blur-3xl pointer-events-none" />
           <Image
-            src="/logo.png?v=2"
+            src="/logo.png?v=3"
             alt="NSPIRE"
             width={300}
             height={100}
@@ -153,7 +157,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             Logout
           </button>
         </div>
-      </aside>
+      </aside>}
 
       {/* Mobile Sidebar Overlay */}
       {isMobileMenuOpen && (
@@ -174,7 +178,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="relative p-4 border-b border-[#0F4C5C]/40 flex items-center justify-between overflow-hidden">
           <div className="absolute top-1/2 left-8 -translate-y-1/2 w-28 h-28 bg-[#00C6D7]/20 rounded-full blur-3xl pointer-events-none" />
           <Image
-            src="/logo.png?v=2"
+            src="/logo.png?v=3"
             alt="NSPIRE"
             width={180}
             height={60}
@@ -245,14 +249,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-64">
+      <main className={`flex-1 ${inInspection ? '' : 'lg:ml-64'}`}>
         {/* Top Header */}
         <header className="bg-white border-b border-slate-200/85 px-4 md:px-6 py-4 sticky top-0 z-30 shadow-sm">
           <div className="flex items-center justify-between gap-4">
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button — gone during an inspection, same as the sidebar */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-2 hover:bg-slate-100 rounded-lg text-slate-700"
+              className={`lg:hidden p-2 hover:bg-slate-100 rounded-lg text-slate-700 ${inInspection ? 'invisible pointer-events-none' : ''}`}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -262,7 +266,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {/* Mobile Logo */}
             <div className="lg:hidden">
               <Image
-                src="/logo.png?v=2"
+                src="/logo.png?v=3"
                 alt="NSPIRE"
                 width={120}
                 height={40}

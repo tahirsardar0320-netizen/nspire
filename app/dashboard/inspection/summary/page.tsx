@@ -697,7 +697,7 @@ function NSPIREInspectionSummaryContent() {
         'Include wall repainting in next maintenance cycle',
       ],
       certification: {
-        certifiedBy: 'John Smith',
+        certifiedBy: (() => { try { const u = JSON.parse(localStorage.getItem('user') || '{}'); return u.fullName || u.name || 'Inspector' } catch { return 'Inspector' } })(),
         certificationDate: now.toLocaleDateString(),
         certificationStatement: 'I certify that this inspection was conducted in accordance with HUD NSPIRE protocols and that the findings documented in this report accurately reflect the conditions observed during the inspection.',
       },
@@ -728,7 +728,7 @@ function NSPIREInspectionSummaryContent() {
       window.location.href = data.checkoutUrl
     } catch (error: any) {
       console.error('Stripe checkout start error:', error)
-      toast.error(`Unable to start payment: ${error.message}`, { position: 'top-right' })
+      toast.info('Payment setup pending — report payments will be enabled soon.', { position: 'top-right' })
     } finally {
       setPurchasingUnlock(false)
     }
@@ -995,7 +995,7 @@ function NSPIREInspectionSummaryContent() {
                   className="h-9 gap-1.5 bg-[#F84B5F] hover:bg-[#e03a4e] text-white font-black px-4 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center justify-center shrink-0"
                 >
                   <Mail className="w-3.5 h-3.5" />
-                  View Report on Email
+                  View Free Report
                 </Button>
                 <Button
                   onClick={() => setShowReportPreview(true)}
@@ -1004,6 +1004,14 @@ function NSPIREInspectionSummaryContent() {
                 >
                   <FileText className="w-3.5 h-3.5" />
                   View Deficiency
+                </Button>
+                <Button
+                  onClick={handleUnlockWithStripe}
+                  disabled={purchasingUnlock}
+                  className="h-9 gap-1.5 bg-slate-900 hover:bg-slate-800 text-white font-black px-4 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center justify-center shrink-0"
+                >
+                  <Unlock className="w-3.5 h-3.5" />
+                  {purchasingUnlock ? 'Starting...' : 'Unlock Report $10'}
                 </Button>
               </div>
             </div>
