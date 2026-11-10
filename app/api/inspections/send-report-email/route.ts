@@ -194,12 +194,15 @@ export async function POST(req: NextRequest) {
         }),
       });
 
-      if (!res.ok) {
-        const detail = await res.text();
-        throw new Error(`Email provider rejected the request (${res.status}): ${detail.slice(0, 300)}`);
+      if (res.ok) {
+        return NextResponse.json({ success: true, message: 'Report emailed successfully.' });
       }
 
-      return NextResponse.json({ success: true, message: 'Report emailed successfully.' });
+      // A dead/rotated Brevo key used to stop the send outright. Note the
+      // failure and fall through to direct SMTP below — DigitalOcean (unlike
+      // Railway) does allow outbound 587, so Gmail can finish the job.
+      const detail = await res.text();
+      console.error(`Brevo rejected the send (${res.status}): ${detail.slice(0, 300)} — falling back to SMTP`);
     }
 
     const transporter = await getTransporter();

@@ -104,6 +104,9 @@ function NSPIREInspectionSummaryContent() {
   const [checkingUnlock, setCheckingUnlock] = useState(false)
   const [isReportUnlocked, setIsReportUnlocked] = useState(false)
   const [purchasingUnlock, setPurchasingUnlock] = useState(false)
+  const [showUnlockEmailModal, setShowUnlockEmailModal] = useState(false)
+  const [unlockEmail, setUnlockEmail] = useState('')
+  const [sendingUnlockLink, setSendingUnlockLink] = useState(false)
   const [showSummaryModal, setShowSummaryModal] = useState(false)
   const [showReportPreview, setShowReportPreview] = useState(false)
   const [showUnlockSummaryModal, setShowUnlockSummaryModal] = useState(false)
@@ -734,6 +737,62 @@ function NSPIREInspectionSummaryContent() {
     }
   }
 
+  const handleSendUnlockLink = async () => {
+    if (!unlockEmail.trim() || !/^\S+@\S+\.\S+$/.test(unlockEmail.trim())) {
+      toast.error('Please enter a valid email address.', { position: 'top-right' })
+      return
+    }
+    if (!inspectionIdentifier) {
+      toast.error('Inspection ID is missing. Please refresh and try again.', { position: 'top-right' })
+      return
+    }
+    setSendingUnlockLink(true)
+    try {
+      const res = await fetchWithTimeout('/api/payments/send-unlock-link', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+        },
+        body: JSON.stringify({
+          inspectionId: inspectionIdentifier,
+          email: unlockEmail.trim(),
+          propertyName: report?.metadata?.propertyName,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.success) throw new Error(data.message || 'Failed to send the payment link.')
+      if (data.alreadyUnlocked) {
+        setIsReportUnlocked(true)
+        toast.success('Report is already unlocked.', { position: 'top-right' })
+      } else {
+        toast.success(`Payment link sent to ${unlockEmail.trim()}`, { position: 'top-right' })
+      }
+      setShowUnlockEmailModal(false)
+      setUnlockEmail('')
+    } catch (error: any) {
+      console.error('Send unlock link error:', error)
+      toast.error(`Unable to send payment link: ${error.message}`, { position: 'top-right' })
+    } finally {
+      setSendingUnlockLink(false)
+    }
+  }
+
+  // The payer unlocks from their own device — this page finds out the moment
+  // it regains focus (or on a reload) and flips the exports open.
+  useEffect(() => {
+    if (!inspectionIdentifier || isReportUnlocked) return
+    const check = async () => {
+      try {
+        const data = await paymentsAPI.checkReportUnlock(inspectionIdentifier)
+        if (data?.isReportUnlocked) setIsReportUnlocked(true)
+      } catch { /* next focus retries */ }
+    }
+    check()
+    window.addEventListener('focus', check)
+    return () => window.removeEventListener('focus', check)
+  }, [inspectionIdentifier, isReportUnlocked])
+
   const handleSendFullReportLink = async () => {
     if (!fullReportEmail.trim() || !/^\S+@\S+\.\S+$/.test(fullReportEmail.trim())) {
       toast.error('Please enter a valid email address.', { position: 'top-right' })
@@ -1012,7 +1071,7 @@ function NSPIREInspectionSummaryContent() {
                 </Button>
                 {!isReportUnlocked && (
                 <Button
-                  onClick={handleUnlockWithStripe}
+                  onClick={() => setShowUnlockEmailModal(true)}
                   disabled={purchasingUnlock}
                   className="h-10 gap-1.5 bg-[#005E92] hover:bg-[#014a74] text-white font-black px-4 rounded-xl shadow-md uppercase tracking-widest text-[11px] flex items-center justify-center shrink-0"
                 >
@@ -1279,60 +1338,6 @@ function NSPIREInspectionSummaryContent() {
                     <p className="text-xs text-gray-500 mt-1">Inspection #{report.metadata.inspectionNo}</p>
                   </div>
 
-                  <div>
-                    <p className="font-bold text-[#006795] mb-3">Deficiency Breakdown</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="border-l-4 border-rose-500 bg-rose-50 rounded-r-xl p-3 text-center">
-                        <p className="text-2xl font-black text-rose-600">{report.summary.lifeThreatening}</p>
-                        <p className="text-[10px] font-bold text-rose-600 uppercase tracking-wider mt-0.5">Life-Threat</p>
-                      </div>
-                      <div className="border-l-4 border-orange-500 bg-orange-50 rounded-r-xl p-3 text-center">
-                        <p className="text-2xl font-black text-orange-600">{report.summary.severe}</p>
-                        <p className="text-[10px] font-bold text-orange-600 uppercase tracking-wider mt-0.5">Severe</p>
-                      </div>
-                      <div className="border-l-4 border-blue-500 bg-blue-50 rounded-r-xl p-3 text-center">
-                        <p className="text-2xl font-black text-blue-600">{report.summary.moderate}</p>
-                        <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mt-0.5">Moderate</p>
-                      </div>
-                      <div className="border-l-4 border-gray-400 bg-gray-50 rounded-r-xl p-3 text-center">
-                        <p className="text-2xl font-black text-gray-600">{report.summary.low}</p>
-                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mt-0.5">Low</p>
-                      </div>
-                      <div className="border-l-4 border-emerald-500 bg-emerald-50 rounded-r-xl p-3 text-center">
-                        <p className="text-2xl font-black text-emerald-600">{report.summary.total}</p>
-                        <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mt-0.5">Total</p>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 mt-3">
-                      <div className="bg-amber-50 rounded-xl p-3 text-center">
-                        <p className="text-xl font-black text-amber-600">{report.summary.repeatDeficiencies}</p>
-                        <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mt-0.5">Repeat</p>
-                      </div>
-                      <div className="bg-blue-50 rounded-xl p-3 text-center">
-                        <p className="text-xl font-black text-blue-600">{report.summary.newDeficiencies}</p>
-                        <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mt-0.5">New</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-gradient-to-r from-[#006795] to-[#0a5670] rounded-2xl p-4 text-white">
-                    <p className="font-bold mb-3">Inspection Score</p>
-                    <div className="grid grid-cols-3 gap-3 text-center">
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-white/70">Preliminary</p>
-                        <p className="text-2xl font-black">{report.metadata.preliminaryScore}</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-white/70">Calculated</p>
-                        <p className="text-2xl font-black">{report.metadata.calculatedScore}</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-white/70">Final Score</p>
-                        <p className="text-2xl font-black">{report.metadata.finalScore}</p>
-                      </div>
-                    </div>
-                  </div>
-
                   <div className="bg-amber-50/60 border border-amber-200 rounded-2xl p-4">
                     <p className="font-bold text-amber-900 flex items-center gap-1.5 mb-1">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1370,6 +1375,38 @@ function NSPIREInspectionSummaryContent() {
                     <span>💡</span>
                     <span><span className="font-bold">Note:</span> The full report includes detailed photos, inspector comments, repair timelines, and compliance codes for each deficiency.</span>
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showUnlockEmailModal && (
+            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowUnlockEmailModal(false)}>
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+                <h2 className="text-xl font-black text-[#005E92] mb-1">Unlock Full Report — $10</h2>
+                <p className="text-sm text-slate-600 mb-4">Enter the email that should receive the secure Stripe payment link. Once the $10 payment completes, the report unlocks here automatically.</p>
+                <input
+                  type="email"
+                  value={unlockEmail}
+                  onChange={(e) => setUnlockEmail(e.target.value)}
+                  placeholder="Enter email address"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-[#005E92]/30 text-base font-semibold mb-4 focus:outline-none focus:ring-2 focus:ring-[#005E92]/40"
+                />
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handleSendUnlockLink}
+                    disabled={sendingUnlockLink}
+                    className="flex-1 h-12 bg-[#005E92] hover:bg-[#014a74] text-white font-black rounded-xl border-0"
+                  >
+                    {sendingUnlockLink ? 'Sending...' : 'Send Payment Link'}
+                  </Button>
+                  <Button
+                    onClick={() => setShowUnlockEmailModal(false)}
+                    variant="outline"
+                    className="h-12 border-2 border-slate-300 text-slate-700 font-bold rounded-xl"
+                  >
+                    Cancel
+                  </Button>
                 </div>
               </div>
             </div>
