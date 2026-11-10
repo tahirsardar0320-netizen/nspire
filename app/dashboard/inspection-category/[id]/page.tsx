@@ -3034,11 +3034,11 @@ export default function InspectionCategoryPage() {
                                         sev.toLowerCase().includes('low') ? 'text-emerald-600' :
                                             'text-blue-600';
                             return (
-                            <div className="flex-1 overflow-y-auto flex flex-col p-6 md:p-8 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-0 bg-gradient-to-b from-[#0F4C5C] to-[#142834]">
+                            <div className="flex-1 overflow-y-auto flex flex-col p-6 md:p-8 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-0 bg-gradient-to-b from-[#CBEEFF] via-[#E8F6FD] to-[#D7F0FC]">
                                 <div className="text-center mb-1">
-                                    <img src="/logo.png?v=3" alt="NSPIRE" className="h-7 mx-auto mb-3 object-contain brightness-125" />
-                                    <h4 className="text-white font-extrabold text-lg font-lexend">Saved for Summary Report</h4>
-                                    <p className="text-white/60 text-xs font-semibold mt-0.5">{cards.length} deficienc{cards.length === 1 ? 'y' : 'ies'} on this item</p>
+                                    <img src="/logo.png?v=3" alt="NSPIRE" className="h-16 mx-auto mb-3 object-contain" />
+                                    <h4 className="text-slate-900 font-black text-2xl font-lexend uppercase tracking-wide">Saved for Summary Report</h4>
+                                    <p className="text-[#064B5E] text-sm font-bold mt-1">{cards.length} deficienc{cards.length === 1 ? 'y' : 'ies'} on this item</p>
                                 </div>
                                 {cards.map((f: any, idx: number) => (
                                 <div key={f.id || idx} className="w-full bg-emerald-50/60 border border-emerald-200 rounded-2xl p-4 flex items-start gap-4 text-left">
@@ -3096,7 +3096,7 @@ export default function InspectionCategoryPage() {
                                         rel="noopener noreferrer"
                                         className="w-full"
                                     >
-                                        <Button variant="outline" className="w-full font-black h-14 rounded-xl border-2 border-white/20 bg-white/5 hover:bg-white/10 text-white/80 uppercase text-[10px] tracking-widest flex items-center justify-center gap-3">
+                                        <Button variant="outline" className="w-full font-black h-14 rounded-xl border-2 border-[#0E7490]/40 bg-white hover:bg-sky-50 text-[#064B5E] uppercase text-[10px] tracking-widest flex items-center justify-center gap-3">
                                             <FileText className="w-4 h-4" />
                                             Download Official Report
                                         </Button>
