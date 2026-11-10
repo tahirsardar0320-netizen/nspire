@@ -749,7 +749,12 @@ function NSPIREInspectionSummaryContent() {
 
       const res = await fetchWithTimeout('/api/inspections/send-report-email', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        // The route verifies the sender's JWT — without it every send came
+        // back 401 Unauthorized no matter how valid the email was.
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+        },
         body: JSON.stringify({
           email: fullReportEmail.trim(),
           pdfBase64,

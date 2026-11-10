@@ -122,10 +122,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <button
               key={item.path}
               onClick={() => router.push(item.path)}
-              className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-lg font-bold transition-all duration-200 ${
+              className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-lg font-black transition-all duration-200 ${
                 isActive(item.path)
                   ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30'
-                  : 'text-white/80 hover:text-white hover:bg-white/10'
+                  : 'text-white hover:bg-white/10'
               }`}
             >
               {item.icon}
@@ -137,10 +137,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="p-4 border-t border-[#40D0F0]/30">
           <button
             onClick={() => router.push('/dashboard/settings')}
-            className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-lg font-bold transition-all duration-200 ${
+            className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-lg font-black transition-all duration-200 ${
               isActive('/dashboard/settings')
                 ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30'
-                : 'text-white/80 hover:text-white hover:bg-white/10'
+                : 'text-white hover:bg-white/10'
             }`}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -156,7 +156,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               toast.success("Logged out successfully!", { position: "top-right" })
               setTimeout(() => router.push('/'), 1500)
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-lg font-bold transition-all duration-200"
+            className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-white/10 rounded-lg text-lg font-black transition-all duration-200"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
@@ -213,7 +213,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 router.push(item.path)
                 setIsMobileMenuOpen(false)
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-lg font-bold transition-all duration-200 ${isActive(item.path) ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30' : 'text-white/80 hover:text-white hover:bg-white/10'
+              className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-lg font-black transition-all duration-200 ${isActive(item.path) ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30' : 'text-white hover:bg-white/10'
                 }`}
             >
               {item.icon}
@@ -228,7 +228,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               router.push('/dashboard/settings')
               setIsMobileMenuOpen(false)
             }}
-            className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-lg font-bold transition-all duration-200 ${isActive('/dashboard/settings') ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30' : 'text-white/80 hover:text-white hover:bg-white/10'
+            className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-lg font-black transition-all duration-200 ${isActive('/dashboard/settings') ? 'bg-gradient-to-r from-[#00C6D7] to-[#006795] text-white font-bold shadow-md shadow-[#006795]/30' : 'text-white hover:bg-white/10'
               }`}
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -245,7 +245,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               setTimeout(() => router.push('/'), 1500)
               setIsMobileMenuOpen(false)
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-lg font-bold transition-all duration-200"
+            className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-white/10 rounded-lg text-lg font-black transition-all duration-200"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
