@@ -2369,7 +2369,7 @@ export default function InspectionCategoryPage() {
                             const allNoOd = toggleable.length > 0 && toggleable.every(i => statuses[i] === 'No OD')
                             const allNa = toggleable.length > 0 && toggleable.every(i => statuses[i] === 'N/A')
                             return (
-                                <div className="bg-white mx-4 sm:mx-0 mt-3 rounded-xl border border-slate-200 px-6 py-2.5 flex items-center justify-center gap-8 sm:gap-16 lg:gap-28">
+                                <div className="bg-white mx-4 sm:mx-0 mt-3 rounded-xl border border-slate-200 px-8 lg:px-12 py-2.5 flex items-center justify-between gap-4">
                                     <button onClick={() => selectAll(sec, 'No OD')} className="flex items-center gap-2 text-base font-black text-slate-900 uppercase tracking-wide">
                                         <span className={`w-4 h-4 rounded border-2 flex items-center justify-center ${allNoOd ? 'bg-emerald-600 border-emerald-600' : 'border-slate-300'}`}>
                                             {allNoOd && <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />}
