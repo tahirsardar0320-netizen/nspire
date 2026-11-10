@@ -1000,7 +1000,7 @@ function NSPIREInspectionSummaryContent() {
                 <Button
                   onClick={() => setShowReportPreview(true)}
                   variant="outline"
-                  className="h-9 gap-1.5 border-2 border-teal-500 hover:bg-teal-50 text-teal-700 font-bold px-4 rounded-xl text-xs flex items-center justify-center shrink-0 bg-white"
+                  className="h-10 gap-1.5 bg-teal-600 hover:bg-teal-700 text-white font-black px-4 rounded-xl uppercase tracking-widest text-[11px] flex items-center justify-center shrink-0 border-0"
                 >
                   <FileText className="w-3.5 h-3.5" />
                   View Deficiency
@@ -1009,7 +1009,7 @@ function NSPIREInspectionSummaryContent() {
                 <Button
                   onClick={handleUnlockWithStripe}
                   disabled={purchasingUnlock}
-                  className="h-10 gap-1.5 bg-[#B02A37] hover:bg-[#9A2430] text-white font-black px-4 rounded-xl shadow-md uppercase tracking-widest text-[11px] flex items-center justify-center shrink-0"
+                  className="h-10 gap-1.5 bg-[#005E92] hover:bg-[#014a74] text-white font-black px-4 rounded-xl shadow-md uppercase tracking-widest text-[11px] flex items-center justify-center shrink-0"
                 >
                   <Unlock className="w-3.5 h-3.5" />
                   {purchasingUnlock ? 'Starting...' : 'Unlock Report $10'}

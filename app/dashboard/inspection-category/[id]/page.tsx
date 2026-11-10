@@ -179,7 +179,7 @@ export default function InspectionCategoryPage() {
         setSectionView(sec)
         const sp = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : (searchParams?.toString() || ''))
         if (sec) sp.set('section', sec); else { sp.delete('section'); sp.delete('unit') }
-        router.push(`/dashboard/inspection-category/${id}?${sp.toString()}`)
+        router.replace(`/dashboard/inspection-category/${id}?${sp.toString()}`)
     }
     const urlUnit = qp('unit') || ''
     const urlTotalUnits = parseInt(qp('totalUnits') || '0')
@@ -2128,7 +2128,7 @@ export default function InspectionCategoryPage() {
 
     return (
         <PortalLayout>
-            <div className="p-4 sm:p-6 lg:px-8 lg:py-4 w-full font-sans overflow-x-hidden">
+            <div className="p-4 sm:p-6 lg:px-16 lg:py-4 w-full font-sans overflow-x-hidden">
                 {/* The page chrome belongs to the categories screen only — a
                     section open means its own clean page, nothing stacked above. */}
                 {sectionView === '' && (
@@ -2285,7 +2285,7 @@ export default function InspectionCategoryPage() {
                                     </div>
                                     <p className="mt-1 lg:mt-2 text-[11px] lg:text-sm font-bold text-[#0E7490]">{prog.completed}/{total} • {prog.percentage}% Complete</p>
                                 </div>
-                                <ChevronRight className="w-5 h-5 lg:w-7 lg:h-7 text-slate-300 shrink-0" />
+                                <ChevronRight className="w-7 h-7 lg:w-9 lg:h-9 text-red-600 shrink-0" strokeWidth={3} />
                             </button>
                         ))}
 
