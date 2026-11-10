@@ -1043,7 +1043,7 @@ function NSPIREInspectionSummaryContent() {
               )}
               <Button
                 onClick={handleBackToInspection}
-                className="bg-amber-500 hover:bg-amber-600 text-white font-black px-6 py-3 rounded-xl border-0 shadow-md shadow-amber-600/20 text-base flex items-center justify-center gap-1.5"
+                className="bg-[#FFFF00] hover:bg-[#EEEE00] text-slate-900 font-black px-6 py-3 rounded-xl border-0 shadow-md shadow-yellow-500/30 text-base flex items-center justify-center gap-1.5"
               >
                 <ChevronLeft className="w-4 h-4" />
                 {searchParams.get('finalize') === 'true' ? 'Back to Inspection' : 'Continue Inspection'}
