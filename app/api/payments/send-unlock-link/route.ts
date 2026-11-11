@@ -7,7 +7,7 @@ import { fetchWithTimeout } from '@/lib/httpFetch';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'inspire_jwt_secret_key_2024';
 
-// Emails a $10 Stripe payment link for an inspection's full report. The payer
+// Emails a $1 Stripe payment link for an inspection's full report. The payer
 // opens the link on their own device; Stripe sends them to /api/payments/confirm
 // on success, which unlocks the report here — no login needed on their side.
 export async function POST(req: NextRequest) {
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       customer_email: String(email),
       'line_items[0][quantity]': '1',
       'line_items[0][price_data][currency]': 'usd',
-      'line_items[0][price_data][unit_amount]': '1000',
+      'line_items[0][price_data][unit_amount]': '100',
       'line_items[0][price_data][product_data][name]': 'NSPIRE Full Inspection Report',
       'line_items[0][price_data][product_data][description]': 'Unlocks PDF, Excel and work-order exports for this inspection.',
       success_url: `${origin}/api/payments/confirm?session_id={CHECKOUT_SESSION_ID}`,
@@ -63,17 +63,17 @@ export async function POST(req: NextRequest) {
 
     await ReportUnlock.findOneAndUpdate(
       { inspectionId },
-      { $set: { stripeSessionId: session.id, amountCents: 1000 }, $setOnInsert: { paid: false } },
+      { $set: { stripeSessionId: session.id, amountCents: 100 }, $setOnInsert: { paid: false } },
       { upsert: true }
     );
 
-    const subject = 'NSPIRE Full Inspection Report — Payment Link ($10)';
-    const text = `Hello,\n\nA full NSPIRE inspection report${propertyName ? ` for ${propertyName}` : ''} is ready to unlock.\n\nPay $10 securely with Stripe using this link:\n${session.url}\n\nOnce the payment completes, the report unlocks automatically.\n\n— NSPIRE Inspection`;
+    const subject = 'NSPIRE Full Inspection Report — Payment Link ($1)';
+    const text = `Hello,\n\nA full NSPIRE inspection report${propertyName ? ` for ${propertyName}` : ''} is ready to unlock.\n\nPay $1 securely with Stripe using this link:\n${session.url}\n\nOnce the payment completes, the report unlocks automatically.\n\n— NSPIRE Inspection`;
     const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;border:1px solid #e2e8f0;border-radius:12px">
       <h2 style="color:#005E92;margin:0 0 12px">Unlock the Full Inspection Report</h2>
-      <p style="color:#334155">A full NSPIRE inspection report${propertyName ? ` for <b>${String(propertyName).replace(/[<>&]/g, '')}</b>` : ''} is ready. Pay <b>$10</b> securely with Stripe:</p>
+      <p style="color:#334155">A full NSPIRE inspection report${propertyName ? ` for <b>${String(propertyName).replace(/[<>&]/g, '')}</b>` : ''} is ready. Pay <b>$1</b> securely with Stripe:</p>
       <p style="text-align:center;margin:24px 0">
-        <a href="${session.url}" style="background:#005E92;color:#fff;font-weight:bold;padding:14px 28px;border-radius:10px;text-decoration:none">Pay $10 &amp; Unlock Report</a>
+        <a href="${session.url}" style="background:#005E92;color:#fff;font-weight:bold;padding:14px 28px;border-radius:10px;text-decoration:none">Pay $1 &amp; Unlock Report</a>
       </p>
       <p style="color:#64748b;font-size:12px">Once the payment completes, the report unlocks automatically. If the button does not work, open this link:<br>${session.url}</p>
     </div>`;

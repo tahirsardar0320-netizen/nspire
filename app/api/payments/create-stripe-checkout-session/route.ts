@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB, ReportUnlock } from '@/lib/db';
 
-// Creates a $10 Stripe Checkout session for unlocking an inspection's full
+// Creates a $1 Stripe Checkout session for unlocking an inspection's full
 // report (PDF, Excel, work order). Talks to Stripe's REST API directly —
 // no SDK dependency. The secret key lives only in the STRIPE_SECRET_KEY
 // environment variable on the server.
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       mode: 'payment',
       'line_items[0][quantity]': '1',
       'line_items[0][price_data][currency]': 'usd',
-      'line_items[0][price_data][unit_amount]': '1000',
+      'line_items[0][price_data][unit_amount]': '100',
       'line_items[0][price_data][product_data][name]': 'NSPIRE Full Inspection Report',
       'line_items[0][price_data][product_data][description]': 'Unlocks PDF, Excel and work-order exports for this inspection.',
       success_url: successUrl,
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
 
     await ReportUnlock.findOneAndUpdate(
       { inspectionId },
-      { $set: { stripeSessionId: session.id, amountCents: 1000 }, $setOnInsert: { paid: false } },
+      { $set: { stripeSessionId: session.id, amountCents: 100 }, $setOnInsert: { paid: false } },
       { upsert: true }
     );
 

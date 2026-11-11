@@ -1056,18 +1056,18 @@ function NSPIREInspectionSummaryContent() {
                 </span>
                 <Button
                   onClick={() => setShowUnlockSummaryModal(true)}
-                  className="h-9 gap-1.5 bg-[#F84B5F] hover:bg-[#e03a4e] text-white font-black px-4 rounded-xl shadow-md uppercase tracking-widest text-[10px] flex items-center justify-center shrink-0"
+                  className="h-10 gap-1.5 bg-teal-600 hover:bg-teal-700 text-white font-black px-4 rounded-xl shadow-md uppercase tracking-widest text-[11px] flex items-center justify-center shrink-0 border-0"
                 >
                   <Mail className="w-3.5 h-3.5" />
-                  View Free Report
+                  Share Report
                 </Button>
                 <Button
                   onClick={() => setShowReportPreview(true)}
                   variant="outline"
-                  className="h-10 gap-1.5 bg-teal-600 hover:bg-teal-700 text-white font-black px-4 rounded-xl uppercase tracking-widest text-[11px] flex items-center justify-center shrink-0 border-0"
+                  className="h-10 gap-1.5 bg-[#FF1E1E] hover:bg-[#E01212] text-white font-black px-4 rounded-xl uppercase tracking-widest text-[11px] flex items-center justify-center shrink-0 border-0"
                 >
                   <FileText className="w-3.5 h-3.5" />
-                  View Deficiency
+                  View Report
                 </Button>
                 {!isReportUnlocked && (
                 <Button
@@ -1076,7 +1076,7 @@ function NSPIREInspectionSummaryContent() {
                   className="h-10 gap-1.5 bg-[#005E92] hover:bg-[#014a74] text-white font-black px-4 rounded-xl shadow-md uppercase tracking-widest text-[11px] flex items-center justify-center shrink-0"
                 >
                   <Unlock className="w-3.5 h-3.5" />
-                  {purchasingUnlock ? 'Starting...' : 'Unlock Report $10'}
+                  {purchasingUnlock ? 'Starting...' : 'Unlock Report $1'}
                 </Button>
                 )}
               </div>
@@ -1383,8 +1383,8 @@ function NSPIREInspectionSummaryContent() {
           {showUnlockEmailModal && (
             <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowUnlockEmailModal(false)}>
               <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
-                <h2 className="text-xl font-black text-[#005E92] mb-1">Unlock Full Report — $10</h2>
-                <p className="text-sm text-slate-600 mb-4">Enter the email that should receive the secure Stripe payment link. Once the $10 payment completes, the report unlocks here automatically.</p>
+                <h2 className="text-xl font-black text-[#005E92] mb-1">Unlock Full Report — $1</h2>
+                <p className="text-sm text-slate-600 mb-4">Enter the email that should receive the secure Stripe payment link. Once the $1 payment completes, the report unlocks here automatically.</p>
                 <input
                   type="email"
                   value={unlockEmail}
