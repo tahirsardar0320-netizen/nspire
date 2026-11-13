@@ -2050,7 +2050,7 @@ export default function InspectionCategoryPage() {
         let completed = completedSet.size;
         const total = sampledUnitsForBuilding > 0
             ? sampledUnitsForBuilding
-            : (rawUnitIds.length > 0 ? rawUnitIds.length : 1);
+            : rawUnitIds.length;
 
         if (!progressHydrated && completed === 0 && counterSeed) completed = counterSeed.u || 0;
 
@@ -2066,7 +2066,7 @@ export default function InspectionCategoryPage() {
             partial = answered / unitItemsList.length;
         }
 
-        const percentage = Math.min(100, Math.round(((completed + partial) / total) * 100));
+        const percentage = total > 0 ? Math.min(100, Math.round(((completed + partial) / total) * 100)) : 0;
         // Inspecting beyond the sample must not read as "7 of 3".
         return { completed: Math.min(completed, total), percentage, total };
     }, [completedUnits, rawUnitIds, unitStatuses, activeInspectionUnit, unitItemsList, sampledUnitsForBuilding, progressHydrated, counterSeed]);
@@ -2282,6 +2282,10 @@ export default function InspectionCategoryPage() {
                             <button
                                 key={sec}
                                 onClick={() => {
+                                    if (sec === 'unit' && rawUnitIds.length === 0) {
+                                        toast.info('This building has no units to inspect.', { position: 'top-right' })
+                                        return
+                                    }
                                     if (sec === 'unit' && !activeInspectionUnit) { setUnitSelectionPopupOpen(true); return }
                                     gotoSection(sec)
                                 }}
@@ -2381,17 +2385,17 @@ export default function InspectionCategoryPage() {
                             const allNa = toggleable.length > 0 && toggleable.every(i => statuses[i] === 'N/A')
                             return (
                                 <div className="bg-white mx-4 sm:mx-0 mt-3 rounded-xl border border-slate-200 px-8 lg:px-12 py-2.5 flex items-center justify-between gap-4">
-                                    <button onClick={() => selectAll(sec, 'No OD')} className="flex items-center gap-2.5 text-lg font-black text-slate-900 uppercase tracking-wide">
-                                        <span className={`w-6 h-6 rounded border-2 flex items-center justify-center ${allNoOd ? 'bg-emerald-600 border-emerald-600' : 'border-slate-300'}`}>
+                                    <button onClick={() => selectAll(sec, 'No OD')} className="flex items-center gap-3 text-xl font-black text-slate-900 uppercase tracking-wide">
+                                        <span className={`w-7 h-7 rounded-md border-2 flex items-center justify-center ${allNoOd ? 'bg-emerald-600 border-emerald-600' : 'border-slate-300'}`}>
                                             {allNoOd && <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />}
                                         </span>
                                         All No OD
                                     </button>
-                                    <span className="flex items-center gap-2 text-base font-black text-red-600 uppercase tracking-wide">
+                                    <span className="flex items-center gap-2 text-lg font-black text-red-600 uppercase tracking-wide">
                                         Observe Deficiency
                                     </span>
-                                    <button onClick={() => selectAll(sec, 'N/A')} className="flex items-center gap-2.5 text-lg font-black text-slate-900 uppercase tracking-wide">
-                                        <span className={`w-6 h-6 rounded border-2 flex items-center justify-center ${allNa ? 'bg-slate-600 border-slate-600' : 'border-slate-300'}`}>
+                                    <button onClick={() => selectAll(sec, 'N/A')} className="flex items-center gap-3 text-xl font-black text-slate-900 uppercase tracking-wide">
+                                        <span className={`w-7 h-7 rounded-md border-2 flex items-center justify-center ${allNa ? 'bg-slate-600 border-slate-600' : 'border-slate-300'}`}>
                                             {allNa && <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />}
                                         </span>
                                         All NA
@@ -2516,7 +2520,12 @@ export default function InspectionCategoryPage() {
 
                         {/* Unit List */}
                         <div className="p-5 overflow-y-auto flex-1 space-y-2 max-w-2xl mx-auto w-full">
-                            {(buildingUnitNames.length > 0 ? buildingUnitNames : ['Unit 001', 'Unit 002', 'Unit 003']).map((unitName, idx) => {
+                            {buildingUnitNames.length === 0 && (
+                                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 text-center text-slate-600 font-bold">
+                                    This building has no units to inspect.
+                                </div>
+                            )}
+                            {buildingUnitNames.map((unitName, idx) => {
                                 const displayName = popupUnitCustomNames[unitName] || unitName;
                                 const isEditing = editingUnitIdx === idx;
                                 return (
