@@ -2135,11 +2135,11 @@ export default function InspectionCategoryPage() {
                     section open means its own clean page, nothing stacked above. */}
                 {sectionView === '' && (
                     <>
-                        <div className="rounded-2xl bg-gradient-to-r from-[#0090C0] to-[#005E92] px-4 py-3.5 lg:py-4 mb-3 flex items-center justify-between gap-3 shadow-md">
+                        <div className="relative rounded-2xl bg-gradient-to-r from-[#0090C0] to-[#005E92] px-4 py-3.5 lg:py-4 mb-3 flex items-center justify-between gap-3 shadow-md">
                             <button onClick={() => router.back()} className="w-10 h-10 rounded-full hover:bg-white/15 flex items-center justify-center text-white shrink-0 transition-colors">
                                 <ChevronLeft className="w-6 h-6" />
                             </button>
-                            <div className="bg-white rounded-2xl px-5 sm:px-7 py-2.5 flex items-center gap-2.5 shadow-lg min-w-0">
+                            <div className="bg-white rounded-2xl px-5 sm:px-7 py-2.5 flex items-center gap-2.5 shadow-lg min-w-0 md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2">
                                 <ShieldCheck className="w-6 h-6 text-[#005E92] shrink-0" />
                                 <span className="text-lg sm:text-2xl font-black text-[#0C3A5C] tracking-wide uppercase truncate">Inspection Categories</span>
                             </div>
