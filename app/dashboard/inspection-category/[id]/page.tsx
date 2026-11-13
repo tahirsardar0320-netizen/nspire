@@ -2448,6 +2448,9 @@ export default function InspectionCategoryPage() {
                                     onClick={() => {
                                         toast.success('Progress saved!', { position: 'top-right', autoClose: 1500 })
                                         void saveCurrentProgress().catch((e) => console.error('Save failed:', e))
+                                        // Saving a section means you are done here — land back on
+                                        // the categories screen, like the client asked.
+                                        gotoSection('')
                                     }}
                                     className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full bg-gradient-to-r from-[#0E7490] to-[#006795] text-white text-base font-extrabold shadow-lg active:scale-[0.99] transition-all"
                                 >
