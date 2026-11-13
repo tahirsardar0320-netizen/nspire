@@ -177,6 +177,8 @@ export default function InspectionCategoryPage() {
     }, [searchParams])
     const gotoSection = (sec: '' | 'outside' | 'inside' | 'unit') => {
         setSectionView(sec)
+        // Landing back on categories must show fresh unit counts, not stale zeros.
+        if (sec === '') void refreshCompletedUnits()
         const sp = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : (searchParams?.toString() || ''))
         if (sec) sp.set('section', sec); else { sp.delete('section'); sp.delete('unit') }
         router.replace(`/dashboard/inspection-category/${id}?${sp.toString()}`)
@@ -2141,14 +2143,23 @@ export default function InspectionCategoryPage() {
                                 <ShieldCheck className="w-6 h-6 text-[#005E92] shrink-0" />
                                 <span className="text-lg sm:text-2xl font-black text-[#0C3A5C] tracking-wide uppercase truncate">Inspection Categories</span>
                             </div>
-                            <Button
-                                onClick={handleOpenReportPreview}
-                                disabled={loadingReportPreview}
-                                className="h-12 px-6 bg-[#003A66] hover:bg-[#072f52] text-white font-black rounded-xl uppercase tracking-wider text-sm flex items-center gap-2 shrink-0"
-                            >
-                                <FileText className="w-4 h-4" />
-                                {loadingReportPreview ? '...' : 'Summary'}
-                            </Button>
+                            <div className="flex items-center gap-2 shrink-0">
+                                <Button
+                                    onClick={handleOpenReportPreview}
+                                    disabled={loadingReportPreview}
+                                    className="h-12 px-5 bg-[#003A66] hover:bg-[#072f52] text-white font-black rounded-xl uppercase tracking-wider text-sm flex items-center gap-2"
+                                >
+                                    <FileText className="w-4 h-4" />
+                                    {loadingReportPreview ? '...' : 'Summary'}
+                                </Button>
+                                <Button
+                                    onClick={() => router.push(`/dashboard/inspection/summary?propertyId=${property?._id || id}`)}
+                                    className="h-12 px-5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl uppercase tracking-wider text-sm flex items-center gap-2"
+                                >
+                                    <FileText className="w-4 h-4" />
+                                    Export
+                                </Button>
+                            </div>
                         </div>
                         {!isOnline && (
                             <div className="mb-3 flex justify-center">
@@ -2370,8 +2381,8 @@ export default function InspectionCategoryPage() {
                             const allNa = toggleable.length > 0 && toggleable.every(i => statuses[i] === 'N/A')
                             return (
                                 <div className="bg-white mx-4 sm:mx-0 mt-3 rounded-xl border border-slate-200 px-8 lg:px-12 py-2.5 flex items-center justify-between gap-4">
-                                    <button onClick={() => selectAll(sec, 'No OD')} className="flex items-center gap-2 text-base font-black text-slate-900 uppercase tracking-wide">
-                                        <span className={`w-4 h-4 rounded border-2 flex items-center justify-center ${allNoOd ? 'bg-emerald-600 border-emerald-600' : 'border-slate-300'}`}>
+                                    <button onClick={() => selectAll(sec, 'No OD')} className="flex items-center gap-2.5 text-lg font-black text-slate-900 uppercase tracking-wide">
+                                        <span className={`w-6 h-6 rounded border-2 flex items-center justify-center ${allNoOd ? 'bg-emerald-600 border-emerald-600' : 'border-slate-300'}`}>
                                             {allNoOd && <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />}
                                         </span>
                                         All No OD
@@ -2379,8 +2390,8 @@ export default function InspectionCategoryPage() {
                                     <span className="flex items-center gap-2 text-base font-black text-red-600 uppercase tracking-wide">
                                         Observe Deficiency
                                     </span>
-                                    <button onClick={() => selectAll(sec, 'N/A')} className="flex items-center gap-2 text-base font-black text-slate-900 uppercase tracking-wide">
-                                        <span className={`w-4 h-4 rounded border-2 flex items-center justify-center ${allNa ? 'bg-slate-600 border-slate-600' : 'border-slate-300'}`}>
+                                    <button onClick={() => selectAll(sec, 'N/A')} className="flex items-center gap-2.5 text-lg font-black text-slate-900 uppercase tracking-wide">
+                                        <span className={`w-6 h-6 rounded border-2 flex items-center justify-center ${allNa ? 'bg-slate-600 border-slate-600' : 'border-slate-300'}`}>
                                             {allNa && <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />}
                                         </span>
                                         All NA
