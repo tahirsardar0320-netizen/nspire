@@ -806,6 +806,16 @@ function NSPIREInspectionSummaryContent() {
       const blob = await generateNSPIREReportPDFBlob(report)
       const pdfBase64 = await blobToBase64(blob)
 
+      // The client wants the Excel riding along with the PDF in the email.
+      let xlsxBase64 = ''
+      try {
+        const { generateNSPIREReportExcelBlob } = await import('@/lib/exportReportExcel')
+        const xlsxBlob = await generateNSPIREReportExcelBlob(report)
+        xlsxBase64 = await blobToBase64(xlsxBlob)
+      } catch (e) {
+        console.error('Excel attachment generation failed — sending PDF alone:', e)
+      }
+
       const res = await fetchWithTimeout('/api/inspections/send-report-email', {
         method: 'POST',
         // The route verifies the sender's JWT — without it every send came
@@ -817,6 +827,7 @@ function NSPIREInspectionSummaryContent() {
         body: JSON.stringify({
           email: fullReportEmail.trim(),
           pdfBase64,
+          xlsxBase64,
           filename: `NSPIRE_Report_${report.metadata.inspectionNo}.pdf`,
           propertyName: report.metadata.propertyName,
           propertyAddress: report.metadata.propertyAddress,

@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
 
-    const { email, pdfBase64, filename, propertyName, propertyAddress, inspectionNo, reportUrl } = await req.json();
+    const { email, pdfBase64, xlsxBase64, filename, propertyName, propertyAddress, inspectionNo, reportUrl } = await req.json();
 
     if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
       return NextResponse.json({ success: false, message: 'A valid email address is required.' }, { status: 400 });
@@ -158,6 +158,8 @@ export async function POST(req: NextRequest) {
     }
 
     const attachmentName = (filename || `NSPIRE_Report_${inspectionNo || 'report'}.pdf`).replace(/[^a-zA-Z0-9_.-]/g, '_');
+    const xlsxName = attachmentName.replace(/\.pdf$/i, '') + '.xlsx';
+    const hasXlsx = typeof xlsxBase64 === 'string' && xlsxBase64.length > 0 && Buffer.byteLength(xlsxBase64, 'base64') <= MAX_PDF_BYTES;
     const subject = `NSPIRE Inspection Report${propertyName ? ` — ${propertyName}` : ''}`;
     const body = `Attached is the full NSPIRE inspection report${propertyName ? ` for ${propertyName}` : ''}${propertyAddress ? ` (${propertyAddress})` : ''}.${inspectionNo ? `\n\nInspection #${inspectionNo}` : ''}`;
     const htmlBody = buildReportEmailHTML({ propertyName, propertyAddress, inspectionNo, reportUrl });
@@ -190,7 +192,7 @@ export async function POST(req: NextRequest) {
           subject,
           textContent: body,
           htmlContent: htmlBody,
-          attachment: [{ content: pdfBase64, name: attachmentName }],
+          attachment: [{ content: pdfBase64, name: attachmentName }, ...(hasXlsx ? [{ content: xlsxBase64, name: xlsxName }] : [])],
         }),
       });
 
@@ -220,6 +222,12 @@ export async function POST(req: NextRequest) {
       text: body,
       html: htmlBody,
       attachments: [
+        ...(hasXlsx ? [{
+          filename: xlsxName,
+          content: xlsxBase64,
+          encoding: 'base64' as const,
+          contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        }] : []),
         {
           filename: attachmentName,
           content: pdfBase64,
